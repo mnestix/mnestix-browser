@@ -1,0 +1,110 @@
+import testAAS from '../fixtures/cypress_e2e/cypressTestAas.json';
+import testDropdown from '../fixtures/cypress_e2e/Submodels/cyDropdown.json';
+import testDropdownSubRef from '../fixtures/cypress_e2e/Submodels/cyDropdown_SubmodelReference.json';
+import testBom from '../fixtures/cypress_e2e/Submodels/cyBillOfMaterial.json';
+import testBomSubRef from '../fixtures/cypress_e2e/Submodels/cyBillOfMaterial_SubmodelReference.json';
+import requestSettings from '../fixtures/testAAS.json';
+import AASBomComponent from '../fixtures/cypress_e2e/cyTestAas_BoM_Component.json';
+import compareAAS from '../fixtures/cypress_e2e/CompareMockData/cy_compareAas.json';
+import compareSubmodels from '../fixtures/cypress_e2e/CompareMockData/cy_compareNameplateSubmodel.json';
+import listAasMockData from '../fixtures/cypress_e2e/AasListMockData/cyListAasMockData.json';
+import listAasSubmodelMockData from '../fixtures/cypress_e2e/AasListMockData/cyListAasTechnicalDataSubmodel.json';
+
+Cypress.Commands.add('setResolution', (res) => {
+    if (Array.isArray(res)) {
+        cy.viewport(res[0], res[1]);
+    } else {
+        cy.viewport(res);
+    }
+});
+
+Cypress.Commands.add('visitViewer', (aasId) => {
+    cy.visit('/viewer/' + btoa(aasId).replace(/=+$/g, ''));
+    cy.intercept('GET', '**/submodels/*').as('getSubmodels');
+    cy.wait('@getSubmodels');
+});
+
+Cypress.Commands.add('getByTestId', (dataTestId) => {
+    cy.get('[data-testid=' + dataTestId + ']');
+});
+
+Cypress.Commands.add('findByTestId', { prevSubject: true }, (subject, dataTestId) => {
+    return cy.wrap(subject).find('[data-testid=' + dataTestId + ']');
+});
+
+Cypress.Commands.add('repoRequest', (requestMethod, urlPath, requestBody) => {
+    cy.request({
+        method: requestMethod,
+        url: `${Cypress.env('AAS_REPO_API_URL')}${urlPath}`,
+        headers: {
+            ApiKey: Cypress.env('MNESTIX_API_KEY'),
+        },
+        body: requestBody,
+    });
+});
+
+Cypress.Commands.add('postCompareMockData', () => {
+    compareAAS.forEach((aas) => {
+        cy.repoRequest('POST', '/shells', aas);
+    });
+    compareSubmodels.forEach((submodel) => {
+        cy.repoRequest('POST', '/submodels', submodel);
+    });
+});
+
+Cypress.Commands.add('deleteCompareMockData', () => {
+    compareAAS.forEach((aas) => {
+        const encodedAasId = btoa(aas.id);
+        cy.repoRequest('DELETE', '/shells/' + encodedAasId, null);
+    });
+    compareSubmodels.forEach((submodel) => {
+        const encodedSubmodelId = btoa(submodel.id);
+        cy.repoRequest('DELETE', '/submodels/' + encodedSubmodelId, null);
+    });
+});
+
+Cypress.Commands.add('postTestAas', () => {
+    const encodedAasId = btoa(testAAS.id).replace(/=+$/g, '');
+    cy.repoRequest('POST', '/shells', testAAS);
+    cy.postSubmodelToAas(encodedAasId, testDropdown, testDropdownSubRef);
+    cy.postSubmodelToAas(encodedAasId, testBom, testBomSubRef);
+});
+
+Cypress.Commands.add('deleteTestAas', () => {
+    const encodedAasId = btoa(testAAS.id);
+    cy.repoRequest('DELETE', '/shells/' + encodedAasId, null);
+    const endcodedTestDropdown = btoa(testDropdown.id);
+    cy.repoRequest('DELETE', '/submodels/' + endcodedTestDropdown, null);
+    const encodedTestBom = btoa(testBom.id);
+    cy.repoRequest('DELETE', '/submodels/' + encodedTestBom, null);
+});
+
+Cypress.Commands.add('postSubmodelToAas', (base64EncodedAasId, submodelBody, submodelRef) => {
+    cy.repoRequest('POST', '/submodels', submodelBody);
+    cy.repoRequest('POST', '/shells/' + base64EncodedAasId + '/submodel-refs', submodelRef);
+});
+
+Cypress.Commands.add('deleteTestAasBomComponent', () => {
+    const encodedAasBomId = btoa(AASBomComponent.id).replace(/=+$/g, '');
+    cy.repoRequest('DELETE', '/shells/' + encodedAasBomId, null);
+});
+
+Cypress.Commands.add('postListAasMockData', () => {
+    listAasMockData.forEach((aas) => {
+        cy.repoRequest('POST', '/shells', aas);
+    });
+    listAasSubmodelMockData.forEach((submodel) => {
+        cy.repoRequest('POST', '/submodels', submodel);
+    });
+});
+
+Cypress.Commands.add('deleteListAasMockData', () => {
+    listAasMockData.forEach((aas) => {
+        const encodedAasId = btoa(aas.id);
+        cy.repoRequest('DELETE', '/shells/' + encodedAasId, null);
+    });
+    listAasSubmodelMockData.forEach((submodel) => {
+        const encodedSubmodelId = btoa(submodel.id);
+        cy.repoRequest('DELETE', '/submodels/' + encodedSubmodelId, null);
+    });
+});

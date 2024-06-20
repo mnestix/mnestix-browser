@@ -1,0 +1,137 @@
+services:
+  mnestix-api:
+    image: mnestix/mnestix-api:latest
+    container_name: mnestix-api
+    # Port Mapping
+    # Map host port 5064 to container port 5064
+    ports:
+      - '5064:5064'
+    environment:
+      # Application Settings
+      # API Key:
+      CustomerEndpointsSecurity__ApiKey: ${MNESTIX_BACKEND_API_KEY}
+      # Connection to Repository Service:
+      ReverseProxy__Clusters__repoCluster__Destinations__destination1__Address: 'http://aas:8081/'
+      ReverseProxy__Clusters__discoveryCluster__Destinations__destination1__Address: 'http://aas-discovery:8081/'
+      # Features Configuration
+      Features__AasRegistryMiddleware: true
+      Features__UseMongoDbBasedAasIdStorage: true
+      Features__AllowRetrievingAllShellsAndSubmodels: true
+      Features__UseAuthentication: false
+      # InfluxDB Configuration
+      # URL to specify the host and port where InfluxDB is running:
+      ReverseProxy__Clusters__influxCluster__Destinations__destination1__Address: 'http://example/'
+      # Token:
+      ReverseProxy__Routes__InfluxRoute__Transforms__1__Set: 'Token '
+      # MongoDB Configuration
+      BasyxDbConnectionConfiguration__MongoConnectionString: 'mongodb://mongoAdmin:mongoPassword@mongodb:27017/?authSource=admin'
+      BasyxDbConnectionConfiguration__DatabaseName: basyxdb
+      BasyxDbConnectionConfiguration__AasCollectionName: 'aas-repo'
+      BasyxDbConnectionConfiguration__LookupServiceCollectionName: lookupservice
+      # Microsoft Authentication and Authorization Configuration (Backend):
+      AzureAd__Domain: 'mnestixtest.onmicrosoft.com'
+      AzureAd__TenantId: 6c4ccecf-2dd4-4241-b7fc-6e95b32dcfac
+      AzureAd__ClientId: ffade4c2-76c8-44fd-9258-743d9cfc2289
+      # ASP.NET Core URLs
+      ASPNETCORE_URLS: 'http://+:5064'
+    depends_on:
+      aas:
+        condition: service_healthy # only after the healthcheck in aas is successful, the mnestix container is being created
+    logging:
+      driver: 'json-file'
+      options:
+        max-file: '5'
+        max-size: '100m'
+
+  mongodb:
+    image: mongo:5
+    container_name: mongodb
+    # Provide mongo config
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongoAdmin
+      MONGO_INITDB_ROOT_PASSWORD: mongoPassword
+    # Set health checks to wait until mongo has started
+    healthcheck:
+      test: echo "db.runCommand("ping").ok" | mongosh mongodb:27017/test --quiet
+      interval: 3s
+      timeout: 3s
+      retries: 5
+    logging:
+      driver: 'json-file'
+      options:
+        max-file: '5'
+        max-size: '100m'
+
+  aas:
+    image: eclipsebasyx/aas-environment:2.0.0-SNAPSHOT
+    container_name: aas
+    depends_on:
+      - mongodb
+    environment:
+      # MongoDb configuration for Basyx Repository
+      BASYX__BACKEND: MongoDB
+      SPRING__DATA__MONGODB__HOST: mongodb
+      SPRING__DATA__MONGODB__DATABASE: basyxdb
+      SPRING__DATA__MONGODB__authentication-database: admin
+      SPRING__DATA__MONGODB__USERNAME: mongoAdmin
+      SPRING__DATA__MONGODB__PASSWORD: mongoPassword
+      SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: 100000KB
+      SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: 100000KB
+      # Allow mnestix frontend and backend to call basyx
+      BASYX_CORS_ALLOWED-ORIGINS: '*'
+      BASYX_CORS_ALLOWED-METHODS: GET,POST,PATCH,DELETE,PUT,OPTIONS,HEAD
+    healthcheck: # check the endpoint for a valid response (service ready)
+      test: curl -f http://localhost:8081/actuator/health
+      interval: 30s
+      timeout: 10s
+      retries: 6
+    logging:
+      driver: 'json-file'
+      options:
+        max-file: '5'
+        max-size: '100m'
+
+  aas-discovery:
+    image: eclipsebasyx/aas-discovery:2.0.0-SNAPSHOT
+    container_name: aas-discovery
+    ports:
+      - '8082:8081'
+    depends_on:
+      - mongodb
+    environment:
+      BASYX__BACKEND: MongoDB
+      SPRING__DATA__MONGODB__HOST: mongodb
+      SPRING__DATA__MONGODB__DATABASE: basyxdb
+      SPRING__DATA__MONGODB__authentication-database: admin
+      SPRING__DATA__MONGODB__USERNAME: mongoAdmin
+      SPRING__DATA__MONGODB__PASSWORD: mongoPassword
+      BASYX__CORS__ALLOWED-ORIGINS: '*'
+      BASYX__CORS__ALLOWED-METHODS: GET,POST,PATCH,DELETE,PUT,OPTIONS,HEAD
+    healthcheck: # check the endpoint for a valid response (service ready)
+      test: curl -f http://localhost:8081/actuator/health
+      interval: 30s
+      timeout: 10s
+      retries: 6
+    logging:
+      driver: 'json-file'
+      options:
+        max-file: '5'
+        max-size: '100m'
+
+  aas-registry-log-mongodb:
+    image: eclipsebasyx/aas-registry-log-mongodb:2.0.0-SNAPSHOT
+    container_name: aas-registry-mongo
+    ports:
+      - "8083:8080"
+    depends_on:
+      - mongodb
+    restart: always
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongoAdmin:mongoPassword@mongodb:27017/?authSource=admin
+      BASYX__CORS__ALLOWED-ORIGINS: '*'
+      BASYX__CORS__ALLOWED-METHODS: GET,POST,PATCH,DELETE,PUT,OPTIONS,HEAD
+    healthcheck: # check the endpoint for a valid response (service ready)
+      test: curl -f http://localhost:8080/actuator/health
+      interval: 30s
+      timeout: 10s
+      retries: 6

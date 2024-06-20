@@ -1,0 +1,9 @@
+{
+    "keys": [
+        {
+            "type": "Submodel",
+            "value": "https://mnestix.io/cyDropdownSubmodel"
+        }
+    ],
+    "type": "ModelReference"
+}

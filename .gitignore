@@ -1,0 +1,8 @@
+# ...
+.next
+next-env.d.ts
+dist
+node_modules
+cypress-artifacts
+/.idea/.idea.mnestix-frontend.dir/.idea/
+.env

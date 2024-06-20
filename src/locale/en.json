@@ -1,0 +1,18 @@
+{
+    "comment": "we will have english translation keys here",
+    "aas-list": {
+        "header": "AAS List"
+    },
+    "dashboard": {
+        "welcome-text": "Welcome to Mnestix",
+        "digitalTwinMadeEasy-text": "Digital Twin made easy.",
+        "findOutMore-text": "Find out more",
+        "list-btn-label": "or select via list",
+        "list-btn-text": "Go to Aas List",
+        "scan-id-label": "Scan AAS ID or Asset ID",
+        "enter-manually-label": "or enter manually"
+    },
+    "settings": {
+        "header": "Settings"
+    }
+}
