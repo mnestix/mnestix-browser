@@ -224,11 +224,12 @@ It is possible to change the look and feel by setting a theme color and a person
 
 Mnestix provides the following configuration options. You can adapt the values in your docker compose file.
 
-| Name                                  | Default value           | Description                                                                                                                                                                                   | required |
-|---------------------------------------|-------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
-| `DISCOVERY_API_URL`                   |                         | Address of the Discovery Service to find an AAS for an Asset                                                                                                                                  | required |
-| `AAS_REPO_API_URL`                    |                         | Default AAS Repository to display when AAS Id is not in AAS Registry                                                                                                                          | required |
-| `MNESTIX_BACKEND_API_URL`             |                         | Mnestix Backend with a lot of business comfort features like the Repository-Proxy or the Template builder                                                                                     | optional |
+| Name                                  | Default value           | Description                                                                                                                                                                                  | required |
+|---------------------------------------|-------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
+| `DISCOVERY_API_URL`                   |                         | Address of the Discovery Service to find an AAS for an Asset                                                                                                                                 | required |
+| `REGISTRY_API_URL`                    |                         | Address of the AAS Registry Service to retrieve the related descriptor for an AAS                                                                                                            | optional |
+| `AAS_REPO_API_URL`                    |                         | Default AAS Repository to display when AAS Id is not in AAS Registry                                                                                                                         | required |
+| `MNESTIX_BACKEND_API_URL`             |                         | Mnestix Backend with a lot of business comfort features like the Repository-Proxy or the Template builder                                                                                    | optional |
 | `AAS_LIST_FEATURE_FLAG`               | false                   | Enables or disables the AasList in the frontend. This only works in combination with `Features__AllowRetrievingAllShellsAndSubmodels` being set to `true` (Needs the Mnestix Backend to work) | optional |
 | `AUTHENTICATION_FEATURE_FLAG`         | false                   | Enable or disable the authentication in the frontend. (Needs the Mnestix Backend to work)                                                                                                     | optional |
 | `COMPARISON_FEATURE_FLAG`             | false                   | Enables or disables the comparison feature.                                                                                                                                                   | optional |
@@ -348,6 +349,8 @@ We recommend to set the following environment variables (replace `{{MNESTIX VIEW
 ```
 If you are using the Mnestix API see [here](#running-mnestix-with-its-api) on how to set the Frontend Flags.
 If you are using only the Mnestix Browser just set the environment variable `DISCOVERY_API_URL` accordingly.
+
+#### How to configure the BaSyx AAS Registry Service
 
 ### Different Mnestix Configurations
 
