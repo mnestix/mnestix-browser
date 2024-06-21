@@ -48,7 +48,7 @@ jobs:
       # Build Docker image
       - name: Build image
         id: build
-        run: docker compose -f build docker-compose/compose.yml mnestix-browser
+        run: docker compose -f docker-compose/compose.yml build mnestix-browser
         
       - name: E2E test
         id: test        
