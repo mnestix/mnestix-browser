@@ -8,8 +8,6 @@ on:
     branches: [ "**" ]
 
 env:
-  # Use docker.io for Docker Hub if empty
-  REGISTRY: ghcr.io
   # github.repository as <account>/<repo>
   IMAGE_NAME: ${{ github.repository }}
   IMAGE_TAG: latest
@@ -17,6 +15,10 @@ env:
   IMAGE_TAG_VERSION: 0.1.0
   AD_CLIENT_ID:  ${{ secrets.AD_CLIENT_ID }}
   AD_TENANT_ID:  ${{ secrets.AD_TENANT_ID }}
+  REGISTRY_USER: ${{ vars.REGISTRY_USER }}
+  REGISTRY_PASS: ${{ secrets.REGISTRY_PASS }}
+  AZURE_REGISTRY_PASS: ${{ secrets.AZURE_REGISTRY_PASS }}
+  AZURE_REGISTRY_USER: ${{ vars.AZURE_REGISTRY_USER }}
   
 jobs:
   default:
