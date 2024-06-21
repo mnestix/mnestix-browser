@@ -1,0 +1,87 @@
+name: Docker
+
+on:
+  push:
+    branches: [ "**" ]
+    tags: [ 'v*.*.*' ]
+  pull_request:
+    branches: [ "**" ]
+
+env:
+  # Use docker.io for Docker Hub if empty
+  REGISTRY: ghcr.io
+  # github.repository as <account>/<repo>
+  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_TAG: latest
+  # Update the version manually
+  IMAGE_TAG_VERSION: 0.1.0
+  AD_CLIENT_ID:  ${{ secrets.AD_CLIENT_ID }}
+  AD_TENANT_ID:  ${{ secrets.AD_TENANT_ID }}
+  
+jobs:
+  default:
+    name: build, test and push image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    
+    steps:    
+      - name: Extract branch name
+        id: extract_branch
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      # Login against a Docker registry except on PR
+      # https://github.com/docker/login-action
+      - name: Log into docker hub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
+        with:
+          username: ${{ env.REGISTRY_USER }}
+          password: ${{ env.REGISTRY_PASS }}
+      
+      # Build Docker image
+      - name: Build image
+        id: build
+        run: docker compose -f build docker-compose/compose.yml mnestix-browser
+        
+      - name: E2E test
+        id: test        
+        run: docker compose -f docker-compose/common-services.yml pull
+             docker compose -f docker-compose/compose.test.yml down
+             docker compose -f docker-compose/compose.test.yml up -d
+             docker compose -f docker-compose/compose.test.yml attach cypress-test
+        
+      - name: E2E test collect artifact
+        id: test_artifact
+        uses: actions/upload-artifact@master
+        with: 
+          name: cypress-artifacts
+          path: cypress-artifacts/
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: mnestix/$IMAGE_NAME:$IMAGE_TAG
+          
+      - name: push Image to Production
+        id: push-prod
+        if: github.ref == 'refs/heads/prod'
+        run: docker tag $IMAGE_NAME mnestix/$IMAGE_NAME:$IMAGE_TAG
+             docker tag $IMAGE_NAME mnestix/$IMAGE_NAME:$IMAGE_TAG_VERSION
+             docker push mnestix/$IMAGE_NAME:$IMAGE_TAG
+             docker push mnestix/$IMAGE_NAME:$IMAGE_TAG_VERSION
+
+      - name: pugh Image to development
+        id: push-dev
+        if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging'
+        env:
+          BRANCH_NAME: ${{ steps.extract_branch.outputs.branch }}
+        run: docker tag $IMAGE_NAME mnestixcr.azurecr.io/$IMAGE_NAME:$BRANCH_NAME
+             docker login -u $AZURE_REGISTRY_USER -p $AZURE_REGISTRY_PASS mnestixcr.azurecr.io
+             docker push mnestixcr.azurecr.io/$IMAGE_NAME:$BRANCH_NAME
+          
