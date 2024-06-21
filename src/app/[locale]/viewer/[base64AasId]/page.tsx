@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { Box, Button, Skeleton, Typography } from '@mui/material';
-import { useAasState, useSubmodelDescriptorState } from 'components/contexts/CurrentAasContext';
+import { useAasState, useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { messages } from 'lib/i18n/localization';
@@ -19,7 +19,6 @@ import { AASOverviewCard } from 'app/[locale]/viewer/_components/AASOverviewCard
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useEnv } from 'app/env/provider';
 import { handleAasRegistrySearch } from 'lib/searchUtilActions/search';
-import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 
 export default function Page() {
     const navigate = useRouter();
@@ -36,7 +35,7 @@ export default function Page() {
     const env = useEnv();
     const { repositoryClient } = useApis();
     const [aas, setAas] = useAasState();
-    const [, setSubmodelDescriptors] = useSubmodelDescriptorState();
+    const [, setRegistryAasData] = useRegistryAasState();
 
     useEffect(() => {
         async function _fetchAas() {
@@ -45,11 +44,13 @@ export default function Page() {
                 if (aas === null) {
                     if (env.AAS_REPO_API_URL != '' || env.REGISTRY_API_URL != '') {
                         const aasIdDecoded = safeBase64Decode(base64AasId);
-                        const [aasFromRegistry, submodelDescriptors] = await handleAasRegistrySearch(aasIdDecoded);
-                        if (aasFromRegistry != null) {
-                            setAas(aasFromRegistry as AssetAdministrationShell);
-                            setSubmodelDescriptors(submodelDescriptors as SubmodelDescriptor[]);
-                            setAasData(aasFromRegistry as AssetAdministrationShell);
+                        const registrySearchResult = await handleAasRegistrySearch(aasIdDecoded);
+                        if (registrySearchResult != null) {
+                            setAas(registrySearchResult.registryAas as AssetAdministrationShell);
+                            setRegistryAasData({
+                                submodelDescriptors: registrySearchResult?.registryAasData?.submodelDescriptors,
+                                aasRegistryRepositoryOrigin: registrySearchResult?.registryAasData?.aasRegistryRepositoryOrigin });
+                            setAasData(registrySearchResult.registryAas as AssetAdministrationShell);
                         } else {
                             const shell = await repositoryClient.getAssetAdministrationShellById(base64AasId as string);
                             setAas(shell);
