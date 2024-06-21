@@ -52,9 +52,9 @@ jobs:
         
       - name: E2E test
         id: test        
-        run: docker compose -f docker-compose/common-services.yml pull
-             docker compose -f docker-compose/compose.test.yml down
-             docker compose -f docker-compose/compose.test.yml up -d
+        run: docker compose -f docker-compose/common-services.yml pull &&
+             docker compose -f docker-compose/compose.test.yml down &&
+             docker compose -f docker-compose/compose.test.yml up -d &&
              docker compose -f docker-compose/compose.test.yml attach cypress-test
         
       - name: E2E test collect artifact
