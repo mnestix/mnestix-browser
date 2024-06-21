@@ -224,20 +224,23 @@ It is possible to change the look and feel by setting a theme color and a person
 
 Mnestix provides the following configuration options. You can adapt the values in your docker compose file.
 
-| Name                                  | Default value           | Description                                                                                                                                                                                   | required |
-|---------------------------------------|-------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
-| `DISCOVERY_API_URL`                   |                         | Address of the Discovery Service to find an AAS for an Asset                                                                                                                                  | required |
-| `AAS_REPO_API_URL`                    |                         | Default AAS Repository to display when AAS Id is not in AAS Registry                                                                                                                          | required |
-| `MNESTIX_BACKEND_API_URL`             |                         | Mnestix Backend with a lot of business comfort features like the Repository-Proxy or the Template builder                                                                                     | optional |
-| `AAS_LIST_FEATURE_FLAG`               | false                   | Enables or disables the AasList in the frontend. This only works in combination with `Features__AllowRetrievingAllShellsAndSubmodels` being set to `true` (Needs the Mnestix Backend to work) | optional |
-| `AUTHENTICATION_FEATURE_FLAG`         | false                   | Enable or disable the authentication in the frontend. (Needs the Mnestix Backend to work)                                                                                                     | optional |
-| `COMPARISON_FEATURE_FLAG`             | false                   | Enables or disables the comparison feature.                                                                                                                                                   | optional |
-| `LOCK_TIMESERIES_PERIOD_FEATURE_FLAG` | false                   | Enables or disables the selection of the timerange in the TimeSeries submodel.                                                                                                                | optional |
-| `THEME_PRIMARY_COLOR`                 | Mnestix Primary Color   | Changes the primary color of Mnestix Browser, e.g. #00ff00. The following formats are supported: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla(), color()                                          | optional |
-| `THEME_SECONDARY_COLOR`               | Mnestix Secondary Color | Changes the secondary color of Mnestix Browser, e.g. #0d2. The following formats are supported: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla(), color()                                           | optional |
-| `THEME_LOGO_MIME_TYPE`                |                         | Used in parsing the logo mounted `-v /path/to/logo:/app/public/logo` the mime type is needed, e.g. `image/svg+xml`, `image/png`, `image/jpg`                                                  | optional |
+| Name                                  | Default value           | Description                                                                                                                                                                                      | required |
+|---------------------------------------|-------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
+| `DISCOVERY_API_URL`                   |                         | Address of the Discovery Service to find an AAS for an Asset                                                                                                                                     | required |
+| `AAS_REPO_API_URL`                    |                         | Default AAS Repository to display when AAS Id is not in AAS Registry                                                                                                                             | required |
+| `MNESTIX_BACKEND_API_URL`             |                         | Mnestix Backend with a lot of business comfort features like the Repository-Proxy or the Template builder                                                                                        | optional |
+| `AAS_LIST_FEATURE_FLAG`               | false                   | Enables or disables the AasList in the frontend. This only works in combination with `Features__AllowRetrievingAllShellsAndSubmodels` being set to `true` (Needs the Mnestix Backend to work)    | optional |
+| `AUTHENTICATION_FEATURE_FLAG`         | false                   | Enable or disable the authentication in the frontend. (Needs the Mnestix Backend to work)                                                                                                        | optional |
+| `COMPARISON_FEATURE_FLAG`             | false                   | Enables or disables the comparison feature.                                                                                                                                                      | optional |
+| `LOCK_TIMESERIES_PERIOD_FEATURE_FLAG` | false                   | Enables or disables the selection of the timerange in the TimeSeries submodel.                                                                                                                   | optional |
+| `THEME_PRIMARY_COLOR`                 | Mnestix Primary Color   | Changes the primary color of Mnestix Browser, e.g. #00ff00. The following formats are supported: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla(), color()                                            | optional |
+| `THEME_SECONDARY_COLOR`               | Mnestix Secondary Color | Changes the secondary color of Mnestix Browser, e.g. #0d2. The following formats are supported: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla(), color()                                             | optional |
+| `THEME_LOGO_MIME_TYPE`                |                         | Used in parsing the logo mounted `-v /path/to/logo:/app/public/logo` the mime type is needed, e.g. `image/svg+xml`, `image/png`, `image/jpg`                                                     | optional |
+| `THEME_LOGO_URL`                      |                         | This variable **overwrites** the Logo in the theme, and thus the environment variable `THEME_LOGO_MIME_TYPE` will not be evaluated and it is not necessary to mount the image as specified below | optional |
 
 #### How to set a custom logo
+
+##### Version 1
 First you need to mount your logo to the container, e.g. by adding it to the docker compose file
 ```yaml
     environment:
@@ -247,11 +250,22 @@ First you need to mount your logo to the container, e.g. by adding it to the doc
       - /path/to/my/logo.svg:/app/public/logo
 ```
 
+
 When using the provided [`compose.yaml` File](docker-compose/compose.yml) you can just replace the [image in the `data` folder](docker-compose/data/logo.svg) with your preferred logo.
 
 Remember to set the mime type correctly in order for the browser to parse your image correctly.
 Only image mime types are allowed.
 https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
+
+
+##### Version 2
+This version overwrites the previous settings, you can either use one or the other.
+To use this just set an environment variable to a link hosted that is publicly accessible:
+```yaml
+...
+    environment:
+      THEME_LOGO_URL: https://xitaso.com/wp-content/uploads/XITASO-Logo-quer.svg
+```
 
 #### Using Azure Entra ID
 > **Note:** If the login functionality is going to be used, then apart from setting the authentication flag to `true`, `AD_CLIENT_ID` and `AD_TENANT_ID` should be set by copying `.env.example` to your own `.env` and specifying this sensitive information there.
