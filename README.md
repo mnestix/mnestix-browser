@@ -276,29 +276,17 @@ MNESTIX_BACKEND_API_KEY: '<<YOUR_API_KEY>>'
 > **Note:** Please replace `<<YOUR_API_KEY>>` with your actual API key immediately to ensure proper functionality and security.
 
 
-### How does the Discovery Service work?
+### Retrieval of AAS and Submodels?
 #### Concept
 The **Discovery Service** enables Mnestix to find all AASs that belong to one Asset.
 We are standard conform but recommend the usage of the [BaSyx Implementation of the Discovery Service](https://github.com/eclipse-basyx/basyx-java-server-sdk/tree/main/basyx.aasdiscoveryservice).
 
+The **AAS Registry** is designed to retrieve AAS Descriptors that contain the endpoint for the **Asset Administration Shell (AAS) Interface**.
+
 [<img src=".images/overview_api.png" width="300"/>](https://industrialdigitaltwin.org/wp-content/uploads/2023/07/2023-07-27_IDTA_Tutorial_V3.0-Specification-AAS-Part-2_API.pdf)\
 (Source: [IDTA](https://industrialdigitaltwin.org/wp-content/uploads/2023/07/2023-07-27_IDTA_Tutorial_V3.0-Specification-AAS-Part-2_API.pdf))
 
-A tutorial about the Discovery Service along with the registries can be found [on the IDTA website](https://industrialdigitaltwin.org/wp-content/uploads/2023/07/2023-07-27_IDTA_Tutorial_V3.0-Specification-AAS-Part-2_API.pdf). 
-
-#### Technical
-The functions that are described in the [Specification AAS - Part 2: API](https://industrialdigitaltwin.org/wp-content/uploads/2023/06/IDTA-01002-3-0_SpecificationAssetAdministrationShell_Part2_API_.pdf) were implemented in the [`discoveryServiceApi.ts`](src/api/discoveryServiceApi/discoveryServiceApi.ts).
-They make the respective `GET`, `POST` and `DELETE` requests to the specified `DISCOVERY_API_URL`.
-Two additional functions were added that simplify the usage of the Discovery Service by just requiring the globalAssetId and no additional AssetLinks.
-
-These functions are `LinkAasIdAndAssetId(aasId: string, assetId: string)` and `GetAasIdsByAssetId(assetId: string)`.
-The return of all functions is the response from the Discovery Service parsed as an object.
-So they can be used like in the example below:
-
-```typescript
-await LinkAasIdAndAssetId(aasId, assetId);
-const foundAasIds = (await discoveryServiceClient.GetAasIdsByAssetId(assetId)).result
-```
+A tutorial about the Discovery Service along with the registries can be found [on the IDTA website](https://industrialdigitaltwin.org/wp-content/uploads/2023/07/2023-07-27_IDTA_Tutorial_V3.0-Specification-AAS-Part-2_API.pdf).
 
 ### How to connect Mnestix Browser to the different components
 
@@ -350,7 +338,42 @@ We recommend to set the following environment variables (replace `{{MNESTIX VIEW
 If you are using the Mnestix API see [here](#running-mnestix-with-its-api) on how to set the Frontend Flags.
 If you are using only the Mnestix Browser just set the environment variable `DISCOVERY_API_URL` accordingly.
 
+#### Technical
+The functions that are described in the [Specification AAS - Part 2: API](https://industrialdigitaltwin.org/wp-content/uploads/2023/06/IDTA-01002-3-0_SpecificationAssetAdministrationShell_Part2_API_.pdf) were implemented in the [`discoveryServiceApi.ts`](src/lib/api/discovery-service-api/discoveryServiceApi.ts).
+They make the respective `GET`, `POST` and `DELETE` requests to the specified `DISCOVERY_API_URL`.
+Two additional functions were added that simplify the usage of the Discovery Service by just requiring the globalAssetId and no additional AssetLinks.
+
+These functions are `LinkAasIdAndAssetId(aasId: string, assetId: string)` and `GetAasIdsByAssetId(assetId: string)`.
+The return of all functions is the response from the Discovery Service parsed as an object.
+So they can be used like in the example below:
+
+```typescript
+await LinkAasIdAndAssetId(aasId, assetId);
+const foundAasIds = (await discoveryServiceClient.GetAasIdsByAssetId(assetId)).result
+```
+
 #### How to configure the BaSyx AAS Registry Service
+
+The AAS Registry Service is designed to provide descriptors for Asset Administration Shells (AAS), 
+including endpoints to various repositories that may be stored elsewhere. 
+This architecture ensures support for multiple repositories, provided they are registered in the designated AAS registry.
+
+When an AAS for the specified AAS-Id is found, it is displayed in the detail view. If the AAS is not found, 
+the service will search in the local repository for the requested information.
+
+If the discovery service is configured, it will initially identify the relevant AAS-ID for the searched Asset Id before querying the Registry Service. 
+Configuration of the Registry Service is optional. If the AAS Registry Service is not configured, the search will default to the local repository.
+
+To configure the AAS repository, please provide the URL in the Frontend Configuration variables.
+```yaml
+REGISTRY_API_URL: '{{REGISTRY-SERVICE-URL}}'
+```
+By setting the REGISTRY_API_URL, you enable the AAS Registry Service, ensuring efficient retrieval of AAS descriptors.
+
+#### Technical
+
+The functions that are described in the [Specification AAS - Part 2: API](https://industrialdigitaltwin.org/wp-content/uploads/2023/06/IDTA-01002-3-0_SpecificationAssetAdministrationShell_Part2_API_.pdf) were implemented in the [`registryServiceApi.ts`](src/lib/api/registry-service-api/registryServiceApi.ts).
+They make the respective `GET`, `POST` and `DELETE` requests to the specified `REGISTRY_API_URL`.
 
 ### Different Mnestix Configurations
 
