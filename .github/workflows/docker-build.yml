@@ -66,7 +66,7 @@ jobs:
       
       - name: Push Image to Production
         id: push-prod
-        #if: github.ref == 'refs/heads/prod'
+        if: github.ref == 'refs/heads/prod'
         run: docker tag mnestix/$IMAGE_NAME mnestix/$IMAGE_NAME:$IMAGE_TAG &&
              docker tag mnestix/$IMAGE_NAME mnestix/$IMAGE_NAME:$IMAGE_TAG_VERSION &&
              docker push mnestix/$IMAGE_NAME:$IMAGE_TAG &&
@@ -77,7 +77,7 @@ jobs:
         #if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging'
         env:
           BRANCH_NAME: ${{ steps.extract_branch.outputs.branch }}
-        run: docker tag $IMAGE_NAME mnestixcr.azurecr.io/$IMAGE_NAME:$BRANCH_NAME &&
+        run: docker tag mnestix/$IMAGE_NAME mnestixcr.azurecr.io/$IMAGE_NAME:$BRANCH_NAME &&
              docker login -u $AZURE_REGISTRY_USER -p $AZURE_REGISTRY_PASS mnestixcr.azurecr.io &&
              docker push mnestixcr.azurecr.io/$IMAGE_NAME:$BRANCH_NAME
           
