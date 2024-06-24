@@ -240,7 +240,9 @@ Mnestix provides the following configuration options. You can adapt the values i
 
 #### How to set a custom logo
 
-##### Version 1
+There are multiple ways to set a logo, you can either use Option 1 or Option 2:
+
+##### Option 1
 First you need to mount your logo to the container, e.g. by adding it to the docker compose file
 ```yaml
     environment:
@@ -258,7 +260,7 @@ Only image mime types are allowed.
 https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
 
 
-##### Version 2
+##### Option 2
 This version overwrites the previous settings, you can either use one or the other.
 To use this just set an environment variable to a link hosted that is publicly accessible:
 ```yaml
