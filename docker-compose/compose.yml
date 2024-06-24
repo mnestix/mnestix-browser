@@ -19,6 +19,8 @@ services:
       DISCOVERY_API_URL: 'http://mnestix-api:5064/discovery'
       AAS_REPO_API_URL: 'http://localhost:5064/repo'
       MNESTIX_BACKEND_API_URL: 'http://localhost:5064'
+      AD_CLIENT_ID: ${AD_CLIENT_ID}
+      AD_TENANT_ID: ${AD_TENANT_ID}
       APPLICATION_ID_URI: 'api://mnestix-test-web-api/'
       AAS_LIST_FEATURE_FLAG: true
       COMPARISON_FEATURE_FLAG: true
