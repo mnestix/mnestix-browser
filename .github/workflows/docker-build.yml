@@ -9,7 +9,7 @@ on:
 
 env:
   # github.repository as <account>/<repo>
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: mnestix-browser
   IMAGE_TAG: latest
   # Update the version manually
   IMAGE_TAG_VERSION: 0.1.0
@@ -40,7 +40,7 @@ jobs:
       # https://github.com/docker/login-action
       - name: Log into docker hub
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
+        uses: docker/login-action@v3
         with:
           username: ${{ env.REGISTRY_USER }}
           password: ${{ env.REGISTRY_PASS }}
