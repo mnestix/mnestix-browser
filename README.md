@@ -338,7 +338,8 @@ We recommend to set the following environment variables (replace `{{MNESTIX VIEW
 If you are using the Mnestix API see [here](#running-mnestix-with-its-api) on how to set the Frontend Flags.
 If you are using only the Mnestix Browser just set the environment variable `DISCOVERY_API_URL` accordingly.
 
-#### Technical
+#### Technical Information - Discovery Service
+
 The functions that are described in the [Specification AAS - Part 2: API](https://industrialdigitaltwin.org/wp-content/uploads/2023/06/IDTA-01002-3-0_SpecificationAssetAdministrationShell_Part2_API_.pdf) were implemented in the [`discoveryServiceApi.ts`](src/lib/api/discovery-service-api/discoveryServiceApi.ts).
 They make the respective `GET`, `POST` and `DELETE` requests to the specified `DISCOVERY_API_URL`.
 Two additional functions were added that simplify the usage of the Discovery Service by just requiring the globalAssetId and no additional AssetLinks.
@@ -370,7 +371,7 @@ REGISTRY_API_URL: '{{REGISTRY-SERVICE-URL}}'
 ```
 By setting the REGISTRY_API_URL, you enable the AAS Registry Service, ensuring efficient retrieval of AAS descriptors.
 
-#### Technical
+#### Technical Information - Registry Service
 
 The functions that are described in the [Specification AAS - Part 2: API](https://industrialdigitaltwin.org/wp-content/uploads/2023/06/IDTA-01002-3-0_SpecificationAssetAdministrationShell_Part2_API_.pdf) were implemented in the [`registryServiceApi.ts`](src/lib/api/registry-service-api/registryServiceApi.ts).
 They make the respective `GET`, `POST` and `DELETE` requests to the specified `REGISTRY_API_URL`.
