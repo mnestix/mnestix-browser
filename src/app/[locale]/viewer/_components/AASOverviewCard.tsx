@@ -23,6 +23,8 @@ import { encodeBase64 } from 'lib/util/Base64Util';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { useRouter } from 'next/navigation';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
+import { useRegistryAasState } from 'components/contexts/CurrentAasContext';
+import { AssetAdministrationShellRepositoryApi } from 'lib/api/basyx-v3/api';
 
 type AASOverviewCardProps = {
     readonly aas: AssetAdministrationShell | null;
@@ -67,14 +69,21 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
     const navigate = useRouter();
     const [productImageUrl, setProductImageUrl] = useState<string | undefined>('');
     const { repositoryClient } = useApis();
-
+    const [ registryAasData] = useRegistryAasState();
+    
     useAsyncEffect(async () => {
         if (!props.productImage) return;
 
         if (!isValidUrl(props.productImage!) && props.aas) {
             try {
-                const image = await repositoryClient.getThumbnailFromShell(props.aas.id);
-                setProductImageUrl(URL.createObjectURL(image));
+                if(registryAasData) {
+                    const registryRepository = new AssetAdministrationShellRepositoryApi({basePath: registryAasData.aasRegistryRepositoryOrigin});
+                    const image = await registryRepository.getThumbnailFromShell(props.aas.id);
+                    setProductImageUrl(URL.createObjectURL(image));
+                } else {
+                    const image = await repositoryClient.getThumbnailFromShell(props.aas.id);
+                    setProductImageUrl(URL.createObjectURL(image));
+                }
             } catch (e) {
                 console.error('Image not found', e);
             }

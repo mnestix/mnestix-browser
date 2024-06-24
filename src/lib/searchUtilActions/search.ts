@@ -1,15 +1,19 @@
 'use server';
 
 import { NotFoundError } from 'lib/errors/NotFoundError';
-import { Endpoint, SubmodelDescriptor } from 'lib/types/registryServiceTypes';
+import { Endpoint, RegistryAasData, SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 import { RegistryServiceApi } from 'lib/api/registry-service-api/registryServiceApi';
 import { DiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApi';
 import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/types';
 
 interface AasSearchResult {
-    aasFromRegistry: AssetAdministrationShell | null;
+    registrySearchResult: RegistrySearchResult | null;
     aasId: string;
-    submodelDescriptors?: SubmodelDescriptor[];
+}
+
+interface RegistrySearchResult {
+    registryAas: AssetAdministrationShell;
+    registryAasData?: RegistryAasData;
 }
 
 /**
@@ -17,25 +21,36 @@ interface AasSearchResult {
  *
  * @param {string} inputAas - The input AAS ID.
  * @returns {Promise<AasSearchResult>} A promise that resolves to an object containing:
- *   - `aasFromRegistry`: The retrieved Asset Administration Shell object, or `null` if not found in AAS Registry.
- *   - `aasId`: The resolved AAS ID from Discovery Service or inputAAS if not found.
- *   - `submodelDescriptors` (optional): An array of submodel descriptors associated with the AAS.
+ *   - `registrySearchResult`: An object containing the retrieved Asset Administration Shell object and its data from the registry, or `null` if not found.
+ *   - `aasId`: The resolved AAS ID from the discovery service or the input AAS ID if not found.
  */
 export async function getAasFromExternalServices(inputAas: string): Promise<AasSearchResult> {
     const aasId = (await handleAasDiscoverySearch(inputAas)) ?? inputAas;
 
-    const [aasFromRegistry, submodelDescriptors] = await handleAasRegistrySearch(aasId);
+    const aasFromRegistry = await handleAasRegistrySearch(aasId);
 
     return {
-        aasFromRegistry: aasFromRegistry,
+        registrySearchResult: aasFromRegistry,
         aasId: aasId,
-        submodelDescriptors: submodelDescriptors,
     };
 }
 
+/**
+ * Searches for and retrieves the Asset Administration Shell (AAS) from the registry.
+ *
+ * This function takes an AAS ID and attempts to find the corresponding AAS in the registry.
+ * If the AAS is found, it returns an object containing the AAS and any related data.
+ * If not found, it returns `null`.
+ *
+ * @param {string} searchAasId - The AAS ID to search for in the registry.
+ * @returns {Promise<RegistrySearchResult | null>} A promise that resolves to an object containing:
+ *   - `registryAas`: The retrieved Asset Administration Shell object.
+ *   - `registryAasData` (optional): Additional data related to the retrieved AAS.
+ *   or `null` if the AAS is not found in the registry.
+ */
 export async function handleAasRegistrySearch(
     searchAasId: string,
-): Promise<[AssetAdministrationShell | null, SubmodelDescriptor[]?]> {
+): Promise<RegistrySearchResult | null> {
     const registryServiceClient = new RegistryServiceApi(process.env.REGISTRY_API_URL);
 
     try {
@@ -48,18 +63,35 @@ export async function handleAasRegistrySearch(
         }
 
         const aasEndpoint = endpoints.map((endpoint) => endpoint.protocolInformation.href)[0];
+        const aasRepositoryOrigin = getAasRepositoryOrigin(aasEndpoint);
 
         const aas = await fetch(aasEndpoint, {
             method: 'GET',
         });
 
-        return [await aas.json(), submodelDescriptors];
+        return { 
+            registryAas: await aas.json(),
+            registryAasData: {
+                submodelDescriptors: submodelDescriptors,
+                aasRegistryRepositoryOrigin: aasRepositoryOrigin
+            } 
+        };
     } catch (e) {
         console.warn('Could not be found in the registry service, will continue to look in the AAS repository.');
-        return [null];
+        return null;
     }
 }
 
+/**
+ * Resolves the given AAS ID using the discovery service.
+ *
+ * This function takes an AAS ID and attempts to resolve it using a discovery service.
+ * If the AAS ID is found, it returns the resolved AAS ID.
+ * If not found, it returns `null`.
+ *
+ * @param {string} searchAasId - The AAS ID to resolve using the discovery service.
+ * @returns {Promise<string | null>} A promise that resolves to the resolved AAS ID as a string, or `null` if the AAS ID is not found.
+ */
 export async function handleAasDiscoverySearch(searchAasId: string): Promise<string | null> {
     try {
         const discoveryServiceClient = new DiscoveryServiceApi(process.env.DISCOVERY_API_URL);
@@ -85,4 +117,9 @@ export async function getSubmodelFromSubmodelDescriptor(url: string) {
         method: 'GET',
     });
     return response.json();
+}
+
+function getAasRepositoryOrigin(url: string){
+    const urlObject = new URL(url);
+    return urlObject.origin;
 }

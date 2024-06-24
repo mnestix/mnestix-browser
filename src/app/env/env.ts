@@ -34,6 +34,7 @@ export const getEnv = async (): Promise<EnvironmentalVariables> => {
         THEME_PRIMARY_COLOR: process.env.THEME_PRIMARY_COLOR,
         THEME_SECONDARY_COLOR: process.env.THEME_SECONDARY_COLOR,
         THEME_BASE64_LOGO: process.env.THEME_LOGO_MIME_TYPE ? '' : undefined,
+        THEME_LOGO_URL: process.env.THEME_LOGO_URL
     };
 
     // Load the image from the public folder and provide it to the theming as base64 image with mime type
@@ -67,4 +68,5 @@ export type EnvironmentalVariables = {
     THEME_PRIMARY_COLOR: string | undefined;
     THEME_SECONDARY_COLOR: string | undefined;
     THEME_BASE64_LOGO: string | undefined;
+    THEME_LOGO_URL: string | undefined;
 };
