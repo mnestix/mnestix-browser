@@ -80,7 +80,7 @@ jobs:
 
       - name: pugh Image to development
         id: push-dev
-        if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging'
+        # if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging'
         env:
           BRANCH_NAME: ${{ steps.extract_branch.outputs.branch }}
         run: docker tag $IMAGE_NAME mnestixcr.azurecr.io/$IMAGE_NAME:$BRANCH_NAME
