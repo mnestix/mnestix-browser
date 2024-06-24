@@ -18,6 +18,7 @@ const initialValues: EnvironmentalVariables = {
     THEME_PRIMARY_COLOR: undefined,
     THEME_SECONDARY_COLOR: undefined,
     THEME_BASE64_LOGO: undefined,
+    THEME_LOGO_URL: undefined,
 };
 
 export const EnvContext = createContext(initialValues);
