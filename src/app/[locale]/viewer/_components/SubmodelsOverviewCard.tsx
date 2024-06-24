@@ -10,7 +10,7 @@ import { SubmodelSorting } from 'app/[locale]/viewer/_components/submodel/sortin
 import { TabSelectorItem, VerticalTabSelector } from 'components/basics/VerticalTabSelector';
 import { MobileModal } from 'components/basics/MobileModal';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
-import { useCurrentAasContext } from 'components/contexts/CurrentAasContext';
+import { useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { getSubmodelFromSubmodelDescriptor } from 'lib/searchUtilActions/search';
 
 export type SubmodelsOverviewCardProps = { readonly smReferences?: Reference[]; readonly isLoading?: boolean };
@@ -19,8 +19,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
     const [selectedItem, setSelectedItem] = useState<TabSelectorItem>();
     const [selectedSubmodel, setSelectedSubmodel] = useState<Submodel>();
     const { submodelClient } = useApis();
-    const { submodelDescriptorState } = useCurrentAasContext();
-    const [submodelDescriptors] = submodelDescriptorState;
+    const [ registryAasData] = useRegistryAasState();
 
     SubmodelSorting(selectedSubmodel);
 
@@ -34,8 +33,8 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
 
         const submodels: { id: string; label: string; metadata?: Submodel; endpoint?: string }[] = [];
 
-        if (submodelDescriptors) {
-            submodelDescriptors.forEach((submodelDescriptor) => {
+        if (registryAasData) {
+            registryAasData.submodelDescriptors?.forEach((submodelDescriptor) => {
                 submodels.push({
                     id: submodelDescriptor.id,
                     label: submodelDescriptor.idShort ?? '',
@@ -61,7 +60,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
             });
             setItems(submodels);
         }
-    }, [props.smReferences, submodelDescriptors]);
+    }, [props.smReferences, registryAasData]);
 
     useEffect(() => {
         setOpen(!!selectedItem && isMobile);
@@ -76,11 +75,11 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
         let fetchedSubmodel;
 
         if (selectedSubmodel) {
-            if (submodelDescriptors && selectedSubmodel.endpoint) {
+            if (registryAasData && selectedSubmodel.endpoint) {
                 fetchedSubmodel = await getSubmodelFromSubmodelDescriptor(selectedSubmodel.endpoint);
             }
 
-            if (!submodelDescriptors) {
+            if (!registryAasData) {
                 fetchedSubmodel = await submodelClient.getSubmodelById(selectedSubmodel?.id ?? '');
             }
         }
