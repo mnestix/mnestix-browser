@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState } from 'react';
 import { EnvironmentalVariables, getEnv } from './env';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
+import {CenteredLoadingSpinner} from "../../components/basics/CenteredLoadingSpinner";
 
 const initialValues: EnvironmentalVariables = {
     AAS_LIST_FEATURE_FLAG: false,
@@ -29,12 +30,14 @@ export const EnvProvider = ({
     children: React.ReactNode;
 }>) => {
     const [env, setEnv] = useState<EnvironmentalVariables>(initialValues);
-
+    const [renderChildren, setChildren] = useState<boolean>(false);
     useAsyncEffect(async () => {
         const env = await getEnv();
         setEnv(env);
+        setChildren(true);
     }, []);
-    return <EnvContext.Provider value={env}>{children}</EnvContext.Provider>;
+
+    return renderChildren ? <EnvContext.Provider value={env}>{children}</EnvContext.Provider> : <CenteredLoadingSpinner/>;
 };
 
 export const useEnv = () => {
