@@ -64,17 +64,17 @@ jobs:
           name: cypress-artifacts
           path: cypress-artifacts/
       
-      - name: push Image to Production
+      - name: Push Image to Production
         id: push-prod
         #if: github.ref == 'refs/heads/prod'
-        run: docker tag $IMAGE_NAME mnestix/$IMAGE_NAME:$IMAGE_TAG &&
-             docker tag $IMAGE_NAME mnestix/$IMAGE_NAME:$IMAGE_TAG_VERSION &&
+        run: docker tag mnestix/$IMAGE_NAME mnestix/$IMAGE_NAME:$IMAGE_TAG &&
+             docker tag mnestix/$IMAGE_NAME mnestix/$IMAGE_NAME:$IMAGE_TAG_VERSION &&
              docker push mnestix/$IMAGE_NAME:$IMAGE_TAG &&
              docker push mnestix/$IMAGE_NAME:$IMAGE_TAG_VERSION
 
-      - name: pugh Image to development
+      - name: Push Image to development
         id: push-dev
-        if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging'
+        #if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging'
         env:
           BRANCH_NAME: ${{ steps.extract_branch.outputs.branch }}
         run: docker tag $IMAGE_NAME mnestixcr.azurecr.io/$IMAGE_NAME:$BRANCH_NAME &&
