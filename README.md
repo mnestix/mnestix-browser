@@ -11,10 +11,10 @@
 
 ### Welcome to the Mnestix Community!
 
-Mnestix Viewer is an open source software designed to simplify the implementation of the Asset Administration Shell. Together
+Mnestix Browser is an open source software designed to simplify the implementation of the Asset Administration Shell. Together
 with increasing contributions from users and developers, a growing community is working on further development under the
 leadership of XITASO, a leading high-end software development company in the engineering industry.
-Mnestix Viewer is the perfect tool to demonstrate the power and potential of AAS (**Asset Administration Shells**) for the
+Mnestix Browser is the perfect tool to demonstrate the power and potential of AAS (**Asset Administration Shells**) for the
 implementation of standardized digital twins. It opens the way for use cases such as the Digital Product Passport (DPP).
 
 You can find a demo [here](https://mnestix-prod.azurewebsites.net/).
@@ -48,7 +48,7 @@ Before you begin, ensure you have the following tools installed on your system:
 #### Run Mnestix as Complete AAS Application
 The easiest way to get Mnestix up and running is by using the prepared development environment.
 This setup includes:
-- Mnestix Viewer (This repository)
+- Mnestix Browser (This repository)
 - Mnestix Backend
 - BaSyx Repository
 - BaSyx Discovery Service
@@ -58,14 +58,14 @@ To start all mentioned services together with the viewer, run the following comm
 ```
 yarn docker:dev
 ```
-This will start the Mnestix Browser and mentioned services with a default configuration, to adapt this setup have a look at [configuration](#configuration).  
+This will start the Mnestix Browser and mentioned services with a default configuration, to adapt this setup have a look at [configuration](#mnestix-configuration-settings).  
 The Mnestix Browser is now running on http://localhost:3000.
 
 
-#### Run Viewer Only
-You can start the Mnestix Viewer as standalone application as well. There is a provided docker compose file to run the Viewer out of the box. 
+#### Run Mnestix Browser Only
+You can start the Mnestix Browser as standalone application as well. There is a provided docker compose file to run the Mnestix Browser out of the box. 
 To do that, the environment variables in `docker-compose/compose.only-frontend.yml` should be adjusted to the available values.
-You need to have at least the `AAS_REPO_API_URL` variable set to be able to view an AAS. A detailed description on how to configure the viewer can be found at the [configuration](#configuration) section.
+You need to have at least the `AAS_REPO_API_URL` variable set to be able to view an AAS. A detailed description on how to configure the viewer can be found at the [configuration](#mnestix-configuration-settings) section.
 
 Afterwards start the Mnestix Browser with the following command:
 ```
@@ -79,15 +79,15 @@ To check what other options exist to run the Mnestix Browser, see the yarn scrip
 
 -   **compose.yml** - runs Mnestix Browser in production environment. Production image will be build if not found in local Docker Image Cache.
 
-    **Viewer on port 3000 - http://localhost:3000** <br>
+    **Mnestix Browser on port 3000 - http://localhost:3000** <br>
     <br>
 -   **compose.dev.yml** - runs Mnestix Browser in a development environment. A development image will be built if it is not found in the local Docker Image Cache.<br>
-    **Viewer on port 3000 - http://localhost:3000** <br>
+    **Mnestix Browser on port 3000 - http://localhost:3000** <br>
     **Mnestix Api on port 5064 - http://localhost:5064** <br>
     **AAS Repo on port 8081 - http://localhost:8081/swagger-ui/index.html** <br><br>
 -   **compose.only-frontend.yml** - will start only Mnestix Browser without any additional services.
-    With this setup, it is important to specify an external AAS Repository with appropriate flag settings, see frontend flags [section](#frontend-flags).
-    <br>**Viewer on port 3000 - http://localhost:3000** <br><br>
+    With this setup, it is important to specify an external AAS Repository with appropriate flag settings, see frontend flags [section](#frontend-configuration).
+    <br>**Mnestix Browser on port 3000 - http://localhost:3000** <br><br>
 -   **compose.test.yml** - used to configure and run end-to-end (E2E) tests using Cypress. When this file is executed, it will start the necessary services for the application and execute the Cypress tests.
     If any test fails, the results and logs will be saved in a designated directory for further analysis.
 
@@ -97,7 +97,7 @@ All these compose files except the `only-frontend` use services specified in the
     -   mnestix-api - API service from the Mnestix ecosystem designed to expand Mnestix Browser functionalities,
         adding AAS List, Template Builder and allowing for the configuration of custom settings such as themes and aasId
         generation. (**On port 5054 - http://localhost:5064/swagger/index.html#/**) - mongodb - NoSql database to store data
-    -   aas - service of AAS repository (Basyx component [aas-environment](https://github.com/eclipse-basyx/basyx-java-server-sdk/tree/main/basyx.aasenvironment))
+    -   aas - service of AAS repository (BaSyx component [aas-environment](https://github.com/eclipse-basyx/basyx-java-server-sdk/tree/main/basyx.aasenvironment))
 
 
 ### Setup Instruction
@@ -150,7 +150,7 @@ docker compose -f docker-compose/compose.*.yml logs <service-name>
 
 ### Existing images in dockerhub
 
-Our Docker images are available on Docker Hub [Viewer](https://hub.docker.com/repository/docker/mnestix/mnestix-viewer/general) and Mnestix [Api](https://hub.docker.com/repository/docker/mnestix/mnestix-api/general). You can pull the images using the following commands:
+Our Docker images are available on Docker Hub [Mnestix Browser](https://hub.docker.com/repository/docker/mnestix/mnestix-viewer/general) and Mnestix [Api](https://hub.docker.com/repository/docker/mnestix/mnestix-api/general). You can pull the images using the following commands:
 
 #### To pull a specific version, use the version tag:
 
@@ -281,7 +281,7 @@ AD_TENANT_ID: '<<Azure tenant ID>>'
 MNESTIX_BACKEND_API_KEY: '<<YOUR_API_KEY>>'
 ```
 #### Using the Mnestix Backend
-It is possible to have the other needed systems running like the Mnestix Api so we can have full functionality out of the Viewer, to do that we can use the provided `docker-compose/compose.dev.yml` by also adjusting the env variables there.
+It is possible to have the other needed systems running like the Mnestix Api so we can have full functionality out of the Mnestix Browser, to do that we can use the provided `docker-compose/compose.dev.yml` by also adjusting the env variables there.
 
 as an extra step it is also necessary to set `MNESTIX_BACKEND_API_KEY` in `.env` to be able to secure all Mnestix Api endpoints, with the exception of the AasList endpoint.
 
@@ -323,7 +323,7 @@ For example (change `{{MNESTIX_BACKEND_API_URL}}` to the URL of the running [Mne
 This is the easiest configuration, for when you only want to visualize and browse through AAS.
 If you choose to run the Mnestix Browser without the Mnestix API, the Feature Flags `AUTHENTICATION_FEATURE_FLAG`
 and `AAS_LIST_FEATURE_FLAG` will be overwritten to `false` as these Features use the functionality of the API.
-The other environment variables should be configured [as described](#Frontend-Flags).
+The other environment variables should be configured [as described](#frontend-configuration).
 
 #### How to configure the BaSyx AAS Repository
 
@@ -339,7 +339,7 @@ We recommend to set the following environment variables (replace `{{MNESTIX VIEW
       BASYX_CORS_ALLOWED-METHODS: GET,POST,PATCH,DELETE,PUT,OPTIONS,HEAD
 ```
 If you are using the Mnestix API see [here](#running-mnestix-with-its-api) on how to set the Frontend Flags.
-If you are using only the Mnestix Viewer just set the environment variable `AAS_REPO_API_URL` accordingly. 
+If you are using only the Mnestix Browser just set the environment variable `AAS_REPO_API_URL` accordingly. 
 
 #### How to configure the BaSyx Discovery Service
 
