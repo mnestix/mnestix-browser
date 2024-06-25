@@ -150,7 +150,7 @@ docker compose -f docker-compose/compose.*.yml logs <service-name>
 
 ### Existing images in dockerhub
 
-Our Docker images are available on Docker Hub [Mnestix Browser](https://hub.docker.com/repository/docker/mnestix/mnestix-viewer/general) and Mnestix [Api](https://hub.docker.com/repository/docker/mnestix/mnestix-api/general). You can pull the images using the following commands:
+Our Docker images are available on Docker Hub [Mnestix Browser](https://hub.docker.com/r/mnestix/mnestix-browser) and [Mnestix Api](https://hub.docker.com/r/mnestix/mnestix-api). You can pull the images using the following commands:
 
 #### To pull a specific version, use the version tag:
 
