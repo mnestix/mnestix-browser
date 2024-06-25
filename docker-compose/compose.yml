@@ -6,7 +6,7 @@ networks:
 services:
   mnestix-frontend:
     container_name: mnestix-frontend
-    image: mnestix/mnestix-viewer:latest
+    image: mnestix/mnestix-browser:latest
     build:
       context: ../.
       dockerfile: Dockerfile
