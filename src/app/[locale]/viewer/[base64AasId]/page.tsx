@@ -42,20 +42,19 @@ export default function Page() {
             try {
                 setIsLoadingAas(true);
                 if (aas === null) {
-                    if (env.AAS_REPO_API_URL != '' || env.REGISTRY_API_URL != '') {
-                        const aasIdDecoded = safeBase64Decode(base64AasId);
-                        const registrySearchResult = await handleAasRegistrySearch(aasIdDecoded);
-                        if (registrySearchResult != null) {
-                            setAas(registrySearchResult.registryAas as AssetAdministrationShell);
-                            setRegistryAasData({
-                                submodelDescriptors: registrySearchResult?.registryAasData?.submodelDescriptors,
-                                aasRegistryRepositoryOrigin: registrySearchResult?.registryAasData?.aasRegistryRepositoryOrigin });
-                            setAasData(registrySearchResult.registryAas as AssetAdministrationShell);
-                        } else {
-                            const shell = await repositoryClient.getAssetAdministrationShellById(base64AasId as string);
-                            setAas(shell);
-                            setAasData(shell);
-                        }
+                    const aasIdDecoded = safeBase64Decode(base64AasId);
+                    const registrySearchResult = await handleAasRegistrySearch(aasIdDecoded);
+                    if (registrySearchResult != null) {
+                        setAas(registrySearchResult.registryAas as AssetAdministrationShell);
+                        setRegistryAasData({
+                            submodelDescriptors: registrySearchResult?.registryAasData?.submodelDescriptors,
+                            aasRegistryRepositoryOrigin: registrySearchResult?.registryAasData?.aasRegistryRepositoryOrigin });
+                        setAasData(registrySearchResult.registryAas as AssetAdministrationShell);
+                    } else {
+                        const shell = await repositoryClient.getAssetAdministrationShellById(base64AasId as string);
+                        setAas(shell);
+                        setAasData(shell);
+                    
                     }
                 } else {
                     setAasData(aas);

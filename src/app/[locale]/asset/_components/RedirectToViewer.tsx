@@ -26,15 +26,14 @@ export const RedirectToViewer = () => {
     useAsyncEffect(async () => {
         try {
             setIsLoading(true);
-            if (env.DISCOVERY_API_URL != '') {
-                await navigateToViewerOfAsset(decodeURIComponent(assetIdParam ?? ''));
-            }
+            await navigateToViewerOfAsset(decodeURIComponent(assetIdParam ?? ''));
+            
         } catch (e) {
             setIsLoading(false);
             setIsError(true);
             showError(e, notificationSpawner);
         }
-    }, [env]);
+    }, []);
 
     async function navigateToViewerOfAsset(assetId: string | undefined): Promise<void> {
         const aasIds = await getAasIdsOfAsset(assetId);
