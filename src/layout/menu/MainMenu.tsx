@@ -59,7 +59,7 @@ const StyledLogoWrapper = styled(Box)(({ theme }) => ({
     padding: theme.spacing(3),
     paddingTop: theme.spacing(5),
     '.logo': {
-        maxWidth: 160,
+        maxWidth: 240,
         height: 32,
     },
 }));
