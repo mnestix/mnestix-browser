@@ -1,5 +1,5 @@
-<img align="right" width="20%" src="src/assets/XitasoLogoBlack.svg" alt="XITASO Logo">
-<p align="center" style="margin-left: 20%">
+<img width="20%" src="src/assets/XitasoLogoBlack.svg" alt="XITASO Logo">
+<p align="center">
   <img src="public/android-chrome-192x192.png" alt="Mnestix Logo">
 </p>
 <h1 align="center">Mnestix</h1>
