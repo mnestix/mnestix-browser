@@ -580,7 +580,7 @@
               "value": "[parameters('applicationIdUri')]"
             }
           ],
-          "linuxFxVersion": "DOCKER|mnestix/mnestix-browser:0.1.0-alpha",
+          "linuxFxVersion": "DOCKER|mnestix/mnestix-browser:1.0.0-latest",
           "alwaysOn": true
         },
         "hostNameSslStates": [
