@@ -34,8 +34,8 @@
       "defaultValue": "[concat('mnestix-api-', parameters('randomId'))]",
       "type": "string"
     },
-    "mnestixViewerServiceName": {
-      "defaultValue": "[concat('mnestix-viewer-', parameters('randomId'))]",
+    "mnestixVBrowserServiceName": {
+      "defaultValue": "[concat('mnestix-browser-', parameters('randomId'))]",
       "type": "string"
     }
   },
@@ -53,8 +53,8 @@
     "mnestixApiServiceUrl": "[uri(concat('https://', variables('mnestixApiServiceName'), '.azurewebsites.net'), '')]",
     "mnestixApiProxyUrl": "[uri(concat('https://', variables('mnestixApiServiceName'), '.azurewebsites.net', '/repo'), '')]",
     "mnestixApiDiscoveryProxyUrl": "[uri(concat('https://', variables('mnestixApiServiceName'), '.azurewebsites.net', '/discovery'), '')]",
-    "mnestixViewerServiceName": "[parameters('mnestixViewerServiceName')]",
-    "mnestixViewerUrl": "[uri(concat('https://', variables('mnestixViewerServiceName'), '.azurewebsites.net'), '')]",
+    "mnestixBrowserServiceName": "[parameters('mnestixBrowserServiceName')]",
+    "mnestixBrowserUrl": "[uri(concat('https://', variables('mnestixBrowserServiceName'), '.azurewebsites.net'), '')]",
     "discoveryAppServiceName": "[concat('mnestix-basyx-discovery-', parameters('randomId'))]",
     "discoveryAppServiceUrl": "[uri(concat('https://', variables('discoveryAppServiceName'), '.azurewebsites.net'), '')]"
   },
@@ -528,11 +528,11 @@
     {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2021-03-01",
-      "name": "[variables('mnestixViewerServiceName')]",
+      "name": "[variables('mnestixBrowserServiceName')]",
       "location": "[parameters('location')]",
       "kind": "app,linux,container",
       "properties": {
-        "name": "[variables('mnestixViewerServiceName')]",
+        "name": "[variables('mnestixBrowserServiceName')]",
         "siteConfig": {
           "appSettings": [
             {
@@ -553,7 +553,7 @@
             },
             {
               "name": "FRONTEND_URL",
-              "value": "[variables('mnestixViewerUrl')]"
+              "value": "[variables('mnestixBrowserUrl')]"
             },
             {
               "name": "AAS_REPO_API_URL",
@@ -580,12 +580,12 @@
               "value": "[parameters('applicationIdUri')]"
             }
           ],
-          "linuxFxVersion": "DOCKER|mnestix/mnestix-browser:1.0.0-latest",
+          "linuxFxVersion": "DOCKER|mnestix/mnestix-browser:latest",
           "alwaysOn": true
         },
         "hostNameSslStates": [
           {
-            "name": "[variables('mnestixViewerUrl')]",
+            "name": "[variables('mnestixBrowserUrl')]",
             "sslState": "Disabled",
             "hostType": "Standard"
           }
