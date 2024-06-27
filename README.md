@@ -11,13 +11,14 @@
 
 ### Welcome to the Mnestix Community!
 
-Mnestix Viewer is an open source software designed to simplify the implementation of the Asset Administration Shell. Together
+Mnestix Browser is an open source software designed to simplify the implementation of the Asset Administration Shell. Together
 with increasing contributions from users and developers, a growing community is working on further development under the
 leadership of XITASO, a leading high-end software development company in the engineering industry.
-Mnestix Viewer is the perfect tool to demonstrate the power and potential of AAS (**Asset Administration Shells**) for the
+Mnestix Browser is the perfect tool to demonstrate the power and potential of AAS (**Asset Administration Shells**) for the
 implementation of standardized digital twins. It opens the way for use cases such as the Digital Product Passport (DPP).
 
 You can find a demo [here](https://mnestix-prod.azurewebsites.net/).
+Some screenshots can be found in the [screenshots folder](screenshots).
 
 ### **If you need support feel free to contact us through our website [Mnestix.io](https://mnestix.io/).**
 
@@ -48,7 +49,7 @@ Before you begin, ensure you have the following tools installed on your system:
 #### Run Mnestix as Complete AAS Application
 The easiest way to get Mnestix up and running is by using the prepared development environment.
 This setup includes:
-- Mnestix Viewer (This repository)
+- Mnestix Browser (This repository)
 - Mnestix Backend
 - BaSyx Repository
 - BaSyx Discovery Service
@@ -58,14 +59,14 @@ To start all mentioned services together with the viewer, run the following comm
 ```
 yarn docker:dev
 ```
-This will start the Mnestix Browser and mentioned services with a default configuration, to adapt this setup have a look at [configuration](#configuration).  
+This will start the Mnestix Browser and mentioned services with a default configuration, to adapt this setup have a look at [configuration](#mnestix-configuration-settings).  
 The Mnestix Browser is now running on http://localhost:3000.
 
 
-#### Run Viewer Only
-You can start the Mnestix Viewer as standalone application as well. There is a provided docker compose file to run the Viewer out of the box. 
+#### Run Mnestix Browser Only
+You can start the Mnestix Browser as standalone application as well. There is a provided docker compose file to run the Mnestix Browser out of the box. 
 To do that, the environment variables in `docker-compose/compose.only-frontend.yml` should be adjusted to the available values.
-You need to have at least the `AAS_REPO_API_URL` variable set to be able to view an AAS. A detailed description on how to configure the viewer can be found at the [configuration](#configuration) section.
+You need to have at least the `AAS_REPO_API_URL` variable set to be able to view an AAS. A detailed description on how to configure the viewer can be found at the [configuration](#mnestix-configuration-settings) section.
 
 Afterwards start the Mnestix Browser with the following command:
 ```
@@ -79,15 +80,15 @@ To check what other options exist to run the Mnestix Browser, see the yarn scrip
 
 -   **compose.yml** - runs Mnestix Browser in production environment. Production image will be build if not found in local Docker Image Cache.
 
-    **Viewer on port 3000 - http://localhost:3000** <br>
+    **Mnestix Browser on port 3000 - http://localhost:3000** <br>
     <br>
 -   **compose.dev.yml** - runs Mnestix Browser in a development environment. A development image will be built if it is not found in the local Docker Image Cache.<br>
-    **Viewer on port 3000 - http://localhost:3000** <br>
+    **Mnestix Browser on port 3000 - http://localhost:3000** <br>
     **Mnestix Api on port 5064 - http://localhost:5064** <br>
     **AAS Repo on port 8081 - http://localhost:8081/swagger-ui/index.html** <br><br>
 -   **compose.only-frontend.yml** - will start only Mnestix Browser without any additional services.
-    With this setup, it is important to specify an external AAS Repository with appropriate flag settings, see frontend flags [section](#frontend-flags).
-    <br>**Viewer on port 3000 - http://localhost:3000** <br><br>
+    With this setup, it is important to specify an external AAS Repository with appropriate flag settings, see frontend flags [section](#frontend-configuration).
+    <br>**Mnestix Browser on port 3000 - http://localhost:3000** <br><br>
 -   **compose.test.yml** - used to configure and run end-to-end (E2E) tests using Cypress. When this file is executed, it will start the necessary services for the application and execute the Cypress tests.
     If any test fails, the results and logs will be saved in a designated directory for further analysis.
 
@@ -97,7 +98,7 @@ All these compose files except the `only-frontend` use services specified in the
     -   mnestix-api - API service from the Mnestix ecosystem designed to expand Mnestix Browser functionalities,
         adding AAS List, Template Builder and allowing for the configuration of custom settings such as themes and aasId
         generation. (**On port 5054 - http://localhost:5064/swagger/index.html#/**) - mongodb - NoSql database to store data
-    -   aas - service of AAS repository (Basyx component [aas-environment](https://github.com/eclipse-basyx/basyx-java-server-sdk/tree/main/basyx.aasenvironment))
+    -   aas - service of AAS repository (BaSyx component [aas-environment](https://github.com/eclipse-basyx/basyx-java-server-sdk/tree/main/basyx.aasenvironment))
 
 
 ### Setup Instruction
@@ -150,7 +151,7 @@ docker compose -f docker-compose/compose.*.yml logs <service-name>
 
 ### Existing images in dockerhub
 
-Our Docker images are available on Docker Hub [Viewer](https://hub.docker.com/repository/docker/mnestix/mnestix-viewer/general) and Mnestix [Api](https://hub.docker.com/repository/docker/mnestix/mnestix-api/general). You can pull the images using the following commands:
+Our Docker images are available on Docker Hub [Mnestix Browser](https://hub.docker.com/r/mnestix/mnestix-browser) and [Mnestix Api](https://hub.docker.com/r/mnestix/mnestix-api). You can pull the images using the following commands:
 
 #### To pull a specific version, use the version tag:
 
@@ -224,11 +225,12 @@ It is possible to change the look and feel by setting a theme color and a person
 
 Mnestix provides the following configuration options. You can adapt the values in your docker compose file.
 
-| Name                                  | Default value           | Description                                                                                                                                                                                   | required |
-|---------------------------------------|-------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
-| `DISCOVERY_API_URL`                   |                         | Address of the Discovery Service to find an AAS for an Asset                                                                                                                                  | required |
-| `AAS_REPO_API_URL`                    |                         | Default AAS Repository to display when AAS Id is not in AAS Registry                                                                                                                          | required |
-| `MNESTIX_BACKEND_API_URL`             |                         | Mnestix Backend with a lot of business comfort features like the Repository-Proxy or the Template builder                                                                                     | optional |
+| Name                                  | Default value           | Description                                                                                                                                                                                  | required |
+|---------------------------------------|-------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
+| `DISCOVERY_API_URL`                   |                         | Address of the Discovery Service to find an AAS for an Asset                                                                                                                                 | required |
+| `REGISTRY_API_URL`                    |                         | Address of the AAS Registry Service to retrieve the related descriptor for an AAS                                                                                                            | optional |
+| `AAS_REPO_API_URL`                    |                         | Default AAS Repository to display when AAS Id is not in AAS Registry                                                                                                                         | required |
+| `MNESTIX_BACKEND_API_URL`             |                         | Mnestix Backend with a lot of business comfort features like the Repository-Proxy or the Template builder                                                                                    | optional |
 | `AAS_LIST_FEATURE_FLAG`               | false                   | Enables or disables the AasList in the frontend. This only works in combination with `Features__AllowRetrievingAllShellsAndSubmodels` being set to `true` (Needs the Mnestix Backend to work) | optional |
 | `AUTHENTICATION_FEATURE_FLAG`         | false                   | Enable or disable the authentication in the frontend. (Needs the Mnestix Backend to work)                                                                                                     | optional |
 | `COMPARISON_FEATURE_FLAG`             | false                   | Enables or disables the comparison feature.                                                                                                                                                   | optional |
@@ -236,8 +238,13 @@ Mnestix provides the following configuration options. You can adapt the values i
 | `THEME_PRIMARY_COLOR`                 | Mnestix Primary Color   | Changes the primary color of Mnestix Browser, e.g. #00ff00. The following formats are supported: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla(), color()                                          | optional |
 | `THEME_SECONDARY_COLOR`               | Mnestix Secondary Color | Changes the secondary color of Mnestix Browser, e.g. #0d2. The following formats are supported: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla(), color()                                           | optional |
 | `THEME_LOGO_MIME_TYPE`                |                         | Used in parsing the logo mounted `-v /path/to/logo:/app/public/logo` the mime type is needed, e.g. `image/svg+xml`, `image/png`, `image/jpg`                                                  | optional |
+| `THEME_LOGO_URL`                      |                         | This variable **overwrites** the Logo in the theme, and thus the environment variable `THEME_LOGO_MIME_TYPE` will not be evaluated and it is not necessary to mount the image as specified below | optional |
 
 #### How to set a custom logo
+
+There are multiple ways to set a logo, you can either use Option 1 or Option 2:
+
+##### Option 1
 First you need to mount your logo to the container, e.g. by adding it to the docker compose file
 ```yaml
     environment:
@@ -247,11 +254,22 @@ First you need to mount your logo to the container, e.g. by adding it to the doc
       - /path/to/my/logo.svg:/app/public/logo
 ```
 
+
 When using the provided [`compose.yaml` File](docker-compose/compose.yml) you can just replace the [image in the `data` folder](docker-compose/data/logo.svg) with your preferred logo.
 
 Remember to set the mime type correctly in order for the browser to parse your image correctly.
 Only image mime types are allowed.
 https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
+
+
+##### Option 2
+This version overwrites the previous settings, you can either use one or the other.
+To use this just set an environment variable to a link hosted that is publicly accessible:
+```yaml
+...
+    environment:
+      THEME_LOGO_URL: https://xitaso.com/wp-content/uploads/XITASO-Logo-quer.svg
+```
 
 #### Using Azure Entra ID
 > **Note:** If the login functionality is going to be used, then apart from setting the authentication flag to `true`, `AD_CLIENT_ID` and `AD_TENANT_ID` should be set by copying `.env.example` to your own `.env` and specifying this sensitive information there.
@@ -264,7 +282,7 @@ AD_TENANT_ID: '<<Azure tenant ID>>'
 MNESTIX_BACKEND_API_KEY: '<<YOUR_API_KEY>>'
 ```
 #### Using the Mnestix Backend
-It is possible to have the other needed systems running like the Mnestix Api so we can have full functionality out of the Viewer, to do that we can use the provided `docker-compose/compose.dev.yml` by also adjusting the env variables there.
+It is possible to have the other needed systems running like the Mnestix Api so we can have full functionality out of the Mnestix Browser, to do that we can use the provided `docker-compose/compose.dev.yml` by also adjusting the env variables there.
 
 as an extra step it is also necessary to set `MNESTIX_BACKEND_API_KEY` in `.env` to be able to secure all Mnestix Api endpoints, with the exception of the AasList endpoint.
 
@@ -275,29 +293,17 @@ MNESTIX_BACKEND_API_KEY: '<<YOUR_API_KEY>>'
 > **Note:** Please replace `<<YOUR_API_KEY>>` with your actual API key immediately to ensure proper functionality and security.
 
 
-### How does the Discovery Service work?
+### Retrieval of AAS and Submodels?
 #### Concept
 The **Discovery Service** enables Mnestix to find all AASs that belong to one Asset.
 We are standard conform but recommend the usage of the [BaSyx Implementation of the Discovery Service](https://github.com/eclipse-basyx/basyx-java-server-sdk/tree/main/basyx.aasdiscoveryservice).
 
+The **AAS Registry** is designed to retrieve AAS Descriptors that contain the endpoint for the **Asset Administration Shell (AAS) Interface**.
+
 [<img src=".images/overview_api.png" width="300"/>](https://industrialdigitaltwin.org/wp-content/uploads/2023/07/2023-07-27_IDTA_Tutorial_V3.0-Specification-AAS-Part-2_API.pdf)\
 (Source: [IDTA](https://industrialdigitaltwin.org/wp-content/uploads/2023/07/2023-07-27_IDTA_Tutorial_V3.0-Specification-AAS-Part-2_API.pdf))
 
-A tutorial about the Discovery Service along with the registries can be found [on the IDTA website](https://industrialdigitaltwin.org/wp-content/uploads/2023/07/2023-07-27_IDTA_Tutorial_V3.0-Specification-AAS-Part-2_API.pdf). 
-
-#### Technical
-The functions that are described in the [Specification AAS - Part 2: API](https://industrialdigitaltwin.org/wp-content/uploads/2023/06/IDTA-01002-3-0_SpecificationAssetAdministrationShell_Part2_API_.pdf) were implemented in the [`discoveryServiceApi.ts`](src/api/discoveryServiceApi/discoveryServiceApi.ts).
-They make the respective `GET`, `POST` and `DELETE` requests to the specified `DISCOVERY_API_URL`.
-Two additional functions were added that simplify the usage of the Discovery Service by just requiring the globalAssetId and no additional AssetLinks.
-
-These functions are `LinkAasIdAndAssetId(aasId: string, assetId: string)` and `GetAasIdsByAssetId(assetId: string)`.
-The return of all functions is the response from the Discovery Service parsed as an object.
-So they can be used like in the example below:
-
-```typescript
-await LinkAasIdAndAssetId(aasId, assetId);
-const foundAasIds = (await discoveryServiceClient.GetAasIdsByAssetId(assetId)).result
-```
+A tutorial about the Discovery Service along with the registries can be found [on the IDTA website](https://industrialdigitaltwin.org/wp-content/uploads/2023/07/2023-07-27_IDTA_Tutorial_V3.0-Specification-AAS-Part-2_API.pdf).
 
 ### How to connect Mnestix Browser to the different components
 
@@ -318,7 +324,7 @@ For example (change `{{MNESTIX_BACKEND_API_URL}}` to the URL of the running [Mne
 This is the easiest configuration, for when you only want to visualize and browse through AAS.
 If you choose to run the Mnestix Browser without the Mnestix API, the Feature Flags `AUTHENTICATION_FEATURE_FLAG`
 and `AAS_LIST_FEATURE_FLAG` will be overwritten to `false` as these Features use the functionality of the API.
-The other environment variables should be configured [as described](#Frontend-Flags).
+The other environment variables should be configured [as described](#frontend-configuration).
 
 #### How to configure the BaSyx AAS Repository
 
@@ -334,7 +340,7 @@ We recommend to set the following environment variables (replace `{{MNESTIX VIEW
       BASYX_CORS_ALLOWED-METHODS: GET,POST,PATCH,DELETE,PUT,OPTIONS,HEAD
 ```
 If you are using the Mnestix API see [here](#running-mnestix-with-its-api) on how to set the Frontend Flags.
-If you are using only the Mnestix Viewer just set the environment variable `AAS_REPO_API_URL` accordingly. 
+If you are using only the Mnestix Browser just set the environment variable `AAS_REPO_API_URL` accordingly. 
 
 #### How to configure the BaSyx Discovery Service
 
@@ -348,6 +354,44 @@ We recommend to set the following environment variables (replace `{{MNESTIX VIEW
 ```
 If you are using the Mnestix API see [here](#running-mnestix-with-its-api) on how to set the Frontend Flags.
 If you are using only the Mnestix Browser just set the environment variable `DISCOVERY_API_URL` accordingly.
+
+#### Technical Information - Discovery Service
+
+The functions that are described in the [Specification AAS - Part 2: API](https://industrialdigitaltwin.org/wp-content/uploads/2023/06/IDTA-01002-3-0_SpecificationAssetAdministrationShell_Part2_API_.pdf) were implemented in the [`discoveryServiceApi.ts`](src/lib/api/discovery-service-api/discoveryServiceApi.ts).
+They make the respective `GET`, `POST` and `DELETE` requests to the specified `DISCOVERY_API_URL`.
+Two additional functions were added that simplify the usage of the Discovery Service by just requiring the globalAssetId and no additional AssetLinks.
+
+These functions are `LinkAasIdAndAssetId(aasId: string, assetId: string)` and `GetAasIdsByAssetId(assetId: string)`.
+The return of all functions is the response from the Discovery Service parsed as an object.
+So they can be used like in the example below:
+
+```typescript
+await LinkAasIdAndAssetId(aasId, assetId);
+const foundAasIds = (await discoveryServiceClient.GetAasIdsByAssetId(assetId)).result
+```
+
+#### How to configure the BaSyx AAS Registry Service
+
+The AAS Registry Service is designed to provide descriptors for Asset Administration Shells (AAS), 
+including endpoints to various repositories that may be stored elsewhere. 
+This architecture ensures support for multiple repositories, provided they are registered in the designated AAS registry.
+
+When an AAS for the specified AAS-Id is found, it is displayed in the detail view. If the AAS is not found, 
+the service will search in the local repository for the requested information.
+
+If the discovery service is configured, it will initially identify the relevant AAS-ID for the searched Asset Id before querying the Registry Service. 
+Configuration of the Registry Service is optional. If the AAS Registry Service is not configured, the search will default to the local repository.
+
+To configure the AAS repository, please provide the URL in the Frontend Configuration variables.
+```yaml
+REGISTRY_API_URL: '{{REGISTRY-SERVICE-URL}}'
+```
+By setting the REGISTRY_API_URL, you enable the AAS Registry Service, ensuring efficient retrieval of AAS descriptors.
+
+#### Technical Information - Registry Service
+
+The functions that are described in the [Specification AAS - Part 2: API](https://industrialdigitaltwin.org/wp-content/uploads/2023/06/IDTA-01002-3-0_SpecificationAssetAdministrationShell_Part2_API_.pdf) were implemented in the [`registryServiceApi.ts`](src/lib/api/registry-service-api/registryServiceApi.ts).
+They make the respective `GET`, `POST` and `DELETE` requests to the specified `REGISTRY_API_URL`.
 
 ### Different Mnestix Configurations
 

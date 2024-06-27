@@ -42,10 +42,10 @@ export function ManualAasAddInput(props: ManualAasAddInputProps) {
             setIsLoading(true);
             let submodelDescriptorsFromRegistry: SubmodelDescriptor[] = [];
 
-            const { aasFromRegistry, aasId, submodelDescriptors } = await getAasFromExternalServices(inputValue);
+            const { registrySearchResult, aasId } = await getAasFromExternalServices(inputValue);
             const aasToAdd =
-                aasFromRegistry != null
-                    ? aasFromRegistry
+                registrySearchResult != null
+                    ? registrySearchResult.registryAas
                     : await repositoryClient.getAssetAdministrationShellById(encodeBase64(aasId));
 
             const aasExists = compareAas.find((aas) => aas.id === aasToAdd.id);
@@ -56,7 +56,7 @@ export function ManualAasAddInput(props: ManualAasAddInputProps) {
                     severity: 'error',
                 });
             } else {
-                submodelDescriptorsFromRegistry = submodelDescriptors as SubmodelDescriptor[];
+                submodelDescriptorsFromRegistry = registrySearchResult?.registryAasData?.submodelDescriptors as SubmodelDescriptor[];
                 await addAas(aasToAdd as AssetAdministrationShell, submodelDescriptorsFromRegistry);
                 props.onSubmit();
             }

@@ -2,7 +2,7 @@ import { Box, IconButton, InputAdornment, TextField } from '@mui/material';
 import { FormattedMessage, useIntl } from 'react-intl';
 import React, { useEffect, useState } from 'react';
 import { ArrowForward } from '@mui/icons-material';
-import { useAasState, useSubmodelDescriptorState } from 'components/contexts/CurrentAasContext';
+import { useAasState, useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { messages } from 'lib/i18n/localization';
 import { SquaredIconButton } from 'components/basics/SquaredIconButton';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
@@ -12,7 +12,6 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { getAasFromExternalServices } from 'lib/searchUtilActions/search';
-import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 
 export function ManualAASViewerInput(props: { focus: boolean }) {
@@ -25,7 +24,7 @@ export function ManualAASViewerInput(props: { focus: boolean }) {
     const notificationSpawner = useNotificationSpawner();
     const inputRef = useRef<HTMLInputElement>(null);
     const [, setAas] = useAasState();
-    const [, setSubmodelDescriptors] = useSubmodelDescriptorState();
+    const [, setRegistryAasData] = useRegistryAasState();
     const { repositoryClient } = useApis();
 
     useEffect(() => {
@@ -46,16 +45,18 @@ export function ManualAASViewerInput(props: { focus: boolean }) {
         try {
             setIsLoading(true);
 
-            const { aasFromRegistry, aasId, submodelDescriptors } = await getAasFromExternalServices(val);
+            const { registrySearchResult, aasId} = await getAasFromExternalServices(val);
             const aas =
-                aasFromRegistry != null
-                    ? aasFromRegistry
+                registrySearchResult != null
+                    ? registrySearchResult.registryAas
                     : await repositoryClient.getAssetAdministrationShellById(encodeBase64(aasId));
-
+            
             setAas(aas);
-            submodelDescriptors != null
-                ? setSubmodelDescriptors(submodelDescriptors as SubmodelDescriptor[])
-                : setSubmodelDescriptors(null);
+            registrySearchResult?.registryAasData != null
+                ? setRegistryAasData({
+                    submodelDescriptors: registrySearchResult?.registryAasData?.submodelDescriptors,
+                    aasRegistryRepositoryOrigin: registrySearchResult?.registryAasData?.aasRegistryRepositoryOrigin })
+                : setRegistryAasData(null);
 
             navigate.push(`/viewer/${encodeBase64(aas.id)}`);
         } catch (e: unknown) {

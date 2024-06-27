@@ -70,17 +70,15 @@ export const AASListView = () => {
     useAsyncEffect(async () => {
         try {
             setIsLoadingList(true);
-            if (env.MNESTIX_BACKEND_API_URL != '') {
-                const list = await aasListClient.getAasListEntries();
-                setAasList(list);
-                if (!productClassFilterValue) setAasListFiltered(list);
-            }
+            const list = await aasListClient.getAasListEntries();
+            setAasList(list);
+            if (!productClassFilterValue) setAasListFiltered(list);
         } catch (e) {
             showError(e, notificationSpawner);
         } finally {
             setIsLoadingList(false);
         }
-    }, [env]);
+    }, []);
 
     /**
      * Creates the ProductClass Filter values.

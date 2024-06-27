@@ -12,7 +12,7 @@ services:
     volumes:
       - ../src:/app/src
       - ../public:/app/public
-      - ./data/logo.svg:/app/public/logo
+#     - ./data/logo.svg:/app/public/logo
     environment:
       REGISTRY_API_URL: 'http://localhost:8083'
       DISCOVERY_API_URL: 'http://localhost:5064/discovery'
@@ -27,4 +27,5 @@ services:
       LOCK_TIMESERIES_PERIOD_FEATURE_FLAG: true
       THEME_PRIMARY_COLOR: '#0d4453'
       THEME_SECONDARY_COLOR: '#147f8a'
-      THEME_LOGO_MIME_TYPE: 'image/svg+xml'
+#      THEME_LOGO_MIME_TYPE: 'image/svg+xml'
+      THEME_LOGO_URL: https://xitaso.com/wp-content/uploads/XITASO-Logo-quer.svg

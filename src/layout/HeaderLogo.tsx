@@ -1,6 +1,6 @@
 ﻿import { Box, useTheme } from '@mui/material';
-import { XitasoLogo } from 'components/basics/XitasoLogo';
 import { useRouter } from 'next/navigation';
+import { MnestixLogo } from "components/basics/MnestixLogo";
 
 export function HeaderLogo() {
     const theme = useTheme();
@@ -12,7 +12,7 @@ export function HeaderLogo() {
 
     return (
         <Box data-testid="header-logo" onClick={goToHome} sx={{ height: '100%', cursor: 'pointer' }}>
-            {theme?.productLogo?.logo ? <img height="100%" src={theme.productLogo.logo} /> : <XitasoLogo />}
+            {theme?.productLogo?.logo ? <img height="100%" src={theme.productLogo.logo} alt={'default Mnestix logo'}/> : <MnestixLogo />}
         </Box>
     );
 }

@@ -137,3 +137,8 @@ export interface ProtocolInformationSecurityAttributes {
     key: string;
     value: string;
 }
+
+export interface RegistryAasData {
+    submodelDescriptors?: SubmodelDescriptor[],
+    aasRegistryRepositoryOrigin?: string,
+}

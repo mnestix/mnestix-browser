@@ -73,9 +73,9 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
         let compareDataTemp: SubmodelCompareData[] = [];
         for (const aasId of input as string[]) {
             let shell;
-            const [aasFromRegistry, submodelDescriptors] = await handleAasRegistrySearch(aasId);
-            if (aasFromRegistry != null) {
-                shell = aasFromRegistry as AssetAdministrationShell;
+            const registrySearchResult = await handleAasRegistrySearch(aasId);
+            if (registrySearchResult != null) {
+                shell = registrySearchResult.registryAas as AssetAdministrationShell;
             } else {
                 shell = await repositoryClient.getAssetAdministrationShellById(encodeBase64(aasId));
             }
@@ -88,7 +88,7 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
                     compareDataTemp,
                     shell.submodels,
                     aasList.length - 1,
-                    submodelDescriptors,
+                    registrySearchResult?.registryAasData?.submodelDescriptors,
                 );
             }
         }

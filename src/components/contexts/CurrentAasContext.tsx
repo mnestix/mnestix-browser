@@ -1,13 +1,14 @@
 'use client';
 import React, { PropsWithChildren, createContext, useContext, useState } from 'react';
 import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/types';
-import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
+import { RegistryAasData } from 'lib/types/registryServiceTypes';
+
 
 type CurrentAasContextType = {
     aasState: [AssetAdministrationShell | null, React.Dispatch<React.SetStateAction<AssetAdministrationShell | null>>];
-    submodelDescriptorState: [
-        SubmodelDescriptor[] | null,
-        React.Dispatch<React.SetStateAction<SubmodelDescriptor[] | null>>,
+    registryAasData: [
+        RegistryAasData | null,
+        React.Dispatch<React.SetStateAction<RegistryAasData | null>>,
     ];
 };
 
@@ -23,20 +24,20 @@ export const useAasState = () => {
     return context.aasState;
 };
 
-export const useSubmodelDescriptorState = () => {
+export const useRegistryAasState = () => {
     const context = useContext(CurrentAasContext);
     if (!context) {
         throw new Error('useSubmodelDescriptorState must be used within a CurrentAasContextProvider');
     }
-    return context.submodelDescriptorState;
+    return context.registryAasData;
 };
 
 export const CurrentAasContextProvider = (props: PropsWithChildren) => {
     const aasState = useState<AssetAdministrationShell | null>(null);
-    const submodelDescriptorState = useState<SubmodelDescriptor[] | null>(null);
+    const registryAasData = useState<RegistryAasData | null>(null);
 
     return (
-        <CurrentAasContext.Provider value={{ aasState, submodelDescriptorState }}>
+        <CurrentAasContext.Provider value={{ aasState, registryAasData }}>
             {props.children}
         </CurrentAasContext.Provider>
     );

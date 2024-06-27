@@ -18,7 +18,11 @@ export function CustomThemeProvider(props: PropsWithChildren<{ readonly skipStyl
 
         theme.palette.primary = { main: env.THEME_PRIMARY_COLOR ?? DefaultThemeSettings.primaryColor };
         theme.palette.secondary = { main: env.THEME_SECONDARY_COLOR ?? DefaultThemeSettings.secondaryColor };
-        theme.productLogo = { logo: env.THEME_BASE64_LOGO ?? DefaultThemeSettings.base64Logo };
+        if (env.THEME_LOGO_URL !== undefined) {
+            theme.productLogo = { logo: env.THEME_LOGO_URL };
+        } else {
+            theme.productLogo = { logo: env.THEME_BASE64_LOGO ?? DefaultThemeSettings.base64Logo };
+        }
         setMuiTheme(createTheme(theme, deDE));
     }, [env]);
 
