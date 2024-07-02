@@ -22,28 +22,31 @@ export const CompareAasListHeader = (props: CompareAasListBarType) => {
         navigate.push(`/compare?aasId=${searchString}`);
     };
     
-    return (<>
-        <Typography marginBottom={3}>
-        <FormattedMessage {...messages.mnestix.aasList.subtitle} />
-    </Typography>
-        <Box display="flex" gap={2} alignItems="center">
-            {selectedAasList?.map((selectedAas) => (
-                <Box display="flex" flexDirection="row" alignItems="center" key={selectedAas}>
-                    <Typography data-testid={`selected-${selectedAas}`}>
-                        {tooltipText(selectedAas, 15)}
-                    </Typography>
-                    <IconButton onClick={() => updateSelectedAasList(false, selectedAas)}>
-                        <CloseIcon />
-                    </IconButton>
-                </Box>
-            ))}
-            <Button
-                variant="contained"
-                onClick={navigateToCompare}
-                disabled={!selectedAasList || selectedAasList.length < 1}
-                data-testid="compare-button"
-            >
-                <FormattedMessage {...messages.mnestix.aasList.goToCompare} />
-            </Button>
-        </Box></>)
+    return (
+        <>
+            <Typography marginBottom={3}>
+                <FormattedMessage {...messages.mnestix.aasList.subtitle} />
+            </Typography>
+            <Box display="flex" gap={2} alignItems="center">
+                {selectedAasList?.map((selectedAas) => (
+                    <Box display="flex" flexDirection="row" alignItems="center" key={selectedAas}>
+                        <Typography data-testid={`selected-${selectedAas}`}>
+                            {tooltipText(selectedAas, 15)}
+                        </Typography>
+                        <IconButton onClick={() => updateSelectedAasList(false, selectedAas)}>
+                            <CloseIcon />
+                        </IconButton>
+                    </Box>
+                ))}
+                <Button
+                    variant="contained"
+                    onClick={navigateToCompare}
+                    disabled={!selectedAasList || selectedAasList.length < 1}
+                    data-testid="compare-button"
+                >
+                    <FormattedMessage {...messages.mnestix.aasList.goToCompare} />
+                </Button>
+            </Box>
+        </>
+    )
 }

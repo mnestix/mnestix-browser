@@ -13,7 +13,9 @@ import { showError } from 'lib/util/ErrorHandlerUtil';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { SelectProductType } from "app/[locale]/list/_components/SelectProductType";
 import { CompareAasListHeader } from "app/[locale]/list/_components/CompareAasListHeader";
-import { AasList } from "app/[locale]/list/_components/AasList";
+import AasList from "app/[locale]/list/_components/AasList";
+import { useIntl } from "react-intl";
+import { messages } from "lib/i18n/localization";
 
 export const AasListView = () => {
     const { aasListClient } = useApis();
@@ -23,6 +25,7 @@ export const AasListView = () => {
     const [selectedAasList, setSelectedAasList] = useState<string[]>();
     const notificationSpawner = useNotificationSpawner();
     const env = useEnv();
+    const intl = useIntl();
 
     useAsyncEffect(async () => {
         try {
@@ -37,6 +40,16 @@ export const AasListView = () => {
         }
     }, []);
 
+    const tableHeaders = [
+        { label: intl.formatMessage(messages.mnestix.aasList.picture)},
+        { label: intl.formatMessage(messages.mnestix.aasList.manufacturerHeading)},
+        { label: intl.formatMessage(messages.mnestix.aasList.productDesignationHeading)},
+        { label: intl.formatMessage(messages.mnestix.aasList.assetIdHeading) +
+                ' / ' +
+                intl.formatMessage(messages.mnestix.aasList.aasIdHeading) },
+        { label: intl.formatMessage(messages.mnestix.aasList.productClassHeading) },
+    ];
+    
     /**
      * Update the list of currently selected aas
      */
@@ -69,7 +82,12 @@ export const AasListView = () => {
                 <Box>
                     <SelectProductType aasList={aasList} setAasListFiltered={setAasListFiltered}/>
                 </Box>
-                    <AasList shells={aasListFiltered} selectedAasList={selectedAasList} updateSelectedAasList={updateSelectedAasList}/>
+                    <AasList 
+                        shells={aasListFiltered} 
+                        tableHeaders={tableHeaders}
+                        selectedAasList={selectedAasList} 
+                        updateSelectedAasList={updateSelectedAasList} 
+                        comparisonFeatureFlag={env.COMPARISON_FEATURE_FLAG}/>
                 </>
             )}
         </>
