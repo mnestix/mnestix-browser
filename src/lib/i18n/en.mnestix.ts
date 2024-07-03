@@ -173,6 +173,7 @@ export const enMnestix = {
         hide: 'Hide',
     },
     aasList: {
+        header: 'AAS List',
         subtitle: 'Select up to 3 AASs to compare and narrow down the list by using the product class filter.',
         picture: 'Picture',
         manufacturerHeading: 'Manufacturer Name',
@@ -221,4 +222,9 @@ export const enMnestix = {
         resetButton: 'Reset to default',
         logoHelperText: 'base64 encoded',
     },
+    discoveryList: {
+        header: 'Discovery result list',
+        aasIdHeading: 'AAS ID',
+        repositoryUrl: 'Repository Url',
+    }
 };

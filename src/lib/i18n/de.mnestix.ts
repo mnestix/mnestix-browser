@@ -173,6 +173,7 @@ export const deMnestix = {
         hide: 'Verbergen',
     },
     aasList: {
+        header: 'AAS List',
         subtitle:
             'Wählen Sie bis zu 3 Verwaltungsschalen zum Vergleichen aus und grenzen Sie die Liste mithilfe des Produktklassenfilters ein.',
         picture: 'Bild',
@@ -222,4 +223,9 @@ export const deMnestix = {
         resetButton: 'Zurücksetzen',
         logoHelperText: 'base64 encoded',
     },
+    discoveryList: {
+        header: 'Ergebnisliste der Discovery',
+        aasIdHeading: 'AAS ID',
+        repositoryUrl: 'Repository Url',
+    }
 };
