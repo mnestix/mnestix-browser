@@ -45,7 +45,7 @@ export function ManualAASViewerInput(props: { focus: boolean }) {
         try {
             setIsLoading(true);
 
-            const { registrySearchResult, aasId} = await getAasFromExternalServices(val);
+            const { registrySearchResult, aasId } = await getAasFromExternalServices(val);
             const aas =
                 registrySearchResult != null
                     ? registrySearchResult.registryAas

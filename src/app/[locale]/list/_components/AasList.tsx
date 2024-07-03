@@ -1,32 +1,33 @@
 ﻿import {
     Table,
     TableBody,
-    TableCell, TableContainer,
+    TableCell,
+    TableContainer,
     TableHead,
     TableRow,
     Tooltip,
-    Typography, useTheme
-} from "@mui/material";
-import { FormattedMessage, useIntl } from "react-intl";
-import { messages } from "lib/i18n/localization";
-import CompareArrowsIcon from "@mui/icons-material/CompareArrows";
-import { AasListEntry } from "lib/api/generated-api/clients.g";
-import { AasTableRow } from "app/[locale]/list/_components/AasTableElements/AasTableRow";
-
+    Typography,
+    useTheme,
+} from '@mui/material';
+import { FormattedMessage } from 'react-intl';
+import { messages } from 'lib/i18n/localization';
+import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
+import { AasListEntry } from 'lib/api/generated-api/clients.g';
+import { AasListTableRow } from 'app/[locale]/list/_components/AasListTableRow';
 
 type AasListProps = {
-    shells: AasListEntry[],
-    tableHeaders: {label: string}[],
-    comparisonFeatureFlag?: boolean,
-    selectedAasList: string[] | undefined,
-    updateSelectedAasList:  (isChecked: boolean, aasId: string | undefined) => void;
-}
+    shells: AasListEntry[];
+    tableHeaders: { label: string }[];
+    comparisonFeatureFlag?: boolean;
+    selectedAasList: string[] | undefined;
+    updateSelectedAasList: (isChecked: boolean, aasId: string | undefined) => void;
+};
 
 export default function AasList(props: AasListProps) {
     const { shells, tableHeaders, selectedAasList, updateSelectedAasList, comparisonFeatureFlag } = props;
     const theme = useTheme();
     const MAX_SELECTED_ITEMS = 3;
-    
+
     /**
      * Decides if the current checkbox should be disabled or not.
      */
@@ -35,7 +36,7 @@ export default function AasList(props: AasListProps) {
         return selectedAasList && selectedAasList.length >= MAX_SELECTED_ITEMS && !selectedAasList.includes(aasId);
     };
 
-    return(
+    return (
         <TableContainer>
             <Table>
                 <TableHead>
@@ -59,13 +60,12 @@ export default function AasList(props: AasListProps) {
                                 </Tooltip>
                             </TableCell>
                         )}
-                        {!!tableHeaders && tableHeaders.map((header: {label: string}, index) => (
-                            <TableCell key={index}>
-                                <Typography fontWeight="bold">
-                                    {header.label}
-                                </Typography>
-                            </TableCell>
-                        ))}
+                        {!!tableHeaders &&
+                            tableHeaders.map((header: { label: string }, index) => (
+                                <TableCell key={index}>
+                                    <Typography fontWeight="bold">{header.label}</Typography>
+                                </TableCell>
+                            ))}
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -78,7 +78,7 @@ export default function AasList(props: AasListProps) {
                             }}
                             data-testid={`list-row-${aasListEntry.aasId}`}
                         >
-                            <AasTableRow
+                            <AasListTableRow
                                 aasListEntry={aasListEntry}
                                 comparisonFeatureFlag={comparisonFeatureFlag}
                                 checkBoxDisabled={checkBoxDisabled}
@@ -90,5 +90,5 @@ export default function AasList(props: AasListProps) {
                 </TableBody>
             </Table>
         </TableContainer>
-    )
+    );
 }

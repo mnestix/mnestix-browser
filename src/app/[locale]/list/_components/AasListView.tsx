@@ -6,16 +6,14 @@ import { useEnv } from 'app/env/provider';
 import { useState } from 'react';
 import { AasListEntry } from 'lib/api/generated-api/clients.g';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
-import {
-    Box,
-} from '@mui/material';
+import { Box } from '@mui/material';
 import { showError } from 'lib/util/ErrorHandlerUtil';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
-import { SelectProductType } from "app/[locale]/list/_components/SelectProductType";
-import { CompareAasListHeader } from "app/[locale]/list/_components/CompareAasListHeader";
-import AasList from "app/[locale]/list/_components/AasList";
-import { useIntl } from "react-intl";
-import { messages } from "lib/i18n/localization";
+import { SelectProductType } from 'app/[locale]/list/_components/SelectProductType';
+import { AasListComparisonHeader } from 'app/[locale]/list/_components/AasListComparisonHeader';
+import AasList from 'app/[locale]/list/_components/AasList';
+import { useIntl } from 'react-intl';
+import { messages } from 'lib/i18n/localization';
 
 export const AasListView = () => {
     const { aasListClient } = useApis();
@@ -41,15 +39,18 @@ export const AasListView = () => {
     }, []);
 
     const tableHeaders = [
-        { label: intl.formatMessage(messages.mnestix.aasList.picture)},
-        { label: intl.formatMessage(messages.mnestix.aasList.manufacturerHeading)},
-        { label: intl.formatMessage(messages.mnestix.aasList.productDesignationHeading)},
-        { label: intl.formatMessage(messages.mnestix.aasList.assetIdHeading) +
+        { label: intl.formatMessage(messages.mnestix.aasList.picture) },
+        { label: intl.formatMessage(messages.mnestix.aasList.manufacturerHeading) },
+        { label: intl.formatMessage(messages.mnestix.aasList.productDesignationHeading) },
+        {
+            label:
+                intl.formatMessage(messages.mnestix.aasList.assetIdHeading) +
                 ' / ' +
-                intl.formatMessage(messages.mnestix.aasList.aasIdHeading) },
+                intl.formatMessage(messages.mnestix.aasList.aasIdHeading),
+        },
         { label: intl.formatMessage(messages.mnestix.aasList.productClassHeading) },
     ];
-    
+
     /**
      * Update the list of currently selected aas
      */
@@ -74,20 +75,24 @@ export const AasListView = () => {
     return (
         <>
             {env.COMPARISON_FEATURE_FLAG && (
-                <CompareAasListHeader selectedAasList={selectedAasList} updateSelectedAasList={updateSelectedAasList}/>
+                <AasListComparisonHeader
+                    selectedAasList={selectedAasList}
+                    updateSelectedAasList={updateSelectedAasList}
+                />
             )}
             {isLoadingList && <CenteredLoadingSpinner sx={{ mt: 10 }} />}
             {!isLoadingList && aasListFiltered && (
                 <>
-                <Box>
-                    <SelectProductType aasList={aasList} setAasListFiltered={setAasListFiltered}/>
-                </Box>
-                    <AasList 
-                        shells={aasListFiltered} 
+                    <Box>
+                        <SelectProductType aasList={aasList} setAasListFiltered={setAasListFiltered} />
+                    </Box>
+                    <AasList
+                        shells={aasListFiltered}
                         tableHeaders={tableHeaders}
-                        selectedAasList={selectedAasList} 
-                        updateSelectedAasList={updateSelectedAasList} 
-                        comparisonFeatureFlag={env.COMPARISON_FEATURE_FLAG}/>
+                        selectedAasList={selectedAasList}
+                        updateSelectedAasList={updateSelectedAasList}
+                        comparisonFeatureFlag={env.COMPARISON_FEATURE_FLAG}
+                    />
                 </>
             )}
         </>

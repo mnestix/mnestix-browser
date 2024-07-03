@@ -1,19 +1,20 @@
 ﻿import { Chip } from '@mui/material';
-import { parseProductClassFromString } from "lib/util/ProductClassResolverUtil";
-import { useIntl } from "react-intl";
-import { messages } from "lib/i18n/localization";
-import { GetProductClassIcon, tooltipText } from "app/[locale]/list/_components/lib/AasUtils";
+import { parseProductClassFromString } from 'lib/util/ProductClassResolverUtil';
+import { useIntl } from 'react-intl';
+import { messages } from 'lib/i18n/localization';
+import { tooltipText } from 'lib/util/ToolTipText';
+import { GetProductClassIcon } from 'app/[locale]/list/_components/GetProductClassIcon';
 
 type ProductClassChipProps = {
-    productClassId: string | null,
-    maxChars: number
-}
+    productClassId: string | null;
+    maxChars: number;
+};
 
 /**
  * Returns a chip component adjusted for product class element
  */
-export const ProductClassChip = (props: ProductClassChipProps ) => {
-    const {productClassId, maxChars} = props;
+export const ProductClassChip = (props: ProductClassChipProps) => {
+    const { productClassId, maxChars } = props;
     const intl = useIntl();
     if (!productClassId) return '';
     let productClass;

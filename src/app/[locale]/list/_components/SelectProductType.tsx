@@ -1,18 +1,19 @@
-﻿import { Box, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Typography } from "@mui/material";
-import { FormattedMessage, useIntl } from "react-intl";
-import { messages } from "lib/i18n/localization";
-import { GetProductClassIcon, tooltipText } from "app/[locale]/list/_components/lib/AasUtils";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { getProductClassId, parseProductClassFromString, ProductClass } from "lib/util/ProductClassResolverUtil";
-import { AasListEntry } from "lib/api/generated-api/clients.g";
+﻿import { Box, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { messages } from 'lib/i18n/localization';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { getProductClassId, parseProductClassFromString, ProductClass } from 'lib/util/ProductClassResolverUtil';
+import { AasListEntry } from 'lib/api/generated-api/clients.g';
+import { GetProductClassIcon } from './GetProductClassIcon';
+import { tooltipText } from 'lib/util/ToolTipText';
 
 type SelectProductTypeProps = {
-    aasList: AasListEntry[] | undefined
-    setAasListFiltered:  Dispatch<SetStateAction<AasListEntry[] | undefined>>;
-}
+    aasList: AasListEntry[] | undefined;
+    setAasListFiltered: Dispatch<SetStateAction<AasListEntry[] | undefined>>;
+};
 
 export const SelectProductType = (props: SelectProductTypeProps) => {
-    const {aasList, setAasListFiltered} = props;
+    const { aasList, setAasListFiltered } = props;
     const [productClassFilterValue, setProductClassFilterValue] = useState<string>('');
     const [productClass, setProductClass] = useState<ProductClass[]>([]);
     const intl = useIntl();
@@ -42,8 +43,7 @@ export const SelectProductType = (props: SelectProductTypeProps) => {
         }
         setProductClass(productClasses);
     }, [aasList]);
-    
-    
+
     /**
      * Applies product filter change to the list.
      * @param event
@@ -60,8 +60,7 @@ export const SelectProductType = (props: SelectProductTypeProps) => {
             setAasListFiltered(filteredList);
         }
     };
-    
-    
+
     return (
         <FormControl variant="standard" sx={{ minWidth: 120, marginTop: '16px', width: '265px' }}>
             <InputLabel id="product-select">

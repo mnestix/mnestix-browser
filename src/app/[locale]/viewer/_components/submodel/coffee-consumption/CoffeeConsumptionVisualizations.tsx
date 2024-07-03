@@ -5,6 +5,7 @@ import { useIntl } from 'react-intl';
 import { ArrowForward } from '@mui/icons-material';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import CowMilk from 'assets/CoffeeConsumptionIcons/grey/grey_cow.svg';
 import OatMilk from 'assets/CoffeeConsumptionIcons/grey/grey_oat.svg';
 import Sugar from 'assets/CoffeeConsumptionIcons/grey/grey_sugar.svg';
@@ -222,17 +223,17 @@ export function CoffeeConsumptionVisualizations(props: { submodel: Submodel }) {
                                             onClick={() => (window.location.href = element.address ?? '')}
                                         >
                                             <td className="elementName">
-                                                <img className="icon" src={element.coffeeIcon} alt="Coffee" />
+                                                <Image className="icon" src={element.coffeeIcon} alt="Coffee" />
                                                 <br />
                                                 {element.coffeeName}
                                             </td>
                                             <td className="contents">
-                                                <img className="icon" src={element.milkIcon} alt="Milk" />
+                                                <Image className="icon" src={element.milkIcon} alt="Milk" />
                                                 <br />
                                                 {element.milk.quantity}
                                             </td>
                                             <td className="contents">
-                                                <img className="icon" src={element.sugarIcon} alt="Sugar" />
+                                                <Image className="icon" src={element.sugarIcon} alt="Sugar" />
                                                 <br />
                                                 {element.sugar.quantity}
                                             </td>
@@ -258,7 +259,7 @@ export function CoffeeConsumptionVisualizations(props: { submodel: Submodel }) {
                 </h1>
             )}
             <h3>What are the benefits of tracking your products with the AAS?</h3>
-            <img className="takeHome" src={TakeHomeMessage} />
+            <Image className="takeHome" src={TakeHomeMessage} alt={'take home'}/>
         </div>
     );
 }
