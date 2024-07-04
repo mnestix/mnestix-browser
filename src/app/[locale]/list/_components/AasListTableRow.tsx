@@ -1,4 +1,4 @@
-﻿import { Box, Checkbox, Chip, TableCell, Typography } from '@mui/material';
+import { Box, Checkbox, Chip, TableCell, Typography } from '@mui/material';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { messages } from 'lib/i18n/localization';
 import { getProductClassId } from 'lib/util/ProductClassResolverUtil';
