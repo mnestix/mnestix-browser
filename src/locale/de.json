@@ -1,7 +1,13 @@
 {
     "comment": "wir werden hier deutsche Übersetzungs-Keys haben",
     "aas-list": {
-        "header": "AAS Liste"
+        "header": "AAS Liste",
+        "picture": "Bild",
+        "manufacturerHeading": "Hersteller Name",
+        "productDesignationHeading": "Hersteller Produktbezeichnung",
+        "assetIdHeading": "Asset ID",
+        "aasIdHeading": "AAS ID",
+        "productClassHeading": "Produktklasse"
     },
     "dashboard": {
         "welcome-text": "Willkommen bei Mnestix",

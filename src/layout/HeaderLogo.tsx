@@ -1,7 +1,6 @@
 ﻿import { Box, useTheme } from '@mui/material';
 import { useRouter } from 'next/navigation';
-import { MnestixLogo } from "components/basics/MnestixLogo";
-
+import { MnestixLogo } from 'components/basics/MnestixLogo';
 export function HeaderLogo() {
     const theme = useTheme();
     const navigate = useRouter();

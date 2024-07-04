@@ -11,7 +11,6 @@ import { NotFoundError } from 'lib/errors/NotFoundError';
 import { useState } from 'react';
 import { CenteredLoadingSpinner } from 'components/basics/CenteredLoadingSpinner';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useEnv } from 'app/env/provider';
 
 export const RedirectToViewer = () => {
     const { discoveryServiceClient } = useApis();
@@ -19,7 +18,6 @@ export const RedirectToViewer = () => {
     const searchParams = useSearchParams();
     const assetIdParam = searchParams.get('assetId')?.toString();
     const notificationSpawner = useNotificationSpawner();
-    const env = useEnv();
     const [isLoading, setIsLoading] = useState(false);
     const [isError, setIsError] = useState(false);
 

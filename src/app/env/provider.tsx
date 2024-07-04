@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState } from 'react';
 import { EnvironmentalVariables, getEnv } from './env';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
-import {CenteredLoadingSpinner} from "../../components/basics/CenteredLoadingSpinner";
+import { CenteredLoadingSpinner } from 'components/basics/CenteredLoadingSpinner';
 
 const initialValues: EnvironmentalVariables = {
     AAS_LIST_FEATURE_FLAG: false,
