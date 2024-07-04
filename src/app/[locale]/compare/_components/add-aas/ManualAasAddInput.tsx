@@ -9,7 +9,7 @@ import { showError } from 'lib/util/ErrorHandlerUtil';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import CloseIcon from '@mui/icons-material/Close';
 import { useRef } from 'react';
-import { getAasFromExternalServices } from 'lib/searchUtilActions/search';
+import { handleAasDiscoverySearch, handleAasRegistrySearch } from 'lib/searchUtilActions/search';
 import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/types';
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
@@ -42,23 +42,34 @@ export function ManualAasAddInput(props: ManualAasAddInputProps) {
             setIsLoading(true);
             let submodelDescriptorsFromRegistry: SubmodelDescriptor[] = [];
 
-            const { registrySearchResult, aasId } = await getAasFromExternalServices(inputValue);
-            const aasToAdd =
-                registrySearchResult != null
-                    ? registrySearchResult.registryAas
-                    : await repositoryClient.getAssetAdministrationShellById(encodeBase64(aasId));
-
-            const aasExists = compareAas.find((aas) => aas.id === aasToAdd.id);
-            if (aasExists) {
+            const aasIds = await handleAasDiscoverySearch(inputValue);
+            if (aasIds && aasIds.length > 1) {
                 setIsLoading(false);
                 notificationSpawner.spawn({
-                    message: intl.formatMessage(messages.mnestix.compare.aasAlreadyAdded),
+                    message: intl.formatMessage(messages.mnestix.compare.moreAasFound),
                     severity: 'error',
                 });
             } else {
-                submodelDescriptorsFromRegistry = registrySearchResult?.registryAasData?.submodelDescriptors as SubmodelDescriptor[];
-                await addAas(aasToAdd as AssetAdministrationShell, submodelDescriptorsFromRegistry);
-                props.onSubmit();
+                const aasId = aasIds && aasIds.length === 1 ? aasIds[0] : inputValue;
+                const registrySearchResult = await handleAasRegistrySearch(aasId);
+                const aasToAdd =
+                    registrySearchResult != null
+                        ? registrySearchResult.registryAas
+                        : await repositoryClient.getAssetAdministrationShellById(encodeBase64(aasId));
+
+                const aasExists = compareAas.find((aas) => aas.id === aasToAdd.id);
+                if (aasExists) {
+                    setIsLoading(false);
+                    notificationSpawner.spawn({
+                        message: intl.formatMessage(messages.mnestix.compare.aasAlreadyAdded),
+                        severity: 'error',
+                    });
+                } else {
+                    submodelDescriptorsFromRegistry = registrySearchResult?.registryAasData
+                        ?.submodelDescriptors as SubmodelDescriptor[];
+                    await addAas(aasToAdd as AssetAdministrationShell, submodelDescriptorsFromRegistry);
+                    props.onSubmit();
+                }
             }
         } catch (e: unknown) {
             setIsLoading(false);

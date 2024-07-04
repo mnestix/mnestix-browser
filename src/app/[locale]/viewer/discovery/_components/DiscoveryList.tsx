@@ -1,25 +1,15 @@
-﻿import {
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Typography,
-    useTheme,
-} from '@mui/material';
-import { IDiscoveryListEntry } from "lib/types/DiscoveryListEntry";
+﻿import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, useTheme } from '@mui/material';
+import { IDiscoveryListEntry } from 'lib/types/DiscoveryListEntry';
+import { DiscoveryListTableRow } from 'app/[locale]/viewer/discovery/_components/DiscoveryListTableRow';
 
 type AasListProps = {
     data?: IDiscoveryListEntry[];
     tableHeaders: { label: string }[];
-
 };
 
 export default function DiscoveryList(props: AasListProps) {
     const { data, tableHeaders } = props;
     const theme = useTheme();
-
 
     return (
         <TableContainer>
@@ -51,6 +41,7 @@ export default function DiscoveryList(props: AasListProps) {
                             }}
                             data-testid={`list-row-${aasListEntry.aasId}`}
                         >
+                            <DiscoveryListTableRow aasListEntry={aasListEntry} />
                         </TableRow>
                     ))}
                 </TableBody>

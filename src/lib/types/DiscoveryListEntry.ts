@@ -1,4 +1,4 @@
 ﻿export interface IDiscoveryListEntry {
-    aasId?: string | undefined;
+    aasId: string;
     repositoryUrl?: string | undefined;
 }
