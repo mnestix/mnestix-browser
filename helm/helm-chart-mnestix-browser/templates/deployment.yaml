@@ -20,7 +20,10 @@ spec:
           ports:
             - containerPort: 80
           env:
-            {{- toYaml .Values.env | nindent 12 | trim }}
+            {{- range $key, $value := .Values.env }}
+            - name: {{ $key }}
+              value: "{{ $value }}"
+            {{- end }}
           volumeMounts:
             - name: src-volume
               mountPath: /app/src

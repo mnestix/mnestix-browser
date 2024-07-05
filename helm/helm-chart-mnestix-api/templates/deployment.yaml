@@ -15,10 +15,13 @@ spec:
         app: {{ .Chart.Name }}
     spec:
       containers:
-        - name: {{ .Chart.Name }}  # Corrected: Removed extra spaces around .Chart.Name
-          image: '{{ .Values.image.repository }}:{{ .Values.image.tag }}'
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           ports:
             - containerPort: {{ .Values.service.port }}
           env:
-            {{- toYaml .Values.env | nindent 12 | trim }}   # Corrected: Removed extra spaces around toYaml
+            {{- range $key, $value := .Values.env }}
+            - name: {{ $key }}
+              value: "{{ $value }}"
+            {{- end }}
       restartPolicy: Always
