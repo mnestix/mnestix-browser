@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { useTreeItemState } from '@mui/x-tree-view';
+import { TreeItem, useTreeItemState } from '@mui/x-tree-view';
 import clsx from 'clsx';
-import { Box, Button, IconButton } from '@mui/material';
+import { Box, Button, IconButton, styled } from '@mui/material';
 import { Entity, ISubmodelElement, KeyTypes, RelationshipElement } from '@aas-core-works/aas-core3.0-typescript/types';
 import { AssetIcon } from 'components/custom-icons/AssetIcon';
 import { ArrowForward, ArticleOutlined, InfoOutlined, PinDropOutlined } from '@mui/icons-material';
@@ -13,9 +13,7 @@ import { EntityDetailsDialog } from './EntityDetailsDialog';
 import { RelationShipDetailsDialog } from './RelationShipDetailsDialog';
 import { GetKeyType } from 'lib/util/KeyTypeUtil';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
-import { CustomTreeItemContentProps, CustomTreeItemProps, ExpandableTreeitem, StyledTreeItem } from '../TreeItem';
-
-
+import { CustomTreeItemContentProps, CustomTreeItemProps, ExpandableTreeitem, getTreeItemStyle } from '../TreeItem';
 
 const CustomContent = React.forwardRef(function CustomContent(props: CustomTreeItemContentProps, ref) {
     const navigate = useRouter();
@@ -129,6 +127,8 @@ const CustomContent = React.forwardRef(function CustomContent(props: CustomTreeI
         </>
     );
 });
+
+const StyledTreeItem = styled(TreeItem)(({ theme }) => getTreeItemStyle(theme))
 
 export const EntityTreeItem = (props: CustomTreeItemProps) => {
     const { data, ...other } = props;

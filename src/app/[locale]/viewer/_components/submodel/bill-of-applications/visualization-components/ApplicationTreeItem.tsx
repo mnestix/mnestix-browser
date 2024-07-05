@@ -1,8 +1,8 @@
 ﻿import * as React from 'react';
 import { ArrowForward, InfoOutlined } from '@mui/icons-material';
 import AppShortcutIcon from '@mui/icons-material/AppShortcut';
-import { useTreeItemState } from '@mui/x-tree-view';
-import { Box, Button, IconButton, useTheme } from '@mui/material';
+import { TreeItem, useTreeItemState } from '@mui/x-tree-view';
+import { Box, Button, IconButton, styled } from '@mui/material';
 import clsx from 'clsx';
 import { messages } from 'lib/i18n/localization';
 import { FormattedMessage } from 'react-intl';
@@ -12,7 +12,7 @@ import { useAasState } from 'components/contexts/CurrentAasContext';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { GetKeyType } from 'lib/util/KeyTypeUtil';
 import { EntityDetailsDialog } from 'app/[locale]/viewer/_components/submodel-elements/entity-component/EntityDetailsDialog';
-import { CustomTreeItemContentProps, CustomTreeItemProps, ExpandableTreeitem, StyledTreeItem } from '../../../submodel-elements/TreeItem';
+import { CustomTreeItemContentProps, CustomTreeItemProps, ExpandableTreeitem, getTreeItemStyle } from '../../../submodel-elements/TreeItem';
 
 interface ApplicationTreeItemProps extends CustomTreeItemProps {
     hasChildEntities: boolean;
@@ -23,6 +23,8 @@ interface ApplicationTreeItemContentProps extends CustomTreeItemContentProps {
     hasChildEntities: boolean;
     applicationUrl?: string;
 }
+
+const StyledTreeItem = styled(TreeItem)(({ theme }) => getTreeItemStyle(theme))
 
 const CustomContent = React.forwardRef(function CustomContent(props: ApplicationTreeItemContentProps, ref) {
     const {
