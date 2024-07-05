@@ -5,9 +5,9 @@ replicaCount: 1
 
 # Docker image details
 image:
-  repository: dockerhub.io/mnestix-browser
+  repository: mnestix/mnestix-browser
   pullPolicy: IfNotPresent
-  tag: '1.0.0'
+  tag: latest
   pullSecrets: []
 
 # Kubernetes Service settings
