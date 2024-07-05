@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: { { include "mnestix-api-chart.fullname" . } }
+  labels: { { - include "mnestix-api-chart.labels" . | nindent 4 } }
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { { - include "mnestix-api-chart.selectorLabels" . | nindent 6 } }
+  template:
+    metadata:
+      labels: { { - include "mnestix-api-chart.selectorLabels" . | nindent 8 } }
+    spec:
+      containers:
+        - name: { { .Chart.Name } }
+          image: '{{ .Values.image.repository }}:{{ .Values.image.tag }}'
+          ports:
+            - containerPort: { { .Values.service.port } }
+          env: { { - toYaml .Values.env | nindent 12 } }
+      restartPolicy: Always
