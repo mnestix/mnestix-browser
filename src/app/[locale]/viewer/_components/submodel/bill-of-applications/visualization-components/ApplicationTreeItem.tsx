@@ -1,66 +1,44 @@
 ﻿import * as React from 'react';
 import { ArrowForward, InfoOutlined } from '@mui/icons-material';
 import AppShortcutIcon from '@mui/icons-material/AppShortcut';
-import { TreeItem, TreeItemContentProps, TreeItemProps, useTreeItemState } from '@mui/x-tree-view';
-import { Box, Button, IconButton, styled, useTheme } from '@mui/material';
-import Typography from '@mui/material/Typography';
+import { TreeItem, useTreeItemState } from '@mui/x-tree-view';
+import { Box, Button, IconButton, styled } from '@mui/material';
 import clsx from 'clsx';
 import { messages } from 'lib/i18n/localization';
 import { FormattedMessage } from 'react-intl';
-import { Entity, ISubmodelElement, KeyTypes } from '@aas-core-works/aas-core3.0-typescript/types';
-import { IconCircleWrapper } from 'components/basics/IconCircleWrapper';
+import { Entity, KeyTypes } from '@aas-core-works/aas-core3.0-typescript/types';
 import { AssetIcon } from 'components/custom-icons/AssetIcon';
 import { useAasState } from 'components/contexts/CurrentAasContext';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { GetKeyType } from 'lib/util/KeyTypeUtil';
 import { EntityDetailsDialog } from 'app/[locale]/viewer/_components/submodel-elements/entity-component/EntityDetailsDialog';
+import { CustomTreeItemContentProps, CustomTreeItemProps, ExpandableTreeitem, getTreeItemStyle } from '../../../submodel-elements/TreeItem';
 
-interface CustomTreeItemProps extends TreeItemProps {
-    data?: ISubmodelElement;
+interface ApplicationTreeItemProps extends CustomTreeItemProps {
     hasChildEntities: boolean;
     applicationUrl?: string;
 }
 
-interface CustomTreeItemContentProps extends TreeItemContentProps {
-    data?: ISubmodelElement;
+interface ApplicationTreeItemContentProps extends CustomTreeItemContentProps {
     hasChildEntities: boolean;
     applicationUrl?: string;
 }
 
-const StyledTreeItem = styled(TreeItem)(({ theme }) => ({
-    '.MuiTreeItem-content': {
-        userSelect: 'none',
-        margin: 0,
-        borderBottom: '1px solid',
-        borderColor: theme.palette.divider,
-        '&.Mui-focused': {
-            backgroundColor: 'transparent',
-        },
-        '&.Mui-focused:hover': {
-            backgroundColor: theme.palette.action.hover,
-        },
-        '&.Mui-focused.Mui-selected': {
-            backgroundColor: theme.palette.action.selected,
-        },
-    },
-}));
+const StyledTreeItem = styled(TreeItem)(({ theme }) => getTreeItemStyle(theme))
 
-const CustomContent = React.forwardRef(function CustomContent(props: CustomTreeItemContentProps, ref) {
-    const theme = useTheme();
+const CustomContent = React.forwardRef(function CustomContent(props: ApplicationTreeItemContentProps, ref) {
     const {
         classes,
         className,
         label,
         itemId,
         icon: iconProp,
-        expansionIcon,
-        displayIcon,
         data,
         hasChildEntities,
         applicationUrl,
+        ...other
     } = props;
     const { disabled, expanded, selected, focused, handleExpansion } = useTreeItemState(itemId);
-    const toggleIcon = iconProp || expansionIcon || displayIcon;
     const isEntity = data && GetKeyType(data) === KeyTypes.Entity;
     const [aas] = useAasState();
     const assetId = aas?.assetInformation.globalAssetId;
@@ -106,36 +84,14 @@ const CustomContent = React.forwardRef(function CustomContent(props: CustomTreeI
                 ref={ref as React.Ref<HTMLDivElement>}
                 data-testid="boa-entity"
             >
-                <Box data-testid="expand-entity-icon" className={classes.iconContainer} sx={{ py: 1 }}>
-                    {toggleIcon}
-                </Box>
-                <Box
-                    sx={{
-                        [theme.breakpoints.down(480)]: {
-                            flex: 1,
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                        },
-                    }}
-                    display="flex"
-                    alignItems="center"
-                >
-                    <IconCircleWrapper>{dataIcon}</IconCircleWrapper>
-                    <Typography
-                        component="div"
-                        sx={{
-                            py: 2,
-                            pr: 1,
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                        }}
-                        className={classes.label}
-                    >
-                        {label}
-                    </Typography>
-                </Box>
+                <ExpandableTreeitem 
+                    icon={iconProp} 
+                    dataIcon={dataIcon} 
+                    classes={classes}
+                    itemId={itemId}
+                    label={label}
+                    {...other}
+                />
                 <Box sx={{ ml: 'auto', pl: 1, display: 'flex' }}>
                     {!hasChildEntities && (
                         <>
@@ -165,7 +121,7 @@ const CustomContent = React.forwardRef(function CustomContent(props: CustomTreeI
     );
 });
 
-export const ApplicationTreeItem = (props: CustomTreeItemProps) => {
+export const ApplicationTreeItem = (props: ApplicationTreeItemProps) => {
     const { data, hasChildEntities, applicationUrl, ...other } = props;
     /* eslint-disable @typescript-eslint/no-explicit-any */
     return (
