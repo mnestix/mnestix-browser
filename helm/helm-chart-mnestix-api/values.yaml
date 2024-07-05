@@ -6,8 +6,12 @@ image:
 
 service:
   port: 5064
+  type: ClusterIP
 
-environment:
+ingress:
+  enable: false
+
+env:
   CustomerEndpointsSecurity__ApiKey: ${MNESTIX_BACKEND_API_KEY}
   ReverseProxy__Clusters__repoCluster__Destinations__destination1__Address: 'http://aas-aas-environment:8080/'
   ReverseProxy__Clusters__discoveryCluster__Destinations__destination1__Address: 'http://aas-aas-discovery:8080/'

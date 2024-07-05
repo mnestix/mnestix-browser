@@ -1,20 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: { { include "mnestix-api-chart.fullname" . } }
-  labels: { { - include "mnestix-api-chart.labels" . | nindent 4 } }
+  name: {{ .Release.Name }}-deployment
+  labels:
+    app: {{ .Chart.Name }}
 spec:
   replicas: 1
   selector:
-    matchLabels: { { - include "mnestix-api-chart.selectorLabels" . | nindent 6 } }
+    matchLabels:
+      app: {{ .Chart.Name }}
   template:
     metadata:
-      labels: { { - include "mnestix-api-chart.selectorLabels" . | nindent 8 } }
+      labels:
+        app: {{ .Chart.Name }}
     spec:
       containers:
-        - name: { { .Chart.Name } }
+        - name: {{ .Chart.Name }}  # Corrected: Removed extra spaces around .Chart.Name
           image: '{{ .Values.image.repository }}:{{ .Values.image.tag }}'
           ports:
-            - containerPort: { { .Values.service.port } }
-          env: { { - toYaml .Values.env | nindent 12 } }
+            - containerPort: {{ .Values.service.port }}
+          env:
+            {{- toYaml .Values.env | nindent 12 | trim }}   # Corrected: Removed extra spaces around toYaml
       restartPolicy: Always
