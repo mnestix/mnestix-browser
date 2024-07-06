@@ -1,0 +1,86 @@
+name: Build and deploy to Azure Kubernetes Service
+
+env:
+  AZURE_CONTAINER_REGISTRY: cryacoubcp # set this to the name of your container registry
+  PROJECT_NAME: type-aas-gui # set this to your project's name
+  RESOURCE_GROUP: rg-yacoub-cp-iiot # set this to the resource group containing your AKS cluster
+  CLUSTER_NAME: aks-yacoub-cp-iiot # set this to the name of your AKS cluster
+  REGISTRY_URL: cryacoubcp.azurecr.io # set this to the URL of your registry
+  # If you bake using helm:
+  CHART_PATH: helm-chart # set this to the path to your helm file
+  CHART_OVERRIDE_PATH: helm-chart/values.yaml # set this to an array of override file paths
+  NAME_SPACE: mnestix-browser
+  RELEASE: mnestix-browser-release
+
+on:
+  #   push:
+  #     branches: ['main']
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Azure CLI
+        run: |
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+      - name: Install kubectl
+        run: |
+          curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x ./kubectl
+          sudo mv ./kubectl /usr/local/bin/kubectl
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Set Azure Defaults
+        run: az configure --defaults acr=${{ env.AZURE_CONTAINER_REGISTRY }}
+
+      # Commented out for test run
+      #   - name: Build image on ACR
+      #     run: az acr build --image ${{ env.REGISTRY_URL }}/${{ env.PROJECT_NAME }}:${{ github.sha }} --file Dockerfile .
+
+      - name: Set up AKS
+        run: |
+          az aks get-credentials --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.CLUSTER_NAME }}
+
+      - name: Install Helm
+        run: |
+          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+          chmod 700 get_helm.sh
+          ./get_helm.sh
+
+      - name: Verify Kubernetes context
+        run: kubectl config current-context
+
+      - name: Create Kubernetes namespace
+        run: |
+          kubectl create namespace ${{ env.NAME_SPACE }} || true
+
+      - name: Deploy to AKS using Helm
+        run: |
+          helm upgrade --install ${{ env.RELEASE }} ./${{ env.CHART_PATH }} --timeout 3m \
+          --values ${{ env.CHART_OVERRIDE_PATH }} \
+          --namespace ${{ env.NAME_SPACE }} \
+          --set image.repository=docker.io/mnestix-browser \
+          --set image.tag=1.0.0 \
+          --debug
+
+      #   - name: Deploy to AKS using Helm
+      #     run: |
+      #       helm upgrade --install ${{ env.RELEASE }} ./${{ env.CHART_PATH }} --timeout 3m \
+      #       --values ${{ env.CHART_OVERRIDE_PATH }} \
+      #       --namespace ${{ env.NAME_SPACE }} \
+      #       --set image.repository=${{ env.REGISTRY_URL }}/${{ env.PROJECT_NAME }} \
+      #       --set image.tag=${{ github.sha }} \
+      #       --debug
+
+      - name: Check pod status
+        run: |
+          kubectl get pods --namespace ${{ env.NAME_SPACE }}
+          kubectl wait --for=condition=Ready pod --all --namespace ${{ env.NAME_SPACE }} --timeout=300s
