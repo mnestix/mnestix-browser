@@ -167,7 +167,7 @@ export const enMnestix = {
         addAnother: 'Add another AAS',
         assetIdNotFound: 'Asset Id not found',
         aasAlreadyAdded: 'AAS cannot be added more than once',
-        moreAasFound: 'More than one Aas found in the discovery service, please provide the AAS ID instead.',
+        moreAasFound: 'More than one AAS found in the discovery service, please provide the AAS ID instead.',
     },
     compareCollection: {
         show: '{idShort}',

@@ -11,7 +11,7 @@ import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { ImageWithFallback } from './StyledImageWithFallBack';
 import { ProductClassChip } from 'app/[locale]/list/_components/ProductClassChip';
 import { tooltipText } from 'lib/util/ToolTipText';
-import PictureTableCell from 'components/basics/ListBasics/PictureTableCell';
+import PictureTableCell from 'components/basics/listBasics/PictureTableCell';
 
 type AasTableRowProps = {
     aasListEntry: AasListEntry;

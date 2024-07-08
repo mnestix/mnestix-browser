@@ -167,7 +167,7 @@ export const deMnestix = {
         addAnother: 'Eine weitere Verwaltungsschale hinzufügen',
         assetIdNotFound: 'Asset Id nicht gefunden',
         aasAlreadyAdded: 'Verwaltungsschale kann nicht mehrmals hinzugefügt werden',
-        moreAasFound: 'Mehr als ein AAS im Discovery Service gefunden, bitte geben Sie die AAS-ID an.',
+        moreAasFound: 'Mehr als eine Verwaltungsschale im Discovery Service gefunden, bitte geben Sie die AAS-ID an.',
     },
     compareCollection: {
         show: '{idShort}',

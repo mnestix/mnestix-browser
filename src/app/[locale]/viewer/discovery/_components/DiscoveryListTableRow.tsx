@@ -1,6 +1,6 @@
 ﻿import { TableCell } from '@mui/material';
 import { IDiscoveryListEntry } from 'lib/types/DiscoveryListEntry';
-import PictureTableCell from 'components/basics/ListBasics/PictureTableCell';
+import PictureTableCell from 'components/basics/listBasics/PictureTableCell';
 import { useAasState } from 'components/contexts/CurrentAasContext';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { useRouter } from 'next/navigation';
