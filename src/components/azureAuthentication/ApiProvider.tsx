@@ -36,7 +36,7 @@ export const ApiProvider = (props: PropsWithChildren) => {
         submodelClient: new SubmodelRepositoryApi({ basePath: env.AAS_REPO_API_URL }),
         discoveryServiceClient: new DiscoveryServiceApi(env.DISCOVERY_API_URL),
         registryServiceClient: new RegistryServiceApi(env.REGISTRY_API_URL),
-        submodelRegistryServiceClient: new SubmodelRegistryServiceApi(),
+        submodelRegistryServiceClient: new SubmodelRegistryServiceApi(env.SUBMODEL_REGISTRY_API_URL),
     };
 
     return <ApiContext.Provider value={apis}>{props.children}</ApiContext.Provider>;
