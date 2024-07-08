@@ -12,6 +12,11 @@ import { cloneDeep } from 'lodash';
 import { SubmodelElementSemanticId } from 'lib/enums/SubmodelElementSemanticId.enum';
 import { GetKeyType } from 'lib/util/KeyTypeUtil';
 import { GetEntityType } from 'lib/util/EntityTypeUtil';
+import { Box, IconButton } from '@mui/material';
+import { SubmodelElementRenderer } from '../../submodel-elements/SubmodelElementRenderer';
+import { InfoOutlined } from '@mui/icons-material';
+import { EntityDetailsDialog } from '../../submodel-elements/entity-component/EntityDetailsDialog';
+import React from 'react';
 
 type HierarchicalStructuresDetailProps = {
     readonly submodel: Submodel;
@@ -33,6 +38,14 @@ export function HierarchicalStructuresDetail(props: HierarchicalStructuresDetail
         return;
     });
 
+    const ArcheTypeSemanticId = 'https://admin-shell.io/idta/HierarchicalStructures/ArcheType/1/0';
+    const archeTypePropertylElement= smElements.find((el) => {
+        if (GetKeyType(el) === KeyTypes.Property && el.semanticId?.keys[0].value === ArcheTypeSemanticId) {
+            return el as Property;
+        }
+        return;
+    });
+
     const [entryNode, relationShips, entityNodes] = prepareEntryNodeModel(entitySubmodelElement);
 
     (entryNode as Entity).statements = buildRelationTree(
@@ -40,8 +53,46 @@ export function HierarchicalStructuresDetail(props: HierarchicalStructuresDetail
         relationShips as RelationshipElement[],
         entityNodes as Entity[],
     );
+    const [detailsModalOpen, setDetailsModalOpen] = React.useState(false);
+    const handleDetailsModalClose = () => {
+        setDetailsModalOpen(false);
+    };
+    const handleDetailsClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
+        event.stopPropagation();
+        setDetailsModalOpen(true);
+    };
 
-    return <EntityComponent entity={entryNode as Entity} />;
+    return (
+        <Box width="100%">
+            <EntityComponent entity={entryNode as Entity} />
+
+            {archeTypePropertylElement && 
+            <>
+                <Box sx={{ mt: 2, display: 'flex' }}>
+                <SubmodelElementRenderer
+                    key={archeTypePropertylElement.idShort}
+                    submodelId={props.submodel.id}
+                    submodelElement={archeTypePropertylElement}
+                    hasDivider={false}/>    
+                    
+                <Box sx={{ ml: '2px', pl: 1, display: 'flex', height: '50%' }}>
+                
+                    <IconButton sx={{ mr: 1 }} onClick={handleDetailsClick}>
+                        <InfoOutlined data-testid="entity-info-icon" sx={{ color: 'text.secondary' }} />
+                    </IconButton>
+                </Box>
+                </Box>
+                <EntityDetailsDialog
+                    open={detailsModalOpen}
+                    handleClose={handleDetailsModalClose}
+                    entity={archeTypePropertylElement as Entity}
+                />
+            </>
+           
+            }
+      
+        </Box>
+    );
 }
 
 const prepareEntryNodeModel = (subMod?: ISubmodelElement) => {
@@ -85,6 +136,13 @@ const prepareEntryNodeModel = (subMod?: ISubmodelElement) => {
             if (!elementEntity.statements) elementEntity.statements = [];
 
             entityNodes.push(elementEntity);
+        }
+
+        if (elementType === KeyTypes.Property){
+            // check if this is archetype property
+            if (elementEntity.idShort === 'ArcheType'){
+              console.log(elementEntity);
+            }
         }
     });
 
