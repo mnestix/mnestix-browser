@@ -19,7 +19,8 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
     const [selectedItem, setSelectedItem] = useState<TabSelectorItem>();
     const [selectedSubmodel, setSelectedSubmodel] = useState<Submodel>();
     const { submodelClient } = useApis();
-    const [ registryAasData] = useRegistryAasState();
+    const [registryAasData] = useRegistryAasState();
+    const { submodelRegistryServiceClient } = useApis();
 
     SubmodelSorting(selectedSubmodel);
 
@@ -43,16 +44,24 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
             });
         } else {
             for (const reference of props.smReferences as Reference[]) {
-                for (const key of reference.keys as Key[]) {
+                try {
+                    const submodelFromRegistry = await submodelRegistryServiceClient.getSubmodelDescriptorsById(reference.keys[0].value);
+                    submodels.push({
+                        id: submodelFromRegistry.id,
+                        label: submodelFromRegistry.idShort ?? '',
+                        endpoint: submodelFromRegistry.endpoints[0].protocolInformation.href,
+                    });
+                } catch (e) {
                     try {
-                        const metadata = await submodelClient.getSubmodelMetaDataById(key.value);
-                        submodels.push({ id: key.value, label: metadata.idShort ?? '', metadata });
+                        const metadata = await submodelClient.getSubmodelMetaDataById(reference.keys[0].value);
+                        submodels.push({ id: reference.keys[0].value, label: metadata.idShort ?? '', metadata });
                     } catch (e) {
                         console.error(e);
                     }
                 }
             }
         }
+
 
         if (submodels) {
             submodels.sort(function (x, y) {
@@ -75,11 +84,9 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
         let fetchedSubmodel;
 
         if (selectedSubmodel) {
-            if (registryAasData && selectedSubmodel.endpoint) {
+            if (selectedSubmodel.endpoint) {
                 fetchedSubmodel = await getSubmodelFromSubmodelDescriptor(selectedSubmodel.endpoint);
-            }
-
-            if (!registryAasData) {
+            } else {
                 fetchedSubmodel = await submodelClient.getSubmodelById(selectedSubmodel?.id ?? '');
             }
         }
@@ -105,16 +112,16 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                         <>
                             <Box>
                                 {[0, 1, 2].map((i) => {
-                                    return <Skeleton variant="rectangular" key={i} height={50} sx={{ mb: 2 }} />;
+                                    return <Skeleton variant="rectangular" key={i} height={50} sx={{ mb: 2 }}/>;
                                 })}
                             </Box>
                             <Box>
                                 {[0, 1, 2].map((i) => {
                                     return (
                                         <Box sx={{ mb: 2 }} key={i}>
-                                            <Skeleton variant="text" width="50%" />
-                                            <Skeleton variant="text" width="30%" />
-                                            {i < 2 && <Divider sx={{ mt: 2 }} />}
+                                            <Skeleton variant="text" width="50%"/>
+                                            <Skeleton variant="text" width="30%"/>
+                                            {i < 2 && <Divider sx={{ mt: 2 }}/>}
                                         </Box>
                                     );
                                 })}
@@ -122,16 +129,16 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                         </>
                     ) : (
                         <>
-                            <VerticalTabSelector items={items} selected={selectedItem} setSelected={setSelectedItem} />
+                            <VerticalTabSelector items={items} selected={selectedItem} setSelected={setSelectedItem}/>
                             {isMobile ? (
                                 <MobileModal
                                     title={items.find((i) => i.id === selectedItem?.id)?.label}
                                     open={open}
                                     handleClose={handleClose}
-                                    content={<SubmodelDetail submodel={selectedSubmodel} />}
+                                    content={<SubmodelDetail submodel={selectedSubmodel}/>}
                                 />
                             ) : (
-                                <SubmodelDetail submodel={selectedSubmodel} />
+                                <SubmodelDetail submodel={selectedSubmodel}/>
                             )}
                         </>
                     )}

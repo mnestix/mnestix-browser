@@ -59,4 +59,5 @@ export type Apis = {
     submodelClient: SubmodelRepositoryApi;
     discoveryServiceClient: DiscoveryServiceApi;
     registryServiceClient: RegistryServiceApi;
+    submodelRegistryServiceClient: SubmodelRegistryServiceApi;
 };
