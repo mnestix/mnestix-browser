@@ -85,7 +85,6 @@ export function HierarchicalStructuresDetail(props: HierarchicalStructuresDetail
                 <ArchetypeDetailsDialog
                     open={detailsModalOpen}
                     handleClose={handleDetailsModalClose}
-                    entity={archeTypePropertylElement as Entity}
                 />
             </>
            
