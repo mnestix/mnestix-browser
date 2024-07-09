@@ -138,12 +138,6 @@ const prepareEntryNodeModel = (subMod?: ISubmodelElement) => {
             entityNodes.push(elementEntity);
         }
 
-        if (elementType === KeyTypes.Property){
-            // check if this is archetype property
-            if (elementEntity.idShort === 'ArcheType'){
-              console.log(elementEntity);
-            }
-        }
     });
 
     return [node, relationShips, entityNodes];
