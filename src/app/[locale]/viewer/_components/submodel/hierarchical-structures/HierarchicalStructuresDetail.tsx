@@ -15,8 +15,8 @@ import { GetEntityType } from 'lib/util/EntityTypeUtil';
 import { Box, IconButton } from '@mui/material';
 import { SubmodelElementRenderer } from '../../submodel-elements/SubmodelElementRenderer';
 import { InfoOutlined } from '@mui/icons-material';
-import { EntityDetailsDialog } from '../../submodel-elements/entity-component/EntityDetailsDialog';
 import React from 'react';
+import { ArchetypeDetailsDialog } from './ArchetypeDetailsDialog';
 
 type HierarchicalStructuresDetailProps = {
     readonly submodel: Submodel;
@@ -82,7 +82,7 @@ export function HierarchicalStructuresDetail(props: HierarchicalStructuresDetail
                     </IconButton>
                 </Box>
                 </Box>
-                <EntityDetailsDialog
+                <ArchetypeDetailsDialog
                     open={detailsModalOpen}
                     handleClose={handleDetailsModalClose}
                     entity={archeTypePropertylElement as Entity}
