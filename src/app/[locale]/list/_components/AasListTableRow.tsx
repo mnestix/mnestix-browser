@@ -1,5 +1,4 @@
-﻿import { Box, Checkbox, Chip, Paper, TableCell, Typography } from '@mui/material';
-import { ShellIcon } from 'components/custom-icons/ShellIcon';
+import { Box, Checkbox, Chip, TableCell, Typography } from '@mui/material';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { messages } from 'lib/i18n/localization';
 import { getProductClassId } from 'lib/util/ProductClassResolverUtil';
@@ -12,8 +11,9 @@ import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { ImageWithFallback } from './StyledImageWithFallBack';
 import { ProductClassChip } from 'app/[locale]/list/_components/ProductClassChip';
 import { tooltipText } from 'lib/util/ToolTipText';
+import PictureTableCell from 'components/basics/listBasics/PictureTableCell';
 
-type AasTableRow = {
+type AasTableRowProps = {
     aasListEntry: AasListEntry;
     comparisonFeatureFlag: boolean | undefined;
     checkBoxDisabled: (aasId: string | undefined) => boolean | undefined;
@@ -26,7 +26,7 @@ const tableBodyText = {
     fontSize: '16px',
     color: 'text.primary',
 };
-export const AasListTableRow = (props: AasTableRow) => {
+export const AasListTableRow = (props: AasTableRowProps) => {
     const { aasListEntry, comparisonFeatureFlag, checkBoxDisabled, selectedAasList, updateSelectedAasList } = props;
     const navigate = useRouter();
     const intl = useIntl();
@@ -72,32 +72,14 @@ export const AasListTableRow = (props: AasTableRow) => {
                     </Box>
                 </TableCell>
             )}
-            <TableCell component="th" scope="row" sx={tableBodyText}>
-                <Paper
-                    onClick={() => navigateToAas(aasListEntry)}
-                    sx={{
-                        width: '88px',
-                        height: '88px',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        '&:hover': {
-                            boxShadow: 6,
-                            cursor: 'pointer',
-                        },
-                    }}
-                    data-testid="list-thumbnail"
-                >
-                    {aasListEntry.thumbnailUrl ? (
-                        <ImageWithFallback
-                            src={aasListEntry.thumbnailUrl}
-                            alt={'Thumbnail image for: ' + aasListEntry.assetId}
-                        />
-                    ) : (
-                        <ShellIcon fontSize="large" color="primary" />
-                    )}
-                </Paper>
-            </TableCell>
+            <PictureTableCell onClickAction={() => navigateToAas(aasListEntry)}>
+                {aasListEntry.thumbnailUrl && (
+                    <ImageWithFallback
+                        src={aasListEntry.thumbnailUrl}
+                        alt={'Thumbnail image for: ' + aasListEntry.assetId}
+                    />
+                )}
+            </PictureTableCell>
             <TableCell align="left" sx={tableBodyText}>
                 {translateListText(aasListEntry.manufacturerName)}
             </TableCell>

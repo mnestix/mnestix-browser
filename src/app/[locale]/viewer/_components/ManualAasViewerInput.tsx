@@ -11,7 +11,7 @@ import { showError } from 'lib/util/ErrorHandlerUtil';
 import CloseIcon from '@mui/icons-material/Close';
 import { useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { getAasFromExternalServices } from 'lib/searchUtilActions/search';
+import { handleAasDiscoverySearch, handleAasRegistrySearch } from 'lib/searchUtilActions/search';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 
 export function ManualAASViewerInput(props: { focus: boolean }) {
@@ -45,20 +45,28 @@ export function ManualAASViewerInput(props: { focus: boolean }) {
         try {
             setIsLoading(true);
 
-            const { registrySearchResult, aasId } = await getAasFromExternalServices(val);
-            const aas =
-                registrySearchResult != null
-                    ? registrySearchResult.registryAas
-                    : await repositoryClient.getAssetAdministrationShellById(encodeBase64(aasId));
-            
-            setAas(aas);
-            registrySearchResult?.registryAasData != null
-                ? setRegistryAasData({
-                    submodelDescriptors: registrySearchResult?.registryAasData?.submodelDescriptors,
-                    aasRegistryRepositoryOrigin: registrySearchResult?.registryAasData?.aasRegistryRepositoryOrigin })
-                : setRegistryAasData(null);
+            const aasIds = await handleAasDiscoverySearch(val);
+            if (aasIds && aasIds.length > 1) {
+                navigate.push(`/viewer/discovery?aasId=${val}`);
+            } else {
+                const aasId = aasIds && aasIds.length === 1 ? aasIds[0] : val;
+                const registrySearchResult = await handleAasRegistrySearch(aasId);
+                const aas =
+                    registrySearchResult != null
+                        ? registrySearchResult.registryAas
+                        : await repositoryClient.getAssetAdministrationShellById(encodeBase64(aasId));
 
-            navigate.push(`/viewer/${encodeBase64(aas.id)}`);
+                setAas(aas);
+                registrySearchResult?.registryAasData != null
+                    ? setRegistryAasData({
+                          submodelDescriptors: registrySearchResult?.registryAasData?.submodelDescriptors,
+                          aasRegistryRepositoryOrigin:
+                              registrySearchResult?.registryAasData?.aasRegistryRepositoryOrigin,
+                      })
+                    : setRegistryAasData(null);
+
+                navigate.push(`/viewer/${encodeBase64(aas.id)}`);
+            }
         } catch (e: unknown) {
             setIsLoading(false);
             showError(e, notificationSpawner);
