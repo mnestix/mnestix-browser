@@ -24,6 +24,8 @@ export class SubmodelRegistryServiceApi {
 
         if (response.ok) {
             return response.json();
+        } else if(response.status == 404) {
+            return null;
         } else {
             throw response;
         }

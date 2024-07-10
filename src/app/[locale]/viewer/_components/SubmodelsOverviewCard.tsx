@@ -4,7 +4,7 @@ import { useIsMobile } from 'lib/hooks/UseBreakpoints';
 import { messages } from 'lib/i18n/localization';
 import { FormattedMessage } from 'react-intl';
 import { SubmodelDetail } from './submodel/SubmodelDetail';
-import { Key, Reference, Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
+import { Reference, Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { SubmodelSorting } from 'app/[locale]/viewer/_components/submodel/sorting/SubmodelSorting';
 import { TabSelectorItem, VerticalTabSelector } from 'components/basics/VerticalTabSelector';
@@ -45,19 +45,19 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
         } else {
             for (const reference of props.smReferences as Reference[]) {
                 try {
-                    const submodelFromRegistry = await submodelRegistryServiceClient.getSubmodelDescriptorsById(reference.keys[0].value);
-                    submodels.push({
-                        id: submodelFromRegistry.id,
-                        label: submodelFromRegistry.idShort ?? '',
-                        endpoint: submodelFromRegistry.endpoints[0].protocolInformation.href,
-                    });
-                } catch (e) {
-                    try {
+                    const submodelFromRegistry = await submodelRegistryServiceClient.getSubmodelDescriptorsById(reference.keys[0].value)
+                    if (submodelFromRegistry) {
+                        submodels.push({
+                            id: submodelFromRegistry.id,
+                            label: submodelFromRegistry.idShort ?? '',
+                            endpoint: submodelFromRegistry.endpoints[0].protocolInformation.href,
+                        });
+                    } else {
                         const metadata = await submodelClient.getSubmodelMetaDataById(reference.keys[0].value);
                         submodels.push({ id: reference.keys[0].value, label: metadata.idShort ?? '', metadata });
-                    } catch (e) {
-                        console.error(e);
                     }
+                } catch (e) {
+                    console.error(e);
                 }
             }
         }
@@ -85,9 +85,17 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
 
         if (selectedSubmodel) {
             if (selectedSubmodel.endpoint) {
-                fetchedSubmodel = await getSubmodelFromSubmodelDescriptor(selectedSubmodel.endpoint);
-            } else {
-                fetchedSubmodel = await submodelClient.getSubmodelById(selectedSubmodel?.id ?? '');
+                try {
+                    fetchedSubmodel = await getSubmodelFromSubmodelDescriptor(selectedSubmodel.endpoint);
+                } catch(e) {
+                    console.error(e);
+                }
+            } if (!registryAasData) {
+                try {
+                    fetchedSubmodel = await submodelClient.getSubmodelById(selectedSubmodel?.id ?? '');
+                } catch(e) {
+                    console.error(e);
+                }
             }
         }
 
