@@ -38,9 +38,8 @@ export function HierarchicalStructuresDetail(props: HierarchicalStructuresDetail
         return;
     });
 
-    const ArcheTypeSemanticId = 'https://admin-shell.io/idta/HierarchicalStructures/ArcheType/1/0';
     const archeTypePropertylElement= smElements.find((el) => {
-        if (GetKeyType(el) === KeyTypes.Property && el.semanticId?.keys[0].value === ArcheTypeSemanticId) {
+        if (GetKeyType(el) === KeyTypes.Property && el.semanticId?.keys[0].value === SubmodelElementSemanticId.ArcheType) {
             return el as Property;
         }
         return;
