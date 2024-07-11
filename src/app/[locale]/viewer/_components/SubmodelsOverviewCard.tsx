@@ -90,14 +90,14 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                 try {
                     fetchedSubmodel = await getSubmodelFromSubmodelDescriptor(selectedSubmodel.endpoint);
                 } catch (e) {
-                    console.error(e);
+                    console.debug(e);
                 }
             }
             if (!registryAasData) {
                 try {
                     fetchedSubmodel = await submodelClient.getSubmodelById(selectedSubmodel?.id ?? '');
                 } catch (e) {
-                    console.error(e);
+                    console.debug(e);
                 }
             }
         }
