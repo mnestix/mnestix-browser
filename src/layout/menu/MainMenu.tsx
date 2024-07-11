@@ -200,7 +200,7 @@ export default function MainMenu() {
                     paddingBottom="10px"
                     style={{ opacity: '0.6' }}
                 >
-                    {`Copyright © ${new Date().getFullYear()} XITASO GmbH`}
+                    {`Copyright © ${new Date().getFullYear()} Murrelektronik GmbH`}
                 </Typography>
                 {!useAuthentication ||
                     (!auth.isLoggedIn && (
