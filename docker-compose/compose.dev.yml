@@ -22,15 +22,15 @@ services:
       COMPARISON_FEATURE_FLAG: true
       AUTHENTICATION_FEATURE_FLAG: true
       LOCK_TIMESERIES_PERIOD_FEATURE_FLAG: true
-      THEME_PRIMARY_COLOR: '#0d4453'
-      THEME_SECONDARY_COLOR: '#147f8a'
-#      THEME_LOGO_MIME_TYPE: 'image/svg+xml'
-      THEME_LOGO_URL: https://xitaso.com/wp-content/uploads/XITASO-Logo-quer.svg
-      
+      THEME_PRIMARY_COLOR: '#3DB60F'
+      THEME_SECONDARY_COLOR: '#37A40D'
+      #      THEME_LOGO_MIME_TYPE: 'image/svg+xml'
+      THEME_LOGO_URL: '/images/murr-company-logo.png'
+
     volumes:
       - ../src:/app/src
       - ../public:/app/public
-#      - ./data/logo.svg:/app/public/logo
+    #      - ./data/logo.svg:/app/public/logo
     restart: always
     ports:
       - '3000:3000'
@@ -73,7 +73,7 @@ services:
       service: aas-discovery
     networks:
       - mnestix-network
-  
+
   aas-registry:
     extends:
       file: common-services.yml

@@ -14,7 +14,7 @@ const i18nMiddleware = createMiddleware({
 });
 
 // paths where we do not need localized path
-const unlocalizedPaths = ['/api', '/_next/static', '/_next/image', '/favicon.ico'];
+const unlocalizedPaths = ['/api', '/_next/static', '/_next/image', '/favicon.ico', '/images'];
 
 const unlocalizedPathsRegex = RegExp(
     `^(${unlocalizedPaths.map((str) => `(${str.startsWith('/') ? str : '/' + str})`).join('|')})(/?$|/.*)`,

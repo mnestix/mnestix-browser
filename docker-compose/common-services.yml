@@ -122,7 +122,7 @@ services:
     image: eclipsebasyx/aas-registry-log-mongodb:2.0.0-SNAPSHOT
     container_name: aas-registry-mongo
     ports:
-      - "8083:8080"
+      - '8083:8080'
     depends_on:
       - mongodb
     restart: always

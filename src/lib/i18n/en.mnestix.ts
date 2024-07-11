@@ -1,5 +1,5 @@
 export const enMnestix = {
-    welcome: 'Welcome to Mnestix',
+    welcome: 'Welcome to Murrelektronik',
     digitalTwinMadeEasy: 'Digital Twin made easy.',
     notFound: 'Not found',
     cannotLoadAasId: {
