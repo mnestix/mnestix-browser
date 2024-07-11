@@ -12,6 +12,8 @@ import { MobileModal } from 'components/basics/MobileModal';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { getSubmodelFromSubmodelDescriptor } from 'lib/searchUtilActions/search';
+import { useEnv } from 'app/env/provider';
+
 
 export type SubmodelsOverviewCardProps = { readonly smReferences?: Reference[]; readonly isLoading?: boolean };
 
@@ -28,6 +30,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
     const [open, setOpen] = useState<boolean>(false);
     const isMobile = useIsMobile();
     const firstSubmodelIdShort = 'Nameplate';
+    const env = useEnv();
 
     useAsyncEffect(async () => {
         if (!props.smReferences) return;
@@ -45,7 +48,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
         } else {
             for (const reference of props.smReferences as Reference[]) {
                 try {
-                    const submodelFromRegistry = await submodelRegistryServiceClient.getSubmodelDescriptorsById(reference.keys[0].value)
+                    const submodelFromRegistry = env.SUBMODEL_REGISTRY_API_URL ? await submodelRegistryServiceClient.getSubmodelDescriptorsById(reference.keys[0].value) : null
                     if (submodelFromRegistry) {
                         submodels.push({
                             id: submodelFromRegistry.id,
@@ -61,7 +64,6 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                 }
             }
         }
-
 
         if (submodels) {
             submodels.sort(function (x, y) {
@@ -87,13 +89,14 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
             if (selectedSubmodel.endpoint) {
                 try {
                     fetchedSubmodel = await getSubmodelFromSubmodelDescriptor(selectedSubmodel.endpoint);
-                } catch(e) {
+                } catch (e) {
                     console.error(e);
                 }
-            } if (!registryAasData) {
+            }
+            if (!registryAasData) {
                 try {
                     fetchedSubmodel = await submodelClient.getSubmodelById(selectedSubmodel?.id ?? '');
-                } catch(e) {
+                } catch (e) {
                     console.error(e);
                 }
             }
