@@ -4,8 +4,8 @@ networks:
     name: mnestix-network
 
 services:
-  mnestix-frontend:
-    container_name: mnestix-frontend
+  mnestix-browser:
+    container_name: mnestix-browser
     build:
       context: ../.
       dockerfile: Dockerfile

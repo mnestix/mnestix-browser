@@ -65,12 +65,12 @@ The Mnestix Browser is now running on http://localhost:3000.
 
 #### Run Mnestix Browser Only
 You can start the Mnestix Browser as standalone application as well. There is a provided docker compose file to run the Mnestix Browser out of the box. 
-To do that, the environment variables in `docker-compose/compose.only-frontend.yml` should be adjusted to the available values.
+To do that, the environment variables in `docker-compose/compose.only-browser.yml` should be adjusted to the available values.
 You need to have at least the `AAS_REPO_API_URL` variable set to be able to view an AAS. A detailed description on how to configure the viewer can be found at the [configuration](#mnestix-configuration-settings) section.
 
 Afterwards start the Mnestix Browser with the following command:
 ```
-yarn docker:only-frontend
+yarn docker:only-browser
 ```
 The Mnestix Browser is now running on http://localhost:3000.
 
@@ -86,13 +86,13 @@ To check what other options exist to run the Mnestix Browser, see the yarn scrip
     **Mnestix Browser on port 3000 - http://localhost:3000** <br>
     **Mnestix Api on port 5064 - http://localhost:5064** <br>
     **AAS Repo on port 8081 - http://localhost:8081/swagger-ui/index.html** <br><br>
--   **compose.only-frontend.yml** - will start only Mnestix Browser without any additional services.
+-   **compose.only-browser.yml** - will start only Mnestix Browser without any additional services.
     With this setup, it is important to specify an external AAS Repository with appropriate flag settings, see frontend flags [section](#frontend-configuration).
     <br>**Mnestix Browser on port 3000 - http://localhost:3000** <br><br>
 -   **compose.test.yml** - used to configure and run end-to-end (E2E) tests using Cypress. When this file is executed, it will start the necessary services for the application and execute the Cypress tests.
     If any test fails, the results and logs will be saved in a designated directory for further analysis.
 
-All these compose files except the `only-frontend` use services specified in the `common-services.yml` file
+All these compose files except the `only-browser` use services specified in the `common-services.yml` file
 
 -   **common-services.yml** - Specifies the services required to run an AAS environment with:
     -   mnestix-api - API service from the Mnestix ecosystem designed to expand Mnestix Browser functionalities,
@@ -125,11 +125,11 @@ docker compose -f docker-compose/compose.dev.yml up
 ```
 Only Mnestix Browser:
 ```sh
-yarn docker:only-frontend
+yarn docker:only-browser
 ```
 or
 ```sh
-docker compose -f docker-compose/compose.only-frontend.yml up
+docker compose -f docker-compose/compose.only-browser.yml up
 ```
 E2E Testing with Cypress:
 ```sh

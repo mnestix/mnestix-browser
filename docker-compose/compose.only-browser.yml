@@ -1,7 +1,7 @@
 services:
-  mnestix-frontend:
-    image: gitlab.xitaso.com:5000/mnes/mnestix-frontend # Using the pipeline image
-    container_name: mnestix-frontend
+  mnestix-browser:
+    image: mnestix/mnestix-browser:latest # Using the pipeline image
+    container_name: mnestix-browser
     build:
       context: ../.
       dockerfile: Dockerfile

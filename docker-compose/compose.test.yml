@@ -9,7 +9,7 @@ services:
       context: ../.
       dockerfile: cypress.dockerfile
     environment:
-      CYPRESS_BASE_URL: 'http://mnestix-frontend:3000'
+      CYPRESS_BASE_URL: 'http://mnestix-browser:3000'
       CYPRESS_AAS_REPO_API_URL: 'http://mnestix-api:5064/repo'
       CYPRESS_MNESTIX_BACKEND_API_URL: 'http://mnestix-api:5064'
       CYPRESS_AAS_DISCOVERY_API_URL: 'http://mnestix-api:5064/discovery'
@@ -18,16 +18,16 @@ services:
       - ../cypress-artifacts/screenshots:/cypress_Tests/cypress/screenshots
       - ../cypress-artifacts/videos:/cypress_Tests/cypress/videos
     depends_on:
-      - mnestix-frontend
+      - mnestix-browser
       - mnestix-api
       - aas
     networks:
       - mnestix-network
 
-  mnestix-frontend:
+  mnestix-browser:
     extends:
       file: compose.yml
-      service: mnestix-frontend
+      service: mnestix-browser
     environment:
       AAS_REPO_API_URL: 'http://mnestix-api:5064/repo'
       DISCOVERY_API_URL: 'http://mnestix-api:5064/discovery'
