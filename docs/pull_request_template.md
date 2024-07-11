@@ -21,4 +21,5 @@ Please delete options that are not relevant.
 - [ ] My changes generate no new warnings
 - [ ] I have added tests that prove my fix or my feature works
 - [ ] New and existing tests pass locally with my changes
+- [ ] My changes contain no console logs
 
