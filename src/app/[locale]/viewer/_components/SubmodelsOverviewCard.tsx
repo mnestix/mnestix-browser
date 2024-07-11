@@ -37,6 +37,11 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
 
         const submodels: { id: string; label: string; metadata?: Submodel; endpoint?: string }[] = [];
 
+        async function fetchSubmodelFromRepo(reference: Reference) {
+            const metadata = await submodelClient.getSubmodelMetaDataById(reference.keys[0].value);
+            submodels.push({ id: reference.keys[0].value, label: metadata.idShort ?? '', metadata });
+        }
+
         if (registryAasData) {
             registryAasData.submodelDescriptors?.forEach((submodelDescriptor) => {
                 submodels.push({
@@ -47,20 +52,23 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
             });
         } else {
             for (const reference of props.smReferences as Reference[]) {
+                let submodelFromRegistry;
                 try {
-                    const submodelFromRegistry = env.SUBMODEL_REGISTRY_API_URL ? await submodelRegistryServiceClient.getSubmodelDescriptorsById(reference.keys[0].value) : null
-                    if (submodelFromRegistry) {
-                        submodels.push({
-                            id: submodelFromRegistry.id,
-                            label: submodelFromRegistry.idShort ?? '',
-                            endpoint: submodelFromRegistry.endpoints[0].protocolInformation.href,
-                        });
-                    } else {
-                        const metadata = await submodelClient.getSubmodelMetaDataById(reference.keys[0].value);
-                        submodels.push({ id: reference.keys[0].value, label: metadata.idShort ?? '', metadata });
-                    }
+                    submodelFromRegistry = env.SUBMODEL_REGISTRY_API_URL ? await submodelRegistryServiceClient.getSubmodelDescriptorsById(reference.keys[0].value) : null
                 } catch (e) {
-                    console.debug(e);
+                    // Submodel registry is not available -> search in repo
+                    await fetchSubmodelFromRepo(reference);
+                }
+
+                if (submodelFromRegistry) {
+                    submodels.push({
+                        id: submodelFromRegistry.id,
+                        label: submodelFromRegistry.idShort ?? '',
+                        endpoint: submodelFromRegistry.endpoints[0].protocolInformation.href,
+                    });
+                } else {
+                    // Submodel is not contained in submodel registry-> search in repo
+                    await fetchSubmodelFromRepo(reference);
                 }
             }
         }
@@ -71,6 +79,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
             });
             setItems(submodels);
         }
+
     }, [props.smReferences, registryAasData]);
 
     useEffect(() => {
