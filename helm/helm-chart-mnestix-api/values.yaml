@@ -1,0 +1,35 @@
+# values.yaml
+
+image:
+  repository: mnestix/mnestix-api
+  tag: latest
+
+service:
+  port: 5064
+  type: ClusterIP
+
+ingress:
+  enable: false
+
+env:
+  CustomerEndpointsSecurity__ApiKey: ${MNESTIX_BACKEND_API_KEY}
+  ReverseProxy__Clusters__repoCluster__Destinations__destination1__Address: 'http://aas-aas-environment:8080/'
+  ReverseProxy__Clusters__discoveryCluster__Destinations__destination1__Address: 'http://aas-aas-discovery:8080/'
+  Features__AasRegistryMiddleware: true
+  Features__UseMongoDbBasedAasIdStorage: true
+  Features__AllowRetrievingAllShellsAndSubmodels: true
+  Features__UseAuthentication: false
+  ReverseProxy__Clusters__influxCluster__Destinations__destination1__Address: 'http://example/'
+  ReverseProxy__Routes__InfluxRoute__Transforms__1__Set: 'Token '
+  BasyxDbConnectionConfiguration__MongoConnectionString: 'mongodb://mongoAdmin:mongoPassword@mongodb:27017/?authSource=admin'
+  BasyxDbConnectionConfiguration__DatabaseName: basyxdb
+  BasyxDbConnectionConfiguration__AasCollectionName: 'aas-repo'
+  BasyxDbConnectionConfiguration__LookupServiceCollectionName: lookupservice
+  AzureAd__Domain: 'mnestixtest.onmicrosoft.com'
+  AzureAd__TenantId: 6c4ccecf-2dd4-4241-b7fc-6e95b32dcfac
+  AzureAd__ClientId: ffade4c2-76c8-44fd-9258-743d9cfc2289
+  ASPNETCORE_URLS: 'http://+:5064'
+
+dependencies:
+  aas-aas-environment:
+    condition: service_healthy
