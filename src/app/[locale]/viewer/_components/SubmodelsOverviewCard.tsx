@@ -60,7 +60,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                         submodels.push({ id: reference.keys[0].value, label: metadata.idShort ?? '', metadata });
                     }
                 } catch (e) {
-                    console.error(e);
+                    console.debug(e);
                 }
             }
         }
