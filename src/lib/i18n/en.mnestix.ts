@@ -180,7 +180,7 @@ export const enMnestix = {
         assetIdHeading: 'Asset ID',
         aasIdHeading: 'AAS ID',
         productClassHeading: 'Product Class',
-        goToCompare: 'Go to comparison',
+        goToCompare: 'Compare',
         maxElementsWarning: 'Cannot compare more than 3 elements',
         compareTooltip: 'Compare',
         showAll: 'All product classes',
