@@ -44,7 +44,7 @@ export class ConfigurationShellApi {
         bearerToken: string,
         value: string,
         settingsType: string,
-        use_authentication: boolean = false,
+        use_authentication: boolean = true,
     ): Promise<void | Response> {
         const headers = {
             'Content-Type': 'application/json',
