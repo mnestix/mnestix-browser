@@ -45,7 +45,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
             for (const reference of props.smReferences as Reference[]) {
                 for (const key of reference.keys as Key[]) {
                     try {
-                        const metadata = await submodelClient.getSubmodelMetaDataById(key.value);
+                        const metadata = await submodelClient.getSubmodelById(key.value);
                         submodels.push({ id: key.value, label: metadata.idShort ?? '', metadata });
                     } catch (e) {
                         console.error(e);
