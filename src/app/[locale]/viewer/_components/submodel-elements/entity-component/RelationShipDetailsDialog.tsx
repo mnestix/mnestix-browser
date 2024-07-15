@@ -35,15 +35,19 @@ export function RelationShipDetailsDialog(props: RelationShipDetailsModalProps) 
                     base64AasId as string,
                 )) as Reference[];
                 const submodels = [] as Submodel[];
-                
+
                 for (const reference of submodelRefs) {
                     const id = reference.keys[0].value;
                     try {
                         const submodelFromRegistry = env.SUBMODEL_REGISTRY_API_URL ? await submodelRegistryServiceClient.getSubmodelDescriptorsById(reference.keys[0].value) : null
                         submodels.push(submodelFromRegistry);
-                    } catch (e) { 
+                    } catch (e) {
                         // Submodel registry is not available or submodel not found there -> search in repo
-                        submodels.push(await submodelClient.getSubmodelById(id));
+                        if (e instanceof TypeError || (e instanceof Response && e.status === 404)) {
+                            submodels.push(await submodelClient.getSubmodelById(id));
+                        } else {
+                            console.error(e);
+                        }
                     }
                 }
 

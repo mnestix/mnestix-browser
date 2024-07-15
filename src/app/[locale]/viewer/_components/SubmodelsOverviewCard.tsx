@@ -39,8 +39,12 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
 
         async function fetchSubmodelFromRepo(reference: Reference) {
             const id = reference.keys[0].value;
-            const metadata = await submodelClient.getSubmodelMetaDataById(id);
-            submodels.push({ id, label: metadata.idShort ?? '', metadata });
+            try {
+                const metadata = await submodelClient.getSubmodelMetaDataById(id);
+                submodels.push({ id, label: metadata.idShort ?? '', metadata });
+            } catch (e) {
+                console.error(e)
+            }
         }
 
         if (registryAasData) {
@@ -62,7 +66,11 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                     });
                 } catch (e) {
                     // Submodel registry is not available or submodel not found there -> search in repo
-                    await fetchSubmodelFromRepo(reference);
+                    if (e instanceof TypeError || (e instanceof Response && e.status === 404)) {
+                        await fetchSubmodelFromRepo(reference);
+                    } else {
+                        console.error(e);
+                    }
                 }
 
             }
@@ -94,6 +102,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                 try {
                     fetchedSubmodel = await getSubmodelFromSubmodelDescriptor(selectedSubmodel.endpoint);
                 } catch (e) {
+                    console.debug(e);
                     // expexted behaviour if submodel registry is not available or submodel is not found there
                 }
             }
@@ -101,7 +110,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                 try {
                     fetchedSubmodel = await submodelClient.getSubmodelById(selectedSubmodel?.id ?? '');
                 } catch (e) {
-                    console.error(e);
+                    console.debug(e);
                 }
             }
         }
