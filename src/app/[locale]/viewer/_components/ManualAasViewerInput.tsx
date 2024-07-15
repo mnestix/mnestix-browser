@@ -47,8 +47,10 @@ export function ManualAASViewerInput(props: { focus: boolean }) {
 
             const aasIds = await handleAasDiscoverySearch(val);
             if (aasIds && aasIds.length > 1) {
-                navigate.push(`/viewer/discovery?aasId=${val}`);
+                navigate.push(`/viewer/discovery?assetId=${val}`);
             } else {
+                // Check if an AAS ID is found in the Discovery service, or assign the input parameter for further search.
+                // If there is exactly one AAS ID in the aasIds array, use it; otherwise, use the input parameter 'val'.
                 const aasId = aasIds && aasIds.length === 1 ? aasIds[0] : val;
                 const registrySearchResult = await handleAasRegistrySearch(aasId);
                 const aas =

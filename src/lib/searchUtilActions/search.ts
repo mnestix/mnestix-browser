@@ -63,17 +63,17 @@ export async function handleAasRegistrySearch(searchAasId: string): Promise<Regi
  * If the AAS ID is found, it returns the resolved AAS ID.
  * If not found, it returns `null`.
  *
- * @param {string} searchAasId - The AAS ID to resolve using the discovery service.
+ * @param {string} searchAssetId - The AAS ID to resolve using the discovery service.
  * @returns {Promise<string | null>} A promise that resolves to the resolved AAS ID as a string, or `null` if the AAS ID is not found.
  */
-export async function handleAasDiscoverySearch(searchAasId: string): Promise<string[] | null> {
+export async function handleAasDiscoverySearch(searchAssetId: string): Promise<string[] | null> {
     try {
         const discoveryServiceClient = new DiscoveryServiceApi(process.env.DISCOVERY_API_URL);
 
-        if (!searchAasId) {
+        if (!searchAssetId) {
             throw new NotFoundError();
         }
-        const aasIds = (await discoveryServiceClient.getAasIdsByAssetId(searchAasId)).result;
+        const aasIds = (await discoveryServiceClient.getAasIdsByAssetId(searchAssetId)).result;
 
         if (aasIds.length === 0) {
             throw new NotFoundError();

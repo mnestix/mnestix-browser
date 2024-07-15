@@ -47,7 +47,7 @@ export function ManualAasAddInput(props: ManualAasAddInputProps) {
                 setIsLoading(false);
                 notificationSpawner.spawn({
                     message: intl.formatMessage(messages.mnestix.compare.moreAasFound),
-                    severity: 'error',
+                    severity: 'warning',
                 });
             } else {
                 const aasId = aasIds && aasIds.length === 1 ? aasIds[0] : inputValue;
