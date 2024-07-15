@@ -34,7 +34,7 @@
       "defaultValue": "[concat('mnestix-api-', parameters('randomId'))]",
       "type": "string"
     },
-    "mnestixVBrowserServiceName": {
+    "mnestixBrowserServiceName": {
       "defaultValue": "[concat('mnestix-browser-', parameters('randomId'))]",
       "type": "string"
     }
