@@ -185,6 +185,7 @@ export const enMnestix = {
         compareTooltip: 'Compare',
         showAll: 'All product classes',
         notAvailable: 'Not available',
+        productClassHint: 'results for Product Class',
         productClasses: {
             '27-27': 'Sensor technology, safety-related sensor technology',
             '51-01': 'Actuator (pneumatics)',

@@ -1,13 +1,13 @@
 'use client';
-import { useRouter } from 'next/navigation';
-import { useApis } from 'components/azureAuthentication/ApiProvider';
-import { CenteredLoadingSpinner } from 'components/basics/CenteredLoadingSpinner';
-import { useEnv } from 'app/env/provider';
-import { useEffect, useState } from 'react';
-import { AasListEntry } from 'lib/api/generated-api/clients.g';
-import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
-import { FormattedMessage, useIntl } from 'react-intl';
-import { getProductClassId, parseProductClassFromString, ProductClass } from 'lib/util/ProductClassResolverUtil';
+import {useRouter} from 'next/navigation';
+import {useApis} from 'components/azureAuthentication/ApiProvider';
+import {CenteredLoadingSpinner} from 'components/basics/CenteredLoadingSpinner';
+import {useEnv} from 'app/env/provider';
+import React, {useEffect, useState} from 'react';
+import {AasListEntry} from 'lib/api/generated-api/clients.g';
+import {useNotificationSpawner} from 'lib/hooks/UseNotificationSpawner';
+import {FormattedMessage, IntlShape, useIntl} from 'react-intl';
+import {getProductClassId, parseProductClassFromString, ProductClass} from 'lib/util/ProductClassResolverUtil';
 import {
     Box,
     Button,
@@ -31,18 +31,20 @@ import {
     Typography,
     useTheme,
 } from '@mui/material';
-import { ShellIcon } from 'components/custom-icons/ShellIcon';
-import { encodeBase64 } from 'lib/util/Base64Util';
+import {ShellIcon} from 'components/custom-icons/ShellIcon';
+import {encodeBase64} from 'lib/util/Base64Util';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import CloseIcon from '@mui/icons-material/Close';
 import TireRepairIcon from '@mui/icons-material/TireRepair';
 import FireHydrantAltIcon from '@mui/icons-material/FireHydrantAlt';
 import LabelOffIcon from '@mui/icons-material/LabelOff';
 import LabelIcon from '@mui/icons-material/Label';
-import { messages } from 'lib/i18n/localization';
-import { showError } from 'lib/util/ErrorHandlerUtil';
-import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
-import { useAasState } from 'components/contexts/CurrentAasContext';
+import {messages} from 'lib/i18n/localization';
+import {showError} from 'lib/util/ErrorHandlerUtil';
+import {useAsyncEffect} from 'lib/hooks/UseAsyncEffect';
+import {useAasState} from 'components/contexts/CurrentAasContext';
+import {ArrowForward} from "@mui/icons-material";
+import {RoundedIconButton} from "../../../../components/basics/Buttons";
 
 const StyledImage = styled('img')(() => ({
     maxHeight: '88px',
@@ -50,6 +52,16 @@ const StyledImage = styled('img')(() => ({
     width: '100%',
     objectFit: 'scale-down',
 }));
+
+const translateProductClassId = (id: string, intl: IntlShape) => {
+    let productClassString = id;
+    try {
+        productClassString = intl.formatMessage(messages.mnestix.aasList.productClasses[id]);
+    } catch (e) {
+        console.warn('Invalid product type', e);
+    }
+    return productClassString;
+} 
 
 export const AASListView = () => {
     const { aasListClient } = useApis();
@@ -66,7 +78,7 @@ export const AASListView = () => {
     const env = useEnv();
     const [, setAas] = useAasState();
     const MAX_SELECTED_ITEMS = 3;
-
+    
     useAsyncEffect(async () => {
         try {
             setIsLoadingList(true);
@@ -89,15 +101,7 @@ export const AASListView = () => {
             aasList.forEach((aas) => {
                 if (!aas.productGroup) return;
                 const productClassId = getProductClassId(aas.productGroup);
-                let productClassString;
-                try {
-                    productClassString = intl.formatMessage(messages.mnestix.aasList.productClasses[productClassId]);
-                } catch (e) {
-                    console.warn('Invalid product type', e);
-                }
-                if (!productClassString) {
-                    productClassString = getProductClassId(aas.productGroup);
-                }
+                const productClassString = translateProductClassId(productClassId, intl);
                 const productClass = parseProductClassFromString(productClassId, productClassString);
                 if (!productClasses.find((element) => element.id === productClass.id)) {
                     productClasses.push(productClass);
@@ -225,6 +229,7 @@ export const AASListView = () => {
     };
     const SelectProductType = () => {
         return (
+            <div>
             <FormControl variant="standard" sx={{ minWidth: 120, marginTop: '16px', width: '265px' }}>
                 <InputLabel id="product-select">
                     <FormattedMessage {...messages.mnestix.aasList.productClassHeading} />
@@ -257,6 +262,12 @@ export const AASListView = () => {
                     })}
                 </Select>
             </FormControl>
+                { productClassFilterValue != "" &&
+
+                    <p> {aasListFiltered?.length} {intl.formatMessage(messages.mnestix.aasList.productClassHint)}: <b>{translateProductClassId(productClassFilterValue, intl)}</b></p>
+
+                }
+            </div>
         );
     };
 
@@ -370,6 +381,8 @@ export const AASListView = () => {
                                         <FormattedMessage {...messages.mnestix.aasList.productClassHeading} />
                                     </Typography>
                                 </TableCell>
+                                <TableCell align="center">
+                                </TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -462,6 +475,12 @@ export const AASListView = () => {
                                                 data-testid="product-class-chip"
                                             />
                                         )}
+                                    </TableCell>
+                                    <TableCell align="center">
+                                        <RoundedIconButton
+                                            endIcon={<ArrowForward />}
+                                            onClick={() => navigateToAas(aasListEntry)}
+                                        />
                                     </TableCell>
                                 </TableRow>
                             ))}
