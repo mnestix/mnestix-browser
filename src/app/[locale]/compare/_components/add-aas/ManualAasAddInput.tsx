@@ -1,7 +1,6 @@
 ﻿import { Box, IconButton, InputAdornment, TextField } from '@mui/material';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { messages } from 'lib/i18n/localization';
-import { SquaredIconButton } from 'components/basics/SquaredIconButton';
 import { ArrowForward } from '@mui/icons-material';
 import React, { useEffect, useState } from 'react';
 import { useCompareAasContext } from 'components/contexts/CompareAasContext';
@@ -14,6 +13,7 @@ import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { encodeBase64 } from 'lib/util/Base64Util';
+import {SquaredIconButton} from "components/basics/Buttons";
 
 type ManualAasAddInputProps = {
     onSubmit: () => void;

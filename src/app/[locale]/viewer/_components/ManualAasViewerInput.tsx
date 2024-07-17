@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import { ArrowForward } from '@mui/icons-material';
 import { useAasState, useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { messages } from 'lib/i18n/localization';
-import { SquaredIconButton } from 'components/basics/SquaredIconButton';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { showError } from 'lib/util/ErrorHandlerUtil';
@@ -13,6 +12,7 @@ import { useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { getAasFromExternalServices } from 'lib/searchUtilActions/search';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
+import {SquaredIconButton} from "components/basics/Buttons";
 
 export function ManualAASViewerInput(props: { focus: boolean }) {
     const [val, setVal] = useState<string>('');
