@@ -26,7 +26,7 @@ export const ApiProvider = (props: PropsWithChildren) => {
             env.MNESTIX_BACKEND_API_URL,
             mnestixFetch(instance, account, applicationIdUri),
         ),
-        configurationClient: new ConfigurationShellApi(env.MNESTIX_BACKEND_API_URL),
+        configurationClient: new ConfigurationShellApi(env.MNESTIX_BACKEND_API_URL, env.AUTHENTICATION_FEATURE_FLAG),
         repositoryClient: new AssetAdministrationShellRepositoryApi({ basePath: env.AAS_REPO_API_URL }),
         templatesClient: new TemplateShellApi(
             env.MNESTIX_BACKEND_API_URL ? env.MNESTIX_BACKEND_API_URL : '',

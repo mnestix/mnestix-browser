@@ -2,16 +2,18 @@ import { Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
 
 export class ConfigurationShellApi {
     basePath: string;
+    use_authentication: boolean;
 
-    constructor(protected _basePath: string = '') {
+    constructor(protected _basePath: string = '', use_authentication: boolean) {
         this.basePath = _basePath;
+        this.use_authentication = use_authentication;
     }
 
-    public async getIdGenerationSettings(bearerToken: string, use_authentication: boolean): Promise<Submodel> {
+    public async getIdGenerationSettings(bearerToken: string): Promise<Submodel> {
         const headers = {
             Accept: 'application/json',
         };
-        if (use_authentication) {
+        if (this.use_authentication) {
             headers['Authorization'] = bearerToken;
         }
 
@@ -44,12 +46,11 @@ export class ConfigurationShellApi {
         bearerToken: string,
         value: string,
         settingsType: string,
-        use_authentication: boolean = true,
     ): Promise<void | Response> {
         const headers = {
             'Content-Type': 'application/json',
         };
-        if (use_authentication) {
+        if (this.use_authentication) {
             headers['Authorization'] = bearerToken;
         }
 
