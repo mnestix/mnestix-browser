@@ -4,7 +4,7 @@ import { useIsMobile } from 'lib/hooks/UseBreakpoints';
 import { messages } from 'lib/i18n/localization';
 import { FormattedMessage } from 'react-intl';
 import { SubmodelDetail } from './submodel/SubmodelDetail';
-import { Key, Reference, Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
+import { Reference, Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { SubmodelSorting } from 'app/[locale]/viewer/_components/submodel/sorting/SubmodelSorting';
 import { TabSelectorItem, VerticalTabSelector } from 'components/basics/VerticalTabSelector';
