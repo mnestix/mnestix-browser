@@ -40,7 +40,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
         async function fetchSubmodelFromRepo(reference: Reference) {
             const id = reference.keys[0].value;
             try {
-                const metadata = await submodelClient.getSubmodelMetaDataById(id);
+                const metadata = await submodelClient.getSubmodelById(id);
                 submodels.push({ id, label: metadata.idShort ?? '', metadata });
             } catch (e) {
                 console.error(e)
