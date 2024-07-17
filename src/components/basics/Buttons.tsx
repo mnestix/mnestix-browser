@@ -15,3 +15,8 @@ const StyledLoadingButton = styled(LoadingButton)(({ theme }) => ({
 export function SquaredIconButton(props: LoadingButtonProps) {
     return <StyledLoadingButton variant={props.variant || 'contained'} size={props.size || 'large'} {...props} />;
 }
+export function RoundedIconButton(props: LoadingButtonProps) {
+    return <StyledLoadingButton
+        variant={props.variant || 'contained'} size={props.size || 'large'} style={{borderRadius: "56px"}} {...props}  />;
+
+}
