@@ -26,6 +26,7 @@ export const getEnv = async (): Promise<EnvironmentalVariables> => {
         APPLICATION_ID_URI: process.env.APPLICATION_ID_URI,
         DISCOVERY_API_URL: process.env.DISCOVERY_API_URL,
         REGISTRY_API_URL: process.env.REGISTRY_API_URL,
+        SUBMODEL_REGISTRY_API_URL: process.env.SUBMODEL_REGISTRY_API_URL,
         AAS_REPO_API_URL: process.env.AAS_REPO_API_URL,
         MNESTIX_BACKEND_API_URL: process.env.MNESTIX_BACKEND_API_URL,
     };
@@ -63,6 +64,7 @@ export type EnvironmentalVariables = {
     AAS_LIST_FEATURE_FLAG: boolean;
     DISCOVERY_API_URL: string | undefined;
     REGISTRY_API_URL: string | undefined;
+    SUBMODEL_REGISTRY_API_URL: string | undefined;
     AAS_REPO_API_URL: string | undefined;
     MNESTIX_BACKEND_API_URL: string | undefined;
     THEME_PRIMARY_COLOR: string | undefined;

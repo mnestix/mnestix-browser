@@ -34,7 +34,7 @@
       "defaultValue": "[concat('mnestix-api-', parameters('randomId'))]",
       "type": "string"
     },
-    "mnestixVBrowserServiceName": {
+    "mnestixBrowserServiceName": {
       "defaultValue": "[concat('mnestix-browser-', parameters('randomId'))]",
       "type": "string"
     }
@@ -56,7 +56,11 @@
     "mnestixBrowserServiceName": "[parameters('mnestixBrowserServiceName')]",
     "mnestixBrowserUrl": "[uri(concat('https://', variables('mnestixBrowserServiceName'), '.azurewebsites.net'), '')]",
     "discoveryAppServiceName": "[concat('mnestix-basyx-discovery-', parameters('randomId'))]",
-    "discoveryAppServiceUrl": "[uri(concat('https://', variables('discoveryAppServiceName'), '.azurewebsites.net'), '')]"
+    "discoveryAppServiceUrl": "[uri(concat('https://', variables('discoveryAppServiceName'), '.azurewebsites.net'), '')]",
+    "submodelRegistryAppServiceName": "[concat('mnestix-basyx-submodel-registry-', parameters('randomId'))]",
+    "submodelRegistryAppServiceUrl": "[uri(concat('https://', variables('submodelRegistryAppServiceName'), '.azurewebsites.net'), '')]",
+    "aasRegistryAppServiceName": "[concat('mnestix-basyx-aas-registry-', parameters('randomId'))]",
+    "aasRegistryAppServiceUrl": "[uri(concat('https://', variables('aasRegistryAppServiceName'), '.azurewebsites.net'), '')]"
   },
   "resources": [
     {
@@ -578,6 +582,14 @@
             {
               "name": "APPLICATION_ID_URI",
               "value": "[parameters('applicationIdUri')]"
+            },
+            {
+              "name": "REGISTRY_API_URL",
+              "value": "[variables('aasRegistryAppServiceUrl')]"
+            },
+            {
+              "name": "SUBMODEL_REGISTRY_API_URL",
+              "value": "[variables('submodelRegistryAppServiceUrl')]"
             }
           ],
           "linuxFxVersion": "DOCKER|mnestix/mnestix-browser:latest",
@@ -700,6 +712,84 @@
       ],
       "dependsOn": [
         "[resourceId('Microsoft.Web/sites', variables('discoveryAppServiceName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2021-03-01",
+      "name": "[variables('submodelRegistryAppServiceName')]",
+      "location": "[parameters('location')]",
+      "kind": "app,linux,container",
+      "properties": {
+        "name": "[variables('submodelRegistryAppServiceName')]",
+        "siteConfig": {
+          "appSettings": [
+            {
+              "name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
+              "value": "false"
+            },
+            {
+              "name": "SPRING_DATA_MONGODB_URI",
+              "value": "[first(listConnectionStrings(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('databaseAccountName')), '2021-10-15').connectionStrings).connectionString]"
+            }
+          ],
+          "linuxFxVersion": "DOCKER|eclipsebasyx/submodel-registry-log-mongodb:2.0.0-SNAPSHOT",
+          "alwaysOn": true
+        },
+        "hostNameSslStates": [
+          {
+            "name": "[variables('submodelRegistryAppServiceUrl')]",
+            "sslState": "Disabled",
+            "hostType": "Standard"
+          }
+        ],
+        "vnetRouteAllEnabled": false,
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('serverFarmsName'))]",
+        "clientAffinityEnabled": false,
+        "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), 'private-endpoint-consumers')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', variables('serverFarmsName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2021-03-01",
+      "name": "[variables('aasRegistryAppServiceName')]",
+      "location": "[parameters('location')]",
+      "kind": "app,linux,container",
+      "properties": {
+        "name": "[variables('aasRegistryAppServiceName')]",
+        "siteConfig": {
+          "appSettings": [
+            {
+              "name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
+              "value": "false"
+            },
+            {
+              "name": "SPRING_DATA_MONGODB_URI",
+              "value": "[first(listConnectionStrings(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('databaseAccountName')), '2021-10-15').connectionStrings).connectionString]"
+            }
+          ],
+          "linuxFxVersion": "DOCKER|eclipsebasyx/aas-registry-log-mongodb:2.0.0-SNAPSHOT",
+          "alwaysOn": true
+        },
+        "hostNameSslStates": [
+          {
+            "name": "[variables('aasRegistryAppServiceUrl')]",
+            "sslState": "Disabled",
+            "hostType": "Standard"
+          }
+        ],
+        "vnetRouteAllEnabled": false,
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('serverFarmsName'))]",
+        "clientAffinityEnabled": false,
+        "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), 'private-endpoint-consumers')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', variables('serverFarmsName'))]",
         "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
       ]
     }

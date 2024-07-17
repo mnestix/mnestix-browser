@@ -12,6 +12,8 @@ import { MobileModal } from 'components/basics/MobileModal';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { getSubmodelFromSubmodelDescriptor } from 'lib/searchUtilActions/search';
+import { useEnv } from 'app/env/provider';
+
 
 export type SubmodelsOverviewCardProps = { readonly smReferences?: Reference[]; readonly isLoading?: boolean };
 
@@ -19,7 +21,8 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
     const [selectedItem, setSelectedItem] = useState<TabSelectorItem>();
     const [selectedSubmodel, setSelectedSubmodel] = useState<Submodel>();
     const { submodelClient } = useApis();
-    const [ registryAasData] = useRegistryAasState();
+    const [registryAasData] = useRegistryAasState();
+    const { submodelRegistryServiceClient } = useApis();
 
     SubmodelSorting(selectedSubmodel);
 
@@ -27,11 +30,22 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
     const [open, setOpen] = useState<boolean>(false);
     const isMobile = useIsMobile();
     const firstSubmodelIdShort = 'Nameplate';
+    const env = useEnv();
 
     useAsyncEffect(async () => {
         if (!props.smReferences) return;
 
         const submodels: { id: string; label: string; metadata?: Submodel; endpoint?: string }[] = [];
+
+        async function fetchSubmodelFromRepo(reference: Reference) {
+            const id = reference.keys[0].value;
+            try {
+                const metadata = await submodelClient.getSubmodelById(id);
+                submodels.push({ id, label: metadata.idShort ?? '', metadata });
+            } catch (e) {
+                console.error(e)
+            }
+        }
 
         if (registryAasData) {
             registryAasData.submodelDescriptors?.forEach((submodelDescriptor) => {
@@ -43,14 +57,22 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
             });
         } else {
             for (const reference of props.smReferences as Reference[]) {
-                for (const key of reference.keys as Key[]) {
-                    try {
-                        const metadata = await submodelClient.getSubmodelById(key.value);
-                        submodels.push({ id: key.value, label: metadata.idShort ?? '', metadata });
-                    } catch (e) {
+                try {
+                    const submodelFromRegistry = env.SUBMODEL_REGISTRY_API_URL ? await submodelRegistryServiceClient.getSubmodelDescriptorsById(reference.keys[0].value) : null
+                    submodels.push({
+                        id: submodelFromRegistry.id,
+                        label: submodelFromRegistry.idShort ?? '',
+                        endpoint: submodelFromRegistry.endpoints[0].protocolInformation.href,
+                    });
+                } catch (e) {
+                    // Submodel registry is not available or submodel not found there -> search in repo
+                    if (e instanceof TypeError || (e instanceof Response && e.status === 404)) {
+                        await fetchSubmodelFromRepo(reference);
+                    } else {
                         console.error(e);
                     }
                 }
+
             }
         }
 
@@ -60,6 +82,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
             });
             setItems(submodels);
         }
+
     }, [props.smReferences, registryAasData]);
 
     useEffect(() => {
@@ -75,12 +98,20 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
         let fetchedSubmodel;
 
         if (selectedSubmodel) {
-            if (registryAasData && selectedSubmodel.endpoint) {
-                fetchedSubmodel = await getSubmodelFromSubmodelDescriptor(selectedSubmodel.endpoint);
+            if (selectedSubmodel.endpoint) {
+                try {
+                    fetchedSubmodel = await getSubmodelFromSubmodelDescriptor(selectedSubmodel.endpoint);
+                } catch (e) {
+                    console.debug(e);
+                    // expexted behaviour if submodel registry is not available or submodel is not found there
+                }
             }
-
-            if (!registryAasData) {
-                fetchedSubmodel = await submodelClient.getSubmodelById(selectedSubmodel?.id ?? '');
+            if (!registryAasData && !fetchedSubmodel) {
+                try {
+                    fetchedSubmodel = await submodelClient.getSubmodelById(selectedSubmodel?.id ?? '');
+                } catch (e) {
+                    console.debug(e);
+                }
             }
         }
 
@@ -105,16 +136,16 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                         <>
                             <Box>
                                 {[0, 1, 2].map((i) => {
-                                    return <Skeleton variant="rectangular" key={i} height={50} sx={{ mb: 2 }} />;
+                                    return <Skeleton variant="rectangular" key={i} height={50} sx={{ mb: 2 }}/>;
                                 })}
                             </Box>
                             <Box>
                                 {[0, 1, 2].map((i) => {
                                     return (
                                         <Box sx={{ mb: 2 }} key={i}>
-                                            <Skeleton variant="text" width="50%" />
-                                            <Skeleton variant="text" width="30%" />
-                                            {i < 2 && <Divider sx={{ mt: 2 }} />}
+                                            <Skeleton variant="text" width="50%"/>
+                                            <Skeleton variant="text" width="30%"/>
+                                            {i < 2 && <Divider sx={{ mt: 2 }}/>}
                                         </Box>
                                     );
                                 })}
@@ -122,16 +153,16 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                         </>
                     ) : (
                         <>
-                            <VerticalTabSelector items={items} selected={selectedItem} setSelected={setSelectedItem} />
+                            <VerticalTabSelector items={items} selected={selectedItem} setSelected={setSelectedItem}/>
                             {isMobile ? (
                                 <MobileModal
                                     title={items.find((i) => i.id === selectedItem?.id)?.label}
                                     open={open}
                                     handleClose={handleClose}
-                                    content={<SubmodelDetail submodel={selectedSubmodel} />}
+                                    content={<SubmodelDetail submodel={selectedSubmodel}/>}
                                 />
                             ) : (
-                                <SubmodelDetail submodel={selectedSubmodel} />
+                                <SubmodelDetail submodel={selectedSubmodel}/>
                             )}
                         </>
                     )}

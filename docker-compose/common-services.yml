@@ -122,7 +122,25 @@ services:
     image: eclipsebasyx/aas-registry-log-mongodb:2.0.0-SNAPSHOT
     container_name: aas-registry-mongo
     ports:
-      - "8083:8080"
+      - '8083:8080'
+    depends_on:
+      - mongodb
+    restart: always
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongoAdmin:mongoPassword@mongodb:27017/?authSource=admin
+      BASYX__CORS__ALLOWED-ORIGINS: '*'
+      BASYX__CORS__ALLOWED-METHODS: GET,POST,PATCH,DELETE,PUT,OPTIONS,HEAD
+    healthcheck: # check the endpoint for a valid response (service ready)
+      test: curl -f http://localhost:8080/actuator/health
+      interval: 30s
+      timeout: 10s
+      retries: 6
+  
+  submodel-registry-log-mongodb:
+    image: eclipsebasyx/submodel-registry-log-mongodb:2.0.0-SNAPSHOT
+    container_name: submodel-registry-mongo
+    ports:
+      - '8084:8080'
     depends_on:
       - mongodb
     restart: always

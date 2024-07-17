@@ -59,6 +59,7 @@ jobs:
         
       - name: E2E test collect artifact
         id: test_artifact
+        if: always()
         uses: actions/upload-artifact@master
         with: 
           name: cypress-artifacts
