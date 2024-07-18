@@ -167,12 +167,14 @@ export const deMnestix = {
         addAnother: 'Eine weitere Verwaltungsschale hinzufügen',
         assetIdNotFound: 'Asset Id nicht gefunden',
         aasAlreadyAdded: 'Verwaltungsschale kann nicht mehrmals hinzugefügt werden',
+        moreAasFound: 'Mehr als eine Verwaltungsschale im Discovery Service gefunden, bitte geben Sie die AAS-ID an.',
     },
     compareCollection: {
         show: '{idShort}',
         hide: 'Verbergen',
     },
     aasList: {
+        header: 'AAS List',
         subtitle:
             'Wählen Sie bis zu 3 Verwaltungsschalen zum Vergleichen aus und grenzen Sie die Liste mithilfe des Produktklassenfilters ein.',
         picture: 'Bild',
@@ -222,5 +224,11 @@ export const deMnestix = {
         submitButton: 'Theme speichern',
         resetButton: 'Zurücksetzen',
         logoHelperText: 'base64 encoded',
+    },
+    discoveryList: {
+        header: 'Ergebnisliste der Discovery',
+        aasIdHeading: 'AAS ID',
+        repositoryUrl: 'Repository Url',
+        subtitle: 'Asset id',
     },
 };
