@@ -11,9 +11,13 @@ import { getProductClassId, parseProductClassFromString, ProductClass } from 'li
 import {
     Box,
     Button,
+    Card,
+    CardContent,
+    CardMedia,
     Checkbox,
     Chip,
     FormControl,
+    Grid,
     IconButton,
     InputLabel,
     MenuItem,
@@ -469,6 +473,62 @@ export const AASListView = () => {
                     </Table>
                 </TableContainer>
             )}
+            <Grid container spacing={2} sx={{ marginTop: '16px' }}>
+                {aasListFiltered?.map((listEntry) => (
+                    <Grid item xs={12} sm={6} md={4} lg={3} key={listEntry.aasId}>
+                        <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                            <CardMedia>
+                                <StyledImage src={listEntry.thumbnailUrl} alt={listEntry.aasId} />
+                            </CardMedia>
+                            <CardContent sx={{ flexGrow: 1 }}>
+                                {/* <Typography variant="h6">{tooltipText(listEntry.name, 50)}</Typography>
+                                <Typography variant="body2">{tooltipText(listEntry.manufacturer, 50)}</Typography>
+                                {productClassValue(listEntry.productGroup, 50)} */}
+                                cardcontent text
+                            </CardContent>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    padding: '16px',
+                                }}
+                            >
+                                {/* <Checkbox
+                                    checked={isItemSelected(listEntry.aasId)}
+                                    onChange={handleCheckboxChange(listEntry.aasId)}
+                                    disabled={checkBoxDisabled(listEntry.aasId)}
+                                /> */}
+                                <Button size="small" onClick={() => navigateToAas(listEntry)}>
+                                    viewbutton
+                                </Button>
+                            </Box>
+                        </Card>
+                    </Grid>
+                ))}
+            </Grid>
+            {/* {selectedAasList && selectedAasList.length > 0 && (
+                <Box sx={{ marginTop: '16px' }}>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        startIcon={<CompareArrowsIcon />}
+                        onClick={navigateToCompare}
+                        disabled={selectedAasList.length < 2}
+                    >
+                        <FormattedMessage {...messages.mnestix.aasList.compareTooltip} />
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        color="secondary"
+                        startIcon={<CloseIcon />}
+                        onClick={() => {}}
+                        sx={{ marginLeft: '8px' }}
+                    >
+                        clear selection
+                    </Button>
+                </Box>
+            )} */}
         </>
     );
 };
