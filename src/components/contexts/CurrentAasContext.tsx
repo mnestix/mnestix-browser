@@ -3,13 +3,9 @@ import React, { PropsWithChildren, createContext, useContext, useState } from 'r
 import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/types';
 import { RegistryAasData } from 'lib/types/registryServiceTypes';
 
-
 type CurrentAasContextType = {
     aasState: [AssetAdministrationShell | null, React.Dispatch<React.SetStateAction<AssetAdministrationShell | null>>];
-    registryAasData: [
-        RegistryAasData | null,
-        React.Dispatch<React.SetStateAction<RegistryAasData | null>>,
-    ];
+    registryAasData: [RegistryAasData | null, React.Dispatch<React.SetStateAction<RegistryAasData | null>>];
 };
 
 const CurrentAasContext = createContext<CurrentAasContextType | undefined>(undefined);
@@ -37,8 +33,6 @@ export const CurrentAasContextProvider = (props: PropsWithChildren) => {
     const registryAasData = useState<RegistryAasData | null>(null);
 
     return (
-        <CurrentAasContext.Provider value={{ aasState, registryAasData }}>
-            {props.children}
-        </CurrentAasContext.Provider>
+        <CurrentAasContext.Provider value={{ aasState, registryAasData }}>{props.children}</CurrentAasContext.Provider>
     );
 };

@@ -4,7 +4,10 @@ export class ConfigurationShellApi {
     basePath: string;
     use_authentication: boolean;
 
-    constructor(protected _basePath: string = '', use_authentication: boolean) {
+    constructor(
+        protected _basePath: string = '',
+        use_authentication: boolean,
+    ) {
         this.basePath = _basePath;
         this.use_authentication = use_authentication;
     }

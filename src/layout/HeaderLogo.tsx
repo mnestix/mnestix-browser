@@ -11,7 +11,11 @@ export function HeaderLogo() {
 
     return (
         <Box data-testid="header-logo" onClick={goToHome} sx={{ height: '100%', cursor: 'pointer' }}>
-            {theme?.productLogo?.logo ? <img height="100%" src={theme.productLogo.logo} alt={'default Mnestix logo'}/> : <MnestixLogo />}
+            {theme?.productLogo?.logo ? (
+                <img height="100%" src={theme.productLogo.logo} alt={'default Mnestix logo'} />
+            ) : (
+                <MnestixLogo />
+            )}
         </Box>
     );
 }

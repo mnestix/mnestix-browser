@@ -14,7 +14,7 @@ export async function isAasAvailableInRepo(aasId: string, url: string | undefine
         const response = await fetch(localRepoUrl, { method: 'HEAD' });
 
         return response.status === 200;
-    } catch (e){
+    } catch (e) {
         console.error('Request failed', e);
         return false;
     }

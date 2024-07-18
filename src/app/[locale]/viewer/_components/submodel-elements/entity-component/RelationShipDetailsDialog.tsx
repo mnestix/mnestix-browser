@@ -39,7 +39,9 @@ export function RelationShipDetailsDialog(props: RelationShipDetailsModalProps) 
                 for (const reference of submodelRefs) {
                     const id = reference.keys[0].value;
                     try {
-                        const submodelFromRegistry = env.SUBMODEL_REGISTRY_API_URL ? await submodelRegistryServiceClient.getSubmodelDescriptorsById(reference.keys[0].value) : null
+                        const submodelFromRegistry = env.SUBMODEL_REGISTRY_API_URL
+                            ? await submodelRegistryServiceClient.getSubmodelDescriptorsById(reference.keys[0].value)
+                            : null;
                         submodels.push(submodelFromRegistry);
                     } catch (e) {
                         // Submodel registry is not available or submodel not found there -> search in repo

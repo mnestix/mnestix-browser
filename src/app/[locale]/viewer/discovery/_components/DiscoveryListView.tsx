@@ -37,7 +37,7 @@ export const DiscoveryListView = () => {
             } else {
                 for (const aasId of aasIds) {
                     const registrySearchResult = await handleAasRegistrySearch(aasId);
-    
+
                     const aasRepositoryUrl = registrySearchResult
                         ? registrySearchResult.registryAasData?.aasRegistryRepositoryOrigin
                         : (await isAasAvailableInRepo(aasId, env.AAS_REPO_API_URL))

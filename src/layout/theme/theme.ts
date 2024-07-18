@@ -62,6 +62,7 @@ const palette: PaletteOptions = {
     },
     background: {
         default: '#F6F9F9',
+        paper: '#F5F5F5',
     },
     info: {
         main: '#ff6900',

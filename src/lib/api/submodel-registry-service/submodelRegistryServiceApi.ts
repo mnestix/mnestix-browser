@@ -67,7 +67,7 @@ export class SubmodelRegistryServiceApi {
             throw response;
         }
     }
-    
+
     public async getAllSubmodelDescriptors() {
         const headers = {
             Accept: 'application/json',
@@ -121,5 +121,4 @@ export class SubmodelRegistryServiceApi {
             throw response;
         }
     }
-    
 }

@@ -12,6 +12,8 @@ import { ImageWithFallback } from './StyledImageWithFallBack';
 import { ProductClassChip } from 'app/[locale]/list/_components/ProductClassChip';
 import { tooltipText } from 'lib/util/ToolTipText';
 import PictureTableCell from 'components/basics/listBasics/PictureTableCell';
+import { ArrowForward } from '@mui/icons-material';
+import { RoundedIconButton } from 'components/basics/Buttons';
 
 type AasTableRowProps = {
     aasListEntry: AasListEntry;
@@ -68,11 +70,15 @@ export const AasListTableRow = (props: AasTableRowProps) => {
                             disabled={checkBoxDisabled(aasListEntry.aasId)}
                             onChange={(evt) => updateSelectedAasList(evt.target.checked, aasListEntry.aasId)}
                             data-testid="list-checkbox"
+                            title={intl.formatMessage(messages.mnestix.aasList.titleComparisonAddButton)}
                         />
                     </Box>
                 </TableCell>
             )}
-            <PictureTableCell onClickAction={() => navigateToAas(aasListEntry)}>
+            <PictureTableCell
+                onClickAction={() => navigateToAas(aasListEntry)}
+                title={intl.formatMessage(messages.mnestix.aasList.titleViewAASButton)}
+            >
                 {aasListEntry.thumbnailUrl && (
                     <ImageWithFallback
                         src={aasListEntry.thumbnailUrl}
@@ -107,8 +113,16 @@ export const AasListTableRow = (props: AasTableRowProps) => {
                         variant="outlined"
                         icon={<LabelOffIcon color={'primary'} />}
                         data-testid="product-class-chip"
+                        title={intl.formatMessage(messages.mnestix.aasList.titleProductChipNotAvailable)}
                     />
                 )}
+            </TableCell>
+            <TableCell align="center">
+                <RoundedIconButton
+                    endIcon={<ArrowForward />}
+                    onClick={() => navigateToAas(aasListEntry)}
+                    title={intl.formatMessage(messages.mnestix.aasList.titleViewAASButton)}
+                />
             </TableCell>
         </>
     );

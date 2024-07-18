@@ -66,14 +66,14 @@ services:
       service: aas-discovery
     networks:
       - mnestix-network
-  
+
   aas-registry:
     extends:
       file: common-services.yml
       service: aas-registry-log-mongodb
     networks:
       - mnestix-network
-  
+
   submodel-registry:
     extends:
       file: common-services.yml
