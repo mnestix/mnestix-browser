@@ -47,6 +47,7 @@ import { messages } from 'lib/i18n/localization';
 import { showError } from 'lib/util/ErrorHandlerUtil';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { useAasState } from 'components/contexts/CurrentAasContext';
+import { AASCard } from './AASCard';
 
 const StyledImage = styled('img')(() => ({
     maxHeight: '88px',
@@ -475,36 +476,7 @@ export const AASListView = () => {
             )}
             <Grid container spacing={2} sx={{ marginTop: '16px' }}>
                 {aasListFiltered?.map((listEntry) => (
-                    <Grid item xs={12} sm={6} md={4} lg={3} key={listEntry.aasId}>
-                        <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                            <CardMedia>
-                                <StyledImage src={listEntry.thumbnailUrl} alt={listEntry.aasId} />
-                            </CardMedia>
-                            <CardContent sx={{ flexGrow: 1 }}>
-                                {/* <Typography variant="h6">{tooltipText(listEntry.name, 50)}</Typography>
-                                <Typography variant="body2">{tooltipText(listEntry.manufacturer, 50)}</Typography>
-                                {productClassValue(listEntry.productGroup, 50)} */}
-                                cardcontent text
-                            </CardContent>
-                            <Box
-                                sx={{
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    padding: '16px',
-                                }}
-                            >
-                                {/* <Checkbox
-                                    checked={isItemSelected(listEntry.aasId)}
-                                    onChange={handleCheckboxChange(listEntry.aasId)}
-                                    disabled={checkBoxDisabled(listEntry.aasId)}
-                                /> */}
-                                <Button size="small" onClick={() => navigateToAas(listEntry)}>
-                                    viewbutton
-                                </Button>
-                            </Box>
-                        </Card>
-                    </Grid>
+                    <AASCard listEntry={listEntry} navigateToAas={navigateToAas} key={listEntry.aasId} />
                 ))}
             </Grid>
             {/* {selectedAasList && selectedAasList.length > 0 && (
