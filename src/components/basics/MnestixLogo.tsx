@@ -21,7 +21,7 @@ const StyledLogo = styled(Logo)<{ width?: string; height?: string }>(({ width, h
 export function MnestixLogo(props: MnestixLogoLogoProps) {
     // Differentiate between the logo variants
     const theme = useTheme();
-    let color = theme.palette.common.white;
+    const color = theme.palette.common.white;
     
     return <StyledLogo width={props.width} height={props.height} color={color} />;
 }

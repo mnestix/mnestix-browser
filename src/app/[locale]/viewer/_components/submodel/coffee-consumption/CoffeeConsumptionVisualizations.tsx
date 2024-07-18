@@ -258,7 +258,7 @@ export function CoffeeConsumptionVisualizations(props: { submodel: Submodel }) {
                 </h1>
             )}
             <h3>What are the benefits of tracking your products with the AAS?</h3>
-            <img className="takeHome" src={TakeHomeMessage} />
+            <img className="takeHome" src={TakeHomeMessage} alt={'take home'}/>
         </div>
     );
 }
