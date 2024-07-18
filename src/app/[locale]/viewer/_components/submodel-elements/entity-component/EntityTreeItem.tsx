@@ -74,9 +74,9 @@ const CustomContent = React.forwardRef(function CustomContent(props: CustomTreeI
                 ref={ref as React.Ref<HTMLDivElement>}
                 data-testid="bom-entity"
             >
-                <ExpandableTreeitem 
-                    icon={iconProp} 
-                    dataIcon={dataIcon} 
+                <ExpandableTreeitem
+                    icon={iconProp}
+                    dataIcon={dataIcon}
                     classes={classes}
                     itemId={itemId}
                     label={label}
@@ -128,7 +128,7 @@ const CustomContent = React.forwardRef(function CustomContent(props: CustomTreeI
     );
 });
 
-const StyledTreeItem = styled(TreeItem)(({ theme }) => getTreeItemStyle(theme))
+const StyledTreeItem = styled(TreeItem)(({ theme }) => getTreeItemStyle(theme));
 
 export const EntityTreeItem = (props: CustomTreeItemProps) => {
     const { data, ...other } = props;

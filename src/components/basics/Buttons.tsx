@@ -16,15 +16,20 @@ export function SquaredIconButton(props: LoadingButtonProps) {
     return <StyledLoadingButton variant={props.variant || 'contained'} size={props.size || 'large'} {...props} />;
 }
 export function RoundedIconButton(props: LoadingButtonProps) {
-    const StyledRoundButton = styled(StyledLoadingButton)(({theme}) => ({
+    const StyledRoundButton = styled(StyledLoadingButton)(({ theme }) => ({
         backgroundColor: theme.palette.background.default,
         color: theme.palette.primary.main,
-        '&:hover' : {
+        '&:hover': {
             backgroundColor: theme.palette.primary.main,
-            color:  theme.palette.background.default,
-        }
+            color: theme.palette.background.default,
+        },
     }));
-    return <StyledRoundButton
-        variant={props.variant || 'contained'} size={props.size || 'large'} style={{borderRadius: "56px"}} {...props}  />;
-
+    return (
+        <StyledRoundButton
+            variant={props.variant || 'contained'}
+            size={props.size || 'large'}
+            style={{ borderRadius: '56px' }}
+            {...props}
+        />
+    );
 }

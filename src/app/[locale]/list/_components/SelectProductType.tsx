@@ -1,5 +1,5 @@
 ﻿import { Box, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
-import {FormattedMessage, IntlShape, useIntl} from 'react-intl';
+import { FormattedMessage, IntlShape, useIntl } from 'react-intl';
 import { messages } from 'lib/i18n/localization';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { getProductClassId, parseProductClassFromString, ProductClass } from 'lib/util/ProductClassResolverUtil';
@@ -16,7 +16,7 @@ export const SelectProductType = (props: SelectProductTypeProps) => {
     const { aasList, setAasListFiltered } = props;
     const [productClassFilterValue, setProductClassFilterValue] = useState<string>('');
     const [productClass, setProductClass] = useState<ProductClass[]>([]);
-    const [ filteredAasListCount, setfilteredAasListCount ] = useState(0);
+    const [filteredAasListCount, setfilteredAasListCount] = useState(0);
     const intl = useIntl();
     /**
      * Creates the ProductClass Filter values.
@@ -45,7 +45,7 @@ export const SelectProductType = (props: SelectProductTypeProps) => {
             console.warn('Invalid product type', e);
         }
         return productClassString;
-    }
+    };
     /**
      * Applies product filter change to the list.
      * @param event
@@ -98,11 +98,13 @@ export const SelectProductType = (props: SelectProductTypeProps) => {
                     })}
                 </Select>
             </FormControl>
-            { productClassFilterValue != "" &&
-        
-            <p> {filteredAasListCount} {intl.formatMessage(messages.mnestix.aasList.productClassHint)}: <b>{translateProductClassId(productClassFilterValue, intl)}</b></p>
-        
-            }
+            {productClassFilterValue != '' && (
+                <p>
+                    {' '}
+                    {filteredAasListCount} {intl.formatMessage(messages.mnestix.aasList.productClassHint)}:{' '}
+                    <b>{translateProductClassId(productClassFilterValue, intl)}</b>
+                </p>
+            )}
         </div>
     );
 };

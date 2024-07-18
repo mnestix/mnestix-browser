@@ -1,4 +1,4 @@
-import {Box, Checkbox, Chip, TableCell, Typography} from '@mui/material';
+import { Box, Checkbox, Chip, TableCell, Typography } from '@mui/material';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { messages } from 'lib/i18n/localization';
 import { getProductClassId } from 'lib/util/ProductClassResolverUtil';
@@ -12,9 +12,8 @@ import { ImageWithFallback } from './StyledImageWithFallBack';
 import { ProductClassChip } from 'app/[locale]/list/_components/ProductClassChip';
 import { tooltipText } from 'lib/util/ToolTipText';
 import PictureTableCell from 'components/basics/listBasics/PictureTableCell';
-import {ArrowForward} from "@mui/icons-material";
-import {RoundedIconButton} from "components/basics/Buttons";
-
+import { ArrowForward } from '@mui/icons-material';
+import { RoundedIconButton } from 'components/basics/Buttons';
 
 type AasTableRowProps = {
     aasListEntry: AasListEntry;
@@ -76,7 +75,7 @@ export const AasListTableRow = (props: AasTableRowProps) => {
                     </Box>
                 </TableCell>
             )}
-            <PictureTableCell 
+            <PictureTableCell
                 onClickAction={() => navigateToAas(aasListEntry)}
                 title={intl.formatMessage(messages.mnestix.aasList.titleViewAASButton)}
             >

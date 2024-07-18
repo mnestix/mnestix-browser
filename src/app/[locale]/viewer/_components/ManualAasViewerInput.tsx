@@ -12,7 +12,7 @@ import { useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { handleAasDiscoverySearch, handleAasRegistrySearch } from 'lib/searchUtilActions/search';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
-import {SquaredIconButton} from "components/basics/Buttons";
+import { SquaredIconButton } from 'components/basics/Buttons';
 
 export function ManualAASViewerInput(props: { focus: boolean }) {
     const [val, setVal] = useState<string>('');

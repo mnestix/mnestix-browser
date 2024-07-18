@@ -38,7 +38,11 @@ export const EnvProvider = ({
         setChildren(true);
     }, []);
 
-    return renderChildren ? <EnvContext.Provider value={env}>{children}</EnvContext.Provider> : <CenteredLoadingSpinner/>;
+    return renderChildren ? (
+        <EnvContext.Provider value={env}>{children}</EnvContext.Provider>
+    ) : (
+        <CenteredLoadingSpinner />
+    );
 };
 
 export const useEnv = () => {

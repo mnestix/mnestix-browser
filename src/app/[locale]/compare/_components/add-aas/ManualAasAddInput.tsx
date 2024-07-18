@@ -13,7 +13,7 @@ import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { encodeBase64 } from 'lib/util/Base64Util';
-import {SquaredIconButton} from "components/basics/Buttons";
+import { SquaredIconButton } from 'components/basics/Buttons';
 
 type ManualAasAddInputProps = {
     onSubmit: () => void;

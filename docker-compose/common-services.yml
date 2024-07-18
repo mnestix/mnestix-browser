@@ -135,7 +135,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 6
-  
+
   submodel-registry-log-mongodb:
     image: eclipsebasyx/submodel-registry-log-mongodb:2.0.0-SNAPSHOT
     container_name: submodel-registry-mongo

@@ -14,7 +14,6 @@ import { useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { getSubmodelFromSubmodelDescriptor } from 'lib/searchUtilActions/search';
 import { useEnv } from 'app/env/provider';
 
-
 export type SubmodelsOverviewCardProps = { readonly smReferences?: Reference[]; readonly isLoading?: boolean };
 
 export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
@@ -43,7 +42,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                 const metadata = await submodelClient.getSubmodelById(id);
                 submodels.push({ id, label: metadata.idShort ?? '', metadata });
             } catch (e) {
-                console.error(e)
+                console.error(e);
             }
         }
 
@@ -58,7 +57,9 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
         } else {
             for (const reference of props.smReferences as Reference[]) {
                 try {
-                    const submodelFromRegistry = env.SUBMODEL_REGISTRY_API_URL ? await submodelRegistryServiceClient.getSubmodelDescriptorsById(reference.keys[0].value) : null
+                    const submodelFromRegistry = env.SUBMODEL_REGISTRY_API_URL
+                        ? await submodelRegistryServiceClient.getSubmodelDescriptorsById(reference.keys[0].value)
+                        : null;
                     submodels.push({
                         id: submodelFromRegistry.id,
                         label: submodelFromRegistry.idShort ?? '',
@@ -72,7 +73,6 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                         console.error(e);
                     }
                 }
-
             }
         }
 
@@ -82,7 +82,6 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
             });
             setItems(submodels);
         }
-
     }, [props.smReferences, registryAasData]);
 
     useEffect(() => {
@@ -136,16 +135,16 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                         <>
                             <Box>
                                 {[0, 1, 2].map((i) => {
-                                    return <Skeleton variant="rectangular" key={i} height={50} sx={{ mb: 2 }}/>;
+                                    return <Skeleton variant="rectangular" key={i} height={50} sx={{ mb: 2 }} />;
                                 })}
                             </Box>
                             <Box>
                                 {[0, 1, 2].map((i) => {
                                     return (
                                         <Box sx={{ mb: 2 }} key={i}>
-                                            <Skeleton variant="text" width="50%"/>
-                                            <Skeleton variant="text" width="30%"/>
-                                            {i < 2 && <Divider sx={{ mt: 2 }}/>}
+                                            <Skeleton variant="text" width="50%" />
+                                            <Skeleton variant="text" width="30%" />
+                                            {i < 2 && <Divider sx={{ mt: 2 }} />}
                                         </Box>
                                     );
                                 })}
@@ -153,16 +152,16 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                         </>
                     ) : (
                         <>
-                            <VerticalTabSelector items={items} selected={selectedItem} setSelected={setSelectedItem}/>
+                            <VerticalTabSelector items={items} selected={selectedItem} setSelected={setSelectedItem} />
                             {isMobile ? (
                                 <MobileModal
                                     title={items.find((i) => i.id === selectedItem?.id)?.label}
                                     open={open}
                                     handleClose={handleClose}
-                                    content={<SubmodelDetail submodel={selectedSubmodel}/>}
+                                    content={<SubmodelDetail submodel={selectedSubmodel} />}
                                 />
                             ) : (
-                                <SubmodelDetail submodel={selectedSubmodel}/>
+                                <SubmodelDetail submodel={selectedSubmodel} />
                             )}
                         </>
                     )}

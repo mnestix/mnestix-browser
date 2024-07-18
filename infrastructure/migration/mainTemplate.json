@@ -1,316 +1,314 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": {
-    "location": {
-      "type": "string",
-      "defaultValue": "WestEurope"
-    },
-    "randomId": {
-      "type": "string",
-      "defaultValue": "[take(guid(resourceGroup().id), 8)]"
-    },
-    "apiKey": {
-      "type": "securestring"
-    },
-    "tenantId": {
-      "type": "securestring"
-    },
-    "frontendClientId": {
-      "type": "securestring"
-    },
-    "applicationIdUri": {
-      "type": "securestring"
-    },
-    "backendClientId": {
-      "type": "securestring"
-    },
-    "mnestixApiServiceName": {
-      "defaultValue": "[concat('mnestix-api-', parameters('randomId'))]",
-      "type": "string"
-    },
-    "mnestixBrowserServiceName": {
-      "defaultValue": "[concat('mnestix-browser-', parameters('randomId'))]",
-      "type": "string"
-    },
-    "serverFarmsName": {
-      "type": "string"
-    },
-    "virtualNetworkName": {
-      "type": "string"
-    },
-    "basyxAppServiceUrl": {
-      "type": "string"
-    },
-    "mongoConnectionString": {
-      "type": "securestring"
-    }
-  },
-  "variables": {
-    "mnestixApiServiceName": "[parameters('mnestixApiServiceName')]",
-    "mnestixApiName": "[uri(concat('https://', variables('mnestixApiServiceName'), '.azurewebsites.net'), '')]",
-    "mnestixApiServiceUrl": "[uri(concat('https://', variables('mnestixApiServiceName'), '.azurewebsites.net'), '')]",
-    "mnestixApiProxyUrl": "[uri(concat('https://', variables('mnestixApiServiceName'), '.azurewebsites.net', '/repo'), '')]",
-    "mnestixApiDiscoveryProxyUrl": "[uri(concat('https://', variables('mnestixApiServiceName'), '.azurewebsites.net', '/discovery'), '')]",
-    "mnestixBrowserServiceName": "[parameters('mnestixBrowserServiceName')]",
-    "mnestixBrowserUrl": "[uri(concat('https://', variables('mnestixBrowserServiceName'), '.azurewebsites.net'), '')]",
-    "discoveryAppServiceName": "[concat('mnestix-basyx-discovery-', parameters('randomId'))]",
-    "discoveryAppServiceUrl": "[uri(concat('https://', variables('discoveryAppServiceName'), '.azurewebsites.net'), '')]",
-    "discoveryPrivateEndpointName": "[concat('mnestix-discovery-basyx-private-endpoint-', parameters('randomId'))]"
-  },
-  "resources": [
-    {
-      "type": "Microsoft.Web/sites",
-      "apiVersion": "2021-03-01",
-      "name": "[variables('mnestixApiServiceName')]",
-      "location": "[parameters('location')]",
-      "kind": "app,linux,container",
-      "properties": {
-        "name": "[variables('mnestixApiServiceName')]",
-        "siteConfig": {
-          "appSettings": [
-            {
-              "name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
-              "value": "false"
-            },
-            {
-              "name": "Features__AasRegistryMiddleware",
-              "value": "true"
-            },
-            {
-              "name": "Features__UseMongoDbBasedAasIdStorage",
-              "value": "true"
-            },
-            {
-              "name": "Features__AllowRetrievingAllShellsAndSubmodels",
-              "value": "false"
-            },
-            {
-              "name": "Features__UseAuthentication",
-              "value": "true"
-            },
-            {
-              "name": "ReverseProxy__Clusters__repoCluster__Destinations__destination1__Address",
-              "value": "[parameters('basyxAppServiceUrl')]"
-            },
-            {
-              "name": "ReverseProxy__Clusters__discoveryCluster__Destinations__destination1__Address",
-              "value": "[variables('discoveryAppServiceUrl')]"
-            },
-            {
-              "name": "ReverseProxy__Clusters__influxCluster__Destinations__destination1__Address",
-              "value": "placeholder_for_influx_db_connection"
-            },
-            {
-              "name": "ReverseProxy__Routes__InfluxRoute__Transforms__1__Set",
-              "value": "Token"
-            },
-            {
-              "name": "CustomerEndpointsSecurity__ApiKey",
-              "value": "[parameters('apiKey')]"
-            },
-            {
-              "name": "AzureAd__ClientId",
-              "value": "[parameters('backendClientId')]"
-            },
-            {
-              "name": "AzureAd__TenantId",
-              "value": "[parameters('tenantId')]"
-            },
-            {
-              "name": "ASPNETCORE_URLS",
-              "value": "http://+:5064"
-            },
-            {
-              "name": "PORT",
-              "value": "5064"
-            },
-            {
-              "name": "BasyxDbConnectionConfiguration__MongoConnectionString",
-              "value": "[parameters('mongoConnectionString')]"
-            }
-          ],
-          "linuxFxVersion": "DOCKER|mnestix/mnestix-api:latest",
-          "alwaysOn": true
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "string",
+            "defaultValue": "WestEurope"
         },
-        "hostNameSslStates": [
-          {
-            "name": "[variables('mnestixApiName')]",
-            "sslState": "Disabled",
-            "hostType": "Standard"
-          }
-        ],
-        "vnetRouteAllEnabled": false,
-        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverFarmsName'))]",
-        "clientAffinityEnabled": false,
-        "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'private-endpoint-consumers')]"
-      }
-    },
-    {
-      "type": "Microsoft.Web/sites",
-      "apiVersion": "2021-03-01",
-      "name": "[variables('mnestixBrowserServiceName')]",
-      "location": "[parameters('location')]",
-      "kind": "app,linux,container",
-      "properties": {
-        "name": "[variables('mnestixBrowserServiceName')]",
-        "siteConfig": {
-          "appSettings": [
-            {
-              "name": "AAS_LIST_FEATURE_FLAG",
-              "value": "true"
-            },
-            {
-              "name": "COMPARISON_FEATURE_FLAG",
-              "value": "true"
-            },
-            {
-              "name": "AUTHENTICATION_FEATURE_FLAG",
-              "value": "true"
-            },
-            {
-              "name": "LOCK_TIMESERIES_PERIOD_FEATURE_FLAG",
-              "value": "true"
-            },
-            {
-              "name": "FRONTEND_URL",
-              "value": "[variables('mnestixBrowserUrl')]"
-            },
-            {
-              "name": "AAS_REPO_API_URL",
-              "value": "[variables('mnestixApiProxyUrl')]"
-            },
-            {
-              "name": "DISCOVERY_API_URL",
-              "value": "[variables('mnestixApiDiscoveryProxyUrl')]"
-            },
-            {
-              "name": "MNESTIX_BACKEND_API_URL",
-              "value": "[variables('mnestixApiServiceUrl')]"
-            },
-            {
-              "name": "AD_CLIENT_ID",
-              "value": "[parameters('frontendClientId')]"
-            },
-            {
-              "name": "AD_TENANT_ID",
-              "value": "[parameters('tenantId')]"
-            },
-            {
-              "name": "APPLICATION_ID_URI",
-              "value": "[parameters('applicationIdUri')]"
-            }
-          ],
-          "linuxFxVersion": "DOCKER|mnestix/mnestix-browser:latest",
-          "alwaysOn": true
+        "randomId": {
+            "type": "string",
+            "defaultValue": "[take(guid(resourceGroup().id), 8)]"
         },
-        "hostNameSslStates": [
-          {
-            "name": "[variables('mnestixBrowserUrl')]",
-            "sslState": "Disabled",
-            "hostType": "Standard"
-          }
-        ],
-        "vnetRouteAllEnabled": false,
-        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverFarmsName'))]",
-        "clientAffinityEnabled": false,
-        "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'private-endpoint-consumers')]"
-      }
-    },
-    {
-      "type": "Microsoft.Web/sites",
-      "apiVersion": "2021-03-01",
-      "name": "[variables('discoveryAppServiceName')]",
-      "location": "[parameters('location')]",
-      "kind": "app,linux,container",
-      "properties": {
-        "name": "[variables('discoveryAppServiceName')]",
-        "siteConfig": {
-          "appSettings": [
-            {
-              "name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
-              "value": "false"
-            },
-            {
-              "name": "BASYX_BACKEND",
-              "value": "MongoDB"
-            },
-            {
-              "name": "SPRING_DATA_MONGODB_URI",
-              "value": "[parameters('mongoConnectionString')]"
-            },
-            {
-              "name": "SPRING_DATA_MONGODB_DATABASE",
-              "value": "basyxdb"
-            }
-          ],
-          "linuxFxVersion": "DOCKER|eclipsebasyx/aas-discovery:2.0.0-SNAPSHOT",
-          "alwaysOn": true
+        "apiKey": {
+            "type": "securestring"
         },
-        "hostNameSslStates": [
-          {
-            "name": "[variables('discoveryAppServiceUrl')]",
-            "sslState": "Disabled",
-            "hostType": "Standard"
-          }
-        ],
-        "vnetRouteAllEnabled": false,
-        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverFarmsName'))]",
-        "clientAffinityEnabled": false,
-        "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'private-endpoint-consumers')]"
-      }
-    },
-    {
-      "name": "[variables('discoveryPrivateEndpointName')]",
-      "type": "Microsoft.Network/privateEndpoints",
-      "apiVersion": "2020-11-01",
-      "location": "[parameters('location')]",
-      "properties": {
-        "privateLinkServiceConnections": [
-          {
-            "name": "[variables('discoveryPrivateEndpointName')]",
-            "type": "Microsoft.Network/privateEndpoints/privateLinkServiceConnections",
-            "properties": {
-              "privateLinkServiceId": "[resourceId('Microsoft.Web/sites', variables('discoveryAppServiceName'))]",
-              "groupIds": [
-                "sites"
-              ],
-              "requestMessage": "",
-              "privateLinkServiceConnectionState": {
-                "status": "Approved",
-                "description": "",
-                "actionsRequired": "None"
-              }
-            }
-          }
-        ],
-        "manualPrivateLinkServiceConnections": [],
-        "subnet": {
-          "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'private-endpoints')]"
+        "tenantId": {
+            "type": "securestring"
+        },
+        "frontendClientId": {
+            "type": "securestring"
+        },
+        "applicationIdUri": {
+            "type": "securestring"
+        },
+        "backendClientId": {
+            "type": "securestring"
+        },
+        "mnestixApiServiceName": {
+            "defaultValue": "[concat('mnestix-api-', parameters('randomId'))]",
+            "type": "string"
+        },
+        "mnestixBrowserServiceName": {
+            "defaultValue": "[concat('mnestix-browser-', parameters('randomId'))]",
+            "type": "string"
+        },
+        "serverFarmsName": {
+            "type": "string"
+        },
+        "virtualNetworkName": {
+            "type": "string"
+        },
+        "basyxAppServiceUrl": {
+            "type": "string"
+        },
+        "mongoConnectionString": {
+            "type": "securestring"
         }
-      },
-      "resources": [
+    },
+    "variables": {
+        "mnestixApiServiceName": "[parameters('mnestixApiServiceName')]",
+        "mnestixApiName": "[uri(concat('https://', variables('mnestixApiServiceName'), '.azurewebsites.net'), '')]",
+        "mnestixApiServiceUrl": "[uri(concat('https://', variables('mnestixApiServiceName'), '.azurewebsites.net'), '')]",
+        "mnestixApiProxyUrl": "[uri(concat('https://', variables('mnestixApiServiceName'), '.azurewebsites.net', '/repo'), '')]",
+        "mnestixApiDiscoveryProxyUrl": "[uri(concat('https://', variables('mnestixApiServiceName'), '.azurewebsites.net', '/discovery'), '')]",
+        "mnestixBrowserServiceName": "[parameters('mnestixBrowserServiceName')]",
+        "mnestixBrowserUrl": "[uri(concat('https://', variables('mnestixBrowserServiceName'), '.azurewebsites.net'), '')]",
+        "discoveryAppServiceName": "[concat('mnestix-basyx-discovery-', parameters('randomId'))]",
+        "discoveryAppServiceUrl": "[uri(concat('https://', variables('discoveryAppServiceName'), '.azurewebsites.net'), '')]",
+        "discoveryPrivateEndpointName": "[concat('mnestix-discovery-basyx-private-endpoint-', parameters('randomId'))]"
+    },
+    "resources": [
         {
-          "name": "default",
-          "type": "privateDnsZoneGroups",
-          "apiVersion": "2020-03-01",
-          "location": "[parameters('location')]",
-          "properties": {
-            "privateDnsZoneConfigs": [
-              {
-                "name": "dnsConfig",
-                "properties": {
-                  "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.azurewebsites.net')]"
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2021-03-01",
+            "name": "[variables('mnestixApiServiceName')]",
+            "location": "[parameters('location')]",
+            "kind": "app,linux,container",
+            "properties": {
+                "name": "[variables('mnestixApiServiceName')]",
+                "siteConfig": {
+                    "appSettings": [
+                        {
+                            "name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
+                            "value": "false"
+                        },
+                        {
+                            "name": "Features__AasRegistryMiddleware",
+                            "value": "true"
+                        },
+                        {
+                            "name": "Features__UseMongoDbBasedAasIdStorage",
+                            "value": "true"
+                        },
+                        {
+                            "name": "Features__AllowRetrievingAllShellsAndSubmodels",
+                            "value": "false"
+                        },
+                        {
+                            "name": "Features__UseAuthentication",
+                            "value": "true"
+                        },
+                        {
+                            "name": "ReverseProxy__Clusters__repoCluster__Destinations__destination1__Address",
+                            "value": "[parameters('basyxAppServiceUrl')]"
+                        },
+                        {
+                            "name": "ReverseProxy__Clusters__discoveryCluster__Destinations__destination1__Address",
+                            "value": "[variables('discoveryAppServiceUrl')]"
+                        },
+                        {
+                            "name": "ReverseProxy__Clusters__influxCluster__Destinations__destination1__Address",
+                            "value": "placeholder_for_influx_db_connection"
+                        },
+                        {
+                            "name": "ReverseProxy__Routes__InfluxRoute__Transforms__1__Set",
+                            "value": "Token"
+                        },
+                        {
+                            "name": "CustomerEndpointsSecurity__ApiKey",
+                            "value": "[parameters('apiKey')]"
+                        },
+                        {
+                            "name": "AzureAd__ClientId",
+                            "value": "[parameters('backendClientId')]"
+                        },
+                        {
+                            "name": "AzureAd__TenantId",
+                            "value": "[parameters('tenantId')]"
+                        },
+                        {
+                            "name": "ASPNETCORE_URLS",
+                            "value": "http://+:5064"
+                        },
+                        {
+                            "name": "PORT",
+                            "value": "5064"
+                        },
+                        {
+                            "name": "BasyxDbConnectionConfiguration__MongoConnectionString",
+                            "value": "[parameters('mongoConnectionString')]"
+                        }
+                    ],
+                    "linuxFxVersion": "DOCKER|mnestix/mnestix-api:latest",
+                    "alwaysOn": true
+                },
+                "hostNameSslStates": [
+                    {
+                        "name": "[variables('mnestixApiName')]",
+                        "sslState": "Disabled",
+                        "hostType": "Standard"
+                    }
+                ],
+                "vnetRouteAllEnabled": false,
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverFarmsName'))]",
+                "clientAffinityEnabled": false,
+                "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'private-endpoint-consumers')]"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2021-03-01",
+            "name": "[variables('mnestixBrowserServiceName')]",
+            "location": "[parameters('location')]",
+            "kind": "app,linux,container",
+            "properties": {
+                "name": "[variables('mnestixBrowserServiceName')]",
+                "siteConfig": {
+                    "appSettings": [
+                        {
+                            "name": "AAS_LIST_FEATURE_FLAG",
+                            "value": "true"
+                        },
+                        {
+                            "name": "COMPARISON_FEATURE_FLAG",
+                            "value": "true"
+                        },
+                        {
+                            "name": "AUTHENTICATION_FEATURE_FLAG",
+                            "value": "true"
+                        },
+                        {
+                            "name": "LOCK_TIMESERIES_PERIOD_FEATURE_FLAG",
+                            "value": "true"
+                        },
+                        {
+                            "name": "FRONTEND_URL",
+                            "value": "[variables('mnestixBrowserUrl')]"
+                        },
+                        {
+                            "name": "AAS_REPO_API_URL",
+                            "value": "[variables('mnestixApiProxyUrl')]"
+                        },
+                        {
+                            "name": "DISCOVERY_API_URL",
+                            "value": "[variables('mnestixApiDiscoveryProxyUrl')]"
+                        },
+                        {
+                            "name": "MNESTIX_BACKEND_API_URL",
+                            "value": "[variables('mnestixApiServiceUrl')]"
+                        },
+                        {
+                            "name": "AD_CLIENT_ID",
+                            "value": "[parameters('frontendClientId')]"
+                        },
+                        {
+                            "name": "AD_TENANT_ID",
+                            "value": "[parameters('tenantId')]"
+                        },
+                        {
+                            "name": "APPLICATION_ID_URI",
+                            "value": "[parameters('applicationIdUri')]"
+                        }
+                    ],
+                    "linuxFxVersion": "DOCKER|mnestix/mnestix-browser:latest",
+                    "alwaysOn": true
+                },
+                "hostNameSslStates": [
+                    {
+                        "name": "[variables('mnestixBrowserUrl')]",
+                        "sslState": "Disabled",
+                        "hostType": "Standard"
+                    }
+                ],
+                "vnetRouteAllEnabled": false,
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverFarmsName'))]",
+                "clientAffinityEnabled": false,
+                "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'private-endpoint-consumers')]"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2021-03-01",
+            "name": "[variables('discoveryAppServiceName')]",
+            "location": "[parameters('location')]",
+            "kind": "app,linux,container",
+            "properties": {
+                "name": "[variables('discoveryAppServiceName')]",
+                "siteConfig": {
+                    "appSettings": [
+                        {
+                            "name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
+                            "value": "false"
+                        },
+                        {
+                            "name": "BASYX_BACKEND",
+                            "value": "MongoDB"
+                        },
+                        {
+                            "name": "SPRING_DATA_MONGODB_URI",
+                            "value": "[parameters('mongoConnectionString')]"
+                        },
+                        {
+                            "name": "SPRING_DATA_MONGODB_DATABASE",
+                            "value": "basyxdb"
+                        }
+                    ],
+                    "linuxFxVersion": "DOCKER|eclipsebasyx/aas-discovery:2.0.0-SNAPSHOT",
+                    "alwaysOn": true
+                },
+                "hostNameSslStates": [
+                    {
+                        "name": "[variables('discoveryAppServiceUrl')]",
+                        "sslState": "Disabled",
+                        "hostType": "Standard"
+                    }
+                ],
+                "vnetRouteAllEnabled": false,
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverFarmsName'))]",
+                "clientAffinityEnabled": false,
+                "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'private-endpoint-consumers')]"
+            }
+        },
+        {
+            "name": "[variables('discoveryPrivateEndpointName')]",
+            "type": "Microsoft.Network/privateEndpoints",
+            "apiVersion": "2020-11-01",
+            "location": "[parameters('location')]",
+            "properties": {
+                "privateLinkServiceConnections": [
+                    {
+                        "name": "[variables('discoveryPrivateEndpointName')]",
+                        "type": "Microsoft.Network/privateEndpoints/privateLinkServiceConnections",
+                        "properties": {
+                            "privateLinkServiceId": "[resourceId('Microsoft.Web/sites', variables('discoveryAppServiceName'))]",
+                            "groupIds": ["sites"],
+                            "requestMessage": "",
+                            "privateLinkServiceConnectionState": {
+                                "status": "Approved",
+                                "description": "",
+                                "actionsRequired": "None"
+                            }
+                        }
+                    }
+                ],
+                "manualPrivateLinkServiceConnections": [],
+                "subnet": {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), 'private-endpoints')]"
                 }
-              }
+            },
+            "resources": [
+                {
+                    "name": "default",
+                    "type": "privateDnsZoneGroups",
+                    "apiVersion": "2020-03-01",
+                    "location": "[parameters('location')]",
+                    "properties": {
+                        "privateDnsZoneConfigs": [
+                            {
+                                "name": "dnsConfig",
+                                "properties": {
+                                    "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.azurewebsites.net')]"
+                                }
+                            }
+                        ]
+                    },
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Network/privateEndpoints', variables('discoveryPrivateEndpointName'))]",
+                        "[resourceId('Microsoft.Web/sites', variables('discoveryAppServiceName'))]"
+                    ]
+                }
             ]
-          },
-          "dependsOn": [
-            "[resourceId('Microsoft.Network/privateEndpoints', variables('discoveryPrivateEndpointName'))]",
-            "[resourceId('Microsoft.Web/sites', variables('discoveryAppServiceName'))]"
-          ]
         }
-      ]
-    }
-  ]
+    ]
 }
