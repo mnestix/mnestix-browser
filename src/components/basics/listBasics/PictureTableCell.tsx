@@ -5,6 +5,7 @@ import { ShellIcon } from 'components/custom-icons/ShellIcon';
 type PictureTableCellProps = {
     children?: React.ReactNode;
     onClickAction: () => void;
+    title: string;
 };
 
 const tableBodyText = {
@@ -13,7 +14,7 @@ const tableBodyText = {
     color: 'text.primary',
 };
 export default function PictureTableCell(props: PictureTableCellProps) {
-    const { children, onClickAction } = props;
+    const { children, onClickAction, title} = props;
 
     return (
         <TableCell component="th" scope="row" sx={tableBodyText}>
@@ -31,6 +32,7 @@ export default function PictureTableCell(props: PictureTableCellProps) {
                     },
                 }}
                 data-testid="list-thumbnail"
+                title={title}
             >
                 {children || <ShellIcon fontSize="large" color="primary" />}
             </Paper>

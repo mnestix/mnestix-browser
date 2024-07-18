@@ -71,11 +71,15 @@ export const AasListTableRow = (props: AasTableRowProps) => {
                             disabled={checkBoxDisabled(aasListEntry.aasId)}
                             onChange={(evt) => updateSelectedAasList(evt.target.checked, aasListEntry.aasId)}
                             data-testid="list-checkbox"
+                            title={intl.formatMessage(messages.mnestix.aasList.titleComparisonAddButton)}
                         />
                     </Box>
                 </TableCell>
             )}
-            <PictureTableCell onClickAction={() => navigateToAas(aasListEntry)}>
+            <PictureTableCell 
+                onClickAction={() => navigateToAas(aasListEntry)}
+                title={intl.formatMessage(messages.mnestix.aasList.titleViewAASButton)}
+            >
                 {aasListEntry.thumbnailUrl && (
                     <ImageWithFallback
                         src={aasListEntry.thumbnailUrl}
@@ -110,6 +114,7 @@ export const AasListTableRow = (props: AasTableRowProps) => {
                         variant="outlined"
                         icon={<LabelOffIcon color={'primary'} />}
                         data-testid="product-class-chip"
+                        title={intl.formatMessage(messages.mnestix.aasList.titleProductChipNotAvailable)}
                     />
                 )}
             </TableCell>
@@ -117,6 +122,7 @@ export const AasListTableRow = (props: AasTableRowProps) => {
                 <RoundedIconButton
                     endIcon={<ArrowForward />}
                     onClick={() => navigateToAas(aasListEntry)}
+                    title={intl.formatMessage(messages.mnestix.aasList.titleViewAASButton)}
                 />
             </TableCell>
         </>

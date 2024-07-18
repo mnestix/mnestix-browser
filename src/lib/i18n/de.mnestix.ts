@@ -188,6 +188,9 @@ export const deMnestix = {
         compareTooltip: 'Vergleichen',
         showAll: 'Alle Produktklassen',
         notAvailable: 'Nicht verfügbar',
+        titleComparisonAddButton: 'Füge VWS zum Vergleich hinzu',
+        titleProductChipNotAvailable: 'Produktklasse der VWS nicht verfügbar',
+        titleViewAASButton: 'VWS anzeigen',
         productClassHint: 'Ergebnisse für Produktklasse',
         productClasses: {
             '27-27': 'Sensorik, sicherheitsgerichtete Sensorik',

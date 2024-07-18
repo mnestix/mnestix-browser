@@ -187,6 +187,9 @@ export const enMnestix = {
         compareTooltip: 'Compare',
         showAll: 'All product classes',
         notAvailable: 'Not available',
+        titleComparisonAddButton: 'Add AAS to comparison',
+        titleProductChipNotAvailable: 'Product Class of AAS not available',
+        titleViewAASButton: 'View AAS',
         productClassHint: 'results for Product Class',
         productClasses: {
             '27-27': 'Sensor technology, safety-related sensor technology',

@@ -37,6 +37,7 @@ export const ProductClassChip = (props: ProductClassChipProps) => {
             variant="outlined"
             icon={<GetProductClassIcon productClassType={productClass.type} />}
             data-testid="product-class-chip"
+            title={intl.formatMessage(messages.mnestix.aasList.productClassHeading )+ " " + productClass.description }
         />
     );
 };
