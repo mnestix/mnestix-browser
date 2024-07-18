@@ -5,7 +5,7 @@ import { ShellIcon } from 'components/custom-icons/ShellIcon';
 type PictureTableCellProps = {
     children?: React.ReactNode;
     onClickAction: () => void;
-    title: string;
+    title?: string;
 };
 
 const tableBodyText = {
