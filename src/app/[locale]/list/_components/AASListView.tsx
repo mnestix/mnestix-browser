@@ -476,8 +476,8 @@ export const AASListView = () => {
                 </TableContainer>
             )}
             <Grid container spacing={2} sx={{ marginTop: '16px' }}>
-                {aasListFiltered?.map((listEntry) => (
-                    <AASCard listEntry={listEntry} navigateToAas={navigateToAas} key={listEntry.aasId} />
+                {aasListFiltered?.map((aasListEntry) => (
+                    <AASCard aasListEntry={aasListEntry} navigateToAas={navigateToAas} key={aasListEntry.aasId} />
                 ))}
             </Grid>
             {/* {selectedAasList && selectedAasList.length > 0 && (

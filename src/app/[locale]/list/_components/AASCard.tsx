@@ -17,7 +17,7 @@ import { tooltipText, translateListText } from './AASListView';
 
 // Define the props interface
 interface AASCardProps {
-    listEntry: AasListEntry;
+    aasListEntry: AasListEntry;
     navigateToAas: (listEntry: AasListEntry) => void;
 }
 
@@ -28,12 +28,12 @@ const StyledImage = styled('img')(() => ({
 }));
 
 // AASCard component
-export const AASCard: React.FC<AASCardProps> = ({ listEntry, navigateToAas }) => {
+export const AASCard: React.FC<AASCardProps> = ({ aasListEntry, navigateToAas }) => {
     return (
-        <Grid item xs={12} sm={6} md={4} lg={3} key={listEntry.aasId}>
+        <Grid item xs={12} sm={6} md={4} lg={3} key={aasListEntry.aasId}>
             <Card sx={{ height: '320px', display: 'flex', flexDirection: 'column' }}>
                 <CardMedia sx={{ display: 'flex', justifyContent: 'center' }}>
-                    <StyledImage src={listEntry.thumbnailUrl} alt={listEntry.aasId} />
+                    <StyledImage src={aasListEntry.thumbnailUrl} alt={aasListEntry.aasId} />
                 </CardMedia>
                 <Divider />
                 <CardContent sx={{ flexGrow: 1 }}>
@@ -41,9 +41,9 @@ export const AASCard: React.FC<AASCardProps> = ({ listEntry, navigateToAas }) =>
                     <Typography variant="body2">{tooltipText(listEntry.manufacturer, 50)}</Typography>
                     {productClassValue(listEntry.productGroup, 50)} */}
                     <Typography>
-                        {tooltipText(translateListText(listEntry.manufacturerProductDesignation), 100)}
+                        {tooltipText(translateListText(aasListEntry.manufacturerProductDesignation), 100)}
                     </Typography>
-                    <Typography>{tooltipText(listEntry.productGroup, 50)}</Typography>
+                    <Typography>{tooltipText(aasListEntry.productGroup, 50)}</Typography>
                 </CardContent>
                 <Box
                     sx={{
@@ -66,7 +66,7 @@ export const AASCard: React.FC<AASCardProps> = ({ listEntry, navigateToAas }) =>
                             <Menu />
                         </IconButton>
                     </div>
-                    <Button size="small" onClick={() => navigateToAas(listEntry)}>
+                    <Button size="small" onClick={() => navigateToAas(aasListEntry)}>
                         more detail
                     </Button>
                 </Box>
