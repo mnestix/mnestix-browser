@@ -56,6 +56,28 @@ const StyledImage = styled('img')(() => ({
     objectFit: 'scale-down',
 }));
 
+/**
+ * Shortens the property text and provides the full text in a tooltip.
+ */
+export const tooltipText = (property: string | undefined, maxChars: number) => {
+    if (!property) return '';
+    else {
+        return property.length > maxChars ? (
+            <Tooltip title={property} arrow>
+                <Box component="span">{`${property.slice(0, maxChars)} (...)`}</Box>
+            </Tooltip>
+        ) : (
+            <>{property}</>
+        );
+    }
+};
+
+export const translateListText = (property: { [key: string]: string } | undefined) => {
+    const intl = useIntl();
+    if (!property) return '';
+    return property[intl.locale] ?? Object.values(property)[0] ?? '';
+};
+
 export const AASListView = () => {
     const { aasListClient } = useApis();
     const [isLoadingList, setIsLoadingList] = useState(false);
@@ -112,11 +134,6 @@ export const AASListView = () => {
         setProductClass(productClasses);
     }, [aasList]);
 
-    const translateListText = (property: { [key: string]: string } | undefined) => {
-        if (!property) return '';
-        return property[intl.locale] ?? Object.values(property)[0] ?? '';
-    };
-
     const navigateToAas = (listEntry: AasListEntry) => {
         setAas(null);
         if (listEntry.aasId) navigate.push(`/viewer/${encodeBase64(listEntry.aasId)}`);
@@ -150,22 +167,6 @@ export const AASListView = () => {
             ),
             severity: 'warning',
         });
-    };
-
-    /**
-     * Shortens the property text and provides the full text in a tooltip.
-     */
-    const tooltipText = (property: string | undefined, maxChars: number) => {
-        if (!property) return '';
-        else {
-            return property.length > maxChars ? (
-                <Tooltip title={property} arrow>
-                    <Box component="span">{`${property.slice(0, maxChars)} (...)`}</Box>
-                </Tooltip>
-            ) : (
-                <>{property}</>
-            );
-        }
     };
 
     /**
