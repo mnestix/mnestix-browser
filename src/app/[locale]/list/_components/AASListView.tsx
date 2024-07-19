@@ -296,7 +296,8 @@ export const AASListView = () => {
 
     return (
         <>
-            {env.COMPARISON_FEATURE_FLAG && (
+            {/* TODO: implement checkbox */}
+            {/* {env.COMPARISON_FEATURE_FLAG && (
                 <>
                     <Typography marginBottom={3}>
                         <FormattedMessage {...messages.mnestix.aasList.subtitle} />
@@ -325,162 +326,16 @@ export const AASListView = () => {
                         <SelectProductType />
                     </Box>
                 </>
-            )}
+            )} */}
             {isLoadingList && <CenteredLoadingSpinner sx={{ mt: 10 }} />}
             {!isLoadingList && aasListFiltered && (
-                <TableContainer>
-                    <Table>
-                        <TableHead>
-                            <TableRow
-                                sx={{
-                                    color: 'primary',
-                                    lineHeight: '150%',
-                                    letterSpacing: '0.16px',
-                                    fontSize: '16px',
-                                }}
-                            >
-                                {env.COMPARISON_FEATURE_FLAG && (
-                                    <TableCell align="center" width="50px">
-                                        <Tooltip
-                                            title={<FormattedMessage {...messages.mnestix.aasList.compareTooltip} />}
-                                            arrow
-                                        >
-                                            <CompareArrowsIcon
-                                                sx={{ width: '35px', height: '35px', verticalAlign: 'middle' }}
-                                            />
-                                        </Tooltip>
-                                    </TableCell>
-                                )}
-                                <TableCell>
-                                    <Typography fontWeight="bold">
-                                        <FormattedMessage {...messages.mnestix.aasList.picture} />
-                                    </Typography>
-                                </TableCell>
-                                <TableCell align="left">
-                                    <Typography fontWeight="bold">
-                                        <FormattedMessage {...messages.mnestix.aasList.manufacturerHeading} />
-                                    </Typography>
-                                </TableCell>
-                                <TableCell align="left">
-                                    <Typography fontWeight="bold">
-                                        <FormattedMessage {...messages.mnestix.aasList.productDesignationHeading} />
-                                    </Typography>
-                                </TableCell>
-                                <TableCell align="left">
-                                    <Typography fontWeight="bold">
-                                        <FormattedMessage {...messages.mnestix.aasList.assetIdHeading} /> /{' '}
-                                        <FormattedMessage {...messages.mnestix.aasList.aasIdHeading} />
-                                    </Typography>
-                                </TableCell>
-                                <TableCell align="left">
-                                    <Typography fontWeight="bold">
-                                        <FormattedMessage {...messages.mnestix.aasList.productClassHeading} />
-                                    </Typography>
-                                </TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {aasListFiltered?.map((aasListEntry) => (
-                                <TableRow
-                                    key={aasListEntry.aasId}
-                                    sx={{
-                                        '&:last-child td, &:last-child th': { border: 0 },
-                                        backgroundColor: theme.palette?.common?.white,
-                                    }}
-                                    data-testid={`list-row-${aasListEntry.aasId}`}
-                                >
-                                    {env.COMPARISON_FEATURE_FLAG && (
-                                        <TableCell align="center" sx={tableBodyText}>
-                                            <Box
-                                                component="span"
-                                                onClick={() => {
-                                                    if (checkBoxDisabled(aasListEntry.aasId))
-                                                        showMaxElementsNotification();
-                                                }}
-                                            >
-                                                <Checkbox
-                                                    checked={
-                                                        !!(
-                                                            selectedAasList &&
-                                                            selectedAasList.some((el) => el == aasListEntry.aasId)
-                                                        )
-                                                    }
-                                                    disabled={checkBoxDisabled(aasListEntry.aasId)}
-                                                    onChange={(evt) =>
-                                                        updateSelectedAasList(evt.target.checked, aasListEntry.aasId)
-                                                    }
-                                                    data-testid="list-checkbox"
-                                                />
-                                            </Box>
-                                        </TableCell>
-                                    )}
-                                    <TableCell component="th" scope="row" sx={tableBodyText}>
-                                        <Paper
-                                            onClick={() => navigateToAas(aasListEntry)}
-                                            sx={{
-                                                width: '88px',
-                                                height: '88px',
-                                                display: 'flex',
-                                                justifyContent: 'center',
-                                                alignItems: 'center',
-                                                '&:hover': {
-                                                    boxShadow: 6,
-                                                    cursor: 'pointer',
-                                                },
-                                            }}
-                                            data-testid="list-thumbnail"
-                                        >
-                                            {aasListEntry.thumbnailUrl ? (
-                                                <StyledImage src={aasListEntry.thumbnailUrl} />
-                                            ) : (
-                                                <ShellIcon fontSize="large" color="primary" />
-                                            )}
-                                        </Paper>
-                                    </TableCell>
-                                    <TableCell align="left" sx={tableBodyText}>
-                                        {translateListText(aasListEntry.manufacturerName)}
-                                    </TableCell>
-                                    <TableCell align="left" sx={tableBodyText}>
-                                        {tooltipText(
-                                            translateListText(aasListEntry.manufacturerProductDesignation),
-                                            100,
-                                        )}
-                                    </TableCell>
-                                    <TableCell align="left" sx={tableBodyText}>
-                                        <Typography fontWeight="bold" sx={{ letterSpacing: '0.16px' }}>
-                                            <FormattedMessage {...messages.mnestix.aasList.assetIdHeading} />
-                                        </Typography>
-                                        {tooltipText(aasListEntry.assetId, 100)} <br />
-                                        <Typography fontWeight="bold" sx={{ letterSpacing: '0.16px' }}>
-                                            <FormattedMessage {...messages.mnestix.aasList.aasIdHeading} />
-                                        </Typography>
-                                        {tooltipText(aasListEntry.aasId, 100)}
-                                    </TableCell>
-                                    <TableCell align="left">
-                                        {aasListEntry.productGroup ? (
-                                            productClassValue(getProductClassId(aasListEntry.productGroup), 25)
-                                        ) : (
-                                            <Chip
-                                                sx={{ paddingX: '16px', paddingY: '6px' }}
-                                                color={'primary'}
-                                                label={<FormattedMessage {...messages.mnestix.aasList.notAvailable} />}
-                                                variant="outlined"
-                                                icon={<LabelOffIcon color={'primary'} />}
-                                                data-testid="product-class-chip"
-                                            />
-                                        )}
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
+                <Grid container spacing={2} sx={{ marginTop: '16px' }}>
+                    {aasListFiltered?.map((aasListEntry) => (
+                        <AASCard aasListEntry={aasListEntry} navigateToAas={navigateToAas} key={aasListEntry.aasId} />
+                    ))}
+                </Grid>
             )}
-            <Grid container spacing={2} sx={{ marginTop: '16px' }}>
-                {aasListFiltered?.map((aasListEntry) => (
-                    <AASCard aasListEntry={aasListEntry} navigateToAas={navigateToAas} key={aasListEntry.aasId} />
-                ))}
-            </Grid>
+
             {/* {selectedAasList && selectedAasList.length > 0 && (
                 <Box sx={{ marginTop: '16px' }}>
                     <Button
