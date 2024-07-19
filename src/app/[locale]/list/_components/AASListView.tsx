@@ -78,6 +78,51 @@ export const translateListText = (property: { [key: string]: string } | undefine
     return property[intl.locale] ?? Object.values(property)[0] ?? '';
 };
 
+/**
+ * Returns a chip component adjusted for product class element
+ */
+export const productClassValue = (productClassId: string | null, maxChars: number) => {
+    const intl = useIntl();
+    if (!productClassId) return '';
+    let productClass;
+    try {
+        productClass = parseProductClassFromString(
+            productClassId,
+            intl.formatMessage(messages.mnestix.aasList.productClasses[productClassId]),
+        );
+    } catch (e) {
+        console.warn('Invalid product type', e);
+    }
+    if (!productClass) {
+        productClass = parseProductClassFromString(productClassId, productClassId);
+    }
+    return (
+        <Chip
+            sx={{ paddingX: '16px', paddingY: '6px' }}
+            color={'primary'}
+            label={tooltipText(productClass.description, maxChars)}
+            variant="outlined"
+            icon={getProductClassIcon(productClass.type)}
+            data-testid="product-class-chip"
+        />
+    );
+};
+
+/**
+ * Returns an icon component based on the provided product class type.
+ * @param productClassType - product class type
+ */
+const getProductClassIcon = (productClassType: string) => {
+    switch (productClassType) {
+        case 'pneumatics':
+            return <TireRepairIcon color={'primary'} />;
+        case 'hydraulics':
+            return <FireHydrantAltIcon color={'primary'} />;
+        default:
+            return <LabelIcon color={'primary'} />;
+    }
+};
+
 export const AASListView = () => {
     const { aasListClient } = useApis();
     const [isLoadingList, setIsLoadingList] = useState(false);
@@ -167,50 +212,6 @@ export const AASListView = () => {
             ),
             severity: 'warning',
         });
-    };
-
-    /**
-     * Returns an icon component based on the provided product class type.
-     * @param productClassType - product class type
-     */
-    const getProductClassIcon = (productClassType: string) => {
-        switch (productClassType) {
-            case 'pneumatics':
-                return <TireRepairIcon color={'primary'} />;
-            case 'hydraulics':
-                return <FireHydrantAltIcon color={'primary'} />;
-            default:
-                return <LabelIcon color={'primary'} />;
-        }
-    };
-
-    /**
-     * Returns a chip component adjusted for product class element
-     */
-    const productClassValue = (productClassId: string | null, maxChars: number) => {
-        if (!productClassId) return '';
-        let productClass;
-        try {
-            productClass = parseProductClassFromString(
-                productClassId,
-                intl.formatMessage(messages.mnestix.aasList.productClasses[productClassId]),
-            );
-        } catch (e) {
-            console.warn('Invalid product type', e);
-        }
-        if (!productClass) {
-            productClass = parseProductClassFromString(productClassId, productClassId);
-        }
-        return (
-            <Chip
-                sx={{ paddingX: '16px', paddingY: '6px' }}
-                color={'primary'}
-                label={tooltipText(productClass.description, maxChars)}
-                variant="outlined"
-                icon={getProductClassIcon(productClass.type)}
-                data-testid="product-class-chip"
-            />
-        );
     };
 
     /**
