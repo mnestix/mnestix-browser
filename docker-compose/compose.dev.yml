@@ -12,15 +12,15 @@ services:
       target: dev
     environment:
       REGISTRY_API_URL: 'https://registry.dpp40-2-v2.industrialdigitaltwin.org/'
-      DISCOVERY_API_URL: 'http://mnestix-api:5064/discovery'
-      AAS_REPO_API_URL: 'http://localhost:5064/repo'
-      MNESTIX_BACKEND_API_URL: 'http://localhost:5064'
+      DISCOVERY_API_URL: 'http://aas-discovery:8081/'
+      AAS_REPO_API_URL: 'http://aas:8081/'
+      # MNESTIX_BACKEND_API_URL: 'http://localhost:5064'
       AD_CLIENT_ID: ${AD_CLIENT_ID}
       AD_TENANT_ID: ${AD_TENANT_ID}
       APPLICATION_ID_URI: 'api://mnestix-test-web-api/'
-      AAS_LIST_FEATURE_FLAG: true
-      COMPARISON_FEATURE_FLAG: true
-      AUTHENTICATION_FEATURE_FLAG: true
+      AAS_LIST_FEATURE_FLAG: false
+      COMPARISON_FEATURE_FLAG: false
+      AUTHENTICATION_FEATURE_FLAG: false
       LOCK_TIMESERIES_PERIOD_FEATURE_FLAG: true
       THEME_PRIMARY_COLOR: '#3DB60F'
       THEME_SECONDARY_COLOR: '#37A40D'
@@ -40,12 +40,12 @@ services:
       aas:
         condition: service_healthy # only after the healthcheck in aas is successful, the mnestix container is being created
 
-  mnestix-api:
-    extends:
-      file: common-services.yml
-      service: mnestix-api
-    networks:
-      - mnestix-network
+  # mnestix-api:
+  #   extends:
+  #     file: common-services.yml
+  #     service: mnestix-api
+  #   networks:
+  #     - mnestix-network
 
   mongodb:
     ports:

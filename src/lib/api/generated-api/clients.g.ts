@@ -79,6 +79,7 @@ export class AasListClient {
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        console.log('constructor get aas list entries base url parameter ', baseUrl);
         this.http = http ? http : (window as any);
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : '';
     }
@@ -87,6 +88,8 @@ export class AasListClient {
      * Return a list of all AAS as entries
      */
     getAasListEntries(signal?: AbortSignal | undefined): Promise<AasListEntry[]> {
+        console.log('get aas list entries base url ', this.baseUrl);
+
         let url_ = this.baseUrl + '/api/AasList';
         url_ = url_.replace(/[?&]$/, '');
 
