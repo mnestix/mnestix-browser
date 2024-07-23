@@ -38,6 +38,7 @@ export default function DiscoveryList(props: AasListProps) {
                             sx={{
                                 '&:last-child td, &:last-child th': { border: 0 },
                                 backgroundColor: theme.palette?.common?.white,
+                                '&:hover': { backgroundColor: theme.palette.action.hover },
                             }}
                             data-testid={`list-row-${aasListEntry.aasId}`}
                         >

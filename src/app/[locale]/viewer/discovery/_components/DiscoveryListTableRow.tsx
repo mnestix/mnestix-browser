@@ -4,6 +4,10 @@ import PictureTableCell from 'components/basics/listBasics/PictureTableCell';
 import { useAasState } from 'components/contexts/CurrentAasContext';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { useRouter } from 'next/navigation';
+import { RoundedIconButton } from 'components/basics/Buttons';
+import { ArrowForward } from '@mui/icons-material';
+import { messages } from 'lib/i18n/localization';
+import { useIntl } from 'react-intl';
 
 type DiscoveryListTableRowProps = {
     aasListEntry: IDiscoveryListEntry;
@@ -18,9 +22,10 @@ export const DiscoveryListTableRow = (props: DiscoveryListTableRowProps) => {
     const { aasListEntry } = props;
     const [, setAas] = useAasState();
     const navigate = useRouter();
+    const intl = useIntl();
 
     const navigateToAas = (aasId: string) => {
-        setAas(null);
+        setAas(null); 
         navigate.push(`/viewer/${encodeBase64(aasId)}`);
     };
 
@@ -32,6 +37,13 @@ export const DiscoveryListTableRow = (props: DiscoveryListTableRowProps) => {
             </TableCell>
             <TableCell align="left" sx={tableBodyText}>
                 {aasListEntry.repositoryUrl}
+            </TableCell>
+            <TableCell align="center">
+                <RoundedIconButton
+                    endIcon={<ArrowForward />}
+                    onClick={() => navigateToAas(aasListEntry.aasId)}
+                    title={intl.formatMessage(messages.mnestix.aasList.titleViewAASButton)}
+                />
             </TableCell>
         </>
     );
