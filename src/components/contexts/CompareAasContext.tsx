@@ -6,6 +6,7 @@ import { encodeBase64 } from 'lib/util/Base64Util';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { getSubmodelFromSubmodelDescriptor, handleAasRegistrySearch } from 'lib/searchUtilActions/search';
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
+import { useEnv } from 'app/env/provider';
 
 type CompareAasContextType = {
     compareAas: AssetAdministrationShell[];
@@ -23,7 +24,8 @@ const CompareAasContext = createContext<CompareAasContextType | undefined>(undef
 export const useCompareAasContext = () => useContext(CompareAasContext) as CompareAasContextType;
 
 export const CompareAasContextProvider = (props: PropsWithChildren) => {
-    const { repositoryClient, submodelClient } = useApis();
+    const env = useEnv();
+    const { repositoryClient, submodelClient, submodelRegistryServiceClient } = useApis();
     const [compareAas, setCompareAas] = useState<AssetAdministrationShell[]>(() => {
         const storedList = localStorage.getItem(aasCompareStorage);
         return storedList ? JSON.parse(storedList) : [];
@@ -144,25 +146,32 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
         if (submodelDescriptors && submodelDescriptors.length > 0) {
             for (const submodelDescriptor of submodelDescriptors) {
                 const submodelData = await getSubmodelFromSubmodelDescriptor(
-                    submodelDescriptor.endpoints[0].protocolInformation.href,
-                );
+                    submodelDescriptor.endpoints[0].protocolInformation.href);
                 const dataRecord = generateSubmodelCompareData(submodelData);
                 newCompareData.push(dataRecord);
             }
         } else {
             for (const reference of input as Reference[]) {
-                for (const key of reference.keys as Key[]) {
-                    try {
-                        const submodelData = await submodelClient.getSubmodelById(key.value);
+                try {
+                    const submodelDescriptor = env.SUBMODEL_REGISTRY_API_URL
+                        ? await submodelRegistryServiceClient.getSubmodelDescriptorsById(reference.keys[0].value)
+                        : null;
+                    const submodelData = await getSubmodelFromSubmodelDescriptor(
+                        submodelDescriptor.endpoints[0].protocolInformation.href);
+                    const dataRecord = generateSubmodelCompareData(submodelData);
+                    newCompareData.push(dataRecord);
+                } catch (e) {
+                    // Submodel registry is not available or submodel not found there -> search in repo
+                    if (e instanceof TypeError || (e instanceof Response && e.status === 404)) {
+                        const submodelData = await submodelClient.getSubmodelById(reference.keys[0].value);
                         const dataRecord = generateSubmodelCompareData(submodelData);
                         newCompareData.push(dataRecord);
-                    } catch (e) {
+                    } else {
                         console.error(e);
                     }
                 }
             }
         }
-
         return addCompareData(previousCompareData, newCompareData, aasCount);
     };
 
