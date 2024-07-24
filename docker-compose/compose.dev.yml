@@ -14,7 +14,7 @@ services:
       REGISTRY_API_URL: 'https://aas.my.yacoub.de/api/aas-registry'
       DISCOVERY_API_URL: 'https://aas.my.yacoub.de/api/discovery'
       AAS_REPO_API_URL: 'https://aas.my.murrelektronik.com/api/shells'
-      MNESTIX_BACKEND_API_URL: 'http://staging-iiot-api-gateway.iiot.dev.my.yacoub.de'
+      MNESTIX_BACKEND_API_URL: 'http://localhost:8000'
       AD_CLIENT_ID: ${AD_CLIENT_ID}
       AD_TENANT_ID: ${AD_TENANT_ID}
       APPLICATION_ID_URI: 'api://mnestix-test-web-api/'

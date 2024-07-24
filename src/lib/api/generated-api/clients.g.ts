@@ -79,7 +79,6 @@ export class AasListClient {
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
-        console.log('constructor get aas list entries base url parameter ', baseUrl);
         this.http = http ? http : (window as any);
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : '';
     }
@@ -88,8 +87,6 @@ export class AasListClient {
      * Return a list of all AAS as entries
      */
     getAasListEntries(signal?: AbortSignal | undefined): Promise<AasListEntry[]> {
-        console.log('get aas list entries base url ', this.baseUrl);
-
         let url_ = this.baseUrl + '/api/AasList';
         url_ = url_.replace(/[?&]$/, '');
 
@@ -1050,11 +1047,15 @@ export interface IProblemDetails {
 
 export class AasListEntry implements IAasListEntry {
     thumbnailUrl?: string | undefined;
+    id?: number | undefined;
     aasId?: string | undefined;
     assetId?: string | undefined;
-    manufacturerProductDesignation?: { [key: string]: string } | undefined;
-    manufacturerName?: { [key: string]: string } | undefined;
-    productGroup?: string | undefined;
+    deviceType?: string | undefined;
+    aasVersion?: string | undefined;
+    // Old  from mnestix api
+    // manufacturerProductDesignation?: { [key: string]: string } | undefined;
+    // manufacturerName?: { [key: string]: string } | undefined;
+    // productGroup?: string | undefined;
 
     constructor(data?: IAasListEntry) {
         if (data) {
@@ -1069,21 +1070,23 @@ export class AasListEntry implements IAasListEntry {
             this.thumbnailUrl = _data['thumbnailUrl'];
             this.aasId = _data['aasId'];
             this.assetId = _data['assetId'];
-            if (_data['manufacturerProductDesignation']) {
-                this.manufacturerProductDesignation = {} as any;
-                for (let key in _data['manufacturerProductDesignation']) {
-                    if (_data['manufacturerProductDesignation'].hasOwnProperty(key))
-                        (<any>this.manufacturerProductDesignation)![key] = _data['manufacturerProductDesignation'][key];
-                }
-            }
-            if (_data['manufacturerName']) {
-                this.manufacturerName = {} as any;
-                for (let key in _data['manufacturerName']) {
-                    if (_data['manufacturerName'].hasOwnProperty(key))
-                        (<any>this.manufacturerName)![key] = _data['manufacturerName'][key];
-                }
-            }
-            this.productGroup = _data['productGroup'];
+            this.deviceType = _data['deviceType'];
+            this.aasVersion = _data['aasVersion'];
+            // if (_data['manufacturerProductDesignation']) {
+            //     this.manufacturerProductDesignation = {} as any;
+            //     for (let key in _data['manufacturerProductDesignation']) {
+            //         if (_data['manufacturerProductDesignation'].hasOwnProperty(key))
+            //             (<any>this.manufacturerProductDesignation)![key] = _data['manufacturerProductDesignation'][key];
+            //     }
+            // }
+            // if (_data['manufacturerName']) {
+            //     this.manufacturerName = {} as any;
+            //     for (let key in _data['manufacturerName']) {
+            //         if (_data['manufacturerName'].hasOwnProperty(key))
+            //             (<any>this.manufacturerName)![key] = _data['manufacturerName'][key];
+            //     }
+            // }
+            // this.productGroup = _data['productGroup'];
         }
     }
 
