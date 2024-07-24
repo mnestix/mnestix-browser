@@ -520,7 +520,7 @@ to `.eslintignore` and `.prettierignore`
 ### Cypress Testing
 
 We use Cypress for End-to-End-Testing. In order to navigate to the right folder and run Cypress you can use the
-following command. In order to use cypress testing `yarn start` must be running.
+following command. In order to use cypress testing the Mnestix Browser must be running.
 
 #### Open the cypress application
 

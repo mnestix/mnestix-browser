@@ -80,15 +80,6 @@
                 "keys": [
                     {
                         "type": "Submodel",
-                        "value": "https://i40.xitaso.com/sm/aeef70867d124071be8e3d05b618c986"
-                    }
-                ],
-                "type": "ModelReference"
-            },
-            {
-                "keys": [
-                    {
-                        "type": "Submodel",
                         "value": "https://i40.xitaso.com/sm/346c2484dac74e23842d94aef17c3eb4"
                     }
                 ],

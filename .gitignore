@@ -6,3 +6,5 @@ node_modules
 cypress-artifacts
 /.idea/.idea.mnestix-frontend.dir/.idea/
 .env
+/cypress/videos/
+/cypress/screenshots/
