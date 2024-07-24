@@ -80,3 +80,10 @@ services:
       service: aas-registry-log-mongodb
     networks:
       - mnestix-network
+
+  keycloak:
+    extends:
+      file: common-services.yml
+      service: keycloak
+    networks:
+      - mnestix-network

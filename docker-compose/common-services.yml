@@ -80,6 +80,14 @@ services:
       # Allow mnestix frontend and backend to call basyx
       BASYX_CORS_ALLOWED-ORIGINS: '*'
       BASYX_CORS_ALLOWED-METHODS: GET,POST,PATCH,DELETE,PUT,OPTIONS,HEAD
+      # Authorization
+      basyx.feature.authorization.enabled: false
+      basyx.feature.authorization.type: rbac
+      basyx.feature.authorization.jwtBearerTokenProvider: keycloak
+      basyx.feature.authorization.rbac.file: file:/data/rbac_rules.json
+      spring.security.oauth2.resourceserver.jwt.issuer-uri: http://keycloak:8080/realms/BaSyx
+    volumes:
+      - ./data/keycloak/rbac_rules.json:/data/rbac_rules.json:ro
     healthcheck: # check the endpoint for a valid response (service ready)
       test: curl -f http://localhost:8081/actuator/health
       interval: 30s
@@ -135,3 +143,18 @@ services:
       interval: 30s
       timeout: 10s
       retries: 6
+      
+  keycloak:
+    build:
+      context: ./data/keycloak
+    container_name: keycloak
+    volumes:
+      - ./data/keycloak/realm:/opt/jboss/keycloak/imports
+    ports:
+      - 9096:8080
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HOSTNAME: localhost
+      KC_SPI_INITIALIZER_ISSUER_BASE_URI: http://keycloak:8080
+    command: ["start-dev", "--import-realm"]
