@@ -152,23 +152,22 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
             }
         } else {
             for (const reference of input as Reference[]) {
+                let submodelAdded = false;
                 try {
-                    const submodelDescriptor = env.SUBMODEL_REGISTRY_API_URL
-                        ? await submodelRegistryServiceClient.getSubmodelDescriptorsById(reference.keys[0].value)
-                        : null;
+                    const submodelDescriptor = await submodelRegistryServiceClient.getSubmodelDescriptorsById(reference.keys[0].value);
                     const submodelData = await getSubmodelFromSubmodelDescriptor(
                         submodelDescriptor.endpoints[0].protocolInformation.href);
                     const dataRecord = generateSubmodelCompareData(submodelData);
                     newCompareData.push(dataRecord);
+                    submodelAdded = true;
                 } catch (e) {
-                    // Submodel registry is not available or submodel not found there -> search in repo
-                    if (e instanceof TypeError || (e instanceof Response && e.status === 404)) {
-                        const submodelData = await submodelClient.getSubmodelById(reference.keys[0].value);
-                        const dataRecord = generateSubmodelCompareData(submodelData);
-                        newCompareData.push(dataRecord);
-                    } else {
-                        console.error(e);
-                    }
+                    console.warn(`Could not be found in Submodel Registry, will continue to look in the repository. ${e}`);
+                }
+                // Submodel registry is not available or submodel not found there -> search in repo
+                if (!submodelAdded) {
+                    const submodelData = await submodelClient.getSubmodelById(reference.keys[0].value);
+                    const dataRecord = generateSubmodelCompareData(submodelData);
+                    newCompareData.push(dataRecord);
                 }
             }
         }
