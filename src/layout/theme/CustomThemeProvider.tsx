@@ -16,6 +16,17 @@ export function CustomThemeProvider(props: PropsWithChildren<{ readonly skipStyl
         const theme: ThemeOptions = { ...defaultTheme };
         if (!theme.palette) return;
 
+        // Set up dark theme with black background and white text
+        theme.palette.mode = 'dark';
+        theme.palette.background = {
+            default: '#22252E',
+            paper: '#33353D',
+        };
+        theme.palette.text = {
+            primary: '#FFFFFF',
+            secondary: '#b3b3b3',
+        };
+
         theme.palette.primary = { main: env.THEME_PRIMARY_COLOR ?? DefaultThemeSettings.primaryColor };
         theme.palette.secondary = { main: env.THEME_SECONDARY_COLOR ?? DefaultThemeSettings.secondaryColor };
         if (env.THEME_LOGO_URL !== undefined) {
