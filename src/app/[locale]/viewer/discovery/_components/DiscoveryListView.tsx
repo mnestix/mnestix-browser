@@ -6,7 +6,7 @@ import { CenteredLoadingSpinner } from 'components/basics/CenteredLoadingSpinner
 import { useState } from 'react';
 import DiscoveryList from 'app/[locale]/viewer/discovery/_components/DiscoveryList';
 import { useSearchParams } from 'next/navigation';
-import { Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { handleAasDiscoverySearch, handleAasRegistrySearch } from 'lib/searchUtilActions/search';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { IDiscoveryListEntry } from 'lib/types/DiscoveryListEntry';
@@ -68,9 +68,9 @@ export const DiscoveryListView = () => {
                 <>
                     <Typography marginBottom={3}>
                         <FormattedMessage {...messages.mnestix.discoveryList.subtitle} />:{' '}
-                        <Typography display="inline" fontWeight={600}>
+                        <Box component="span" display="inline" fontWeight={600}>
                             {assetId}
-                        </Typography>
+                        </Box>
                     </Typography>
                     <DiscoveryList tableHeaders={tableHeaders} data={discoveryListEntries} />
                 </>
