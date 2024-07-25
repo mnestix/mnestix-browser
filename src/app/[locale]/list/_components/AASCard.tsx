@@ -30,9 +30,7 @@ interface AASCardProps {
 }
 
 const StyledImage = styled('img')(() => ({
-    height: '143px',
-    width: '75px',
-    objectFit: 'scale-down',
+    maxHeight: '143px',
 }));
 
 // AASCard component
