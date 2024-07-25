@@ -33,6 +33,13 @@ const StyledImage = styled('img')(() => ({
     maxHeight: '143px',
 }));
 
+const StyledTypography = styled(Typography)(() => ({
+    height: '1.5em',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+}));
+
 // AASCard component
 export const AASCard: React.FC<AASCardProps> = ({ aasListEntry, navigateToAas }) => {
     const [productImageUrl, setProductImageUrl] = useState<string | undefined>('');
@@ -64,9 +71,9 @@ export const AASCard: React.FC<AASCardProps> = ({ aasListEntry, navigateToAas })
                 <CardContent
                     sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
                 >
-                    <Typography>{aasListEntry.aasId}</Typography>
-                    <Typography>{aasListEntry.deviceType}</Typography>
-                    <Typography>{aasListEntry.aasVersion}</Typography>
+                    <StyledTypography>{aasListEntry.aasId}</StyledTypography>
+                    <StyledTypography>{aasListEntry.deviceType}</StyledTypography>
+                    <StyledTypography>{aasListEntry.aasVersion}</StyledTypography>
 
                     {/* <Typography variant="h6">{tooltipText(listEntry.name, 50)}</Typography>
                     <Typography variant="body2">{tooltipText(listEntry.manufacturer, 50)}</Typography>
@@ -102,6 +109,7 @@ export const AASCard: React.FC<AASCardProps> = ({ aasListEntry, navigateToAas })
                         justifyContent: 'space-between',
                         alignItems: 'center',
                         padding: '16px',
+                        mt: 'auto',
                     }}
                 >
                     {/* <Checkbox
