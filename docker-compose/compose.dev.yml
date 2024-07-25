@@ -11,16 +11,16 @@ services:
       dockerfile: Dockerfile
       target: dev
     environment:
-      REGISTRY_API_URL: 'https://registry.dpp40-2-v2.industrialdigitaltwin.org/'
-      DISCOVERY_API_URL: 'http://mnestix-api:5064/discovery'
-      AAS_REPO_API_URL: 'http://localhost:5064/repo'
-      MNESTIX_BACKEND_API_URL: 'http://localhost:5064'
+      REGISTRY_API_URL: 'https://aas.my.yacoub.de/api/aas-registry'
+      DISCOVERY_API_URL: 'https://aas.my.yacoub.de/api/discovery'
+      AAS_REPO_API_URL: 'https://aas.my.murrelektronik.com/api'
+      MNESTIX_BACKEND_API_URL: 'http://localhost:8000'
       AD_CLIENT_ID: ${AD_CLIENT_ID}
       AD_TENANT_ID: ${AD_TENANT_ID}
       APPLICATION_ID_URI: 'api://mnestix-test-web-api/'
       AAS_LIST_FEATURE_FLAG: true
-      COMPARISON_FEATURE_FLAG: true
-      AUTHENTICATION_FEATURE_FLAG: true
+      COMPARISON_FEATURE_FLAG: false
+      AUTHENTICATION_FEATURE_FLAG: false
       LOCK_TIMESERIES_PERIOD_FEATURE_FLAG: true
       THEME_PRIMARY_COLOR: '#3DB60F'
       THEME_SECONDARY_COLOR: '#37A40D'
@@ -39,6 +39,41 @@ services:
     depends_on:
       aas:
         condition: service_healthy # only after the healthcheck in aas is successful, the mnestix container is being created
+
+  mnestix-frontend-mnestix-backend:
+    container_name: mnestix-frontend-mnestix-backend
+    build:
+      context: ../.
+      dockerfile: Dockerfile
+      target: dev
+    environment:
+      REGISTRY_API_URL: 'https://registry.dpp40-2-v2.industrialdigitaltwin.org/'
+      DISCOVERY_API_URL: 'http://mnestix-api:5064/discovery'
+      AAS_REPO_API_URL: 'http://localhost:5064/repo'
+      MNESTIX_BACKEND_API_URL: 'http://localhost:5064'
+      AD_CLIENT_ID: ${AD_CLIENT_ID}
+      AD_TENANT_ID: ${AD_TENANT_ID}
+      APPLICATION_ID_URI: 'api://mnestix-test-web-api/'
+      AAS_LIST_FEATURE_FLAG: true
+      COMPARISON_FEATURE_FLAG: true
+      AUTHENTICATION_FEATURE_FLAG: true
+      LOCK_TIMESERIES_PERIOD_FEATURE_FLAG: true
+      THEME_PRIMARY_COLOR: '#0d4453'
+      THEME_SECONDARY_COLOR: '#147f8a'
+      THEME_LOGO_URL: https://xitaso.com/wp-content/uploads/XITASO-Logo-quer.svg
+
+    volumes:
+      - ../src:/app/src
+      - ../public:/app/public
+    #      - ./data/logo.svg:/app/public/logo
+    restart: always
+    ports:
+      - '3001:3000'
+    networks:
+      - mnestix-network
+    depends_on:
+      aas:
+        condition: service_healthy
 
   mnestix-api:
     extends:

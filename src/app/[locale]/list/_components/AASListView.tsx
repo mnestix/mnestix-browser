@@ -155,29 +155,29 @@ export const AASListView = () => {
     /**
      * Creates the ProductClass Filter values.
      */
-    useEffect(() => {
-        const productClasses: ProductClass[] = [];
-        if (aasList) {
-            aasList.forEach((aas) => {
-                if (!aas.productGroup) return;
-                const productClassId = getProductClassId(aas.productGroup);
-                let productClassString;
-                try {
-                    productClassString = intl.formatMessage(messages.mnestix.aasList.productClasses[productClassId]);
-                } catch (e) {
-                    console.warn('Invalid product type', e);
-                }
-                if (!productClassString) {
-                    productClassString = getProductClassId(aas.productGroup);
-                }
-                const productClass = parseProductClassFromString(productClassId, productClassString);
-                if (!productClasses.find((element) => element.id === productClass.id)) {
-                    productClasses.push(productClass);
-                }
-            });
-        }
-        setProductClass(productClasses);
-    }, [aasList]);
+    // useEffect(() => {
+    //     const productClasses: ProductClass[] = [];
+    //     if (aasList) {
+    //         aasList.forEach((aas) => {
+    //             if (!aas.productGroup) return;
+    //             const productClassId = getProductClassId(aas.productGroup);
+    //             let productClassString;
+    //             try {
+    //                 productClassString = intl.formatMessage(messages.mnestix.aasList.productClasses[productClassId]);
+    //             } catch (e) {
+    //                 console.warn('Invalid product type', e);
+    //             }
+    //             if (!productClassString) {
+    //                 productClassString = getProductClassId(aas.productGroup);
+    //             }
+    //             const productClass = parseProductClassFromString(productClassId, productClassString);
+    //             if (!productClasses.find((element) => element.id === productClass.id)) {
+    //                 productClasses.push(productClass);
+    //             }
+    //         });
+    //     }
+    //     setProductClass(productClasses);
+    // }, [aasList]);
 
     const navigateToAas = (listEntry: AasListEntry) => {
         setAas(null);
@@ -218,54 +218,54 @@ export const AASListView = () => {
      * Applies product filter change to the list.
      * @param event
      */
-    const handleFilterChange = (event: SelectChangeEvent) => {
-        setProductClassFilterValue(event.target.value);
-        if (!aasList) return;
-        if (event.target.value === '') {
-            setAasListFiltered(aasList);
-        } else {
-            const filteredList = aasList.filter((aas) => {
-                return aas.productGroup && aas.productGroup.startsWith(event.target.value);
-            });
-            setAasListFiltered(filteredList);
-        }
-    };
-    const SelectProductType = () => {
-        return (
-            <FormControl variant="standard" sx={{ minWidth: 120, marginTop: '16px', width: '265px' }}>
-                <InputLabel id="product-select">
-                    <FormattedMessage {...messages.mnestix.aasList.productClassHeading} />
-                </InputLabel>
-                <Select
-                    labelId="product-select"
-                    value={productClassFilterValue}
-                    label={<FormattedMessage {...messages.mnestix.aasList.productClassHeading} />}
-                    data-testid="product-class-select"
-                    onChange={handleFilterChange}
-                >
-                    <MenuItem value="" data-testid="product-class-select-all">
-                        <FormattedMessage {...messages.mnestix.aasList.showAll} />
-                    </MenuItem>
-                    {productClass.map((productType) => {
-                        return (
-                            <MenuItem
-                                key={productType.id}
-                                value={productType.id}
-                                data-testid={`product-class-select-${productType.description.replace(' ', '-')}`}
-                            >
-                                <Typography display="flex" justifyItems="center">
-                                    {getProductClassIcon(productType.type)}
-                                    <Box component="span" sx={{ marginLeft: '5px' }}>
-                                        {tooltipText(productType.description, 25)}
-                                    </Box>
-                                </Typography>
-                            </MenuItem>
-                        );
-                    })}
-                </Select>
-            </FormControl>
-        );
-    };
+    // const handleFilterChange = (event: SelectChangeEvent) => {
+    //     setProductClassFilterValue(event.target.value);
+    //     if (!aasList) return;
+    //     if (event.target.value === '') {
+    //         setAasListFiltered(aasList);
+    //     } else {
+    //         const filteredList = aasList.filter((aas) => {
+    //             return aas.productGroup && aas.productGroup.startsWith(event.target.value);
+    //         });
+    //         setAasListFiltered(filteredList);
+    //     }
+    // };
+    // const SelectProductType = () => {
+    //     return (
+    //         <FormControl variant="standard" sx={{ minWidth: 120, marginTop: '16px', width: '265px' }}>
+    //             <InputLabel id="product-select">
+    //                 <FormattedMessage {...messages.mnestix.aasList.productClassHeading} />
+    //             </InputLabel>
+    //             <Select
+    //                 labelId="product-select"
+    //                 value={productClassFilterValue}
+    //                 label={<FormattedMessage {...messages.mnestix.aasList.productClassHeading} />}
+    //                 data-testid="product-class-select"
+    //                 onChange={handleFilterChange}
+    //             >
+    //                 <MenuItem value="" data-testid="product-class-select-all">
+    //                     <FormattedMessage {...messages.mnestix.aasList.showAll} />
+    //                 </MenuItem>
+    //                 {productClass.map((productType) => {
+    //                     return (
+    //                         <MenuItem
+    //                             key={productType.id}
+    //                             value={productType.id}
+    //                             data-testid={`product-class-select-${productType.description.replace(' ', '-')}`}
+    //                         >
+    //                             <Typography display="flex" justifyItems="center">
+    //                                 {getProductClassIcon(productType.type)}
+    //                                 <Box component="span" sx={{ marginLeft: '5px' }}>
+    //                                     {tooltipText(productType.description, 25)}
+    //                                 </Box>
+    //                             </Typography>
+    //                         </MenuItem>
+    //                     );
+    //                 })}
+    //             </Select>
+    //         </FormControl>
+    //     );
+    // };
 
     const tableBodyText = {
         lineHeight: '150%',

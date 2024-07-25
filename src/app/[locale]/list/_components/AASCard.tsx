@@ -1,4 +1,5 @@
-import React from 'react';
+'use client';
+import React, { useState } from 'react';
 import {
     Card,
     Grid,
@@ -19,6 +20,8 @@ import { productClassValue, tooltipText, translateListText } from './AASListView
 import { ShellIcon } from 'components/custom-icons/ShellIcon';
 import { messages } from 'lib/i18n/localization';
 import { getProductClassId } from 'lib/util/ProductClassResolverUtil';
+import { useApis } from 'components/azureAuthentication/ApiProvider';
+import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 
 // Define the props interface
 interface AASCardProps {
@@ -34,12 +37,26 @@ const StyledImage = styled('img')(() => ({
 
 // AASCard component
 export const AASCard: React.FC<AASCardProps> = ({ aasListEntry, navigateToAas }) => {
+    console.log('aasListEntry ', aasListEntry);
+    const [productImageUrl, setProductImageUrl] = useState<string | undefined>('');
+    const { repositoryClient } = useApis();
+
+    // Get the image url from aasId
+    useAsyncEffect(async () => {
+        if (!aasListEntry || !aasListEntry.aasId) return;
+        const image = await repositoryClient.getThumbnailFromShell(aasListEntry.aasId);
+        console.log('image ', image);
+        console.log('object url ', URL.createObjectURL(image));
+
+        setProductImageUrl(URL.createObjectURL(image));
+    }, [aasListEntry]);
+
     return (
         <Grid item xs={12} sm={6} md={4} lg={3} key={aasListEntry.aasId}>
             <Card sx={{ height: '400px', display: 'flex', flexDirection: 'column' }}>
                 <CardMedia sx={{ display: 'flex', justifyContent: 'center' }}>
-                    {aasListEntry.thumbnailUrl ? (
-                        <StyledImage src={aasListEntry.thumbnailUrl} alt={aasListEntry.aasId} />
+                    {productImageUrl ? (
+                        <StyledImage src={productImageUrl} alt={aasListEntry.aasId} />
                     ) : (
                         <ShellIcon fontSize="large" color="primary" />
                     )}
@@ -48,22 +65,26 @@ export const AASCard: React.FC<AASCardProps> = ({ aasListEntry, navigateToAas })
                 <CardContent
                     sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
                 >
+                    <Typography>{aasListEntry.aasId}</Typography>
+                    <Typography>{aasListEntry.deviceType}</Typography>
+                    <Typography>{aasListEntry.aasVersion}</Typography>
+
                     {/* <Typography variant="h6">{tooltipText(listEntry.name, 50)}</Typography>
                     <Typography variant="body2">{tooltipText(listEntry.manufacturer, 50)}</Typography>
                     {productClassValue(listEntry.productGroup, 50)} */}
-                    <Typography>
+                    {/* <Typography>
                         {tooltipText(translateListText(aasListEntry.manufacturerProductDesignation), 100)}
                     </Typography>
                     <Typography>{translateListText(aasListEntry.manufacturerName)}</Typography>
                     <Typography sx={{ letterSpacing: '0.16px' }}>
                         <FormattedMessage {...messages.mnestix.aasList.assetIdHeading} />
                         {tooltipText(aasListEntry.assetId, 100)}
-                    </Typography>
+                    </Typography> */}
                     {/* <Typography sx={{ letterSpacing: '0.16px' }}>
                         <FormattedMessage {...messages.mnestix.aasList.aasIdHeading} />
                         {tooltipText(aasListEntry.aasId, 100)}
                     </Typography> */}
-                    {aasListEntry.productGroup ? (
+                    {/* {aasListEntry.productGroup ? (
                         <Typography>{productClassValue(getProductClassId(aasListEntry.productGroup), 25)}</Typography>
                     ) : (
                         <Chip
@@ -74,7 +95,7 @@ export const AASCard: React.FC<AASCardProps> = ({ aasListEntry, navigateToAas })
                             icon={<LabelOff color={'primary'} />}
                             data-testid="product-class-chip"
                         />
-                    )}
+                    )} */}
                 </CardContent>
                 <Box
                     sx={{
