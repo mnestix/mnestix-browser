@@ -40,11 +40,16 @@ export const AASCard: React.FC<AASCardProps> = ({ aasListEntry, navigateToAas })
     const [productImageUrl, setProductImageUrl] = useState<string | undefined>('');
     const { repositoryClient } = useApis();
 
-    // Get the image url from aasId
+    // Get the image url from aasId, set with thumbnail url if no image is found
     useAsyncEffect(async () => {
         if (!aasListEntry || !aasListEntry.aasId) return;
-        const image = await repositoryClient.getThumbnailFromShell(aasListEntry.aasId);
-        setProductImageUrl(URL.createObjectURL(image));
+
+        try {
+            const image = await repositoryClient.getThumbnailFromShell(aasListEntry.aasId);
+            setProductImageUrl(URL.createObjectURL(image));
+        } catch (error) {
+            setProductImageUrl(aasListEntry.thumbnailUrl);
+        }
     }, [aasListEntry]);
 
     return (
