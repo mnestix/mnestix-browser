@@ -37,7 +37,6 @@ const StyledImage = styled('img')(() => ({
 
 // AASCard component
 export const AASCard: React.FC<AASCardProps> = ({ aasListEntry, navigateToAas }) => {
-    console.log('aasListEntry ', aasListEntry);
     const [productImageUrl, setProductImageUrl] = useState<string | undefined>('');
     const { repositoryClient } = useApis();
 
@@ -45,9 +44,6 @@ export const AASCard: React.FC<AASCardProps> = ({ aasListEntry, navigateToAas })
     useAsyncEffect(async () => {
         if (!aasListEntry || !aasListEntry.aasId) return;
         const image = await repositoryClient.getThumbnailFromShell(aasListEntry.aasId);
-        console.log('image ', image);
-        console.log('object url ', URL.createObjectURL(image));
-
         setProductImageUrl(URL.createObjectURL(image));
     }, [aasListEntry]);
 
