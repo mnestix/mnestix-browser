@@ -231,6 +231,6 @@ export const enMnestix = {
         header: 'Discovery result list',
         aasIdHeading: 'AAS ID',
         repositoryUrl: 'Repository Url',
-        subtitle: 'Asset id',
+        subtitle: 'Asset ID',
     },
 };
