@@ -1,24 +1,18 @@
 import { useAccount, useMsal } from '@azure/msal-react';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
-import { loginRequest } from 'authConfig';
 import { useState } from 'react';
 import { AccountInfo } from '@azure/msal-browser';
-import { useEnv } from 'app/env/provider';
+import { signIn, signOut, useSession } from "next-auth/react";
 
 export function useAuth(): Auth {
     const [bearerToken, setBearerToken] = useState<string>('');
     const { instance, accounts } = useMsal();
     const account = useAccount(accounts[0] || {});
-    const env = useEnv();
-
+    const { data: session, status, update } = useSession()
+    
     useAsyncEffect(async () => {
-        if (account && env.APPLICATION_ID_URI) {
-            await instance.initialize();
-            const token = await instance.acquireTokenSilent({
-                scopes: [`${env.APPLICATION_ID_URI}admin.write`],
-                account: account,
-            });
-            setBearerToken('Bearer ' + token.accessToken);
+        if (session) {
+            setBearerToken('Bearer ' + session.token);
         } else {
             // TODO forward to login
         }
@@ -29,19 +23,19 @@ export function useAuth(): Auth {
             return bearerToken;
         },
         login: (): void => {
-            instance.loginRedirect(loginRequest).catch((e) => {
+            signIn("keycloak").catch((e) => {
                 console.error(e);
             });
         },
         logout: (): void => {
-            instance.logoutRedirect().catch((e) => {
+            signOut().catch((e) => {
                 console.error(e);
             });
         },
         getAccount: (): AccountInfo | null => {
             return account;
         },
-        isLoggedIn: !!account,
+        isLoggedIn: status === 'authenticated',
     };
 }
 
