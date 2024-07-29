@@ -1,4 +1,4 @@
-﻿import { AssetAdministrationShell, Key, Reference } from '@aas-core-works/aas-core3.0-typescript/types';
+﻿import { AssetAdministrationShell, Reference } from '@aas-core-works/aas-core3.0-typescript/types';
 import { createContext, PropsWithChildren, useContext, useEffect, useState } from 'react';
 import { SubmodelCompareData } from 'lib/types/SubmodelCompareData';
 import { generateSubmodelCompareData, isCompareData, isCompareDataRecord } from 'lib/util/CompareAasUtil';
@@ -6,7 +6,6 @@ import { encodeBase64 } from 'lib/util/Base64Util';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { getSubmodelFromSubmodelDescriptor, handleAasRegistrySearch } from 'lib/searchUtilActions/search';
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
-import { useEnv } from 'app/env/provider';
 
 type CompareAasContextType = {
     compareAas: AssetAdministrationShell[];
@@ -24,7 +23,6 @@ const CompareAasContext = createContext<CompareAasContextType | undefined>(undef
 export const useCompareAasContext = () => useContext(CompareAasContext) as CompareAasContextType;
 
 export const CompareAasContextProvider = (props: PropsWithChildren) => {
-    const env = useEnv();
     const { repositoryClient, submodelClient, submodelRegistryServiceClient } = useApis();
     const [compareAas, setCompareAas] = useState<AssetAdministrationShell[]>(() => {
         const storedList = localStorage.getItem(aasCompareStorage);
