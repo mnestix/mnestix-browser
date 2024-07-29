@@ -232,6 +232,6 @@ export const deMnestix = {
         header: 'Ergebnisliste der Discovery',
         aasIdHeading: 'AAS ID',
         repositoryUrl: 'Repository Url',
-        subtitle: 'Asset id',
+        subtitle: 'Asset ID',
     },
 };
