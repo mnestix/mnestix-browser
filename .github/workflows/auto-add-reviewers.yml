@@ -8,8 +8,7 @@ jobs:
   add-reviewers:
     runs-on: ubuntu-latest
     steps:
-    - name: Add Reviewer
-      uses: peter-evans/create-pull-request-review@v1
+    - name: Review Assign Action
+      uses: hkusu/review-assign-action@v1.4.0
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
         reviewers: 'GailMelanie, hofermo, JonathanXITASO, pawel-baran-se, XAlinaGS, Xmilofranke, NilsXitaso'
