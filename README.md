@@ -15,7 +15,7 @@
 2. **Set up backend service https://github.com/ME-IIOT/type-aas-gui-backend/tree/frontend-integration**
 3. **Run dev command for latest dev update**
 ```
-yarn docker:only-frontend
+yarn docker:dev
 ```
 
 
