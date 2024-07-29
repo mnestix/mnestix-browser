@@ -14,10 +14,10 @@ services:
       ReverseProxy__Clusters__repoCluster__Destinations__destination1__Address: 'http://aas:8081/'
       ReverseProxy__Clusters__discoveryCluster__Destinations__destination1__Address: 'http://aas-discovery:8081/'
       # Features Configuration
-      Features__AasRegistryMiddleware: true
-      Features__UseMongoDbBasedAasIdStorage: true
-      Features__AllowRetrievingAllShellsAndSubmodels: true
-      Features__UseAuthentication: false
+      Features__AasRegistryMiddleware: "true"
+      Features__UseMongoDbBasedAasIdStorage: "true"
+      Features__AllowRetrievingAllShellsAndSubmodels: "true"
+      Features__UseAuthentication: "false"
       # InfluxDB Configuration
       # URL to specify the host and port where InfluxDB is running:
       ReverseProxy__Clusters__influxCluster__Destinations__destination1__Address: 'http://example/'
