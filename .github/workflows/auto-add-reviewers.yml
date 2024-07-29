@@ -1,0 +1,15 @@
+name: Automatisch Reviewer hinzufügen
+
+on: 
+  pull_request:
+    types: [opened]
+
+jobs:
+  add-reviewers:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Add Reviewer
+      uses: peter-evans/create-pull-request-review@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        reviewers: 'GailMelanie, hofermo, JonathanXITASO, pawel-baran-se, XAlinaGS, Xmilofranke, NilsXitaso'
