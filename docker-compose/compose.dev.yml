@@ -81,6 +81,13 @@ services:
     networks:
       - mnestix-network
 
+  submodel-registry:
+    extends:
+      file: common-services.yml
+      service: submodel-registry-log-mongodb
+    networks:
+      - mnestix-network
+
   keycloak:
     extends:
       file: common-services.yml

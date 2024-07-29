@@ -16,6 +16,7 @@ services:
       - '3000:3000'
     environment:
       REGISTRY_API_URL: 'https://registry.dpp40-2-v2.industrialdigitaltwin.org/'
+      SUBMODEL_REGISTRY_API_URL: 'http://localhost:8084'
       DISCOVERY_API_URL: 'http://mnestix-api:5064/discovery'
       AAS_REPO_API_URL: 'http://localhost:5064/repo'
       MNESTIX_BACKEND_API_URL: 'http://localhost:5064'
@@ -65,10 +66,17 @@ services:
       service: aas-discovery
     networks:
       - mnestix-network
-  
+
   aas-registry:
     extends:
       file: common-services.yml
       service: aas-registry-log-mongodb
+    networks:
+      - mnestix-network
+
+  submodel-registry:
+    extends:
+      file: common-services.yml
+      service: submodel-registry-log-mongodb
     networks:
       - mnestix-network

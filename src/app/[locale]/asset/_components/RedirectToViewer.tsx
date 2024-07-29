@@ -2,16 +2,14 @@
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { encodeBase64 } from 'lib/util/Base64Util';
-import { FormattedMessage } from 'react-intl';
-import { messages } from 'lib/i18n/localization';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
-import { Box, Button, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 import { showError } from 'lib/util/ErrorHandlerUtil';
 import { NotFoundError } from 'lib/errors/NotFoundError';
 import { useState } from 'react';
 import { CenteredLoadingSpinner } from 'components/basics/CenteredLoadingSpinner';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useEnv } from 'app/env/provider';
+import AssetNotFound from 'components/basics/AssetNotFound';
 
 export const RedirectToViewer = () => {
     const { discoveryServiceClient } = useApis();
@@ -19,7 +17,6 @@ export const RedirectToViewer = () => {
     const searchParams = useSearchParams();
     const assetIdParam = searchParams.get('assetId')?.toString();
     const notificationSpawner = useNotificationSpawner();
-    const env = useEnv();
     const [isLoading, setIsLoading] = useState(false);
     const [isError, setIsError] = useState(false);
 
@@ -27,7 +24,6 @@ export const RedirectToViewer = () => {
         try {
             setIsLoading(true);
             await navigateToViewerOfAsset(decodeURIComponent(assetIdParam ?? ''));
-            
         } catch (e) {
             setIsLoading(false);
             setIsError(true);
@@ -63,24 +59,7 @@ export const RedirectToViewer = () => {
     return (
         <Box sx={{ p: 2, m: 'auto' }}>
             {isLoading && <CenteredLoadingSpinner />}
-            {isError && (
-                <>
-                    <Typography variant="h1" color="primary" align="center" sx={{ mt: 2 }}>
-                        <FormattedMessage {...messages.mnestix.cannotLoadAasId.header} />
-                    </Typography>
-                    <Typography align="center" sx={{ mt: 2 }}>
-                        <FormattedMessage
-                            {...messages.mnestix.cannotLoadAasId.text}
-                            values={{ assetId: assetIdParam }}
-                        />
-                        <Box display="flex" justifyContent="center" sx={{ mt: 2 }}>
-                            <Button variant="contained" onClick={() => navigate.push('/')}>
-                                <FormattedMessage {...messages.mnestix.toHome} />
-                            </Button>
-                        </Box>
-                    </Typography>
-                </>
-            )}
+            {isError && <AssetNotFound assetId={assetIdParam} />}
         </Box>
     );
 };

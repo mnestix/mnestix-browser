@@ -36,7 +36,7 @@ export default function Page() {
     const fetchSettings = async () => {
         try {
             setIsLoading(true);
-            const res = await configurationClient.getIdGenerationSettings(bearerToken, env.AUTHENTICATION_FEATURE_FLAG);
+            const res = await configurationClient.getIdGenerationSettings(bearerToken);
             const _settings: IdGenerationSettingFrontend[] = [];
             // set settings from api response
             res.submodelElements?.forEach((el) => {

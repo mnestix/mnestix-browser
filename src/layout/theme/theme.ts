@@ -61,7 +61,7 @@ const palette: PaletteOptions = {
         main: '#147f8a',
     },
     background: {
-        default: '#F6F9F9',
+        default: '#F6F9F9'
     },
     info: {
         main: '#ff6900',

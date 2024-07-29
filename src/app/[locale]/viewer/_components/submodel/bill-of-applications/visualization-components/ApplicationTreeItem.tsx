@@ -12,7 +12,12 @@ import { useAasState } from 'components/contexts/CurrentAasContext';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { GetKeyType } from 'lib/util/KeyTypeUtil';
 import { EntityDetailsDialog } from 'app/[locale]/viewer/_components/submodel-elements/entity-component/EntityDetailsDialog';
-import { CustomTreeItemContentProps, CustomTreeItemProps, ExpandableTreeitem, getTreeItemStyle } from '../../../submodel-elements/TreeItem';
+import {
+    CustomTreeItemContentProps,
+    CustomTreeItemProps,
+    ExpandableTreeitem,
+    getTreeItemStyle,
+} from '../../../submodel-elements/TreeItem';
 
 interface ApplicationTreeItemProps extends CustomTreeItemProps {
     hasChildEntities: boolean;
@@ -24,7 +29,7 @@ interface ApplicationTreeItemContentProps extends CustomTreeItemContentProps {
     applicationUrl?: string;
 }
 
-const StyledTreeItem = styled(TreeItem)(({ theme }) => getTreeItemStyle(theme))
+const StyledTreeItem = styled(TreeItem)(({ theme }) => getTreeItemStyle(theme));
 
 const CustomContent = React.forwardRef(function CustomContent(props: ApplicationTreeItemContentProps, ref) {
     const {
@@ -84,9 +89,9 @@ const CustomContent = React.forwardRef(function CustomContent(props: Application
                 ref={ref as React.Ref<HTMLDivElement>}
                 data-testid="boa-entity"
             >
-                <ExpandableTreeitem 
-                    icon={iconProp} 
-                    dataIcon={dataIcon} 
+                <ExpandableTreeitem
+                    icon={iconProp}
+                    dataIcon={dataIcon}
                     classes={classes}
                     itemId={itemId}
                     label={label}

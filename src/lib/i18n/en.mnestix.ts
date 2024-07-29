@@ -167,12 +167,14 @@ export const enMnestix = {
         addAnother: 'Add another AAS',
         assetIdNotFound: 'Asset Id not found',
         aasAlreadyAdded: 'AAS cannot be added more than once',
+        moreAasFound: 'More than one AAS found in the discovery service, please provide the AAS ID instead.',
     },
     compareCollection: {
         show: '{idShort}',
         hide: 'Hide',
     },
     aasList: {
+        header: 'AAS List',
         subtitle: 'Select up to 3 AASs to compare and narrow down the list by using the product class filter.',
         picture: 'Picture',
         manufacturerHeading: 'Manufacturer Name',
@@ -185,6 +187,10 @@ export const enMnestix = {
         compareTooltip: 'Compare',
         showAll: 'All product classes',
         notAvailable: 'Not available',
+        titleComparisonAddButton: 'Add AAS to comparison',
+        titleProductChipNotAvailable: 'Product Class of AAS not available',
+        titleViewAASButton: 'View AAS',
+        productClassHint: 'results for Product Class',
         productClasses: {
             '27-27': 'Sensor technology, safety-related sensor technology',
             '51-01': 'Actuator (pneumatics)',
@@ -220,5 +226,11 @@ export const enMnestix = {
         submitButton: 'Submit Theme',
         resetButton: 'Reset to default',
         logoHelperText: 'base64 encoded',
+    },
+    discoveryList: {
+        header: 'Discovery result list',
+        aasIdHeading: 'AAS ID',
+        repositoryUrl: 'Repository Url',
+        subtitle: 'Asset id',
     },
 };
