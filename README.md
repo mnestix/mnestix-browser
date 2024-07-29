@@ -12,7 +12,7 @@
 ### Quick start (modified Mnestix code for our app)
 
 1. **Install node, yarn, docker, docker compose**
-2. **Set up backend service https://github.com/mnestix/mnestix-browser?tab=readme-ov-file#frontend-configuration
+2. **Set up backend service https://github.com/mnestix/mnestix-browser?tab=readme-ov-file#frontend-configuration**
 3. **Run dev command for latest dev update**
 ```
 yarn docker:only-frontend
