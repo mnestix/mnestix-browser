@@ -12,3 +12,4 @@ jobs:
       uses: hkusu/review-assign-action@v1.4.0
       with:
         reviewers: 'GailMelanie, hofermo, JonathanXITASO, pawel-baran-se, XAlinaGS, Xmilofranke, NilsXitaso'
+        github-token: ${{ secrets.GITHUB_TOKEN }}
