@@ -1,4 +1,4 @@
-﻿import { AccountInfo, IPublicClientApplication } from '@azure/msal-browser';
+﻿import { getSession, signIn } from 'next-auth/react';
 
 const initializeRequestOptions = async (bearerToken: string, init?: RequestInit) => {
     init = init || {};
@@ -10,45 +10,32 @@ const initializeRequestOptions = async (bearerToken: string, init?: RequestInit)
     return init;
 };
 
-const getBearerToken = async (
-    instance: IPublicClientApplication,
-    account: AccountInfo | null,
-    applicationIdUri: string,
-) => {
-    if (account) {
-        const authenticationResult = await instance.acquireTokenSilent({
-            scopes: [`${applicationIdUri}admin.write`],
-            account: account,
-        });
-        return authenticationResult.accessToken;
+const getBearerToken = async () => {
+    const session = await getSession();
+    if (session && session.token) {
+        return session.token;
+    } else {
+        // If not logged in, redirect to sign-in
+        await signIn('keycloak');
+        return '';
     }
-
-    // TODO: handle if not logged in
-    return '';
 };
 
-export const mnestixFetch = (
-    instance: IPublicClientApplication,
-    account: AccountInfo | null,
-    applicationIdUri: string,
-):
-    | {
-          fetch(url: RequestInfo, init?: RequestInit | undefined): Promise<Response>;
-      }
-    | undefined => {
+export const mnestixFetch = (): {
+    fetch(url: RequestInfo, init?: (RequestInit | undefined)): Promise<Response>
+} | undefined => {
     return {
         fetch: async (url: RequestInfo, init?: RequestInit) => {
             const response = await fetch(
                 url,
-                await initializeRequestOptions(await getBearerToken(instance, account, applicationIdUri), init),
+                await initializeRequestOptions(await getBearerToken(), init),
             );
 
             if (response.status !== 401) {
                 return response;
             }
-            // Todo route to login page
-            // await redirectToLoginPage();
-
+            // If not logged in, redirect to sign-in
+            await signIn('keycloak');
             return response;
         },
     };

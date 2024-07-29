@@ -1,17 +1,17 @@
-﻿import NextAuth, { AuthOptions, DefaultSession } from "next-auth";
-import KeycloakProvider from "next-auth/providers/keycloak"
-import AzureADProvider from "next-auth/providers/azure-ad";
+﻿import NextAuth, { AuthOptions, DefaultSession } from 'next-auth';
+import KeycloakProvider from 'next-auth/providers/keycloak'
+import AzureADProvider from 'next-auth/providers/azure-ad';
 
 export const authOptions: AuthOptions = {
     providers: [
         KeycloakProvider({
             clientId: process.env.KEYCLOAK_CLIENT_ID ? process.env.KEYCLOAK_CLIENT_ID : '',
-            clientSecret: "process.env.KEYCLOAK_CLIENT_SECRET",
+            clientSecret: 'process.env.KEYCLOAK_CLIENT_SECRET',
             issuer: process.env.KEYCLOAK_ISSUER
         }),
         AzureADProvider({
             clientId: process.env.AD_CLIENT_ID ? process.env.AD_CLIENT_ID : '',
-            clientSecret: "process.env.AZURE_AD_CLIENT_SECRET",
+            clientSecret: 'process.env.AZURE_AD_CLIENT_SECRET',
             tenantId: process.env.AD_TENANT_ID,
         }),
     ],
@@ -38,7 +38,7 @@ export const authOptions: AuthOptions = {
 const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST }
 
-declare module "next-auth" {
+declare module 'next-auth' {
     interface Session extends DefaultSession {
         token: string;
     }

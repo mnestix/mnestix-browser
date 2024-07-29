@@ -30,13 +30,12 @@ export default function Page() {
 
     const auth = useAuth();
     const bearerToken = auth.getBearerToken();
-    const env = useEnv();
     const { configurationClient } = useApis();
 
     const fetchSettings = async () => {
         try {
             setIsLoading(true);
-            const res = await configurationClient.getIdGenerationSettings(bearerToken);
+            const res = await configurationClient.getIdGenerationSettings();
             const _settings: IdGenerationSettingFrontend[] = [];
             // set settings from api response
             res.submodelElements?.forEach((el) => {
