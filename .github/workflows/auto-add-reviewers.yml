@@ -12,6 +12,6 @@ jobs:
       uses: madrapps/add-reviewers@v1
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        reviewers: GailMelanie, hofermo, JonathanXITASO, pawel-baran-se, XAlinaGS, Xmilofranke, NilsXitaso
+        reviewers: GailMelanie,hofermo,JonathanXITASO,pawel-baran-se,XAlinaGS,Xmilofranke,NilsXitaso
         debug-mode: true
         
