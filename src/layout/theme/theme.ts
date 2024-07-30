@@ -83,7 +83,7 @@ const palette: PaletteOptions = {
         secondary: 'rgba(6, 23, 24, 0.6)',
         disabled: 'rgba(9, 26, 27, 0.38)',
     },
-    divider: 'rgba(17, 43, 45, 0.12)',
+    divider: 'rgba(255, 255, 255, 1)',
     action: {
         hover: 'rgba(15, 44, 46, 0.04)',
         selected: 'rgba(11, 33, 34, 0.08)',
@@ -127,12 +127,26 @@ const components: Components = {
             },
         },
     },
+    MuiOutlinedInput: {
+        styleOverrides: {
+            root: {
+                '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'rgba(255, 255, 255, 0.23)',
+                },
+            },
+        },
+    },
+};
+
+const shape = {
+    borderRadius: 16,
 };
 
 export const theme: ThemeOptions = {
     typography,
     palette,
     components,
+    shape,
     productLogo: { logo: '' },
 };
 
@@ -148,6 +162,9 @@ declare module '@mui/material/styles' {
     interface ThemeOptions {
         productLogo?: {
             logo?: string;
+        };
+        shape?: {
+            borderRadius?: number;
         };
     }
 }

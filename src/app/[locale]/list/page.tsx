@@ -1,6 +1,7 @@
 import { Box, Typography } from '@mui/material';
 import { AASListView } from './_components/AASListView';
 import { getTranslations } from 'next-intl/server';
+import { SearchSortBar } from './_components/SearchSortBar';
 
 export default async function page() {
     const t = await getTranslations('aas-list');
@@ -10,6 +11,7 @@ export default async function page() {
                 <Typography variant="h2" textAlign="left" marginBottom={2}>
                     {t('header')}
                 </Typography>
+                <SearchSortBar />
                 <AASListView />
             </Box>
         </Box>
