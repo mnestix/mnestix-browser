@@ -55,7 +55,7 @@ const typography: TypographyOptions = {
 
 const palette: PaletteOptions = {
     primary: {
-        main: '#0d4453',
+        main: '#005962',
     },
     secondary: {
         main: '#147f8a',

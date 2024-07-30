@@ -27,9 +27,9 @@ services:
       COMPARISON_FEATURE_FLAG: "true"
       AUTHENTICATION_FEATURE_FLAG: "true"
       LOCK_TIMESERIES_PERIOD_FEATURE_FLAG: "true"
-      THEME_PRIMARY_COLOR: '#0d4453'
+      THEME_PRIMARY_COLOR: '#005962'
       THEME_SECONDARY_COLOR: '#147f8a'
-      THEME_LOGO_URL: https://xitaso.com/wp-content/uploads/XITASO-Logo-quer.svg
+      THEME_LOGO_URL: ''
     depends_on:
       aas:
         condition: service_healthy # only after the healthcheck in aas is successful, the mnestix container is being created
