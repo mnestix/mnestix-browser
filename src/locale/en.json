@@ -1,7 +1,9 @@
 {
     "comment": "we will have english translation keys here",
     "aas-list": {
-        "header": "AAS List"
+        "header": "AAS List",
+        "welcome": "Welcome to Murrelektronik's",
+        "aas-platform": "AAS Platform"
     },
     "dashboard": {
         "welcome-text": "Welcome to Murrelektronik",
