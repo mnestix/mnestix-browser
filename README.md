@@ -4,10 +4,10 @@
 </p>
 <h1 align="center">Mnestix</h1>
 
-[![Made by XITASO](https://img.shields.io/badge/Made_by_XITASO-0d4453?style=flat-square)](https://xitaso.com/)
-[![MIT License](https://img.shields.io/badge/License-MIT-0d4453.svg?style=flat-square)](https://choosealicense.com/licenses/mit/)
-[![Yarn License](https://img.shields.io/badge/YARN-V1.22.22-0d4453?style=flat-square)]()
-[![Join our Community](https://img.shields.io/badge/Join_our_Community-0d4453?style=flat-square)](https://mnestix.io/)
+[![Made by XITASO](https://img.shields.io/badge/Made_by_XITASO-005962?style=flat-square)](https://xitaso.com/)
+[![MIT License](https://img.shields.io/badge/License-MIT-005962.svg?style=flat-square)](https://choosealicense.com/licenses/mit/)
+[![Yarn License](https://img.shields.io/badge/YARN-V1.22.22-005962?style=flat-square)]()
+[![Join our Community](https://img.shields.io/badge/Join_our_Community-005962?style=flat-square)](https://mnestix.io/)
 
 ### Welcome to the Mnestix Community!
 
