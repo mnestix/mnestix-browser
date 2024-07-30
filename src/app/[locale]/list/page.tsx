@@ -11,7 +11,10 @@ export default async function Page() {
     return (
         <Box display="flex" flexDirection="column" marginTop="20px" marginBottom="50px" width="100%">
             <Box width="90%" margin="auto">
-                <AASListHeader welcomeText={t('welcome')} aasPlatformText={t('aas-platform')} />
+                <AASListHeader
+                    welcomeText={t('welcome')}
+                    technicalProductCatalogText={t('technical-product-catalog')}
+                />
                 <SearchSortBar />
                 <AASListView />
             </Box>
