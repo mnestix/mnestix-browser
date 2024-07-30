@@ -12,11 +12,9 @@ const initializeRequestOptions = async (bearerToken: string, init?: RequestInit)
 
 const getBearerToken = async () => {
     const session = await getSession();
-    if (session && session.token) {
-        return session.token;
+    if (session && session.accessToken) {
+        return session.accessToken;
     } else {
-        // If not logged in, redirect to sign-in
-        await signIn('keycloak');
         return '';
     }
 };

@@ -12,10 +12,9 @@ const BASE_PATH = '/'.replace(/\/+$/, '');
  * @export
  * @interface FetchAPI
  */
-export interface FetchAPI {
-    (url: string, init?: any): Promise<Response>;
-}
-
+export type FetchAPI = {
+    fetch: (url: RequestInfo, init?: RequestInit) => Promise<Response>;
+};
 /**
  *
  * @export
@@ -42,6 +41,7 @@ export class BaseAPI {
         if (configuration) {
             this.configuration = configuration;
             this.basePath = configuration.basePath || this.basePath;
+            this.fetch = configuration.fetch || this.fetch;
         }
     }
 }
@@ -133,7 +133,7 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
                 configuration,
             ).getAssetAdministrationShellById(aasId, options);
             return async (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                const response = await fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
+                const response = await fetch.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
                 if (response.status >= 200 && response.status < 300) {
                     return response.json();
                 } else {
@@ -156,7 +156,7 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
                 configuration,
             ).getSubmodelReferencesFromShell(aasId, options);
             return async (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                const response = await fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
+                const response = await fetch.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
                 if (response.status >= 200 && response.status < 300) {
                     return response.json().then((resp) => {
                         return resp.result as Reference[];
@@ -181,7 +181,7 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
                 configuration,
             ).getThumbnailFromAssetInformation(aasId, options);
             return async (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                const response = await fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
+                const response = await fetch.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
                 if (response.status >= 200 && response.status < 300) {
                     return response.blob();
                 } else {
@@ -370,7 +370,7 @@ export const SubmodelRepositoryApiFp = function (configuration?: Configuration) 
                 options,
             );
             return async (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                const response = await fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
+                const response = await fetch.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
                 if (response.status >= 200 && response.status < 300) {
                     return response.json();
                 } else {
@@ -390,7 +390,7 @@ export const SubmodelRepositoryApiFp = function (configuration?: Configuration) 
                 options,
             );
             return async (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                const response = await fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
+                const response = await fetch.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
                 if (response.status >= 200 && response.status < 300) {
                     return response.json();
                 } else {
@@ -413,7 +413,7 @@ export const SubmodelRepositoryApiFp = function (configuration?: Configuration) 
                 configuration,
             ).getAttachmentFromSubmodelElement(submodelId, submodelElementPath, options);
             return async (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                const response = await fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
+                const response = await fetch.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
                 if (response.status >= 200 && response.status < 300) {
                     return response.blob();
                 } else {

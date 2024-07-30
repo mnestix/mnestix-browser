@@ -69,23 +69,31 @@ export class ConfigurationShellApi {
         value: string,
         settingsType: string,
     ): Promise<void | Response> {
-        const headers = {
-            'Content-Type': 'application/json',
-        };
-        if (this.use_authentication) {
-            headers['Authorization'] = bearerToken;
-        }
+        let url_ = `${this.basePath}/configuration/${settingsType}/submodel-elements/${path}/$value`;
+        url_ = url_.replace(/[?&]$/, '');
 
-        const response = await fetch(
-            `${this.basePath}/configuration/${settingsType}/submodel-elements/${path}/$value`,
-            {
-                method: 'PATCH',
-                headers,
-                body: '"' + value + '"',
+        const content_ = JSON.stringify(value);
+
+        const options_: RequestInit = {
+            body: content_,
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
             },
-        );
+        };
 
-        if (response.status >= 200 && response.status < 300) {
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processputSingleSettingValue(_response);
+        });
+    }
+    
+    protected async processputSingleSettingValue(response: Response): Promise<void | Response> {
+        const status = response.status;
+        const _headers = {};
+        if (response.headers && response.headers.forEach) {
+            response.headers.forEach((v, k) => (_headers[k] = v));
+        }
+        if (status >= 200 && status < 300) {
             return response;
         } else {
             throw response;

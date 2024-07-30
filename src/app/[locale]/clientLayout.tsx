@@ -1,4 +1,3 @@
-// Layout needs to be client-side because of the msal provider
 'use client';
 
 import { Box } from '@mui/material';
