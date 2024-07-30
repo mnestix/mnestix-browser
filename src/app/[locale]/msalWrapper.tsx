@@ -1,21 +1,15 @@
-// Layout needs to be client-side because of the msal provider
 'use client';
 
-import { PublicClientApplication } from '@azure/msal-browser';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
-import { createMsalConfig } from 'authConfig';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode } from 'react';
 import { ClientLayout } from './clientLayout';
-import { SessionProvider } from "next-auth/react"
+import { SessionProvider } from 'next-auth/react';
 
 export type msalWrapperProps = {
     children: ReactNode;
-    adClientId: string;
-    adTenantId: string;
 };
 
-export const MsalWrapper = ({ children, adClientId, adTenantId }: Readonly<msalWrapperProps>) => {
-    const [msalInstance, setMsalInstance] = useState<PublicClientApplication>();
+export const MsalWrapper = ({ children }: Readonly<msalWrapperProps>) => {
 
     return (
         <AppRouterCacheProvider>

@@ -19,7 +19,6 @@ import { showError } from 'lib/util/ErrorHandlerUtil';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { useAuth } from 'lib/hooks/UseAuth';
 import { IdSettingsCard } from './_components/id-settings/IdSettingsCard';
-import { useEnv } from 'app/env/provider';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 
 export default function Page() {

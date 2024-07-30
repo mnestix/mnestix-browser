@@ -14,10 +14,7 @@ export default function LocaleLayout({ children, params }: Readonly<LocalizedInd
         <html lang={params.locale}>
             <body>
                 <AppRouterCacheProvider>
-                    <MsalWrapper
-                        adClientId={process.env.AD_CLIENT_ID ?? ''}
-                        adTenantId={process.env.AD_TENANT_ID ?? ''}
-                    >
+                    <MsalWrapper>
                         {children}
                     </MsalWrapper>
                 </AppRouterCacheProvider>
