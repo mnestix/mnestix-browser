@@ -67,7 +67,11 @@ export const AASCard: React.FC<AASCardProps> = ({ aasListEntry, navigateToAas })
                         <ShellIcon fontSize="large" color="primary" />
                     )}
                 </CardMedia>
-                <Divider />
+                <Divider
+                    sx={{
+                        borderColor: '#0000004D',
+                    }}
+                />
                 <CardContent
                     sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
                 >

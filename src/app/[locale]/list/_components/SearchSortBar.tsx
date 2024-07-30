@@ -14,14 +14,15 @@ import {
     OutlinedInput,
 } from '@mui/material';
 import { Menu as MenuIcon, Search as SearchIcon } from '@mui/icons-material';
+import { useTheme } from '@mui/material';
 
 const itemHeight = 32;
-const borderRadius = 25;
 
 export const SearchSortBar: React.FC = () => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState('');
+    const theme = useTheme();
 
     const handleMenuOpen = (event: MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -41,7 +42,7 @@ export const SearchSortBar: React.FC = () => {
 
     return (
         <Toolbar sx={{ display: 'flex', alignItems: 'center' }}>
-            <FormControl variant="outlined" sx={{ minWidth: 120, ml: 2, borderRadius: borderRadius }}>
+            <FormControl variant="outlined" sx={{ minWidth: 120, ml: 2, borderRadius: theme.shape.borderRadius }}>
                 <Select
                     displayEmpty
                     value={sortBy}
@@ -49,9 +50,9 @@ export const SearchSortBar: React.FC = () => {
                     input={<OutlinedInput />}
                     sx={{
                         height: itemHeight,
-                        borderRadius: borderRadius,
+                        borderRadius: theme.shape.borderRadius,
                         '& .MuiOutlinedInput-notchedOutline': {
-                            borderColor: 'rgba(255, 255, 255, 0.23)',
+                            borderColor: theme.palette.divider,
                         },
                     }}
                 >
@@ -68,23 +69,23 @@ export const SearchSortBar: React.FC = () => {
                     display: 'flex',
                     alignItems: 'center',
                     ml: 2,
-                    borderRadius: borderRadius,
-                    border: '1px solid rgba(255, 255, 255, 0.23)',
+                    borderRadius: theme.shape.borderRadius,
+                    border: `1px solid ${theme.palette.divider}`,
                     padding: '4px 8px',
                     flexGrow: 1,
                     height: itemHeight,
                 }}
             >
-                <SearchIcon sx={{ color: 'rgba(255, 255, 255, 0.87)' }} />
+                <SearchIcon sx={{ color: theme.palette.text.primary }} />
                 <InputBase
                     placeholder="Search…"
                     value={searchTerm}
                     onChange={handleSearchChange}
                     sx={{
                         ml: 1,
-                        color: 'rgba(255, 255, 255, 0.87)',
+                        color: theme.palette.text.primary,
                         '& .MuiInputBase-input': {
-                            borderColor: 'rgba(255, 255, 255, 0.23)',
+                            borderColor: theme.palette.divider,
                         },
                         flexGrow: 1,
                     }}
@@ -97,8 +98,8 @@ export const SearchSortBar: React.FC = () => {
                 onClick={handleMenuOpen}
                 sx={{
                     ml: 2,
-                    borderRadius: borderRadius,
-                    border: '1px solid rgba(255, 255, 255, 0.23)',
+                    borderRadius: theme.shape.borderRadius,
+                    border: `1px solid ${theme.palette.divider}`,
                     padding: '8px',
                     height: itemHeight,
                 }}
