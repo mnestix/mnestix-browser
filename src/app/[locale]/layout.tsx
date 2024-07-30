@@ -1,6 +1,8 @@
 import { ReactNode } from 'react';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
 import { MsalWrapper } from './msalWrapper';
+import type { Metadata } from 'next';
+import { EnvProvider } from 'app/env/provider';
 
 export type LocalizedIndexLayoutProps = {
     children: ReactNode;
@@ -9,14 +11,21 @@ export type LocalizedIndexLayoutProps = {
     };
 };
 
-export default function LocaleLayout({ children, params }: Readonly<LocalizedIndexLayoutProps>) {
+export const metadata: Metadata = {
+    title: 'Mnestix',
+    description: 'AAS made easy',
+};
+
+export default function RootLayout({ children, params }: Readonly<LocalizedIndexLayoutProps>) {
     return (
         <html lang={params.locale}>
             <body>
                 <AppRouterCacheProvider>
-                    <MsalWrapper>
-                        {children}
-                    </MsalWrapper>
+                    <EnvProvider>
+                        <MsalWrapper>
+                            <div id="root">{children}</div>
+                        </MsalWrapper>
+                    </ EnvProvider>
                 </AppRouterCacheProvider>
             </body>
         </html>
