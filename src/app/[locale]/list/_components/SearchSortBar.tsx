@@ -4,7 +4,6 @@ import {
     AppBar,
     Toolbar,
     IconButton,
-    Typography,
     Menu,
     MenuItem,
     InputBase,
@@ -16,10 +15,13 @@ import {
 } from '@mui/material';
 import { Menu as MenuIcon, Search as SearchIcon } from '@mui/icons-material';
 
+const itemHeight = 32;
+const borderRadius = 25;
+
 export const SearchSortBar: React.FC = () => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [searchTerm, setSearchTerm] = useState('');
-    const [sortBy, setSortBy] = useState('Sort by');
+    const [sortBy, setSortBy] = useState('');
 
     const handleMenuOpen = (event: MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -38,19 +40,24 @@ export const SearchSortBar: React.FC = () => {
     };
 
     return (
-        <Toolbar>
-            <FormControl variant="outlined" sx={{ minWidth: 120, ml: 2, borderRadius: 2 }}>
+        <Toolbar sx={{ display: 'flex', alignItems: 'center' }}>
+            <FormControl variant="outlined" sx={{ minWidth: 120, ml: 2, borderRadius: borderRadius }}>
                 <Select
+                    displayEmpty
                     value={sortBy}
                     onChange={handleSortChange}
-                    input={<OutlinedInput label="Sort By" />}
+                    input={<OutlinedInput />}
                     sx={{
-                        borderRadius: 8,
+                        height: itemHeight,
+                        borderRadius: borderRadius,
                         '& .MuiOutlinedInput-notchedOutline': {
                             borderColor: 'rgba(255, 255, 255, 0.23)',
                         },
                     }}
                 >
+                    <MenuItem value="" disabled>
+                        Sort by
+                    </MenuItem>
                     <MenuItem value="name">Name</MenuItem>
                     <MenuItem value="price">Price</MenuItem>
                     <MenuItem value="status">Status</MenuItem>
@@ -61,10 +68,11 @@ export const SearchSortBar: React.FC = () => {
                     display: 'flex',
                     alignItems: 'center',
                     ml: 2,
-                    borderRadius: 8,
+                    borderRadius: borderRadius,
                     border: '1px solid rgba(255, 255, 255, 0.23)',
                     padding: '4px 8px',
                     flexGrow: 1,
+                    height: itemHeight,
                 }}
             >
                 <SearchIcon sx={{ color: 'rgba(255, 255, 255, 0.87)' }} />
@@ -89,9 +97,10 @@ export const SearchSortBar: React.FC = () => {
                 onClick={handleMenuOpen}
                 sx={{
                     ml: 2,
-                    borderRadius: 8,
+                    borderRadius: borderRadius,
                     border: '1px solid rgba(255, 255, 255, 0.23)',
                     padding: '8px',
+                    height: itemHeight,
                 }}
             >
                 <MenuIcon />
