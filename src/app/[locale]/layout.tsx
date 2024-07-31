@@ -1,8 +1,7 @@
 import { ReactNode } from 'react';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
-import { MsalWrapper } from './msalWrapper';
 import type { Metadata } from 'next';
-import { EnvProvider } from 'app/env/provider';
+import { ClientLayout } from 'app/[locale]/clientLayout';
 
 export type LocalizedIndexLayoutProps = {
     children: ReactNode;
@@ -21,11 +20,9 @@ export default function RootLayout({ children, params }: Readonly<LocalizedIndex
         <html lang={params.locale}>
             <body>
                 <AppRouterCacheProvider>
-                    <EnvProvider>
-                        <MsalWrapper>
-                            <div id="root">{children}</div>
-                        </MsalWrapper>
-                    </ EnvProvider>
+                    <ClientLayout>
+                        <div id="root">{children}</div>
+                    </ClientLayout>
                 </AppRouterCacheProvider>
             </body>
         </html>

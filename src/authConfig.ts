@@ -1,4 +1,7 @@
-import { Configuration } from '@azure/msal-browser';
+import { AuthOptions } from 'next-auth';
+import KeycloakProvider from 'next-auth/providers/keycloak';
+import AzureADProvider from 'next-auth/providers/azure-ad';
+import type { JWT } from 'next-auth/jwt';
 
 declare global {
     interface Window {
@@ -16,37 +19,72 @@ declare global {
     }
 }
 
-export const createMsalConfig = (clientId: string, authority: string, redirectUri: string): Configuration => {
-    return {
-        auth: {
-            // the following two values are changed using the Environment Provider in the layout.tsx
-            clientId,
-            authority, // This is a URL (e.g. https://login.microsoftonline.com/{your tenant ID})
-            redirectUri,
-        },
-        cache: {
-            cacheLocation: 'sessionStorage', // This configures where your cache will be stored
-            storeAuthStateInCookie: false, // Set this to "true" if you are having issues on IE11 or Edge
-        },
-    };
-};
-
-/**
- * Scopes you add here will be prompted for user consent during sign-in.
- * By default, MSAL.js will add OIDC scopes (openid, profile, email) to any login request.
- * For more information about OIDC scopes, visit:
- * https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-permissions-and-consent#openid-connect-scopes
- */
-export const loginRequest = {
-    scopes: [],
-};
-
-/**
- * Add here the endpoints and scopes when obtaining an access token for protected web APIs. For more information, see:
- * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/resources-and-scopes.md
- */
-export const protectedResources = {
-    apiTemplates: {
-        scopes: [`${process.env.NEXT_PUBLIC_APPLICATION_ID_URI}admin.write`], // e.g. api://xxxxxx/access_as_user
+export const authOptions: AuthOptions = {
+    providers: [
+        KeycloakProvider({
+            clientId: process.env.KEYCLOAK_CLIENT_ID ? process.env.KEYCLOAK_CLIENT_ID : '',
+            clientSecret: 'process.env.KEYCLOAK_CLIENT_SECRET',
+            issuer: process.env.KEYCLOAK_ISSUER
+        }),
+        AzureADProvider({
+            clientId: process.env.AD_CLIENT_ID ? process.env.AD_CLIENT_ID : '',
+            clientSecret: process.env.AD_SECRET_VALUE ? process.env.AD_SECRET_VALUE : '',
+            tenantId: process.env.AD_TENANT_ID,
+        }),
+    ],
+    session: {
+        strategy: 'jwt',
     },
-};
+    callbacks: {
+        async jwt({ token, account }) {
+            const nowTimeStamp = Math.floor(Date.now() / 1000);
+
+            if (account) {
+                token.accessToken = account.access_token;
+                token.id_token = account.id_token;
+                token.expires_at = account.expires_at;
+                token.refresh_token = account.refresh_token;
+                return token;
+            } else if (nowTimeStamp < (token.expires_at as number)) {
+                return token;
+            } else {
+                try {
+                    console.warn('Refreshing access token...');
+                    return await refreshAccessToken(token);
+                } catch (error) {
+                    console.error('Error refreshing access token', error);
+                    return { ...token, error: 'RefreshAccessTokenError' };
+                }
+            }
+        },
+        async session({ session, token }) {
+            session.accessToken = token.accessToken as string;
+            session.idToken = token.id_token as string;
+            return session
+        },
+    }
+}
+
+
+const refreshAccessToken = async (token: JWT) => {
+    const resp = await fetch(`${process.env.KEYCLOAK_REFRESH_TOKEN_URL}`, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+            client_id: process.env.KEYCLOAK_CLIENT_ID ? process.env.KEYCLOAK_CLIENT_ID : '',
+            client_secret: 'process.env.AZURE_AD_CLIENT_SECRET',
+            grant_type: 'refresh_token',
+            refresh_token: token.refresh_token as string,
+        }),
+        method: 'POST',
+    });
+    const refreshToken = await resp.json();
+    if (!resp.ok) throw refreshToken;
+
+    return {
+        ...token,
+        access_token: refreshToken.access_token,
+        id_token: refreshToken.id_token,
+        expires_at: Math.floor(Date.now() / 1000) + refreshToken.expires_in,
+        refresh_token: refreshToken.refresh_token,
+    };
+}

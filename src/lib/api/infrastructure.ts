@@ -24,10 +24,7 @@ export const mnestixFetch = (): {
 } | undefined => {
     return {
         fetch: async (url: RequestInfo, init?: RequestInit) => {
-            const response = await fetch(
-                url,
-                await initializeRequestOptions(await getBearerToken(), init),
-            );
+            const response = await fetch(url, await initializeRequestOptions(await getBearerToken(), init));
 
             if (response.status !== 401) {
                 return response;
@@ -38,3 +35,11 @@ export const mnestixFetch = (): {
         },
     };
 };
+
+export const sessionLogOut = async () => {
+    try {
+        await fetch('/api/auth/logout', { method: 'GET' });
+    } catch (err) {
+        console.error(err);
+    }
+}

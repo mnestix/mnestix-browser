@@ -2,6 +2,7 @@ import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { useState } from 'react';
 import { signIn, signOut, useSession } from 'next-auth/react';
 import { Session } from 'next-auth';
+import { sessionLogOut } from 'lib/api/infrastructure';
 
 export function useAuth(): Auth {
     const [bearerToken, setBearerToken] = useState<string>('');
@@ -24,13 +25,10 @@ export function useAuth(): Auth {
                 console.error(e);
             });
         },
-        logout: (): void => {
-            fetch('api/auth/logout', { method: 'GET' }).then(() =>
-                signOut({ callbackUrl: '/' }).catch((e) => {
-                    console.error(e);
-                })
-            );
-            
+        logout: async (): Promise<void> => {
+            await sessionLogOut().then(() => signOut({ callbackUrl: '/' }).catch((e) => {
+                console.error(e);
+            }));
         },
         getAccount: (): Session | null => {
             return session;

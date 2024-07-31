@@ -1,6 +1,5 @@
 ﻿import NextAuth, {  DefaultSession } from 'next-auth';
-import { authOptions } from 'app/api/auth/[...nextauth]/authOptions/authOptions';
-
+import { authOptions } from 'authConfig';
 
 const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST }
