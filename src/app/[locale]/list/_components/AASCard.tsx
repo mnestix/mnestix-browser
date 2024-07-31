@@ -67,7 +67,7 @@ export const AASCard: React.FC<AASCardProps> = ({ aasListEntry, navigateToAas })
     return (
         <Grid item xs={12} sm={6} md={4} lg={3} key={aasListEntry.aasId}>
             <Card sx={{ height: '320px', display: 'flex', flexDirection: 'column' }}>
-                <CardMedia sx={{ display: 'flex', justifyContent: 'center' }}>
+                <CardMedia sx={{ display: 'flex', justifyContent: 'center', height: '143px' }}>
                     {productImageUrl ? (
                         <StyledImage src={productImageUrl} alt={aasListEntry.aasId} />
                     ) : (
