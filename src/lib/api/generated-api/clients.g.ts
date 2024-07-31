@@ -1053,9 +1053,9 @@ export class AasListEntry implements IAasListEntry {
     deviceType?: string | undefined;
     aasVersion?: string | undefined;
     // Old  from mnestix api
-    // manufacturerProductDesignation?: { [key: string]: string } | undefined;
-    // manufacturerName?: { [key: string]: string } | undefined;
-    // productGroup?: string | undefined;
+    manufacturerProductDesignation?: { [key: string]: string } | undefined;
+    manufacturerName?: { [key: string]: string } | undefined;
+    productGroup?: string | undefined;
 
     constructor(data?: IAasListEntry) {
         if (data) {
