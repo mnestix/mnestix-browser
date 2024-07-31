@@ -1,7 +1,44 @@
+networks:
+  mnestix-network:
+    driver: bridge
+    name: mnestix-network
+
 services:
+  mnestix-browser:
+    container_name: mnestix-browser
+    image: mnestix/mnestix-browser:latest
+    profiles: ["", "frontend"]
+    build:
+      dockerfile: Dockerfile
+      target: production
+    ports:
+      - '3000:3000'
+    environment:
+      REGISTRY_API_URL: 'https://registry.dpp40-2-v2.industrialdigitaltwin.org/'
+      SUBMODEL_REGISTRY_API_URL: 'http://localhost:8084'  # TODO maybe change to submodel-registry-log-mongodb:8084 or :8080
+      DISCOVERY_API_URL: 'http://mnestix-api:5064/discovery'
+      AAS_REPO_API_URL: 'http://localhost:5064/repo'
+      MNESTIX_BACKEND_API_URL: 'http://localhost:5064'
+      AD_CLIENT_ID: ${AD_CLIENT_ID}
+      AD_TENANT_ID: ${AD_TENANT_ID}
+      APPLICATION_ID_URI: 'api://mnestix-test-web-api/'
+      AAS_LIST_FEATURE_FLAG: "true"
+      COMPARISON_FEATURE_FLAG: "true"
+      AUTHENTICATION_FEATURE_FLAG: ${AUTHENTICATION_FEATURE_FLAG:-false}
+      LOCK_TIMESERIES_PERIOD_FEATURE_FLAG: "true"
+      THEME_PRIMARY_COLOR: '#005962'
+      THEME_SECONDARY_COLOR: '#147f8a'
+      THEME_LOGO_URL: ''
+    depends_on:
+      aas:
+        condition: service_healthy # only after the healthcheck in aas is successful, the mnestix container is being created
+    networks:
+      - mnestix-network
+
   mnestix-api:
     image: mnestix/mnestix-api:latest
     container_name: mnestix-api
+    profiles: ["", "backend"]
     # Port Mapping
     # Map host port 5064 to container port 5064
     ports:
@@ -42,10 +79,13 @@ services:
       options:
         max-file: '5'
         max-size: '100m'
+    networks:
+      - mnestix-network
 
   mongodb:
     image: mongo:5
     container_name: mongodb
+    profiles: ["", "basyx"]
     # Provide mongo config
     environment:
       MONGO_INITDB_ROOT_USERNAME: mongoAdmin
@@ -61,10 +101,13 @@ services:
       options:
         max-file: '5'
         max-size: '100m'
+    networks:
+      - mnestix-network
 
   aas:
     image: eclipsebasyx/aas-environment:2.0.0-SNAPSHOT
     container_name: aas
+    profiles: ["", "basyx"]
     depends_on:
       - mongodb
     environment:
@@ -90,10 +133,13 @@ services:
       options:
         max-file: '5'
         max-size: '100m'
+    networks:
+      - mnestix-network
 
   aas-discovery:
     image: eclipsebasyx/aas-discovery:2.0.0-SNAPSHOT
     container_name: aas-discovery
+    profiles: ["", "basyx"]
     ports:
       - '8082:8081'
     depends_on:
@@ -117,15 +163,17 @@ services:
       options:
         max-file: '5'
         max-size: '100m'
+    networks:
+      - mnestix-network
 
   aas-registry-log-mongodb:
     image: eclipsebasyx/aas-registry-log-mongodb:2.0.0-SNAPSHOT
     container_name: aas-registry-mongo
+    profiles: ["", "basyx"]
     ports:
       - '8083:8080'
     depends_on:
       - mongodb
-    restart: always
     environment:
       SPRING_DATA_MONGODB_URI: mongodb://mongoAdmin:mongoPassword@mongodb:27017/?authSource=admin
       BASYX__CORS__ALLOWED-ORIGINS: '*'
@@ -135,15 +183,17 @@ services:
       interval: 30s
       timeout: 10s
       retries: 6
+    networks:
+      - mnestix-network
 
   submodel-registry-log-mongodb:
     image: eclipsebasyx/submodel-registry-log-mongodb:2.0.0-SNAPSHOT
     container_name: submodel-registry-mongo
+    profiles: ["", "basyx"]
     ports:
       - '8084:8080'
     depends_on:
       - mongodb
-    restart: always
     environment:
       SPRING_DATA_MONGODB_URI: mongodb://mongoAdmin:mongoPassword@mongodb:27017/?authSource=admin
       BASYX__CORS__ALLOWED-ORIGINS: '*'
@@ -153,3 +203,5 @@ services:
       interval: 30s
       timeout: 10s
       retries: 6
+    networks:
+      - mnestix-network

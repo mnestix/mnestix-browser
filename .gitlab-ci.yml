@@ -29,10 +29,9 @@ e2e_test:
     - docker pull $CONTAINER_BUILD_IMAGE
     - docker tag $CONTAINER_BUILD_IMAGE mnestix/$IMAGE_NAME:$IMAGE_TAG
     - docker tag $CONTAINER_BUILD_IMAGE mnestix/$IMAGE_NAME:$IMAGE_TAG_VERSION
-    - docker compose -f docker-compose/common-services.yml pull
-    - docker compose -f docker-compose/compose.test.yml down
-    - docker compose -f docker-compose/compose.test.yml up -d
-    - docker compose -f docker-compose/compose.test.yml attach cypress-test
+    - docker compose -f compose.yml -f docker-compose/compose.test.yml pull
+    - docker compose -f compose.yml -f docker-compose/compose.test.yml up -d
+    - docker compose -f compose.yml -f docker-compose/compose.test.yml attach cypress-test
 
   artifacts:
     when: always
