@@ -15,7 +15,7 @@ export function AASListHeader({
     return (
         <Typography variant="h2" textAlign="center" marginBottom={2}>
             <span>{welcomeText} </span>
-            <span style={{ color: theme.palette.secondary.main }}>{technicalProductCatalogText}</span>
+            <span style={{ color: theme.palette.primary.main }}>{technicalProductCatalogText}</span>
         </Typography>
     );
 }

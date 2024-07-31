@@ -45,17 +45,18 @@ export function ManualAASViewerInput(props: { focus: boolean }) {
         try {
             setIsLoading(true);
 
-            const { registrySearchResult, aasId} = await getAasFromExternalServices(val);
+            const { registrySearchResult, aasId } = await getAasFromExternalServices(val);
             const aas =
                 registrySearchResult != null
                     ? registrySearchResult.registryAas
                     : await repositoryClient.getAssetAdministrationShellById(encodeBase64(aasId));
-            
+
             setAas(aas);
             registrySearchResult?.registryAasData != null
                 ? setRegistryAasData({
-                    submodelDescriptors: registrySearchResult?.registryAasData?.submodelDescriptors,
-                    aasRegistryRepositoryOrigin: registrySearchResult?.registryAasData?.aasRegistryRepositoryOrigin })
+                      submodelDescriptors: registrySearchResult?.registryAasData?.submodelDescriptors,
+                      aasRegistryRepositoryOrigin: registrySearchResult?.registryAasData?.aasRegistryRepositoryOrigin,
+                  })
                 : setRegistryAasData(null);
 
             navigate.push(`/viewer/${encodeBase64(aas.id)}`);
@@ -110,7 +111,7 @@ export function ManualAASViewerInput(props: { focus: boolean }) {
                 }}
             />
             <SquaredIconButton
-                sx={{ ml: 1 }}
+                sx={{ ml: 1, backgroundColor: 'primary.main', color: 'text.primary' }}
                 endIcon={<ArrowForward />}
                 disabled={!val}
                 loading={isLoading}

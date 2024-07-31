@@ -26,7 +26,7 @@ services:
       COMPARISON_FEATURE_FLAG: true
       AUTHENTICATION_FEATURE_FLAG: true
       LOCK_TIMESERIES_PERIOD_FEATURE_FLAG: true
-      THEME_PRIMARY_COLOR: '#3DB60F'
-      THEME_SECONDARY_COLOR: '#37A40D'
+      THEME_PRIMARY_COLOR: '#6EF688'
+      THEME_SECONDARY_COLOR: '#3DB60F'
       #      THEME_LOGO_MIME_TYPE: 'image/svg+xml'
       THEME_LOGO_URL: '/images/murr-company-logo.png'

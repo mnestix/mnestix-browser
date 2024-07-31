@@ -40,6 +40,13 @@ const StyledTypography = styled(Typography)(() => ({
     whiteSpace: 'nowrap',
 }));
 
+const StyledIconButton = styled(IconButton)(({ theme }) => ({
+    backgroundColor: theme.palette.primary.main,
+    '&:hover': {
+        backgroundColor: theme.palette.primary.dark,
+    },
+}));
+
 // AASCard component
 export const AASCard: React.FC<AASCardProps> = ({ aasListEntry, navigateToAas }) => {
     const [productImageUrl, setProductImageUrl] = useState<string | undefined>('');
@@ -121,14 +128,19 @@ export const AASCard: React.FC<AASCardProps> = ({ aasListEntry, navigateToAas })
                         onChange={handleCheckboxChange(listEntry.aasId)}
                         disabled={checkBoxDisabled(listEntry.aasId)}
                     /> */}
-                    <div>
-                        <IconButton>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            gap: '8px', // Controls the space between buttons
+                        }}
+                    >
+                        <StyledIconButton>
                             <Description />
-                        </IconButton>
-                        <IconButton>
+                        </StyledIconButton>
+                        <StyledIconButton>
                             <Menu />
-                        </IconButton>
-                    </div>
+                        </StyledIconButton>
+                    </Box>
                     <Button size="small" onClick={() => navigateToAas(aasListEntry)}>
                         more detail
                     </Button>
