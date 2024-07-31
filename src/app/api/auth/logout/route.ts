@@ -3,9 +3,9 @@ import { authOptions } from 'authConfig';
 import { NextResponse } from 'next/server';
 
 export async function GET() {
+    const session = await getServerSession(authOptions);
+    const redirectUri = process.env.KEYCLOAK_LOGOUT_REDIRECT ? process.env.KEYCLOAK_LOGOUT_REDIRECT : '';
     try {
-        const session = await getServerSession(authOptions);
-        const redirectUri = process.env.KEYCLOAK_LOGOUT_REDIRECT ? process.env.KEYCLOAK_LOGOUT_REDIRECT : '';
         if (session) {
             const idToken = session.idToken;
 

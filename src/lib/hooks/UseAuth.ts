@@ -3,10 +3,12 @@ import { useState } from 'react';
 import { signIn, signOut, useSession } from 'next-auth/react';
 import { Session } from 'next-auth';
 import { sessionLogOut } from 'lib/api/infrastructure';
+import { useEnv } from 'app/env/provider';
 
 export function useAuth(): Auth {
     const [bearerToken, setBearerToken] = useState<string>('');
     const { data: session, status } = useSession()
+    const env = useEnv();
     
     useAsyncEffect(async () => {
         if (session) {
@@ -15,13 +17,15 @@ export function useAuth(): Auth {
             // TODO forward to login
         }
     }, [session]);
-
+    
+    const providerType = env.KEYCLOAK_ENABLED ? 'keycloak' : 'azure-ad';
+    
     return {
         getBearerToken: (): string => {
             return bearerToken;
         },
         login: (): void => {
-            signIn().catch((e) => {
+            signIn(providerType).catch((e) => {
                 console.error(e);
             });
         },

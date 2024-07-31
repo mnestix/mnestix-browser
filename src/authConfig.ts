@@ -19,18 +19,24 @@ declare global {
     }
 }
 
+const keycloakEnabled = process.env.KEYCLOAK_ENABLED?.toLowerCase() === 'true'.toLowerCase();
+
 export const authOptions: AuthOptions = {
     providers: [
-        KeycloakProvider({
-            clientId: process.env.KEYCLOAK_CLIENT_ID ? process.env.KEYCLOAK_CLIENT_ID : '',
-            clientSecret: 'process.env.KEYCLOAK_CLIENT_SECRET',
-            issuer: process.env.KEYCLOAK_ISSUER
-        }),
-        AzureADProvider({
-            clientId: process.env.AD_CLIENT_ID ? process.env.AD_CLIENT_ID : '',
-            clientSecret: process.env.AD_SECRET_VALUE ? process.env.AD_SECRET_VALUE : '',
-            tenantId: process.env.AD_TENANT_ID,
-        }),
+        ...(keycloakEnabled ? [
+            KeycloakProvider({
+                clientId: process.env.KEYCLOAK_CLIENT_ID ? process.env.KEYCLOAK_CLIENT_ID : '',
+                clientSecret: 'process.env.KEYCLOAK_CLIENT_SECRET',
+                issuer: process.env.KEYCLOAK_ISSUER
+            })
+        ] : [
+            AzureADProvider({
+                clientId: process.env.AD_CLIENT_ID ? process.env.AD_CLIENT_ID : '',
+                clientSecret: process.env.AD_SECRET_VALUE ? process.env.AD_SECRET_VALUE : '',
+                tenantId: process.env.AD_TENANT_ID,
+                authorization: { params: { scope: 'openid profile user.Read email' } },
+            })
+        ])
     ],
     session: {
         strategy: 'jwt',
@@ -48,6 +54,7 @@ export const authOptions: AuthOptions = {
             } else if (nowTimeStamp < (token.expires_at as number)) {
                 return token;
             } else {
+                if(!keycloakEnabled) return token;
                 try {
                     console.warn('Refreshing access token...');
                     return await refreshAccessToken(token);

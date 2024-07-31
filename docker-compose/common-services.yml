@@ -81,7 +81,7 @@ services:
       BASYX_CORS_ALLOWED-ORIGINS: '*'
       BASYX_CORS_ALLOWED-METHODS: GET,POST,PATCH,DELETE,PUT,OPTIONS,HEAD
       # Authorization
-      basyx.feature.authorization.enabled: true
+      basyx.feature.authorization.enabled: false
       basyx.feature.authorization.type: rbac
       basyx.feature.authorization.jwtBearerTokenProvider: keycloak
       basyx.feature.authorization.rbac.file: file:/data/rbac_rules.json

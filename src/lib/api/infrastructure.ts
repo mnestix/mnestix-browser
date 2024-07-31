@@ -1,5 +1,7 @@
 ﻿import { getSession, signIn } from 'next-auth/react';
 
+const keycloakEnabled = process.env.KEYCLOAK_ENABLED?.toLowerCase() === 'true'.toLowerCase();
+ 
 const initializeRequestOptions = async (bearerToken: string, init?: RequestInit) => {
     init = init || {};
     init.headers = {
@@ -37,6 +39,7 @@ export const mnestixFetch = (): {
 };
 
 export const sessionLogOut = async () => {
+    if(!keycloakEnabled) return;
     try {
         await fetch('/api/auth/logout', { method: 'GET' });
     } catch (err) {
