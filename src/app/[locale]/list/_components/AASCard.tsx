@@ -75,7 +75,7 @@ export const AASCard: React.FC<AASCardProps> = ({ aasListEntry, navigateToAas })
                 <CardContent
                     sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
                 >
-                    <StyledTypography>{aasListEntry.aasId}</StyledTypography>
+                    <StyledTypography>{aasListEntry.productModel}</StyledTypography>
                     <StyledTypography>{aasListEntry.deviceType}</StyledTypography>
                     <StyledTypography>{aasListEntry.aasVersion}</StyledTypography>
 
