@@ -59,9 +59,13 @@ export const SearchSortBar: React.FC = () => {
                     <MenuItem value="" disabled>
                         Sort by
                     </MenuItem>
-                    <MenuItem value="name">Name</MenuItem>
-                    <MenuItem value="price">Price</MenuItem>
+                    <MenuItem value="name">Module Type</MenuItem>
+                    <MenuItem value="price">Connected</MenuItem>
+                    <MenuItem value="status">Disconnected</MenuItem>
+                    <MenuItem value="status">Protocol</MenuItem>
                     <MenuItem value="status">Status</MenuItem>
+                    <MenuItem value="status">Device Name A-Z</MenuItem>
+                    <MenuItem value="status">Device Name Z-A</MenuItem>
                 </Select>
             </FormControl>
             <Box

@@ -39,12 +39,12 @@ export const DashboardInput = () => {
                     >
                         <ScannerLogo style={logoStyle} alt="Scanner Logo" />
                     </Box>
-                    <Typography color="text.secondary" textAlign="center" sx={{ mb: 2 }}>
+                    {/* <Typography color="text.secondary" textAlign="center" sx={{ mb: 2 }}>
                         <FormattedMessage {...messages.mnestix.orEnterManual} />:
-                    </Typography>
+                    </Typography> */}
                 </Box>
             )}
-            <ManualAASViewerInput focus={inputFocus} />
+            {/* <ManualAASViewerInput focus={inputFocus} /> */}
         </>
     );
 };

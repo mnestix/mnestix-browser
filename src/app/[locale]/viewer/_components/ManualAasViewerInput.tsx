@@ -111,8 +111,8 @@ export function ManualAASViewerInput(props: { focus: boolean }) {
                 }}
             />
             <SquaredIconButton
-                sx={{ ml: 1, backgroundColor: 'primary.main', color: 'text.primary' }}
-                endIcon={<ArrowForward />}
+                sx={{ ml: 1 }}
+                endIcon={<ArrowForward sx={{ backgroundColor: 'primary.main', color: 'text.primary' }} />}
                 disabled={!val}
                 loading={isLoading}
                 onClick={handleSubmit}
