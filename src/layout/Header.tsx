@@ -34,7 +34,14 @@ export function Header() {
 
     return (
         <>
-            <AppBar position="fixed">
+            <AppBar
+                position="fixed"
+                sx={{
+                    backgroundColor: 'background.default',
+                    backgroundImage: 'none',
+                    boxShadow: 'none',
+                }}
+            >
                 <StyledToolbar disableGutters className={auth.isLoggedIn && !isTablet ? 'hidden' : ''}>
                     {env.AUTHENTICATION_FEATURE_FLAG && <MainMenu />}
                     <StyledLogoWrapper
