@@ -15,8 +15,8 @@ services:
       - '3000:3000'
     environment:
       REGISTRY_API_URL: 'https://registry.dpp40-2-v2.industrialdigitaltwin.org/'
-      SUBMODEL_REGISTRY_API_URL: 'http://localhost:8084'  # TODO maybe change to submodel-registry-log-mongodb:8084 or :8080
-      DISCOVERY_API_URL: 'http://mnestix-api:5064/discovery'
+      SUBMODEL_REGISTRY_API_URL: 'http://localhost:8085'
+      DISCOVERY_API_URL: 'http://localhost:5064/discovery'
       AAS_REPO_API_URL: 'http://localhost:5064/repo'
       MNESTIX_BACKEND_API_URL: 'http://localhost:5064'
       AD_CLIENT_ID: ${AD_CLIENT_ID}
@@ -104,9 +104,9 @@ services:
     networks:
       - mnestix-network
 
-  aas:
+  aas-repository:
     image: eclipsebasyx/aas-environment:2.0.0-SNAPSHOT
-    container_name: aas
+    container_name: aas-repository
     profiles: ["", "basyx"]
     depends_on:
       - mongodb
@@ -166,9 +166,9 @@ services:
     networks:
       - mnestix-network
 
-  aas-registry-log-mongodb:
+  aas-registry:
     image: eclipsebasyx/aas-registry-log-mongodb:2.0.0-SNAPSHOT
-    container_name: aas-registry-mongo
+    container_name: aas-registry
     profiles: ["", "basyx"]
     ports:
       - '8083:8080'
@@ -186,12 +186,12 @@ services:
     networks:
       - mnestix-network
 
-  submodel-registry-log-mongodb:
+  submodel-registry:
     image: eclipsebasyx/submodel-registry-log-mongodb:2.0.0-SNAPSHOT
-    container_name: submodel-registry-mongo
+    container_name: submodel-registry
     profiles: ["", "basyx"]
     ports:
-      - '8084:8080'
+      - '8085:8080'
     depends_on:
       - mongodb
     environment:
