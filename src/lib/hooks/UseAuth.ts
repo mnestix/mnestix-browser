@@ -30,7 +30,7 @@ export function useAuth(): Auth {
             });
         },
         logout: async (): Promise<void> => {
-            await sessionLogOut().then(() => signOut({ callbackUrl: '/' }).catch((e) => {
+            await sessionLogOut(env.KEYCLOAK_ENABLED).then(() => signOut({ callbackUrl: '/' }).catch((e) => {
                 console.error(e);
             }));
         },
