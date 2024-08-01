@@ -3,7 +3,6 @@ services:
     container_name: cypress-test
     profiles: ["", "tests"]
     build:
-      context: ../.
       dockerfile: cypress.dockerfile
     environment:
       CYPRESS_BASE_URL: 'http://mnestix-browser:3000'

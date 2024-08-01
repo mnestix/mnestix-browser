@@ -1,5 +1,4 @@
 import { Dialog, DialogContent } from '@mui/material';
-import React from 'react';
 
 type ArchetypeDetailsModalProps = {
     readonly handleClose: () => void;
