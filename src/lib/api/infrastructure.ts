@@ -30,7 +30,7 @@ export const mnestixFetch = (): {
                 return response;
             }
             // If not logged in, redirect to sign-in
-            await signIn('keycloak');
+            //await signIn('keycloak');
             return response;
         },
     };
