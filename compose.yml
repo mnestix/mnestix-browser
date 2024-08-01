@@ -30,7 +30,7 @@ services:
       THEME_SECONDARY_COLOR: '#147f8a'
       THEME_LOGO_URL: ''
     depends_on:
-      aas:
+      aas-repository:
         condition: service_healthy # only after the healthcheck in aas is successful, the mnestix container is being created
     networks:
       - mnestix-network
@@ -72,7 +72,7 @@ services:
       # ASP.NET Core URLs
       ASPNETCORE_URLS: 'http://+:5064'
     depends_on:
-      aas:
+      aas-repository:
         condition: service_healthy # only after the healthcheck in aas is successful, the mnestix container is being created
     logging:
       driver: 'json-file'
