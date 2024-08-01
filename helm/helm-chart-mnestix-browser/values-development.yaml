@@ -1,0 +1,80 @@
+# values.yaml
+
+# Number of replicas of the application to be deployed
+replicaCount: 1
+
+# Docker image details
+image:
+  repository: cryacoubcp.azurecr.io/mnestix-browser
+  pullPolicy: IfNotPresent
+  tag: '3eeca555d0f2e279b4a16d506aaa7534b43831de'
+  pullSecrets:
+    - name: cryacoub-secret-pull
+
+# Kubernetes Service settings
+service:
+  type: ClusterIP
+  port: 80
+
+# Ingress settings for exposing the service (optional)
+# ingress:
+#   enabled: false
+#   annotations: {}
+#   hosts:
+#     - host: chart-example.local
+#       paths:
+#         - /
+#   tls: []
+
+# Resource requests and limits for the application pods
+resources:
+  limits:
+    cpu: '500m'
+    memory: '512Mi'
+  requests:
+    cpu: '250m'
+    memory: '256Mi'
+
+# Autoscaling settings (optional)
+# autoscaling:
+#   enabled: false
+#   minReplicas: 1
+#   maxReplicas: 10
+#   targetCPUUtilizationPercentage: 80
+
+# Node selector to constrain pods to nodes with specific labels (optional)
+nodeSelector: {}
+
+# Tolerations to allow pods to run on tainted nodes (optional)
+tolerations:
+  - effect: NoSchedule
+    key: kubernetes.azure.com/scalesetpriority
+    operator: Equal
+    value: spot
+
+# Affinity rules to influence pod scheduling (optional)
+affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - preference:
+          matchExpressions:
+            - key: kubernetes.azure.com/scalesetpriority
+              operator: In
+              values:
+                - spot
+        weight: 1
+
+# Enable ingress for release name
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+  hosts:
+    - host: browser-dev.aas.my.yacoub.de
+      paths:
+        - /
+  tls:
+    - hosts:
+        - browser-dev.aas.my.yacoub.de
+      secretName: tls-secret

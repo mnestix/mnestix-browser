@@ -14,21 +14,13 @@ spec:
       labels:
         app: {{ .Chart.Name }}
     spec:
+      affinity:
+        {{- toYaml .Values.affinity | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           ports:
             - containerPort: 80
-          env:
-            {{- range $key, $value := .Values.env }}
-            - name: {{ $key }}
-              value: "{{ $value }}"
-            {{- end }}
-          volumeMounts:
-            - name: src-volume
-              mountPath: /app/src
-            - name: public-volume
-              mountPath: /app/public
           resources:
             requests:
               memory: "{{ .Values.resources.requests.memory }}"
@@ -36,10 +28,11 @@ spec:
             limits:
               memory: "{{ .Values.resources.limits.memory }}"
               cpu: "{{ .Values.resources.limits.cpu }}"
-      volumes:
-        - name: src-volume
-          hostPath:
-            path: /path/to/host/src
-        - name: public-volume
-          hostPath:
-            path: /path/to/host/public
+      imagePullSecrets:
+        {{- if .Values.image.pullSecrets }}
+        {{- range .Values.image.pullSecrets }}
+        - name: "{{ .name }}"
+        {{- end }}
+        {{- else }}
+        []
+        {{- end }}

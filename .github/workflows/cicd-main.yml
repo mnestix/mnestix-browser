@@ -1,20 +1,20 @@
 name: Build and deploy to Azure Kubernetes Service
 
 env:
-  AZURE_CONTAINER_REGISTRY: cryacoubcp # set this to the name of your container registry
+  AZURE_CONTAINER_REGISTRY: cryacoubcp.azurecr.io # set this to the name of your container registry
   PROJECT_NAME: mnestix-browser # set this to your project's name
   RESOURCE_GROUP: rg-yacoub-cp-iiot # set this to the resource group containing your AKS cluster
   CLUSTER_NAME: aks-yacoub-cp-iiot # set this to the name of your AKS cluster
   REGISTRY_URL: cryacoubcp.azurecr.io # set this to the URL of your registry
   # If you bake using helm:
   CHART_PATH: helm/helm-chart-mnestix-browser # set this to the path to your helm file
-  CHART_OVERRIDE_PATH: helm/helm-chart-mnestix-browser/values.yaml # set this to an array of override file paths
+  CHART_OVERRIDE_PATH: helm/helm-chart-mnestix-browser/values-main.yaml # set this to an array of override file paths
   NAME_SPACE: aas
-  RELEASE: mnestix-browser-release
+  RELEASE: mnestix-browser-main-release
 
 on:
   push:
-    branches: ['main', 'dev']
+    branches: ['main']
   workflow_dispatch:
 
 jobs:
@@ -41,7 +41,6 @@ jobs:
       - name: Set Azure Defaults
         run: az configure --defaults acr=${{ env.AZURE_CONTAINER_REGISTRY }}
 
-      # Commented out for test run
       - name: Build image on ACR
         run: az acr build --image ${{ env.REGISTRY_URL }}/${{ env.PROJECT_NAME }}:${{ github.sha }} --file Dockerfile .
 
@@ -61,15 +60,6 @@ jobs:
       - name: Create Kubernetes namespace
         run: |
           kubectl create namespace ${{ env.NAME_SPACE }} || true
-
-      # - name: Deploy to AKS using Helm
-      #   run: |
-      #     helm upgrade --install ${{ env.RELEASE }} ./${{ env.CHART_PATH }} --timeout 3m \
-      #     --values ${{ env.CHART_OVERRIDE_PATH }} \
-      #     --namespace ${{ env.NAME_SPACE }} \
-      #     --set image.repository=docker.io/mnestix-browser \
-      #     --set image.tag=1.0.0 \
-      #     --debug
 
       - name: Deploy to AKS using Helm
         run: |
