@@ -18,11 +18,11 @@ Mnestix Browser is the perfect tool to demonstrate the power and potential of AA
 implementation of standardized digital twins. It opens the way for use cases such as the Digital Product Passport (DPP).
 
 You can find a demo [here](https://mnestix-prod.azurewebsites.net/).
-Some screenshots can be found in the [screenshots' folder](screenshots).
+Some screenshots can be found in the [screenshots folder](screenshots).
 
 ### **If you need support feel free to contact us through our website [Mnestix.io](https://mnestix.io/).**
 
-## Trying out Mnestix on my machine
+## Quickstart
 
 All you need to start your first Mnestix instance is the ```compose.yml``` (or clone the repository).
 In the root folder run the following command and open http://localhost:3000 in your web browser.
@@ -32,7 +32,7 @@ docker compose up
 
 If you want to configure login credentials through AzureAD, read about [configuration](#using-azure-entra-id).
 
-## Getting started with Mnestix
+## Getting started with developing
 
 ### Development technologies
 
@@ -91,7 +91,7 @@ The Mnestix Browser is now running on http://localhost:3000 and will update on c
 
 If you want to activate debug breakpoints in the code, you may have to open the website through a debug environment:
  - In `JetBrains WebStorm` you can run a debug browser with the `JS Debug` run configuration.
- - In `VisualStudio Code` you can set up a debug browser by creating a `launch.json` file in the `Run and Debug` tab and create a run configuration for your preferred browser.
+ - In `Visual Studio Code` you can set up a debug browser by creating a `launch.json` file in the `Run and Debug` tab and create a run configuration for your preferred browser.
 
 You may need to set the initial URL to http://localhost:3000.
 
@@ -170,7 +170,7 @@ You configure the endpoint of an AAS repository and browse the different AAS, if
 
 Mnestix AAS Browser is also **optimized for mobile view** to have a **great user experience** on mobile phones.
 
-Mnestix can **visualize every submodel** even if it is not standardized by IDTA. There are some submodels **visualized in a user-friendly manner**. These are:
+Mnestix can **visualize every submodel** even if it is not standardized by IDTA. There are some submodels **visualized in an extra user-friendly manner**. These are:
 
 -   Digital Nameplate
 -   Handover Documentation

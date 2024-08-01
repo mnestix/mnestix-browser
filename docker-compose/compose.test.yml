@@ -16,6 +16,6 @@ services:
     depends_on:
       - mnestix-browser
       - mnestix-api
-      - aas
+      - aas-repository
     networks:
       - mnestix-network
