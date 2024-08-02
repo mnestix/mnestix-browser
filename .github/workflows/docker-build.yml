@@ -53,6 +53,7 @@ jobs:
       - name: E2E test
         id: test
         run: docker compose -f compose.yml -f docker-compose/compose.test.yml pull &&
+          docker compose -f compose.yml -f docker-compose/compose.test.yml down &&
           docker compose -f compose.yml -f docker-compose/compose.test.yml up -d &&
           docker compose -f compose.yml -f docker-compose/compose.test.yml attach cypress-test
 

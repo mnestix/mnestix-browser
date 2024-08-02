@@ -15,7 +15,7 @@ services:
       - '3000:3000'
     environment:
       REGISTRY_API_URL: 'https://registry.dpp40-2-v2.industrialdigitaltwin.org/'
-      SUBMODEL_REGISTRY_API_URL: 'http://localhost:8085'
+      SUBMODEL_REGISTRY_API_URL: 'http://localhost:8084'
       DISCOVERY_API_URL: 'http://localhost:5064/discovery'
       AAS_REPO_API_URL: 'http://localhost:5064/repo'
       MNESTIX_BACKEND_API_URL: 'http://localhost:5064'
@@ -188,7 +188,7 @@ services:
     container_name: submodel-registry
     profiles: ["", "basyx"]
     ports:
-      - '8085:8080'
+      - '8084:8080'
     depends_on:
       - mongodb
     environment:
