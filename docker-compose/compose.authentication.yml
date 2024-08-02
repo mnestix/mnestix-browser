@@ -14,3 +14,4 @@ services:
       AzureAd__Domain: 'mnestixtest.onmicrosoft.com'
       AzureAd__TenantId: 6c4ccecf-2dd4-4241-b7fc-6e95b32dcfac
       AzureAd__ClientId: ffade4c2-76c8-44fd-9258-743d9cfc2289
+      Features__UseAuthentication: "true"
