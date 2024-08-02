@@ -19,9 +19,6 @@ services:
       DISCOVERY_API_URL: 'http://localhost:5064/discovery'
       AAS_REPO_API_URL: 'http://localhost:5064/repo'
       MNESTIX_BACKEND_API_URL: 'http://localhost:5064'
-      AD_CLIENT_ID: ${AD_CLIENT_ID}
-      AD_TENANT_ID: ${AD_TENANT_ID}
-      APPLICATION_ID_URI: 'api://mnestix-test-web-api/'
       AAS_LIST_FEATURE_FLAG: "true"
       COMPARISON_FEATURE_FLAG: "true"
       AUTHENTICATION_FEATURE_FLAG: "false"
@@ -42,9 +39,6 @@ services:
     ports:
       - '5064:5064'
     environment:
-      # Application Settings
-      # API Key:
-      CustomerEndpointsSecurity__ApiKey: ${MNESTIX_BACKEND_API_KEY}
       # Connection to Repository Service:
       ReverseProxy__Clusters__repoCluster__Destinations__destination1__Address: 'http://aas:8081/'
       ReverseProxy__Clusters__discoveryCluster__Destinations__destination1__Address: 'http://aas-discovery:8081/'
@@ -63,10 +57,6 @@ services:
       BasyxDbConnectionConfiguration__DatabaseName: basyxdb
       BasyxDbConnectionConfiguration__AasCollectionName: 'aas-repo'
       BasyxDbConnectionConfiguration__LookupServiceCollectionName: lookupservice
-      # Microsoft Authentication and Authorization Configuration (Backend):
-      AzureAd__Domain: 'mnestixtest.onmicrosoft.com'
-      AzureAd__TenantId: 6c4ccecf-2dd4-4241-b7fc-6e95b32dcfac
-      AzureAd__ClientId: ffade4c2-76c8-44fd-9258-743d9cfc2289
       # ASP.NET Core URLs
       ASPNETCORE_URLS: 'http://+:5064'
     depends_on:
