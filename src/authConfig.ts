@@ -46,7 +46,7 @@ export const authOptions: AuthOptions = {
             const nowTimeStamp = Math.floor(Date.now() / 1000);
 
             if (account) {
-                token.accessToken = account.access_token;
+                token.access_token = account.access_token;
                 token.id_token = account.id_token;
                 token.expires_at = account.expires_at;
                 token.refresh_token = account.refresh_token;
@@ -57,7 +57,9 @@ export const authOptions: AuthOptions = {
                 if(!keycloakEnabled) return token;
                 try {
                     console.warn('Refreshing access token...');
-                    return await refreshAccessToken(token);
+                    const newToken = await refreshAccessToken(token);
+                    console.info('Token successfully refreshed.');
+                    return newToken;
                 } catch (error) {
                     console.error('Error refreshing access token', error);
                     return { ...token, error: 'RefreshAccessTokenError' };
@@ -65,7 +67,7 @@ export const authOptions: AuthOptions = {
             }
         },
         async session({ session, token }) {
-            session.accessToken = token.accessToken as string;
+            session.accessToken = token.access_token as string;
             session.idToken = token.id_token as string;
             return session
         },
