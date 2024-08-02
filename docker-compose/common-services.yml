@@ -14,10 +14,10 @@ services:
       ReverseProxy__Clusters__repoCluster__Destinations__destination1__Address: 'http://aas:8081/'
       ReverseProxy__Clusters__discoveryCluster__Destinations__destination1__Address: 'http://aas-discovery:8081/'
       # Features Configuration
-      Features__AasRegistryMiddleware: true
-      Features__UseMongoDbBasedAasIdStorage: true
-      Features__AllowRetrievingAllShellsAndSubmodels: true
-      Features__UseAuthentication: false
+      Features__AasRegistryMiddleware: "true"
+      Features__UseMongoDbBasedAasIdStorage: "true"
+      Features__AllowRetrievingAllShellsAndSubmodels: "true"
+      Features__UseAuthentication: "false"
       # InfluxDB Configuration
       # URL to specify the host and port where InfluxDB is running:
       ReverseProxy__Clusters__influxCluster__Destinations__destination1__Address: 'http://example/'
@@ -130,7 +130,25 @@ services:
     image: eclipsebasyx/aas-registry-log-mongodb:2.0.0-SNAPSHOT
     container_name: aas-registry-mongo
     ports:
-      - "8083:8080"
+      - '8083:8080'
+    depends_on:
+      - mongodb
+    restart: always
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongoAdmin:mongoPassword@mongodb:27017/?authSource=admin
+      BASYX__CORS__ALLOWED-ORIGINS: '*'
+      BASYX__CORS__ALLOWED-METHODS: GET,POST,PATCH,DELETE,PUT,OPTIONS,HEAD
+    healthcheck: # check the endpoint for a valid response (service ready)
+      test: curl -f http://localhost:8080/actuator/health
+      interval: 30s
+      timeout: 10s
+      retries: 6
+
+  submodel-registry-log-mongodb:
+    image: eclipsebasyx/submodel-registry-log-mongodb:2.0.0-SNAPSHOT
+    container_name: submodel-registry-mongo
+    ports:
+      - '8084:8080'
     depends_on:
       - mongodb
     restart: always

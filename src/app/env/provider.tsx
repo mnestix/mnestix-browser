@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState } from 'react';
 import { EnvironmentalVariables, getEnv } from './env';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
-import {CenteredLoadingSpinner} from "../../components/basics/CenteredLoadingSpinner";
+import { CenteredLoadingSpinner } from 'components/basics/CenteredLoadingSpinner';
 
 const initialValues: EnvironmentalVariables = {
     AAS_LIST_FEATURE_FLAG: false,
@@ -14,6 +14,7 @@ const initialValues: EnvironmentalVariables = {
     APPLICATION_ID_URI: '',
     DISCOVERY_API_URL: '',
     REGISTRY_API_URL: '',
+    SUBMODEL_REGISTRY_API_URL: '',
     AAS_REPO_API_URL: '',
     MNESTIX_BACKEND_API_URL: '',
     THEME_PRIMARY_COLOR: undefined,
@@ -37,7 +38,11 @@ export const EnvProvider = ({
         setChildren(true);
     }, []);
 
-    return renderChildren ? <EnvContext.Provider value={env}>{children}</EnvContext.Provider> : <CenteredLoadingSpinner/>;
+    return renderChildren ? (
+        <EnvContext.Provider value={env}>{children}</EnvContext.Provider>
+    ) : (
+        <CenteredLoadingSpinner />
+    );
 };
 
 export const useEnv = () => {

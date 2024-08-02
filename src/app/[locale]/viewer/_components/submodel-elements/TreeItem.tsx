@@ -13,8 +13,8 @@ export interface CustomTreeItemContentProps extends TreeItemContentProps {
 }
 
 export interface ExpandableTreeItemContentProps extends TreeItemContentProps {
-    icon: React.ReactNode,
-    dataIcon: JSX.Element
+    icon: React.ReactNode;
+    dataIcon: JSX.Element;
 }
 
 export const getTreeItemStyle = (theme: Theme) => ({
@@ -37,20 +37,13 @@ export const getTreeItemStyle = (theme: Theme) => ({
 
 export const ExpandableTreeitem = React.forwardRef(function CustomContent(props: ExpandableTreeItemContentProps) {
     const theme = useTheme();
-    const {
-        classes,
-        label,
-        icon: iconProp,
-        expansionIcon,
-        displayIcon,
-        dataIcon
-    } = props;
+    const { classes, label, icon: iconProp, expansionIcon, displayIcon, dataIcon } = props;
 
     const toggleIcon = iconProp || expansionIcon || displayIcon;
     return (
         <>
             <Box data-testid="expand-entity-icon" className={classes.iconContainer} sx={{ py: 1 }}>
-               {toggleIcon}
+                {toggleIcon}
             </Box>
             <Box
                 sx={{
@@ -76,10 +69,9 @@ export const ExpandableTreeitem = React.forwardRef(function CustomContent(props:
                     }}
                     className={classes.label}
                 >
-                {label}
+                    {label}
                 </Typography>
             </Box>
         </>
     );
-        
-}) ;
+});

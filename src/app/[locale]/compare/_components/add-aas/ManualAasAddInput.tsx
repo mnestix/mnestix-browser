@@ -1,7 +1,6 @@
 ﻿import { Box, IconButton, InputAdornment, TextField } from '@mui/material';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { messages } from 'lib/i18n/localization';
-import { SquaredIconButton } from 'components/basics/SquaredIconButton';
 import { ArrowForward } from '@mui/icons-material';
 import React, { useEffect, useState } from 'react';
 import { useCompareAasContext } from 'components/contexts/CompareAasContext';
@@ -9,11 +8,12 @@ import { showError } from 'lib/util/ErrorHandlerUtil';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import CloseIcon from '@mui/icons-material/Close';
 import { useRef } from 'react';
-import { getAasFromExternalServices } from 'lib/searchUtilActions/search';
+import { handleAasDiscoverySearch, handleAasRegistrySearch } from 'lib/searchUtilActions/search';
 import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/types';
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { encodeBase64 } from 'lib/util/Base64Util';
+import { SquaredIconButton } from 'components/basics/Buttons';
 
 type ManualAasAddInputProps = {
     onSubmit: () => void;
@@ -42,23 +42,34 @@ export function ManualAasAddInput(props: ManualAasAddInputProps) {
             setIsLoading(true);
             let submodelDescriptorsFromRegistry: SubmodelDescriptor[] = [];
 
-            const { registrySearchResult, aasId } = await getAasFromExternalServices(inputValue);
-            const aasToAdd =
-                registrySearchResult != null
-                    ? registrySearchResult.registryAas
-                    : await repositoryClient.getAssetAdministrationShellById(encodeBase64(aasId));
-
-            const aasExists = compareAas.find((aas) => aas.id === aasToAdd.id);
-            if (aasExists) {
+            const aasIds = await handleAasDiscoverySearch(inputValue);
+            if (aasIds && aasIds.length > 1) {
                 setIsLoading(false);
                 notificationSpawner.spawn({
-                    message: intl.formatMessage(messages.mnestix.compare.aasAlreadyAdded),
-                    severity: 'error',
+                    message: intl.formatMessage(messages.mnestix.compare.moreAasFound),
+                    severity: 'warning',
                 });
             } else {
-                submodelDescriptorsFromRegistry = registrySearchResult?.registryAasData?.submodelDescriptors as SubmodelDescriptor[];
-                await addAas(aasToAdd as AssetAdministrationShell, submodelDescriptorsFromRegistry);
-                props.onSubmit();
+                const aasId = aasIds && aasIds.length === 1 ? aasIds[0] : inputValue;
+                const registrySearchResult = await handleAasRegistrySearch(aasId);
+                const aasToAdd =
+                    registrySearchResult != null
+                        ? registrySearchResult.registryAas
+                        : await repositoryClient.getAssetAdministrationShellById(encodeBase64(aasId));
+
+                const aasExists = compareAas.find((aas) => aas.id === aasToAdd.id);
+                if (aasExists) {
+                    setIsLoading(false);
+                    notificationSpawner.spawn({
+                        message: intl.formatMessage(messages.mnestix.compare.aasAlreadyAdded),
+                        severity: 'error',
+                    });
+                } else {
+                    submodelDescriptorsFromRegistry = registrySearchResult?.registryAasData
+                        ?.submodelDescriptors as SubmodelDescriptor[];
+                    await addAas(aasToAdd as AssetAdministrationShell, submodelDescriptorsFromRegistry);
+                    props.onSubmit();
+                }
             }
         } catch (e: unknown) {
             setIsLoading(false);

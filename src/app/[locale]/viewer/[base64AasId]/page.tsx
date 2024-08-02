@@ -48,13 +48,14 @@ export default function Page() {
                         setAas(registrySearchResult.registryAas as AssetAdministrationShell);
                         setRegistryAasData({
                             submodelDescriptors: registrySearchResult?.registryAasData?.submodelDescriptors,
-                            aasRegistryRepositoryOrigin: registrySearchResult?.registryAasData?.aasRegistryRepositoryOrigin });
+                            aasRegistryRepositoryOrigin:
+                                registrySearchResult?.registryAasData?.aasRegistryRepositoryOrigin,
+                        });
                         setAasData(registrySearchResult.registryAas as AssetAdministrationShell);
                     } else {
                         const shell = await repositoryClient.getAssetAdministrationShellById(base64AasId as string);
                         setAas(shell);
                         setAasData(shell);
-                    
                     }
                 } else {
                     setAasData(aas);

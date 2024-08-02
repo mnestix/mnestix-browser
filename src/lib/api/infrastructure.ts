@@ -10,7 +10,11 @@ const initializeRequestOptions = async (bearerToken: string, init?: RequestInit)
     return init;
 };
 
-const getBearerToken = async (instance: IPublicClientApplication, account: AccountInfo | null, applicationIdUri: string) => {
+const getBearerToken = async (
+    instance: IPublicClientApplication,
+    account: AccountInfo | null,
+    applicationIdUri: string,
+) => {
     if (account) {
         const authenticationResult = await instance.acquireTokenSilent({
             scopes: [`${applicationIdUri}admin.write`],
@@ -23,9 +27,15 @@ const getBearerToken = async (instance: IPublicClientApplication, account: Accou
     return '';
 };
 
-export const mnestixFetch = (instance: IPublicClientApplication, account: AccountInfo | null, applicationIdUri: string): {
-    fetch(url: RequestInfo, init?: (RequestInit | undefined)): Promise<Response>
-} | undefined => {
+export const mnestixFetch = (
+    instance: IPublicClientApplication,
+    account: AccountInfo | null,
+    applicationIdUri: string,
+):
+    | {
+          fetch(url: RequestInfo, init?: RequestInit | undefined): Promise<Response>;
+      }
+    | undefined => {
     return {
         fetch: async (url: RequestInfo, init?: RequestInit) => {
             const response = await fetch(

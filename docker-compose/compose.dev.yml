@@ -12,21 +12,21 @@ services:
       target: dev
     environment:
       REGISTRY_API_URL: 'https://registry.dpp40-2-v2.industrialdigitaltwin.org/'
+      SUBMODEL_REGISTRY_API_URL: 'http://localhost:8084'
       DISCOVERY_API_URL: 'http://mnestix-api:5064/discovery'
       AAS_REPO_API_URL: 'http://localhost:5064/repo'
       MNESTIX_BACKEND_API_URL: 'http://localhost:5064'
       AD_CLIENT_ID: ${AD_CLIENT_ID}
       AD_TENANT_ID: ${AD_TENANT_ID}
       APPLICATION_ID_URI: 'api://mnestix-test-web-api/'
-      AAS_LIST_FEATURE_FLAG: true
-      COMPARISON_FEATURE_FLAG: true
-      AUTHENTICATION_FEATURE_FLAG: true
-      LOCK_TIMESERIES_PERIOD_FEATURE_FLAG: true
-      THEME_PRIMARY_COLOR: '#0d4453'
-      THEME_SECONDARY_COLOR: '#147f8a'
-#      THEME_LOGO_MIME_TYPE: 'image/svg+xml'
-      THEME_LOGO_URL: https://xitaso.com/wp-content/uploads/XITASO-Logo-quer.svg
-      
+      AAS_LIST_FEATURE_FLAG: "true"
+      COMPARISON_FEATURE_FLAG: "true"
+      AUTHENTICATION_FEATURE_FLAG: "true"
+      LOCK_TIMESERIES_PERIOD_FEATURE_FLAG: "true"
+      THEME_PRIMARY_COLOR: '#005962'
+      THEME_SECONDARY_COLOR: '#000000'
+      THEME_LOGO_URL: ''
+
     volumes:
       - ../src:/app/src
       - ../public:/app/public
@@ -73,11 +73,18 @@ services:
       service: aas-discovery
     networks:
       - mnestix-network
-  
+
   aas-registry:
     extends:
       file: common-services.yml
       service: aas-registry-log-mongodb
+    networks:
+      - mnestix-network
+
+  submodel-registry:
+    extends:
+      file: common-services.yml
+      service: submodel-registry-log-mongodb
     networks:
       - mnestix-network
 
