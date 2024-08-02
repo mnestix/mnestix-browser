@@ -3,7 +3,7 @@ services:
   mnestix-browser:
     environment:
       AD_CLIENT_ID: ${AD_CLIENT_ID}
-      AD_TENANT_ID: ${AD_TENANT_ID}
+      AD_TENANT_ID: 6c4ccecf-2dd4-4241-b7fc-6e95b32dcfac
       APPLICATION_ID_URI: 'api://mnestix-test-web-api/'
       AUTHENTICATION_FEATURE_FLAG: "true"
         
