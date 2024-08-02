@@ -509,5 +509,8 @@ This change aims to prevent server overload and ensure smoother navigation throu
 
 ## Contributing
 
-Right now we are building a community around Mnestix. We would be more than happy to have you on board, so feel
-free to contact us [mnestix@xitaso.com](mailto:mnestix@xitaso.com).
+Right now, we are building a community around Mnestix. 
+If you are looking for a way to support us, you can start contributing to Mnestix right away.
+For this purpose, issues which are particularly suitable for a first contribution are labeled with the tag `good first issue`.  
+If this is your first time contributing to a github project, we recommend having a look at this guide: [Contributing to a project](https://docs.github.com/en/get-started/exploring-projects-on-github/contributing-to-a-project).  
+We would be more than happy to have you onboard. If there is anything you want to know, feel free to contact us [mnestix@xitaso.com](mailto:mnestix@xitaso.com).   
