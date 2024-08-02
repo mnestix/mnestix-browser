@@ -4,10 +4,10 @@
 </p>
 <h1 align="center">Mnestix</h1>
 
-[![Made by XITASO](https://img.shields.io/badge/Made_by_XITASO-0d4453?style=flat-square)](https://xitaso.com/)
-[![MIT License](https://img.shields.io/badge/License-MIT-0d4453.svg?style=flat-square)](https://choosealicense.com/licenses/mit/)
-[![Yarn License](https://img.shields.io/badge/YARN-V1.22.22-0d4453?style=flat-square)]()
-[![Join our Community](https://img.shields.io/badge/Join_our_Community-0d4453?style=flat-square)](https://mnestix.io/)
+[![Made by XITASO](https://img.shields.io/badge/Made_by_XITASO-005962?style=flat-square)](https://xitaso.com/)
+[![MIT License](https://img.shields.io/badge/License-MIT-005962.svg?style=flat-square)](https://choosealicense.com/licenses/mit/)
+[![Yarn License](https://img.shields.io/badge/YARN-V1.22.22-005962?style=flat-square)]()
+[![Join our Community](https://img.shields.io/badge/Join_our_Community-005962?style=flat-square)](https://mnestix.io/)
 
 ### Welcome to the Mnestix Community!
 
@@ -520,7 +520,7 @@ to `.eslintignore` and `.prettierignore`
 ### Cypress Testing
 
 We use Cypress for End-to-End-Testing. In order to navigate to the right folder and run Cypress you can use the
-following command. In order to use cypress testing `yarn start` must be running.
+following command. In order to use cypress testing the Mnestix Browser must be running.
 
 #### Open the cypress application
 
@@ -553,5 +553,8 @@ This change aims to prevent server overload and ensure smoother navigation throu
 
 ## Contributing
 
-Right now we are building a community around Mnestix. We would be more than happy to have you onboard, so feel
-free to contact us [mnestix@xitaso.com](mailto:mnestix@xitaso.com).
+Right now, we are building a community around Mnestix. 
+If you are looking for a way to support us, you can start contributing to Mnestix right away.
+For this purpose, issues which are particularly suitable for a first contribution are labeled with the tag `good first issue`.  
+If this is your first time contributing to a github project, we recommend having a look at this guide: [Contributing to a project](https://docs.github.com/en/get-started/exploring-projects-on-github/contributing-to-a-project).  
+We would be more than happy to have you onboard. If there is anything you want to know, feel free to contact us [mnestix@xitaso.com](mailto:mnestix@xitaso.com).   
