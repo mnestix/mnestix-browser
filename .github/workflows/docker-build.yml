@@ -48,14 +48,14 @@ jobs:
       # Build Docker image
       - name: Build image
         id: build
-        run: docker compose -f compose.yml -f docker-compose/compose.authentication.yml build mnestix-browser
+        run: docker compose build mnestix-browser
 
       - name: E2E test
         id: test
-        run: docker compose -f compose.yml -f docker-compose/compose.authentication.yml -f docker-compose/compose.test.yml --profile tests pull &&
-          docker compose -f compose.yml -f docker-compose/compose.authentication.yml -f docker-compose/compose.test.yml --profile tests down &&
-          docker compose -f compose.yml -f docker-compose/compose.authentication.yml -f docker-compose/compose.test.yml --profile tests up -d &&
-          docker compose -f compose.yml -f docker-compose/compose.authentication.yml -f docker-compose/compose.test.yml attach cypress-test
+        run: docker compose -f compose.yml -f docker-compose/compose.test.yml --profile tests pull &&
+          docker compose -f compose.yml -f docker-compose/compose.test.yml --profile tests down &&
+          docker compose -f compose.yml -f docker-compose/compose.test.yml --profile tests up -d &&
+          docker compose -f compose.yml -f docker-compose/compose.test.yml attach cypress-test
 
       - name: E2E test collect artifact
         id: test_artifact
