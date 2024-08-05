@@ -7,14 +7,14 @@ services:
   mnestix-browser:
     container_name: mnestix-browser
     image: mnestix/mnestix-browser:latest
-    profiles: ["", "frontend"]
+    profiles: ["", "frontend", "tests"]
     build:
       dockerfile: Dockerfile
       target: production
     ports:
       - '3000:3000'
     environment:
-      REGISTRY_API_URL: 'https://registry.dpp40-2-v2.industrialdigitaltwin.org/'
+      REGISTRY_API_URL: 'https://localhost:8083/' # 'https://registry.dpp40-2-v2.industrialdigitaltwin.org/'
       SUBMODEL_REGISTRY_API_URL: 'http://localhost:8084'
       DISCOVERY_API_URL: 'http://localhost:5064/discovery'
       AAS_REPO_API_URL: 'http://localhost:5064/repo'
@@ -23,9 +23,6 @@ services:
       COMPARISON_FEATURE_FLAG: "true"
       AUTHENTICATION_FEATURE_FLAG: "false"
       LOCK_TIMESERIES_PERIOD_FEATURE_FLAG: "true"
-      THEME_PRIMARY_COLOR: '#005962'
-      THEME_SECONDARY_COLOR: '#147f8a'
-      THEME_LOGO_URL: ''
     depends_on:
       aas-environment:
         condition: service_healthy # only after the healthcheck in aas is successful, the mnestix container is being created
@@ -35,7 +32,7 @@ services:
   mnestix-api:
     image: mnestix/mnestix-api:latest
     container_name: mnestix-api
-    profiles: ["", "backend"]
+    profiles: ["", "backend", "tests"]
     ports:
       - '5064:5064'
     environment:
@@ -73,7 +70,7 @@ services:
   mongodb:
     image: mongo:5
     container_name: mongodb
-    profiles: ["", "basyx"]
+    profiles: ["", "basyx", "tests"]
     environment:
       MONGO_INITDB_ROOT_USERNAME: mongoAdmin
       MONGO_INITDB_ROOT_PASSWORD: mongoPassword
@@ -94,7 +91,7 @@ services:
   aas-environment:
     image: eclipsebasyx/aas-environment:2.0.0-SNAPSHOT
     container_name: aas-environment
-    profiles: ["", "basyx"]
+    profiles: ["", "basyx", "tests"]
     depends_on:
       - mongodb
     environment:
@@ -126,7 +123,7 @@ services:
   aas-discovery:
     image: eclipsebasyx/aas-discovery:2.0.0-SNAPSHOT
     container_name: aas-discovery
-    profiles: ["", "basyx"]
+    profiles: ["", "basyx", "tests"]
     ports:
       - '8082:8081'
     depends_on:

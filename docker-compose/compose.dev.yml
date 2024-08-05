@@ -4,6 +4,10 @@ services:
     image: !reset null
     build:
       target: dev
+    environment:
+      THEME_PRIMARY_COLOR: '#005962'
+      THEME_SECONDARY_COLOR: '#147f8a'
+      THEME_LOGO_URL: ''
     volumes:
       - ../src:/app/src
       - ../public:/app/public
@@ -13,6 +17,6 @@ services:
     ports:
       - '27017:27017'
 
-  aas:
+  aas-environment:
     ports:
       - '8081:8081'
