@@ -19,3 +19,9 @@ services:
       - aas-environment
     networks:
       - mnestix-network
+
+  mnestix-browser:
+    environment:
+      AAS_REPO_API_URL: 'http://mnestix-api:5064/repo'
+      DISCOVERY_API_URL: 'http://mnestix-api:5064/discovery'
+      MNESTIX_BACKEND_API_URL: 'http://mnestix-api:5064'
