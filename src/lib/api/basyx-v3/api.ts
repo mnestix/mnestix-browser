@@ -132,8 +132,8 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
             const localVarFetchArgs = AssetAdministrationShellRepositoryApiFetchParamCreator(
                 configuration,
             ).getAssetAdministrationShellById(aasId, options);
-            return async (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                const response = await fetch.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
+            return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                const response = await requestHandler.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
                 if (response.status >= 200 && response.status < 300) {
                     return response.json();
                 } else {
@@ -155,8 +155,8 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
             const localVarFetchArgs = AssetAdministrationShellRepositoryApiFetchParamCreator(
                 configuration,
             ).getSubmodelReferencesFromShell(aasId, options);
-            return async (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                const response = await fetch.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
+            return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                const response = await requestHandler.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
                 if (response.status >= 200 && response.status < 300) {
                     return response.json().then((resp) => {
                         return resp.result as Reference[];
@@ -180,8 +180,8 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
             const localVarFetchArgs = AssetAdministrationShellRepositoryApiFetchParamCreator(
                 configuration,
             ).getThumbnailFromAssetInformation(aasId, options);
-            return async (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                const response = await fetch.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
+            return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                const response = await requestHandler.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
                 if (response.status >= 200 && response.status < 300) {
                     return response.blob();
                 } else {
@@ -369,8 +369,8 @@ export const SubmodelRepositoryApiFp = function (configuration?: Configuration) 
                 encodeBase64(submodelId),
                 options,
             );
-            return async (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                const response = await fetch.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
+            return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                const response = await requestHandler.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
                 if (response.status >= 200 && response.status < 300) {
                     return response.json();
                 } else {
@@ -389,8 +389,8 @@ export const SubmodelRepositoryApiFp = function (configuration?: Configuration) 
                 encodeBase64(submodelId),
                 options,
             );
-            return async (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                const response = await fetch.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
+            return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                const response = await requestHandler.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
                 if (response.status >= 200 && response.status < 300) {
                     return response.json();
                 } else {
@@ -412,8 +412,8 @@ export const SubmodelRepositoryApiFp = function (configuration?: Configuration) 
             const localVarFetchArgs = SubmodelRepositoryApiFetchParamCreator(
                 configuration,
             ).getAttachmentFromSubmodelElement(submodelId, submodelElementPath, options);
-            return async (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                const response = await fetch.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
+            return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                const response = await requestHandler.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
                 if (response.status >= 200 && response.status < 300) {
                     return response.blob();
                 } else {

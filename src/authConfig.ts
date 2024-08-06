@@ -26,7 +26,7 @@ export const authOptions: AuthOptions = {
         ...(keycloakEnabled ? [
             KeycloakProvider({
                 clientId: process.env.KEYCLOAK_CLIENT_ID ? process.env.KEYCLOAK_CLIENT_ID : '',
-                clientSecret: 'process.env.KEYCLOAK_CLIENT_SECRET',
+                clientSecret: '-', // not required by the AuthFlow but required by NextAuth Provider, here placeholder only
                 issuer: process.env.KEYCLOAK_ISSUER
             })
         ] : [
@@ -78,7 +78,7 @@ const refreshAccessToken = async (token: JWT) => {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({
             client_id: process.env.KEYCLOAK_CLIENT_ID ? process.env.KEYCLOAK_CLIENT_ID : '',
-            client_secret: 'process.env.AZURE_AD_CLIENT_SECRET',
+            client_secret: '-', // not required by the AuthFlow but required by NextAuth Provider, here placeholder only
             grant_type: 'refresh_token',
             refresh_token: token.refresh_token as string,
         }),

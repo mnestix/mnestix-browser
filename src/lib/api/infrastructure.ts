@@ -1,4 +1,4 @@
-﻿import { getSession, signIn } from 'next-auth/react';
+﻿import { getSession } from 'next-auth/react';
 
 const initializeRequestOptions = async (bearerToken: string, init?: RequestInit) => {
     init = init || {};
@@ -30,7 +30,6 @@ export const mnestixFetch = (): {
                 return response;
             }
             // If not logged in, redirect to sign-in
-            //await signIn('keycloak');
             return response;
         },
     };
