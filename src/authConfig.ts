@@ -57,9 +57,7 @@ export const authOptions: AuthOptions = {
                 if(!keycloakEnabled) return token;
                 try {
                     console.warn('Refreshing access token...');
-                    const newToken = await refreshAccessToken(token);
-                    console.info('Token successfully refreshed.');
-                    return newToken;
+                    return await refreshAccessToken(token);
                 } catch (error) {
                     console.error('Error refreshing access token', error);
                     return { ...token, error: 'RefreshAccessTokenError' };
