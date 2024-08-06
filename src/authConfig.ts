@@ -32,7 +32,7 @@ export const authOptions: AuthOptions = {
         ] : [
             AzureADProvider({
                 clientId: process.env.AD_CLIENT_ID ? process.env.AD_CLIENT_ID : '',
-                clientSecret: process.env.AD_SECRET_VALUE ? process.env.AD_SECRET_VALUE : '',
+                clientSecret: process.env.AD_SECRET_VALUE ?? '',
                 tenantId: process.env.AD_TENANT_ID,
                 authorization: { params: { scope: `openid ${process.env.APPLICATION_ID_URI}admin.write` } },
             })
