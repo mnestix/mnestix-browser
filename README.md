@@ -127,6 +127,9 @@ Additional services used by the Mnestix browser:
  - **mnestix-api** - API service from the Mnestix ecosystem designed to expand Mnestix Browser functionalities, adding AAS List, Template Builder and allowing for the configuration of custom settings such as themes and aasId generation. (**On port 5054 - http://localhost:5064/swagger/index.html#/**)
  - **mongodb** - NoSql database to store data
  - **aas-environment** - service of AAS repository (BaSyx component [aas-environment](https://github.com/eclipse-basyx/basyx-java-server-sdk/tree/main/basyx.aasenvironment))
+ - **aas-registry** - registry to register and search for AAS in multiple repositories
+ - **submodel-registry** - registry to register and search for submodels in multiple repositories
+ - **aas-discovery** - discovery service to register and search for an AAS by assetId
 
 ### Additional Command to view the logs for specific service:
 
