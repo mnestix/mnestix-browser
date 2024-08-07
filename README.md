@@ -63,6 +63,7 @@ This setup includes:
 -   BaSyx Repository
 -   BaSyx Discovery Service
 -   BaSyx Registry
+-   BaSyx Submodel Registry
 
 To start all mentioned services together, run the following command:
 
@@ -79,7 +80,7 @@ The Mnestix Browser is now running on http://localhost:3000.
 
 If you want to start the browser through your IDE separately start BaSyx and the backend with
 ```shell
-docker compose -f compose.yml -f docker-compose/compose.dev.yml --profile basyx --profile backend up
+yarn docker:backend
 ```
 
 In your IDE you can then simply start the dev environment with hot reloading by running
@@ -125,7 +126,7 @@ They can be started together without defining `--profile` or separately by addin
 Additional services used by the Mnestix browser:
  - **mnestix-api** - API service from the Mnestix ecosystem designed to expand Mnestix Browser functionalities, adding AAS List, Template Builder and allowing for the configuration of custom settings such as themes and aasId generation. (**On port 5054 - http://localhost:5064/swagger/index.html#/**)
  - **mongodb** - NoSql database to store data
- - **aas** - service of AAS repository (BaSyx component [aas-environment](https://github.com/eclipse-basyx/basyx-java-server-sdk/tree/main/basyx.aasenvironment))
+ - **aas-environment** - service of AAS repository (BaSyx component [aas-environment](https://github.com/eclipse-basyx/basyx-java-server-sdk/tree/main/basyx.aasenvironment))
 
 ### Additional Command to view the logs for specific service:
 

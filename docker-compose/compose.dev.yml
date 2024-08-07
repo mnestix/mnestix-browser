@@ -9,8 +9,8 @@ services:
       THEME_SECONDARY_COLOR: '#147f8a'
       THEME_LOGO_URL: ''
     volumes:
-      - ../src:/app/src
-      - ../public:/app/public
+      - ./src:/app/src
+      - ./public:/app/public
 #      - ./data/logo.svg:/app/public/logo
 
   mongodb:
