@@ -19,24 +19,42 @@ declare global {
     }
 }
 
+const isEmptyOrWhiteSpace = (input: string | undefined) => {
+    return !input || input.trim() === '';
+}
+
 const keycloakEnabled = process.env.KEYCLOAK_ENABLED?.toLowerCase() === 'true'.toLowerCase();
+const keycloakLocalUrl = process.env.KEYCLOAK_LOCAL_URL;
+const keycloakIssuer = process.env.KEYCLOAK_ISSUER;
+const serverUrlFromConfig = isEmptyOrWhiteSpace(keycloakLocalUrl) ? keycloakLocalUrl : keycloakIssuer;
+const realm = process.env.KEYCLOAK_REALM;
 
 export const authOptions: AuthOptions = {
     providers: [
-        ...(keycloakEnabled ? [
-            KeycloakProvider({
-                clientId: process.env.KEYCLOAK_CLIENT_ID ? process.env.KEYCLOAK_CLIENT_ID : '',
-                clientSecret: '-', // not required by the AuthFlow but required by NextAuth Provider, here placeholder only
-                issuer: process.env.KEYCLOAK_ISSUER
-            })
-        ] : [
-            AzureADProvider({
-                clientId: process.env.AD_CLIENT_ID ? process.env.AD_CLIENT_ID : '',
-                clientSecret: process.env.AD_SECRET_VALUE ?? '',
-                tenantId: process.env.AD_TENANT_ID,
-                authorization: { params: { scope: `openid ${process.env.APPLICATION_ID_URI}admin.write` } },
-            })
-        ])
+        ...(keycloakEnabled
+            ? [
+                  KeycloakProvider({
+                      clientId: process.env.KEYCLOAK_CLIENT_ID ? process.env.KEYCLOAK_CLIENT_ID : '',
+                      clientSecret: '-', // not required by the AuthFlow but required by NextAuth Provider, here placeholder only
+                      issuer: `${keycloakIssuer}/realms/${realm}`,
+                      authorization: {
+                          params: {
+                              scope: 'openid email profile',
+                          },
+                          url: `${serverUrlFromConfig}/realms/${realm}/protocol/openid-connect/auth`,
+                      },
+                      token: `${keycloakIssuer}/realms/${realm}/protocol/openid-connect/token`,
+                      userinfo: `${keycloakIssuer}/realms/${realm}/protocol/openid-connect/userinfo`,
+                  }),
+              ]
+            : [
+                  AzureADProvider({
+                      clientId: process.env.AD_CLIENT_ID ? process.env.AD_CLIENT_ID : '',
+                      clientSecret: process.env.AD_SECRET_VALUE ?? '',
+                      tenantId: process.env.AD_TENANT_ID,
+                      authorization: { params: { scope: `openid ${process.env.APPLICATION_ID_URI}admin.write` } },
+                  }),
+              ]),
     ],
     session: {
         strategy: 'jwt',
@@ -54,7 +72,7 @@ export const authOptions: AuthOptions = {
             } else if (nowTimeStamp < (token.expires_at as number)) {
                 return token;
             } else {
-                if(!keycloakEnabled) return token;
+                if (!keycloakEnabled) return token;
                 try {
                     console.warn('Refreshing access token...');
                     return await refreshAccessToken(token);
@@ -69,12 +87,12 @@ export const authOptions: AuthOptions = {
             session.idToken = token.id_token as string;
             return session;
         },
-    }
-}
+    },
+};
 
 
 const refreshAccessToken = async (token: JWT) => {
-    const resp = await fetch(`${process.env.KEYCLOAK_REFRESH_TOKEN_URL}`, {
+    const resp = await fetch(`${keycloakIssuer}/realms/${realm}/protocol/openid-connect/token`, {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({
             client_id: process.env.KEYCLOAK_CLIENT_ID ? process.env.KEYCLOAK_CLIENT_ID : '',

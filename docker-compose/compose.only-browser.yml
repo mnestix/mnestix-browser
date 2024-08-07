@@ -31,9 +31,9 @@ services:
       THEME_LOGO_URL: ''
       KEYCLOAK_ENABLED: "true"
       KEYCLOAK_CLIENT_ID: "mnestix-browser-client-demo"
-      KEYCLOAK_ISSUER: "http://localhost:9096/realms/BaSyx"
-      KEYCLOAK_REFRESH_TOKEN_URL: "http://localhost:9096/realms/BaSyx/protocol/openid-connect/token"
-      KEYCLOAK_END_SESSION_URL: "http://localhost:9096/realms/BaSyx/protocol/openid-connect/logout"
+      KEYCLOAK_ISSUER: "http://keycloak:8080"
+      KEYCLOAK_LOCAL_URL: "http://localhost:8080"
+      KEYCLOAK_REALM: "BaSyx"
       KEYCLOAK_LOGOUT_REDIRECT: "http://localhost:3000"
       NEXTAUTH_URL: "http://localhost:3000"
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
