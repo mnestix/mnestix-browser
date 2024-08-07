@@ -11,8 +11,8 @@ services:
       CYPRESS_AAS_DISCOVERY_API_URL: 'http://mnestix-api:5064/discovery'
       ELECTRON_ENABLE_LOGGING: 1
     volumes:
-      - ../cypress-artifacts/screenshots:/cypress_Tests/cypress/screenshots
-      - ../cypress-artifacts/videos:/cypress_Tests/cypress/videos
+      - ./cypress-artifacts/screenshots:/cypress_Tests/cypress/screenshots
+      - ./cypress-artifacts/videos:/cypress_Tests/cypress/videos
     depends_on:
       - mnestix-browser
       - mnestix-api
