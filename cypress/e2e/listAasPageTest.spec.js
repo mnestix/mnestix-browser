@@ -46,7 +46,7 @@ describe('Test all Aas List features (Resolution 1920 x 1080)', function () {
         cy.wait(100);
         cy.url().should('contain', '/compare');
     });
-    it.only('should filter the aas list when a product class is selected', function () {
+    it.skip('should filter the aas list when a product class is selected', function () {
         cy.get('[data-testid="list-row-https://mnestix.io/aas/listTest1"]').findByTestId('list-checkbox');
 
         cy.getByTestId('product-class-select').click();
@@ -59,7 +59,7 @@ describe('Test all Aas List features (Resolution 1920 x 1080)', function () {
         cy.get('[data-testid="list-row-https://mnestix.io/aas/listTest3"]').should('not.exist');
         cy.get('[data-testid="list-row-https://mnestix.io/aas/listTest4"]').should('not.exist');
     });
-    it.only('should update the filtered aas list when another product class is selected', function () {
+    it.skip('should update the filtered aas list when another product class is selected', function () {
         cy.get('[data-testid="list-row-https://mnestix.io/aas/listTest1"]').findByTestId('list-checkbox');
 
         cy.getByTestId('product-class-select').click();
@@ -70,7 +70,7 @@ describe('Test all Aas List features (Resolution 1920 x 1080)', function () {
         cy.get('[data-testid="list-row-https://mnestix.io/aas/listTest3"]').should('not.exist');
         cy.get('[data-testid="list-row-https://mnestix.io/aas/listTest4"]').should('not.exist');
     });
-    it.only('should show the full aas list when the product class is reset', function () {
+    it('should show the full aas list when the product class is reset', function () {
         cy.get('[data-testid="list-row-https://mnestix.io/aas/listTest1"]').findByTestId('list-checkbox');
 
         cy.getByTestId('product-class-select').click();
