@@ -26,14 +26,8 @@ services:
       LOCK_TIMESERIES_PERIOD_FEATURE_FLAG: "true"
       THEME_PRIMARY_COLOR: '#005962'
       THEME_SECONDARY_COLOR: '#147f8a'
-#      THEME_LOGO_MIME_TYPE: 'image/svg+xml'
+#     THEME_LOGO_MIME_TYPE: 'image/svg+xml'
       THEME_LOGO_URL:
-      KEYCLOAK_ENABLED: "false"
-      KEYCLOAK_CLIENT_ID: "mnestix-browser-client-demo"
-      KEYCLOAK_ISSUER: "http://keycloak:8080"
-      KEYCLOAK_LOCAL_URL: "http://localhost:8080"
-      KEYCLOAK_REALM: "BaSyx"
-      KEYCLOAK_LOGOUT_REDIRECT: "http://localhost:3000"
       NEXTAUTH_URL: "http://localhost:3000"
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
 

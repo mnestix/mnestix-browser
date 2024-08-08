@@ -27,30 +27,15 @@ services:
       BasyxDbConnectionConfiguration__MongoConnectionString: 'mongodb://mongoAdmin:mongoPassword@mongodb:27017/?authSource=admin'
       BasyxDbConnectionConfiguration__DatabaseName: basyxdb
       BasyxDbConnectionConfiguration__AasCollectionName: 'aas-repo'
-      # OpenId repository settings
-      RepositoryOpenIdConnect__EnableRepositoryOpenIdAuth: "false"
-      RepositoryOpenIdConnect__Authority: "http://keycloak:8080/realms/BaSyx"
-      RepositoryOpenIdConnect__DiscoveryEndpoint: ".well-known/openid-configuration"
-      RepositoryOpenIdConnect__ClientId: "mnestix-repo-client-demo"
-      RepositoryOpenIdConnect__ClientSecret: "WLOB68nSllHTlr7ViUOZWWxildWFT2nN"
-      RepositoryOpenIdConnect__ValidateIssuer: "false"
-      RepositoryOpenIdConnect__TokenEndpoint: "http://keycloak:8080/realms/BaSyx/protocol/openid-connect/token"
       # Microsoft Authentication and Authorization Configuration (Backend):
       AzureAd__Domain: 'mnestixtest.onmicrosoft.com'
       AzureAd__TenantId: 6c4ccecf-2dd4-4241-b7fc-6e95b32dcfac
       AzureAd__ClientId: ffade4c2-76c8-44fd-9258-743d9cfc2289
-      # OpenID Configuration
-      OpenId__EnableOpenIdAuth: "false"
-      OpenId__Issuer: "http://keycloak:8080/realms/BaSyx"
-      OpenId__ClientID: "mnestixApi-demo"
-      OpenId__RequireHttpsMetadata: "false"
       # ASP.NET Core URLs
       ASPNETCORE_URLS: 'http://+:5064'
     depends_on:
       aas:
         condition: service_healthy # only after the healthcheck in aas is successful, the mnestix container is being created
-      keycloak:
-        condition: service_healthy
     logging:
       driver: 'json-file'
       options:
@@ -94,14 +79,6 @@ services:
       # Allow mnestix frontend and backend to call basyx
       BASYX_CORS_ALLOWED-ORIGINS: '*'
       BASYX_CORS_ALLOWED-METHODS: GET,POST,PATCH,DELETE,PUT,OPTIONS,HEAD
-      # Authorization
-      basyx.feature.authorization.enabled: "false"
-      basyx.feature.authorization.type: rbac
-      basyx.feature.authorization.jwtBearerTokenProvider: keycloak
-      basyx.feature.authorization.rbac.file: file:/data/rbac_rules.json
-      spring.security.oauth2.resourceserver.jwt.issuer-uri: http://keycloak:8080/realms/BaSyx
-    volumes:
-      - ./data/keycloak/rbac_rules.json:/data/rbac_rules.json:ro
     healthcheck: # check the endpoint for a valid response (service ready)
       test: curl -f http://localhost:8081/actuator/health
       interval: 30s
@@ -172,30 +149,6 @@ services:
       BASYX__CORS__ALLOWED-METHODS: GET,POST,PATCH,DELETE,PUT,OPTIONS,HEAD
     healthcheck: # check the endpoint for a valid response (service ready)
       test: curl -f http://localhost:8080/actuator/health
-      interval: 30s
-      timeout: 10s
-      retries: 6
-      
-  keycloak:
-    build:
-      context: ./data/keycloak
-    container_name: keycloak
-    volumes:
-      - ./data/keycloak/realm:/opt/jboss/keycloak/imports
-    ports:
-      - 8080:8080
-    environment:
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
-      KC_HOSTNAME: localhost
-      KC_SPI_INITIALIZER_ISSUER_BASE_URI: http://keycloak:8080
-      KC_HEALTH_ENABLED: "true"
-    command: ["start-dev", "--import-realm"]
-    healthcheck: # check the endpoint for a valid response (service ready)
-      test: [
-        "CMD-SHELL",
-        'exec 3<>/dev/tcp/localhost/8080; echo -e "GET /health/ready HTTP/1.1\nhost: localhost:8080\n" >&3; timeout --preserve-status 1 cat <&3 | grep -m 1 status | grep -m 1 UP; ERROR=$?; exec 3<&-; exec 3>&-; exit $ERROR'
-      ]
       interval: 30s
       timeout: 10s
       retries: 6

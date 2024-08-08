@@ -23,11 +23,12 @@ const isEmptyOrWhiteSpace = (input: string | undefined) => {
     return !input || input.trim() === '';
 }
 
-const keycloakEnabled = process.env.KEYCLOAK_ENABLED?.toLowerCase() === 'true'.toLowerCase();
+const keycloakEnabled = (process.env.KEYCLOAK_ENABLED || 'false').toLowerCase() === 'true'.toLowerCase();
 const keycloakLocalUrl = process.env.KEYCLOAK_LOCAL_URL;
 const keycloakIssuer = process.env.KEYCLOAK_ISSUER;
 const serverUrlFromConfig = isEmptyOrWhiteSpace(keycloakLocalUrl) ? keycloakLocalUrl : keycloakIssuer;
 const realm = process.env.KEYCLOAK_REALM;
+const requestedResource = process.env.APPLICATION_ID_URI?.endsWith('/') ? process.env.APPLICATION_ID_URI : `${process.env.APPLICATION_ID_URI}/`;
 
 export const authOptions: AuthOptions = {
     providers: [
@@ -52,7 +53,7 @@ export const authOptions: AuthOptions = {
                       clientId: process.env.AD_CLIENT_ID ? process.env.AD_CLIENT_ID : '',
                       clientSecret: process.env.AD_SECRET_VALUE ?? '',
                       tenantId: process.env.AD_TENANT_ID,
-                      authorization: { params: { scope: `openid ${process.env.APPLICATION_ID_URI}admin.write` } },
+                      authorization: { params: { scope: `openid ${requestedResource}admin.write` } },
                   }),
               ]),
     ],

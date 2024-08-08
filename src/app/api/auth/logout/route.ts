@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 
 export async function GET() {
     const session = await getServerSession(authOptions);
-    const redirectUri = process.env.KEYCLOAK_LOGOUT_REDIRECT ? process.env.KEYCLOAK_LOGOUT_REDIRECT : '';
+    const redirectUri = process.env.NEXTAUTH_URL ? process.env.NEXTAUTH_URL : '';
     const endSessionUrl = `${process.env.KEYCLOAK_ISSUER}/realms/${process.env.KEYCLOAK_REALM}/protocol/openid-connect/logout`
     try {
         if (session) {
