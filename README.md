@@ -24,13 +24,13 @@ Some screenshots can be found in the [screenshots folder](screenshots).
 
 ## Quickstart
 
-All you need to start your first Mnestix instance is the ```compose.yml``` (or clone the repository).
-In the root folder run the following command and open http://localhost:3000 in your web browser.
+All you need to start your first Mnestix instance is the `compose.yml` (or clone the repository).
+In the root directory run the following command and open http://localhost:3000 in your web browser.
 ```shell
 docker compose up
 ```
 
-If you want to configure login credentials through AzureAD, read about [configuration](#using-azure-entra-id).
+If you want to further configure your mnestix instance, read about [configuration](#mnestix-configuration-settings).
 
 ## Getting started with developing
 
@@ -53,6 +53,8 @@ Before you begin, ensure you have the following tools installed on your system:
 4. **Docker Compose**: Docker Compose is a tool for defining and running multi-container Docker applications.
     - [Install Docker Compose](https://docs.docker.com/compose/install/)
 
+Windows users may use WSL for their docker instance.
+
 ### Run Mnestix as Complete AAS Application
 
 The easiest way to get Mnestix up and running is by using the prepared development environment.
@@ -71,12 +73,11 @@ To start all mentioned services together, run the following command:
 yarn docker:dev
 ```
 
-This will build the Mnestix Browser and start all mentioned services with a default configuration, to adapt this setup have a look at [configuration](#mnestix-configuration-settings).  
+This will build the Mnestix Browser and start all mentioned services with a default configuration, to adapt this setup have a look at [configuration](#mnestix-configuration-settings).
 The Mnestix Browser is now running on http://localhost:3000.
 
 
 ### Run Mnestix through IDE
-
 
 If you want to start the browser through your IDE separately start BaSyx and the backend with
 ```shell
@@ -101,8 +102,9 @@ You may need to set the initial URL to http://localhost:3000.
 To check what other options exist to run the Mnestix Browser, see the yarn scripts in `package.json`. Highlights are:
  - `yarn dev` to start the browser in a hot reloading dev environment.
  - `yarn prettier`, `yarn format` and `yarn lint` to apply code formatting and linting.
- - `yarn test` and `yarn test:headless` to run cypress tests.
+ - `yarn test` and `yarn test:headless` to run cypress tests locally.
  - `yarn docker:prod` will build everything with the production flag.
+ - `yarn docker:test` will run all tests in the docker environment.
  - `yarn docker:prune` will stop all docker containers, remove them from the list and prune all volumes. Start with a blank slate :)
 
 ## Docker Compose files
@@ -118,10 +120,16 @@ To check what other options exist to run the Mnestix Browser, see the yarn scrip
 
 -   **docker-compose/compose.test.yml** - override file used to configure and run end-to-end (E2E) tests using Cypress. When this file is executed, it will start the necessary services for the application and execute the Cypress tests.
     If any test fails, the results and logs will be saved in a designated directory for further analysis.
+- **docker-compose/compose.azure_ad.yml** - override file to activate authentication using Azure Entra ID.
 
 The files in the `docker-compose` directory are [override compose files](https://docs.docker.com/compose/multiple-compose-files/merge/), which must be added with the `-f <filename>` flag (Look inside the `package.json` for examples).<br>
 The services are grouped into three [compose profiles](https://docs.docker.com/compose/profiles/): `basyx`, `backend` and `frontend`.
 They can be started together without defining `--profile` or separately by adding `--profile <profilename>` to the docker command.
+One example to start the backend in dev mode with authentication:
+
+```shell
+docker compose -f compose.yml -f docker-compose/compose.dev.yml -f docker-compose/compose.azure_ad.yml --profile basyx --profile backend up
+```
 
 Additional services used by the Mnestix browser:
  - **mnestix-api** - API service from the Mnestix ecosystem designed to expand Mnestix Browser functionalities, adding AAS List, Template Builder and allowing for the configuration of custom settings such as themes and aasId generation. (**On port 5054 - http://localhost:5064/swagger/index.html#/**)
@@ -258,27 +266,29 @@ environment:
 
 > If the login functionality is going to be used you will need your own AzureAD authentication service.
 
-First set the authentication flag for the mnestix-browser inside `compose.yml`:
-```
-    environment:
-      AUTHENTICATION_FEATURE_FLAG: "true"
-```
-Then provide `AD_CLIENT_ID` and `AD_TENANT_ID` inside the `.env` file.
-The `.env` file should look like this:
+You can activate authentication with Azure Entra ID by starting the Mnestix docker container with the `-f docker-compose/compose.azure_ad.yml` flag.
+Please configure the tenant ID in both services and both client IDs for your own authentication service.
+
+#### Development mode
+
+If you want to start the Mnestix browser through your IDE you need to create and configure the `.env` file:
 
 ```plaintex
+AUTHENTICATION_FEATURE_FLAG: true
 AD_CLIENT_ID: '<<Azure client ID>>'
 AD_TENANT_ID: '<<Azure tenant ID>>'
 ```
-
-You need to restart the docker containers for these changes to take effect.
+For convenience, you can replace the hardcoded IDs inside `docker-compose/compose.azure_ad.yml` with `${AD_CLIENT_ID}` etc.
+It will be used by docker and Next.js accordingly.
 
 ### Using the Mnestix Backend
 
-To have the full functionality of the Mnestix Browser you can configure the environment variables for the mnestix-api service in the `compose.yml` file.
-It is also necessary to set `MNESTIX_BACKEND_API_KEY` in `.env` to be able to secure all Mnestix Api endpoints, except for the AasList endpoint.
+>Without specifying your own API key, Mnestix will use the default 'verySecureApiKey'!
 
-Your `.env` file should look like this:
+To have the full functionality of the Mnestix Browser you can configure the environment variables for the mnestix-api service in the `compose.yml` file.
+It is also necessary to set `MNESTIX_BACKEND_API_KEY`.
+This may be any string and acts as your password for the backend api service and the repo proxy.
+This can be done directly in the `compose.yml` or by defining the environment variable in your `.env` file:
 ```plaintex
 MNESTIX_BACKEND_API_KEY: '<<YOUR_API_KEY>>'
 ```
