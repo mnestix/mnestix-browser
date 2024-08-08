@@ -84,7 +84,8 @@
         "docker:prod": "docker compose -f docker-compose/compose.yml down && docker compose -f docker-compose/compose.yml build mnestix-browser && docker compose --env-file .env -f docker-compose/compose.yml up",
         "docker:test": "docker compose -f docker-compose/compose.test.yml down && docker compose -f docker-compose/compose.test.yml up -d && docker compose -f docker-compose/compose.test.yml logs -f cypress-test && docker compose -f docker-compose/compose.test.yml down",
         "docker:stop": "docker compose -f docker-compose/compose.test.yml kill",
-        "docker:down": "docker compose -f docker-compose/compose.test.yml down"
+        "docker:down": "docker compose -f docker-compose/compose.test.yml down",
+        "docker:keycloak": "docker compose --env-file .env -f docker-compose/compose.yml -f docker-compose/compose.keycloak.yml up -d"
     },
     "browserslist": {
         "production": [
