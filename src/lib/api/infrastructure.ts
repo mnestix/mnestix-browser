@@ -29,14 +29,13 @@ export const mnestixFetch = (): {
             if (response.status !== 401) {
                 return response;
             }
-            // If not logged in, redirect to sign-in
             return response;
         },
     };
 };
 
 export const sessionLogOut = async (keycloakEnabled: boolean) => {
-    if(!keycloakEnabled) return;
+    if (!keycloakEnabled) return;
     try {
         await fetch('/api/auth/logout', { method: 'GET' });
     } catch (err) {
