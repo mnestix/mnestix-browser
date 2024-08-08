@@ -72,15 +72,14 @@ export const authOptions: AuthOptions = {
                 return token;
             } else if (nowTimeStamp < (token.expires_at as number)) {
                 return token;
-            } else {
-                if (!keycloakEnabled) return token;
-                try {
-                    console.warn('Refreshing access token...');
-                    return await refreshAccessToken(token);
-                } catch (error) {
-                    console.error('Error refreshing access token', error);
-                    return { ...token, error: 'RefreshAccessTokenError' };
-                }
+            } 
+            if (!keycloakEnabled) return token;
+            try {
+                console.warn('Refreshing access token...');
+                return await refreshAccessToken(token);
+            } catch (error) {
+                console.error('Error refreshing access token', error);
+                return { ...token, error: 'RefreshAccessTokenError' };
             }
         },
         async session({ session, token }) {

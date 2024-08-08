@@ -39,6 +39,7 @@ services:
 
   mnestix-browser:
     environment:
+      AUTHENTICATION_FEATURE_FLAG: "true"
       KEYCLOAK_ENABLED: "true"
       KEYCLOAK_CLIENT_ID: "mnestix-browser-client-demo"
       KEYCLOAK_ISSUER: "http://keycloak:8080"
@@ -47,6 +48,7 @@ services:
 
   mnestix-api:
     environment:
+      Features__UseAuthentication: "true"
       # OpenId repository settings
       RepositoryOpenIdConnect__EnableRepositoryOpenIdAuth: "true"
       RepositoryOpenIdConnect__Authority: "http://keycloak:8080/realms/BaSyx"
