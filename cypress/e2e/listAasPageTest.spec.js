@@ -46,6 +46,7 @@ describe('Test all Aas List features (Resolution 1920 x 1080)', function () {
         cy.wait(100);
         cy.url().should('contain', '/compare');
     });
+    // TODO MNES-1161 enable test again when new mnestix api image was released
     it.skip('should filter the aas list when a product class is selected', function () {
         cy.get('[data-testid="list-row-https://mnestix.io/aas/listTest1"]').findByTestId('list-checkbox');
 
@@ -59,6 +60,7 @@ describe('Test all Aas List features (Resolution 1920 x 1080)', function () {
         cy.get('[data-testid="list-row-https://mnestix.io/aas/listTest3"]').should('not.exist');
         cy.get('[data-testid="list-row-https://mnestix.io/aas/listTest4"]').should('not.exist');
     });
+    // TODO MNES-1161 enable test again when new mnestix api image was released
     it.skip('should update the filtered aas list when another product class is selected', function () {
         cy.get('[data-testid="list-row-https://mnestix.io/aas/listTest1"]').findByTestId('list-checkbox');
 

@@ -3,7 +3,6 @@ import MainMenu from './menu/MainMenu';
 import { useAuth } from 'lib/hooks/UseAuth';
 import { useIsTablet } from 'lib/hooks/UseBreakpoints';
 import { HeaderLogo } from './HeaderLogo';
-import { useEnv } from '../app/env/provider';
 
 const Offset = styled(Box)(({ theme }) => theme.mixins.toolbar);
 
@@ -30,13 +29,12 @@ const StyledToolbar = styled(Toolbar)(() => ({
 export function Header() {
     const auth = useAuth();
     const isTablet = useIsTablet();
-    const env = useEnv();
 
     return (
         <>
             <AppBar position="fixed">
                 <StyledToolbar disableGutters className={auth.isLoggedIn && !isTablet ? 'hidden' : ''}>
-                    {env.AUTHENTICATION_FEATURE_FLAG && <MainMenu />}
+                    <MainMenu />
                     <StyledLogoWrapper
                         display="flex"
                         alignItems="center"
