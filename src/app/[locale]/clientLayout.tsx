@@ -1,4 +1,3 @@
-// Layout needs to be client-side because of the msal provider
 'use client';
 
 import { Box } from '@mui/material';
@@ -9,6 +8,8 @@ import { LayoutRoot } from 'layout/LayoutRoot';
 import { CustomThemeProvider } from 'layout/theme/CustomThemeProvider';
 import { Internationalization } from 'lib/i18n/Internationalization';
 import { ReactNode } from 'react';
+import { SessionProvider } from 'next-auth/react';
+import { EnvProvider } from 'app/env/provider';
 
 export type ClientLayoutProps = {
     children: ReactNode;
@@ -16,20 +17,24 @@ export type ClientLayoutProps = {
 
 export const ClientLayout = ({ children }: Readonly<ClientLayoutProps>) => {
     return (
-        <ApiProvider>
-            <Internationalization>
-                <CustomThemeProvider>
-                    <CurrentAasContextProvider>
-                        <NotificationContextProvider>
-                            <LayoutRoot>
-                                <Box flexGrow={1} id="root">
-                                    {children}
-                                </Box>
-                            </LayoutRoot>
-                        </NotificationContextProvider>
-                    </CurrentAasContextProvider>
-                </CustomThemeProvider>
-            </Internationalization>
-        </ApiProvider>
+        <EnvProvider>
+            <SessionProvider>
+                <ApiProvider>
+                    <Internationalization>
+                        <CustomThemeProvider>
+                            <CurrentAasContextProvider>
+                                <NotificationContextProvider>
+                                    <LayoutRoot>
+                                        <Box flexGrow={1}>
+                                            {children}
+                                        </Box>
+                                    </LayoutRoot>
+                                </NotificationContextProvider>
+                            </CurrentAasContextProvider>
+                        </CustomThemeProvider>
+                    </Internationalization>
+                </ApiProvider>
+            </SessionProvider>
+        </EnvProvider>
     );
 };

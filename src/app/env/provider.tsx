@@ -21,6 +21,7 @@ const initialValues: EnvironmentalVariables = {
     THEME_SECONDARY_COLOR: undefined,
     THEME_BASE64_LOGO: undefined,
     THEME_LOGO_URL: undefined,
+    KEYCLOAK_ENABLED: false
 };
 
 export const EnvContext = createContext(initialValues);

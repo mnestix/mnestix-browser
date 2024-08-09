@@ -1,4 +1,7 @@
 // tslint:disable
+
+import { FetchAPI } from 'lib/api/basyx-v3/api';
+
 /**
  * BaSyx Asset Administration Shell Repository HTTP REST-API
  * The full description of the generic BaSyx Asset Administration Shell Repository HTTP REST-API
@@ -11,12 +14,14 @@
  * Do not edit the file manually.
  */
 
+
 export interface ConfigurationParameters {
     apiKey?: string | ((name: string) => string);
     username?: string;
     password?: string;
     accessToken?: string | ((name: string, scopes?: string[]) => string);
     basePath?: string;
+    fetch?: FetchAPI;
 }
 
 export class Configuration {
@@ -54,6 +59,13 @@ export class Configuration {
      * @memberof Configuration
      */
     basePath?: string;
+    /**
+     * custom fetch implementation
+     *
+     * @type {FetchAPI}
+     * @memberof Configuration
+     */
+    fetch?: FetchAPI;
 
     constructor(param: ConfigurationParameters = {}) {
         this.apiKey = param.apiKey;
@@ -61,5 +73,6 @@ export class Configuration {
         this.password = param.password;
         this.accessToken = param.accessToken;
         this.basePath = param.basePath;
+        this.fetch = param.fetch;
     }
 }

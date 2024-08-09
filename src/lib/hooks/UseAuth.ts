@@ -1,47 +1,43 @@
-import { useAccount, useMsal } from '@azure/msal-react';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
-import { loginRequest } from 'authConfig';
 import { useState } from 'react';
-import { AccountInfo } from '@azure/msal-browser';
+import { signIn, signOut, useSession } from 'next-auth/react';
+import { Session } from 'next-auth';
+import { sessionLogOut } from 'lib/api/infrastructure';
 import { useEnv } from 'app/env/provider';
 
 export function useAuth(): Auth {
     const [bearerToken, setBearerToken] = useState<string>('');
-    const { instance, accounts } = useMsal();
-    const account = useAccount(accounts[0] || {});
+    const { data: session, status } = useSession()
     const env = useEnv();
-
+    
     useAsyncEffect(async () => {
-        if (account && env.APPLICATION_ID_URI) {
-            await instance.initialize();
-            const token = await instance.acquireTokenSilent({
-                scopes: [`${env.APPLICATION_ID_URI}admin.write`],
-                account: account,
-            });
-            setBearerToken('Bearer ' + token.accessToken);
+        if (session) {
+            setBearerToken('Bearer ' + session.accessToken);
         } else {
             // TODO forward to login
         }
-    }, []);
-
+    }, [session]);
+    
+    const providerType = env.KEYCLOAK_ENABLED ? 'keycloak' : 'azure-ad';
+    
     return {
         getBearerToken: (): string => {
             return bearerToken;
         },
         login: (): void => {
-            instance.loginRedirect(loginRequest).catch((e) => {
+            signIn(providerType).catch((e) => {
                 console.error(e);
             });
         },
-        logout: (): void => {
-            instance.logoutRedirect().catch((e) => {
+        logout: async (): Promise<void> => {
+            await sessionLogOut(env.KEYCLOAK_ENABLED).then(() => signOut({ callbackUrl: '/' }).catch((e) => {
                 console.error(e);
-            });
+            }));
         },
-        getAccount: (): AccountInfo | null => {
-            return account;
+        getAccount: (): Session | null => {
+            return session;
         },
-        isLoggedIn: !!account,
+        isLoggedIn: status === 'authenticated',
     };
 }
 
@@ -49,6 +45,6 @@ export interface Auth {
     getBearerToken: () => string;
     login: () => void;
     logout: () => void;
-    getAccount: () => AccountInfo | null;
+    getAccount: () => Session | null;
     isLoggedIn: boolean;
 }

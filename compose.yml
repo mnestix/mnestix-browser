@@ -55,7 +55,6 @@ services:
       BasyxDbConnectionConfiguration__MongoConnectionString: 'mongodb://mongoAdmin:mongoPassword@mongodb:27017/?authSource=admin'
       BasyxDbConnectionConfiguration__DatabaseName: basyxdb
       BasyxDbConnectionConfiguration__AasCollectionName: 'aas-repo'
-      BasyxDbConnectionConfiguration__LookupServiceCollectionName: lookupservice
       # ASP.NET Core URLs
       ASPNETCORE_URLS: 'http://+:5064'
     depends_on:

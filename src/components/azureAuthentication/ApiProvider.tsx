@@ -1,7 +1,6 @@
 ﻿'use client';
 
 import React, { PropsWithChildren } from 'react';
-import { useAccount, useMsal } from '@azure/msal-react';
 import { mnestixFetch } from 'lib/api/infrastructure';
 import { AasListClient, TemplateClient } from 'lib/api/generated-api/clients.g';
 import { useEnv } from 'app/env/provider';
@@ -14,26 +13,26 @@ import { SubmodelRegistryServiceApi } from 'lib/api/submodel-registry-service/su
 
 const ApiContext = React.createContext<Apis | null>(null);
 export const ApiProvider = (props: PropsWithChildren) => {
-    const { instance, accounts } = useMsal();
-    const account = useAccount(accounts[0] || {});
     const env = useEnv();
-    const applicationIdUri = env.APPLICATION_ID_URI ? env.APPLICATION_ID_URI : '';
     const apis = {
         templateClientWithAuth: new TemplateClient(
             env.MNESTIX_BACKEND_API_URL,
-            mnestixFetch(instance, account, applicationIdUri),
+            mnestixFetch(),
         ),
         aasListClient: new AasListClient(
             env.MNESTIX_BACKEND_API_URL,
-            mnestixFetch(instance, account, applicationIdUri),
+            mnestixFetch(),
         ),
-        configurationClient: new ConfigurationShellApi(env.MNESTIX_BACKEND_API_URL, env.AUTHENTICATION_FEATURE_FLAG),
-        repositoryClient: new AssetAdministrationShellRepositoryApi({ basePath: env.AAS_REPO_API_URL }),
+        configurationClient: new ConfigurationShellApi(
+            env.MNESTIX_BACKEND_API_URL, 
+            env.AUTHENTICATION_FEATURE_FLAG,
+            mnestixFetch()),
+        repositoryClient: new AssetAdministrationShellRepositoryApi({ basePath: env.AAS_REPO_API_URL, fetch: mnestixFetch() }),
         templatesClient: new TemplateShellApi(
             env.MNESTIX_BACKEND_API_URL ? env.MNESTIX_BACKEND_API_URL : '',
             env.AUTHENTICATION_FEATURE_FLAG,
         ),
-        submodelClient: new SubmodelRepositoryApi({ basePath: env.AAS_REPO_API_URL }),
+        submodelClient: new SubmodelRepositoryApi({ basePath: env.AAS_REPO_API_URL, fetch: mnestixFetch() }),
         discoveryServiceClient: new DiscoveryServiceApi(env.DISCOVERY_API_URL),
         registryServiceClient: new RegistryServiceApi(env.REGISTRY_API_URL),
         submodelRegistryServiceClient: new SubmodelRegistryServiceApi(env.SUBMODEL_REGISTRY_API_URL),
