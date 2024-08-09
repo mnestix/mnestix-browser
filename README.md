@@ -107,6 +107,22 @@ To check what other options exist to run the Mnestix Browser, see the yarn scrip
  - `yarn docker:test` will run all tests in the docker environment.
  - `yarn docker:prune` will stop all docker containers, remove them from the list and prune all volumes. Start with a blank slate :)
 
+## Secret environment variables
+
+You can (and should) create your personal `.env` file in the root directory.
+Simply rename `.env.example` to `.env` and enter your secrets.
+The secrets may be arbitrary strings.
+
+This `.env` file will be used automatically by docker compose and Next.js.
+
+```yaml
+AD_SECRET_VALUE: '<<YOUR_SECRET>>'
+MNESTIX_BACKEND_API_KEY: '<<YOUR_API_KEY>>'
+NEXTAUTH_SECRET: '<<YOUR_SECRET>>'
+```
+
+> ⚠️ **Important:** If you have not configured these secrets, a public secret will be used as a fallback!
+
 ## Docker Compose files
 
 -   **compose.yml** - runs Mnestix Browser in production environment. Production image will be build if not found in local Docker Image Cache.<br>
@@ -119,8 +135,15 @@ To check what other options exist to run the Mnestix Browser, see the yarn scrip
     **AAS Repo on port 8081 - http://localhost:8081/swagger-ui/index.html** <br><br>
 
 -   **docker-compose/compose.test.yml** - override file used to configure and run end-to-end (E2E) tests using Cypress. When this file is executed, it will start the necessary services for the application and execute the Cypress tests.
-    If any test fails, the results and logs will be saved in a designated directory for further analysis.
+    If any test fails, the results and logs will be saved in a designated directory for further analysis.<br><br>
+
 - **docker-compose/compose.azure_ad.yml** - override file to activate authentication using Azure Entra ID.
+  You will need to provide your own Authentication Endpoint.
+  Configuration can be found [here](#using-azure-entra-id).<br><br>
+
+- **docker-compose/compose.keycloak.yml** - override file to activate authentication using keycloak. 
+  Configuration can be found [here](#keycloak-configuration).<br>
+    **keycloak admin page - http://localhost:8080**
 
 The files in the `docker-compose` directory are [override compose files](https://docs.docker.com/compose/multiple-compose-files/merge/), which must be added with the `-f <filename>` flag (Look inside the `package.json` for examples).<br>
 The services are grouped into three [compose profiles](https://docs.docker.com/compose/profiles/): `basyx`, `backend` and `frontend`.
@@ -215,25 +238,25 @@ It is possible to change the look and feel by setting a theme color and a person
 
 Mnestix provides the following configuration options. You can adapt the values in your docker compose file.
 
-| Name                                  | Default value               | Description                                                                                                                                                                                                                        | required   |
-| ------------------------------------- |-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
-| `DISCOVERY_API_URL`                   |                             | Address of the Discovery Service to find an AAS for an Asset                                                                                                                                                                       | required   |
-| `REGISTRY_API_URL`                    |                             | Address of the AAS Registry Service to retrieve the related descriptor for an AAS                                                                                                                                                  | optional   |
-| `AAS_REPO_API_URL`                    |                             | Default AAS Repository to display when AAS Id is not in AAS Registry                                                                                                                                                               | required   |
-| `MNESTIX_BACKEND_API_URL`             |                             | Mnestix Backend with a lot of business comfort features like the Repository-Proxy or the Template builder                                                                                                                          | optional   |
-| `AAS_LIST_FEATURE_FLAG`               | false                       | Enables or disables the AasList in the frontend. This only works in combination with `Features__AllowRetrievingAllShellsAndSubmodels` being set to `true` (Needs the Mnestix Backend to work)                                      | optional   |
-| `AUTHENTICATION_FEATURE_FLAG`         | false                       | Enable or disable the authentication in the frontend. (Needs the Mnestix Backend to work)                                                                                                                                          | optional   |
-| `COMPARISON_FEATURE_FLAG`             | false                       | Enables or disables the comparison feature.                                                                                                                                                                                        | optional   |
-| `LOCK_TIMESERIES_PERIOD_FEATURE_FLAG` | false                       | Enables or disables the selection of the timerange in the TimeSeries submodel.                                                                                                                                                     | optional   |
-| `THEME_PRIMARY_COLOR`                 | Mnestix Primary Color       | Changes the primary color of Mnestix Browser, e.g. #00ff00. The following formats are supported: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla(), color()                                                                              | optional   |
-| `THEME_SECONDARY_COLOR`               | Mnestix Secondary Color     | Changes the secondary color of Mnestix Browser, e.g. #0d2. The following formats are supported: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla(), color()                                                                               | optional   |
-| `THEME_LOGO_MIME_TYPE`                |                             | Used in parsing the logo mounted `-v /path/to/logo:/app/public/logo` the mime type is needed, e.g. `image/svg+xml`, `image/png`, `image/jpg`                                                                                       | optional   |
-| `THEME_LOGO_URL`                      |                             | This variable **overwrites** the Logo in the theme, and thus the environment variable `THEME_LOGO_MIME_TYPE` will not be evaluated and it is not necessary to mount the image as specified below                                   | optional   |
-| `KEYCLOAK_ENABLED`                    | false                       | By default, it is set to false, meaning Keycloak authentication will be disabled, and the default authentication method will be Azure Entra ID. If you set this variable to true, Keycloak authentication will be enabled instead. | optional   |
-| `KEYCLOAK_CLIENT_ID`                  | mnestix-browser-client-demo | Configuration variable that specifies the client unique identifier used by your application when connecting to the Keycloak server.                                                                                                | optional   |
-| `KEYCLOAK_ISSUER`                     |                             | Configuration variable that specifies the URL of the Keycloak server's issuer endpoint. This endpoint provides the base URL for the Keycloak server that issues tokens and handles authentication requests                         | optional   |
-| `KEYCLOAK_LOCAL_URL`                  |                             | Optional configuration variable specifically used for development environments within Docker. This allows your application to connect to a Keycloak instance running in a Docker container                                         | optional   |
-| `KEYCLOAK_REALM`                      | BaSyx                       | Configuration variable that specifies the name of the Keycloak realm your application will use for authentication and authorization.                                                                                               | optional   |
+| Name                                  | Default value               | Description                                                                                                                                                                                                                        | required |
+|---------------------------------------|-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
+| `DISCOVERY_API_URL`                   |                             | Address of the Discovery Service to find an AAS for an Asset                                                                                                                                                                       | required |
+| `REGISTRY_API_URL`                    |                             | Address of the AAS Registry Service to retrieve the related descriptor for an AAS                                                                                                                                                  | optional |
+| `AAS_REPO_API_URL`                    |                             | Default AAS Repository to display when AAS Id is not in AAS Registry                                                                                                                                                               | required |
+| `MNESTIX_BACKEND_API_URL`             |                             | Mnestix Backend with a lot of business comfort features like the Repository-Proxy or the Template builder                                                                                                                          | optional |
+| `AAS_LIST_FEATURE_FLAG`               | false                       | Enables or disables the AasList in the frontend. This only works in combination with `Features__AllowRetrievingAllShellsAndSubmodels` being set to `true` (Needs the Mnestix Backend to work)                                      | optional |
+| `AUTHENTICATION_FEATURE_FLAG`         | false                       | Enable or disable the authentication in the frontend. (Needs the Mnestix Backend to work)                                                                                                                                          | optional |
+| `COMPARISON_FEATURE_FLAG`             | false                       | Enables or disables the comparison feature.                                                                                                                                                                                        | optional |
+| `LOCK_TIMESERIES_PERIOD_FEATURE_FLAG` | false                       | Enables or disables the selection of the timerange in the TimeSeries submodel.                                                                                                                                                     | optional |
+| `THEME_PRIMARY_COLOR`                 | Mnestix Primary Color       | Changes the primary color of Mnestix Browser, e.g. #00ff00. The following formats are supported: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla(), color()                                                                              | optional |
+| `THEME_SECONDARY_COLOR`               | Mnestix Secondary Color     | Changes the secondary color of Mnestix Browser, e.g. #0d2. The following formats are supported: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla(), color()                                                                               | optional |
+| `THEME_LOGO_MIME_TYPE`                |                             | Used in parsing the logo mounted `-v /path/to/logo:/app/public/logo` the mime type is needed, e.g. `image/svg+xml`, `image/png`, `image/jpg`                                                                                       | optional |
+| `THEME_LOGO_URL`                      |                             | This variable **overwrites** the Logo in the theme, and thus the environment variable `THEME_LOGO_MIME_TYPE` will not be evaluated and it is not necessary to mount the image as specified below                                   | optional |
+| `KEYCLOAK_ENABLED`                    | false                       | By default, it is set to false, meaning Keycloak authentication will be disabled, and the default authentication method will be Azure Entra ID. If you set this variable to true, Keycloak authentication will be enabled instead. | optional |
+| `KEYCLOAK_CLIENT_ID`                  | mnestix-browser-client-demo | Configuration variable that specifies the client unique identifier used by your application when connecting to the Keycloak server.                                                                                                | optional |
+| `KEYCLOAK_ISSUER`                     |                             | Configuration variable that specifies the URL of the Keycloak server's issuer endpoint. This endpoint provides the base URL for the Keycloak server that issues tokens and handles authentication requests                         | optional |
+| `KEYCLOAK_LOCAL_URL`                  |                             | Optional configuration variable specifically used for development environments within Docker. This allows your application to connect to a Keycloak instance running in a Docker container                                         | optional |
+| `KEYCLOAK_REALM`                      | BaSyx                       | Configuration variable that specifies the name of the Keycloak realm your application will use for authentication and authorization.                                                                                               | optional |
 
 ### How to set a custom logo
 
@@ -271,26 +294,24 @@ environment:
 
 ### Using Azure Entra ID
 
-> If the login functionality is going to be used you will need your own AzureAD authentication service.
+> **You will need your own AzureAD authentication service!**
 
-> **Note:** If the login functionality is going to be used, then apart from setting the authentication flag to `true`, `AD_CLIENT_ID`, `AD_TENANT_ID`, `APPLICATION_ID_URI` and `AD_SECRET_VALUE` should be set. Please use `.env` for specifying your sensitive configuration secrets.
 You can activate authentication with Azure Entra ID by starting the Mnestix docker container with the `-f docker-compose/compose.azure_ad.yml` flag.
-Please configure the tenant ID in both services and both client IDs for your own authentication service.
+Please configure the tenant ID in both services and both client IDs for your own authentication service in this file.
 
-#### Development mode
-
-If you want to start the Mnestix browser through your IDE you need to create and configure the `.env` file:
-
-```plaintex
+Use the .env file to configure your sensitive information:
+```yaml
 AD_SECRET_VALUE: '<<YOUR_SECRET>>'
-MNESTIX_BACKEND_API_KEY: '<<YOUR_API_KEY>>'
-NEXTAUTH_SECRET: '<<YOUR_SECRET>>'
 ```
 
 **Note (Mnestix version 1.1.0 and above):** With NextAuth, authentication now happens server-side. You'll need an Azure Secret `AD_SECRET_VALUE` for secure server-side communication, unlike the previous client-side SPA setup.
 
-For convenience, you can replace the hardcoded IDs inside `docker-compose/compose.azure_ad.yml` with `${AD_CLIENT_ID}` etc.
-It will be used by docker and Next.js accordingly.
+> ⚠️ **Important:** Ensure that you update any confidential variables from their default values before deploying to a production environment.
+
+#### Development
+
+If you want to start the browser with Next.js and Azure authentication directly, take a look at the `.env.local` file and update the environment variables mentioned above in there.
+Notably, the following flags must be set `AUTHENTICATION_FEATURE_FLAG: true` and `KEYCLOAK_ENABLED: false`.
 
 ### Using the Mnestix Backend
 
@@ -300,7 +321,7 @@ To have the full functionality of the Mnestix Browser you can configure the envi
 It is also necessary to set `MNESTIX_BACKEND_API_KEY`.
 This may be any string and acts as your password for the backend api service and the repo proxy.
 This can be done directly in the `compose.yml` or by defining the environment variable in your `.env` file:
-```plaintex
+```yaml
 MNESTIX_BACKEND_API_KEY: '<<YOUR_API_KEY>>'
 ```
 
@@ -544,7 +565,7 @@ This change aims to prevent server overload and ensure smoother navigation throu
 To start Mnestix along with Keycloak as the authorization server, use one of the following commands:
 
 ```sh
-docker compose --env-file .env -f docker-compose/compose.yml -f docker-compose/compose.keycloak.yml up -d
+docker compose -f compose.yml -f docker-compose/compose.keycloak.yml up -d
 ```
 
 or, alternatively:
