@@ -12,6 +12,11 @@ services:
       - ./src:/app/src
       - ./public:/app/public
 #      - ./data/logo.svg:/app/public/logo
+  
+  mnestix-api:
+    environment:
+      OpenId__RequireHttpsMetadata: "false"
+      RepositoryOpenIdConnect__ValidateIssuer: "false"
 
   mongodb:
     ports:
