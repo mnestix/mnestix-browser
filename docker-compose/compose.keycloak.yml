@@ -2,10 +2,10 @@
 services:
   keycloak:
     build:
-      context: ./data/keycloak
+      context: ./docker-compose/data/keycloak
     container_name: keycloak
     volumes:
-      - ./data/keycloak/realm:/opt/jboss/keycloak/imports
+      - ./docker-compose/data/keycloak/realm:/opt/jboss/keycloak/imports
     ports:
       - 8080:8080
     environment:
@@ -26,7 +26,7 @@ services:
     networks:
       - mnestix-network
 
-  aas:
+  aas-environment:
     environment:
       # Authorization
       basyx.feature.authorization.enabled: "true"
@@ -35,11 +35,12 @@ services:
       basyx.feature.authorization.rbac.file: file:/data/rbac_rules.json
       spring.security.oauth2.resourceserver.jwt.issuer-uri: http://keycloak:8080/realms/BaSyx
     volumes:
-      - ./data/keycloak/rbac_rules.json:/data/rbac_rules.json:ro
+      - ./docker-compose/data/keycloak/rbac_rules.json:/data/rbac_rules.json:ro
 
   mnestix-browser:
     environment:
       AUTHENTICATION_FEATURE_FLAG: "true"
+      NEXTAUTH_URL: "http://localhost:3000"
       KEYCLOAK_ENABLED: "true"
       KEYCLOAK_CLIENT_ID: "mnestix-browser-client-demo"
       KEYCLOAK_ISSUER: "http://keycloak:8080"
