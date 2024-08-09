@@ -1,17 +1,45 @@
+networks:
+  mnestix-network:
+    driver: bridge
+    name: mnestix-network
+
 services:
+  mnestix-browser:
+    container_name: mnestix-browser
+    image: mnestix/mnestix-browser:latest
+    profiles: ["", "frontend", "tests"]
+    build:
+      dockerfile: Dockerfile
+      target: production
+    ports:
+      - '3000:3000'
+    environment:
+      REGISTRY_API_URL: 'https://localhost:8083/' # 'https://registry.dpp40-2-v2.industrialdigitaltwin.org/'
+      SUBMODEL_REGISTRY_API_URL: 'http://localhost:8084'
+      DISCOVERY_API_URL: 'http://localhost:5064/discovery'
+      AAS_REPO_API_URL: 'http://localhost:5064/repo'
+      MNESTIX_BACKEND_API_URL: 'http://localhost:5064'
+      AAS_LIST_FEATURE_FLAG: "true"
+      COMPARISON_FEATURE_FLAG: "true"
+      AUTHENTICATION_FEATURE_FLAG: "false"
+      LOCK_TIMESERIES_PERIOD_FEATURE_FLAG: "true"
+    depends_on:
+      aas-environment:
+        condition: service_healthy # only after the healthcheck in aas is successful, the mnestix container is being created
+    networks:
+      - mnestix-network
+
   mnestix-api:
     image: mnestix/mnestix-api:latest
     container_name: mnestix-api
-    # Port Mapping
-    # Map host port 5064 to container port 5064
+    profiles: ["", "backend", "tests"]
     ports:
       - '5064:5064'
     environment:
-      # Application Settings
-      # API Key:
-      CustomerEndpointsSecurity__ApiKey: ${MNESTIX_BACKEND_API_KEY}
+      # API key authorization
+      CustomerEndpointsSecurity__ApiKey: ${MNESTIX_BACKEND_API_KEY:-verySecureApiKey}
       # Connection to Repository Service:
-      ReverseProxy__Clusters__repoCluster__Destinations__destination1__Address: 'http://aas:8081/'
+      ReverseProxy__Clusters__repoCluster__Destinations__destination1__Address: 'http://aas-environment:8081/'
       ReverseProxy__Clusters__discoveryCluster__Destinations__destination1__Address: 'http://aas-discovery:8081/'
       # Features Configuration
       Features__AasRegistryMiddleware: "true"
@@ -27,25 +55,23 @@ services:
       BasyxDbConnectionConfiguration__MongoConnectionString: 'mongodb://mongoAdmin:mongoPassword@mongodb:27017/?authSource=admin'
       BasyxDbConnectionConfiguration__DatabaseName: basyxdb
       BasyxDbConnectionConfiguration__AasCollectionName: 'aas-repo'
-      # Microsoft Authentication and Authorization Configuration (Backend):
-      AzureAd__Domain: 'mnestixtest.onmicrosoft.com'
-      AzureAd__TenantId: 6c4ccecf-2dd4-4241-b7fc-6e95b32dcfac
-      AzureAd__ClientId: ffade4c2-76c8-44fd-9258-743d9cfc2289
       # ASP.NET Core URLs
       ASPNETCORE_URLS: 'http://+:5064'
     depends_on:
-      aas:
+      aas-environment:
         condition: service_healthy # only after the healthcheck in aas is successful, the mnestix container is being created
     logging:
       driver: 'json-file'
       options:
         max-file: '5'
         max-size: '100m'
+    networks:
+      - mnestix-network
 
   mongodb:
     image: mongo:5
     container_name: mongodb
-    # Provide mongo config
+    profiles: ["", "basyx", "tests"]
     environment:
       MONGO_INITDB_ROOT_USERNAME: mongoAdmin
       MONGO_INITDB_ROOT_PASSWORD: mongoPassword
@@ -60,10 +86,13 @@ services:
       options:
         max-file: '5'
         max-size: '100m'
+    networks:
+      - mnestix-network
 
-  aas:
+  aas-environment:
     image: eclipsebasyx/aas-environment:2.0.0-SNAPSHOT
-    container_name: aas
+    container_name: aas-environment
+    profiles: ["", "basyx", "tests"]
     depends_on:
       - mongodb
     environment:
@@ -89,12 +118,13 @@ services:
       options:
         max-file: '5'
         max-size: '100m'
+    networks:
+      - mnestix-network
 
   aas-discovery:
     image: eclipsebasyx/aas-discovery:2.0.0-SNAPSHOT
     container_name: aas-discovery
-    ports:
-      - '8082:8081'
+    profiles: ["", "basyx", "tests"]
     depends_on:
       - mongodb
     environment:
@@ -116,15 +146,17 @@ services:
       options:
         max-file: '5'
         max-size: '100m'
+    networks:
+      - mnestix-network
 
-  aas-registry-log-mongodb:
+  aas-registry:
     image: eclipsebasyx/aas-registry-log-mongodb:2.0.0-SNAPSHOT
-    container_name: aas-registry-mongo
+    container_name: aas-registry
+    profiles: ["", "basyx"]
     ports:
       - '8083:8080'
     depends_on:
       - mongodb
-    restart: always
     environment:
       SPRING_DATA_MONGODB_URI: mongodb://mongoAdmin:mongoPassword@mongodb:27017/?authSource=admin
       BASYX__CORS__ALLOWED-ORIGINS: '*'
@@ -134,15 +166,17 @@ services:
       interval: 30s
       timeout: 10s
       retries: 6
+    networks:
+      - mnestix-network
 
-  submodel-registry-log-mongodb:
+  submodel-registry:
     image: eclipsebasyx/submodel-registry-log-mongodb:2.0.0-SNAPSHOT
-    container_name: submodel-registry-mongo
+    container_name: submodel-registry
+    profiles: ["", "basyx"]
     ports:
       - '8084:8080'
     depends_on:
       - mongodb
-    restart: always
     environment:
       SPRING_DATA_MONGODB_URI: mongodb://mongoAdmin:mongoPassword@mongodb:27017/?authSource=admin
       BASYX__CORS__ALLOWED-ORIGINS: '*'
@@ -152,3 +186,5 @@ services:
       interval: 30s
       timeout: 10s
       retries: 6
+    networks:
+      - mnestix-network
