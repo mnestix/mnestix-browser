@@ -1,12 +1,8 @@
-networks:
-  mnestix-network:
-    driver: bridge
-
 services:
   cypress-test:
     container_name: cypress-test
+    profiles: ["", "tests"]
     build:
-      context: ../.
       dockerfile: cypress.dockerfile
     environment:
       CYPRESS_BASE_URL: 'http://mnestix-browser:3000'
@@ -15,50 +11,17 @@ services:
       CYPRESS_AAS_DISCOVERY_API_URL: 'http://mnestix-api:5064/discovery'
       ELECTRON_ENABLE_LOGGING: 1
     volumes:
-      - ../cypress-artifacts/screenshots:/cypress_Tests/cypress/screenshots
-      - ../cypress-artifacts/videos:/cypress_Tests/cypress/videos
+      - ./cypress-artifacts/screenshots:/cypress_Tests/cypress/screenshots
+      - ./cypress-artifacts/videos:/cypress_Tests/cypress/videos
     depends_on:
       - mnestix-browser
       - mnestix-api
-      - aas
+      - aas-environment
     networks:
       - mnestix-network
 
   mnestix-browser:
-    extends:
-      file: compose.yml
-      service: mnestix-browser
     environment:
       AAS_REPO_API_URL: 'http://mnestix-api:5064/repo'
       DISCOVERY_API_URL: 'http://mnestix-api:5064/discovery'
       MNESTIX_BACKEND_API_URL: 'http://mnestix-api:5064'
-    networks:
-      - mnestix-network
-
-  mnestix-api:
-    extends:
-      file: common-services.yml
-      service: mnestix-api
-    networks:
-      - mnestix-network
-
-  mongodb:
-    extends:
-      file: common-services.yml
-      service: mongodb
-    networks:
-      - mnestix-network
-
-  aas:
-    extends:
-      file: common-services.yml
-      service: aas
-    networks:
-      - mnestix-network
-
-  aas-discovery:
-    extends:
-      file: common-services.yml
-      service: aas-discovery
-    networks:
-      - mnestix-network
