@@ -1,89 +1,26 @@
-networks:
-  mnestix-network:
-    driver: bridge
-    name: mnestix-network
-
 services:
   mnestix-browser:
     container_name: mnestix-browser
+    image: !reset null
     build:
-      context: ../.
-      dockerfile: Dockerfile
       target: dev
     environment:
-      REGISTRY_API_URL: 'https://registry.dpp40-2-v2.industrialdigitaltwin.org/'
-      SUBMODEL_REGISTRY_API_URL: 'http://localhost:8084'
-      DISCOVERY_API_URL: 'http://mnestix-api:5064/discovery'
-      AAS_REPO_API_URL: 'http://localhost:5064/repo'
-      MNESTIX_BACKEND_API_URL: 'http://localhost:5064'
-      AD_CLIENT_ID: ${AD_CLIENT_ID}
-      AD_TENANT_ID: ${AD_TENANT_ID}
-      APPLICATION_ID_URI: 'api://mnestix-test-web-api/'
-      AAS_LIST_FEATURE_FLAG: "true"
-      COMPARISON_FEATURE_FLAG: "true"
-      AUTHENTICATION_FEATURE_FLAG: "true"
-      LOCK_TIMESERIES_PERIOD_FEATURE_FLAG: "true"
       THEME_PRIMARY_COLOR: '#005962'
-      THEME_SECONDARY_COLOR: '#000000'
+      THEME_SECONDARY_COLOR: '#147f8a'
       THEME_LOGO_URL: ''
-
     volumes:
-      - ../src:/app/src
-      - ../public:/app/public
-    #      - ./data/logo.svg:/app/public/logo
-    restart: always
-    ports:
-      - '3000:3000'
-    networks:
-      - mnestix-network
-    depends_on:
-      aas:
-        condition: service_healthy # only after the healthcheck in aas is successful, the mnestix container is being created
-
-  mnestix-api:
-    extends:
-      file: common-services.yml
-      service: mnestix-api
-    networks:
-      - mnestix-network
+      - ./src:/app/src
+      - ./public:/app/public
+#      - ./data/logo.svg:/app/public/logo
 
   mongodb:
     ports:
       - '27017:27017'
-    extends:
-      file: common-services.yml
-      service: mongodb
 
-    networks:
-      - mnestix-network
-
-  aas:
+  aas-environment:
     ports:
       - '8081:8081'
-    extends:
-      file: common-services.yml
-      service: aas
-
-    networks:
-      - mnestix-network
-
+        
   aas-discovery:
-    extends:
-      file: common-services.yml
-      service: aas-discovery
-    networks:
-      - mnestix-network
-
-  aas-registry:
-    extends:
-      file: common-services.yml
-      service: aas-registry-log-mongodb
-    networks:
-      - mnestix-network
-
-  submodel-registry:
-    extends:
-      file: common-services.yml
-      service: submodel-registry-log-mongodb
-    networks:
-      - mnestix-network
+    ports:
+      - '8082:8081'
