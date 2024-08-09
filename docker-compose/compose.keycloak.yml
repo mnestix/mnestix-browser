@@ -56,13 +56,13 @@ services:
       RepositoryOpenIdConnect__DiscoveryEndpoint: ".well-known/openid-configuration"
       RepositoryOpenIdConnect__ClientId: "mnestix-repo-client-demo"
       RepositoryOpenIdConnect__ClientSecret: "WLOB68nSllHTlr7ViUOZWWxildWFT2nN"
-      RepositoryOpenIdConnect__ValidateIssuer: "true"
+      RepositoryOpenIdConnect__ValidateIssuer: "false"
       RepositoryOpenIdConnect__TokenEndpoint: "http://keycloak:8080/realms/BaSyx/protocol/openid-connect/token"
       # OpenID Configuration
       OpenId__EnableOpenIdAuth: "true"
       OpenId__Issuer: "http://keycloak:8080/realms/BaSyx"
       OpenId__ClientID: "mnestixApi-demo"
-      OpenId__RequireHttpsMetadata: "true"
+      OpenId__RequireHttpsMetadata: "false"
     depends_on:
       keycloak:
         condition: service_healthy
