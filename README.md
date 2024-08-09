@@ -573,6 +573,10 @@ A test user is preconfigured with the following credentials allowing login to Mn
 - **Local Development:** This variable should be left empty when running Mnestix in a local browser environment.
 - **Docker Environment:** When running in a Docker environment, set this variable to `localhost:8080` to enable user credential input. In Docker, the token, user info, and other endpoints will function correctly within the Docker network.
 
+`NEXTAUTH_URL`: Required variable to configure redirect URL for NextAuth.
+
+`NEXTAUTH_SECRET`: Required variable used to encrypt the NextAuth.js JWT, and to hash email verification tokens.
+
 > ⚠️ **Important:** Ensure that you update any confidential variables from their default values before deploying to a production environment.
 
 
