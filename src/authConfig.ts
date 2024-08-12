@@ -35,7 +35,7 @@ export const authOptions: AuthOptions = {
         ...(keycloakEnabled
             ? [
                   KeycloakProvider({
-                      clientId: process.env.KEYCLOAK_CLIENT_ID ? process.env.KEYCLOAK_CLIENT_ID : '',
+                      clientId: process.env.KEYCLOAK_CLIENT_ID ?? '',
                       clientSecret: '-', // not required by the AuthFlow but required by NextAuth Provider, here placeholder only
                       issuer: `${keycloakIssuer}/realms/${realm}`,
                       authorization: {
@@ -73,7 +73,9 @@ export const authOptions: AuthOptions = {
             } else if (nowTimeStamp < (token.expires_at as number)) {
                 return token;
             } 
+
             if (!keycloakEnabled) return token;
+
             try {
                 console.warn('Refreshing access token...');
                 return await refreshAccessToken(token);
