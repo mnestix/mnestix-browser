@@ -33,7 +33,7 @@ services:
       basyx.feature.authorization.type: rbac
       basyx.feature.authorization.jwtBearerTokenProvider: keycloak
       basyx.feature.authorization.rbac.file: file:/data/rbac_rules.json
-      spring.security.oauth2.resourceserver.jwt.issuer-uri: http://keycloak:8080/realms/BaSyx
+      spring.security.oauth2.resourceserver.jwt.issuer-uri: ${AZURE_KEYCLOAK_ISSUER:-http://keycloak:8080/realms/BaSyx}
     volumes:
       - ./docker-compose/data/keycloak/rbac_rules.json:/data/rbac_rules.json:ro
 
@@ -43,24 +43,24 @@ services:
       NEXTAUTH_URL: "http://localhost:3000"
       KEYCLOAK_ENABLED: "true"
       KEYCLOAK_CLIENT_ID: "mnestix-browser-client-demo"
-      KEYCLOAK_ISSUER: "http://keycloak:8080"
-      KEYCLOAK_LOCAL_URL: "http://localhost:8080"
-      KEYCLOAK_REALM: "BaSyx"
+      KEYCLOAK_ISSUER: ${AZURE_KEYCLOAK_URL:-http://keycloak:8080}
+      KEYCLOAK_LOCAL_URL: ""
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM:-BaSyx}
 
   mnestix-api:
     environment:
       Features__UseAuthentication: "true"
       # OpenId repository settings
       RepositoryOpenIdConnect__EnableRepositoryOpenIdAuth: "true"
-      RepositoryOpenIdConnect__Authority: "http://keycloak:8080/realms/BaSyx"
+      RepositoryOpenIdConnect__Authority: ${AZURE_KEYCLOAK_ISSUER:-http://keycloak:8080/realms/BaSyx}
       RepositoryOpenIdConnect__DiscoveryEndpoint: ".well-known/openid-configuration"
       RepositoryOpenIdConnect__ClientId: "mnestix-repo-client-demo"
-      RepositoryOpenIdConnect__ClientSecret: "WLOB68nSllHTlr7ViUOZWWxildWFT2nN"
-      RepositoryOpenIdConnect__ValidateIssuer: "false"
-      RepositoryOpenIdConnect__TokenEndpoint: "http://keycloak:8080/realms/BaSyx/protocol/openid-connect/token"
+      RepositoryOpenIdConnect__ClientSecret: ${REPOSITORY_API_CLIENT_SECRET:-WLOB68nSllHTlr7ViUOZWWxildWFT2nN}
+      RepositoryOpenIdConnect__ValidateIssuer: "true"
+      RepositoryOpenIdConnect__TokenEndpoint: ""
       # OpenID Configuration
       OpenId__EnableOpenIdAuth: "true"
-      OpenId__Issuer: "http://keycloak:8080/realms/BaSyx"
+      OpenId__Issuer: ${AZURE_KEYCLOAK_ISSUER:-http://keycloak:8080/realms/BaSyx}
       OpenId__ClientID: "mnestixApi-demo"
       OpenId__RequireHttpsMetadata: "false"
     depends_on:
