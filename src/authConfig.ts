@@ -26,7 +26,7 @@ const isEmptyOrWhiteSpace = (input: string | undefined) => {
 const keycloakEnabled = (process.env.KEYCLOAK_ENABLED || 'false').toLowerCase() === 'true'.toLowerCase();
 const keycloakLocalUrl = process.env.KEYCLOAK_LOCAL_URL;
 const keycloakIssuer = process.env.KEYCLOAK_ISSUER;
-const serverUrlFromConfig = isEmptyOrWhiteSpace(keycloakLocalUrl) ? keycloakLocalUrl : keycloakIssuer;
+const serverUrlFromConfig = isEmptyOrWhiteSpace(keycloakLocalUrl) ? keycloakIssuer : keycloakLocalUrl;
 const realm = process.env.KEYCLOAK_REALM;
 const requestedResource = process.env.APPLICATION_ID_URI?.endsWith('/') ? process.env.APPLICATION_ID_URI : `${process.env.APPLICATION_ID_URI}/`;
 
