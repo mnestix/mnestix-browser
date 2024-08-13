@@ -106,6 +106,7 @@ To check what other options exist to run the Mnestix Browser, see the yarn scrip
  - `yarn docker:prod` will build everything with the production flag.
  - `yarn docker:test` will run all tests in the docker environment.
  - `yarn docker:prune` will stop all docker containers, remove them from the list and prune all volumes. Start with a blank slate :)
+  - `yarn docker:keycloak` will setup a local keycloak instance and start Mnestix with keycloak support enabled
 
 ## Secret environment variables
 
@@ -254,7 +255,7 @@ Mnestix provides the following configuration options. You can adapt the values i
 | `THEME_LOGO_URL`                      |                             | This variable **overwrites** the Logo in the theme, and thus the environment variable `THEME_LOGO_MIME_TYPE` will not be evaluated and it is not necessary to mount the image as specified below                                   | optional |
 | `KEYCLOAK_ENABLED`                    | false                       | By default, it is set to false, meaning Keycloak authentication will be disabled, and the default authentication method will be Azure Entra ID. If you set this variable to true, Keycloak authentication will be enabled instead. | optional |
 | `KEYCLOAK_CLIENT_ID`                  | mnestix-browser-client-demo | Configuration variable that specifies the client unique identifier used by your application when connecting to the Keycloak server.                                                                                                | optional |
-| `KEYCLOAK_ISSUER`                     |                             | Configuration variable that specifies the URL of the Keycloak server's issuer endpoint. This endpoint provides the base URL for the Keycloak server that issues tokens and handles authentication requests                         | optional |
+| `KEYCLOAK_ISSUER`                     |                             | Configuration variable that specifies the URL of the Keycloak servers issuer endpoint. This endpoint provides the base URL for the Keycloak server that issues tokens and handles authentication requests                         | optional |
 | `KEYCLOAK_LOCAL_URL`                  |                             | Optional configuration variable specifically used for development environments within Docker. This allows your application to connect to a Keycloak instance running in a Docker container                                         | optional |
 | `KEYCLOAK_REALM`                      | BaSyx                       | Configuration variable that specifies the name of the Keycloak realm your application will use for authentication and authorization.                                                                                               | optional |
 
@@ -565,7 +566,7 @@ This change aims to prevent server overload and ensure smoother navigation throu
 To start Mnestix along with Keycloak as the authorization server, use one of the following commands:
 
 ```sh
-docker compose -f compose.yml -f docker-compose/compose.keycloak.yml up -d
+docker compose -f compose.yml -f docker-compose/compose.dev.yml -f docker-compose/compose.keycloak.yml up -d
 ```
 
 or, alternatively:
