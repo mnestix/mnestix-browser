@@ -44,7 +44,7 @@ services:
       KEYCLOAK_ENABLED: "true"
       KEYCLOAK_CLIENT_ID: "mnestix-browser-client-demo"
       KEYCLOAK_ISSUER: ${AZURE_KEYCLOAK_URL:-http://keycloak:8080}
-      KEYCLOAK_LOCAL_URL: ""
+      KEYCLOAK_LOCAL_URL: "http://localhost:8080"
       KEYCLOAK_REALM: ${KEYCLOAK_REALM:-BaSyx}
 
   mnestix-api:
@@ -56,8 +56,8 @@ services:
       RepositoryOpenIdConnect__DiscoveryEndpoint: ".well-known/openid-configuration"
       RepositoryOpenIdConnect__ClientId: "mnestix-repo-client-demo"
       RepositoryOpenIdConnect__ClientSecret: ${REPOSITORY_API_CLIENT_SECRET:-WLOB68nSllHTlr7ViUOZWWxildWFT2nN}
-      RepositoryOpenIdConnect__ValidateIssuer: "true"
-      RepositoryOpenIdConnect__TokenEndpoint: ""
+      RepositoryOpenIdConnect__ValidateIssuer: "false"
+      RepositoryOpenIdConnect__TokenEndpoint: "http://keycloak:8080/realms/BaSyx/protocol/openid-connect/token"
       # OpenID Configuration
       OpenId__EnableOpenIdAuth: "true"
       OpenId__Issuer: ${AZURE_KEYCLOAK_ISSUER:-http://keycloak:8080/realms/BaSyx}
