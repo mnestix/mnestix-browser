@@ -1,4 +1,3 @@
-
 services:
   mnestix-browser:
     environment:
