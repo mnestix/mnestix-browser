@@ -45,10 +45,16 @@ jobs:
           username: ${{ env.REGISTRY_USER }}
           password: ${{ env.REGISTRY_PASS }}
 
+      - name: check docker status
+        run: docker images && echo -e "\n -----------------------------------------------------------\n" && docker ps
+
       # Build Docker image
       - name: Build image
         id: build
         run: docker compose build mnestix-browser
+
+      - name: check docker status
+        run: docker images && echo -e "\n -----------------------------------------------------------\n" && docker ps
 
       - name: E2E test
         id: test
@@ -56,6 +62,9 @@ jobs:
           docker compose -f compose.yml -f docker-compose/compose.test.yml --profile tests down &&
           docker compose -f compose.yml -f docker-compose/compose.test.yml --profile tests up -d &&
           docker compose -f compose.yml -f docker-compose/compose.test.yml attach cypress-test
+
+      - name: check docker status
+        run: docker images && echo -e "\n -----------------------------------------------------------\n" && docker ps
 
       - name: E2E test collect artifact
         id: test_artifact
