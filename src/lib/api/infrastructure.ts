@@ -1,4 +1,4 @@
-﻿import { AccountInfo, IPublicClientApplication } from '@azure/msal-browser';
+﻿import { getSession } from 'next-auth/react';
 
 const initializeRequestOptions = async (bearerToken: string, init?: RequestInit) => {
     init = init || {};
@@ -10,36 +10,35 @@ const initializeRequestOptions = async (bearerToken: string, init?: RequestInit)
     return init;
 };
 
-const getBearerToken = async (instance: IPublicClientApplication, account: AccountInfo | null, applicationIdUri: string) => {
-    if (account) {
-        const authenticationResult = await instance.acquireTokenSilent({
-            scopes: [`${applicationIdUri}admin.write`],
-            account: account,
-        });
-        return authenticationResult.accessToken;
+const getBearerToken = async () => {
+    const session = await getSession();
+    if (session && session.accessToken) {
+        return session.accessToken;
+    } else {
+        return '';
     }
-
-    // TODO: handle if not logged in
-    return '';
 };
 
-export const mnestixFetch = (instance: IPublicClientApplication, account: AccountInfo | null, applicationIdUri: string): {
+export const mnestixFetch = (): {
     fetch(url: RequestInfo, init?: (RequestInit | undefined)): Promise<Response>
 } | undefined => {
     return {
         fetch: async (url: RequestInfo, init?: RequestInit) => {
-            const response = await fetch(
-                url,
-                await initializeRequestOptions(await getBearerToken(instance, account, applicationIdUri), init),
-            );
+            const response = await fetch(url, await initializeRequestOptions(await getBearerToken(), init));
 
             if (response.status !== 401) {
                 return response;
             }
-            // Todo route to login page
-            // await redirectToLoginPage();
-
             return response;
         },
     };
 };
+
+export const sessionLogOut = async (keycloakEnabled: boolean) => {
+    if (!keycloakEnabled) return;
+    try {
+        await fetch('/api/auth/logout', { method: 'GET' });
+    } catch (err) {
+        console.error(err);
+    }
+}

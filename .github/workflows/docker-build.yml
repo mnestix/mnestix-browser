@@ -2,24 +2,24 @@ name: Docker
 
 on:
   push:
-    branches: [ "**" ]
-    tags: [ 'v*.*.*' ]
+    branches: ['**']
+    tags: ['v*.*.*']
   pull_request:
-    branches: [ "**" ]
+    branches: ['**']
 
 env:
   # github.repository as <account>/<repo>
   IMAGE_NAME: mnestix-browser
   IMAGE_TAG: latest
   # Update the version manually
-  IMAGE_TAG_VERSION: 1.0.0
-  AD_CLIENT_ID:  ${{ secrets.AD_CLIENT_ID }}
-  AD_TENANT_ID:  ${{ secrets.AD_TENANT_ID }}
+  IMAGE_TAG_VERSION: 1.1.0
+  AD_CLIENT_ID: ${{ secrets.AD_CLIENT_ID }}
+  AD_TENANT_ID: ${{ secrets.AD_TENANT_ID }}
   REGISTRY_USER: ${{ vars.REGISTRY_USER }}
   REGISTRY_PASS: ${{ secrets.REGISTRY_PASS }}
   AZURE_REGISTRY_PASS: ${{ secrets.AZURE_REGISTRY_PASS }}
   AZURE_REGISTRY_USER: ${{ vars.AZURE_REGISTRY_USER }}
-  
+
 jobs:
   default:
     name: build, test and push image
@@ -27,15 +27,15 @@ jobs:
     permissions:
       contents: read
       packages: write
-    
-    steps:    
+
+    steps:
       - name: Extract branch name
         id: extract_branch
         run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
 
       - name: Checkout repository
         uses: actions/checkout@v4
-        
+
       # Login against a Docker registry except on PR
       # https://github.com/docker/login-action
       - name: Log into docker hub
@@ -44,33 +44,34 @@ jobs:
         with:
           username: ${{ env.REGISTRY_USER }}
           password: ${{ env.REGISTRY_PASS }}
-      
+
       # Build Docker image
       - name: Build image
         id: build
-        run: docker compose -f docker-compose/compose.yml build mnestix-frontend
-        
+        run: docker compose build mnestix-browser
+
       - name: E2E test
-        id: test        
-        run: docker compose -f docker-compose/common-services.yml pull &&
-             docker compose -f docker-compose/compose.test.yml down &&
-             docker compose -f docker-compose/compose.test.yml up -d &&
-             docker compose -f docker-compose/compose.test.yml attach cypress-test
-        
+        id: test
+        run: docker compose -f compose.yml -f docker-compose/compose.test.yml --profile tests pull &&
+          docker compose -f compose.yml -f docker-compose/compose.test.yml --profile tests down &&
+          docker compose -f compose.yml -f docker-compose/compose.test.yml --profile tests up -d &&
+          docker compose -f compose.yml -f docker-compose/compose.test.yml attach cypress-test
+
       - name: E2E test collect artifact
         id: test_artifact
+        if: always()
         uses: actions/upload-artifact@master
-        with: 
+        with:
           name: cypress-artifacts
           path: cypress-artifacts/
-      
+
       - name: Push Image to Production
         id: push-prod
         if: github.ref == 'refs/heads/main'
         run: docker tag mnestix/$IMAGE_NAME mnestix/$IMAGE_NAME:$IMAGE_TAG &&
-             docker tag mnestix/$IMAGE_NAME mnestix/$IMAGE_NAME:$IMAGE_TAG_VERSION &&
-             docker push mnestix/$IMAGE_NAME:$IMAGE_TAG &&
-             docker push mnestix/$IMAGE_NAME:$IMAGE_TAG_VERSION
+          docker tag mnestix/$IMAGE_NAME mnestix/$IMAGE_NAME:$IMAGE_TAG_VERSION &&
+          docker push mnestix/$IMAGE_NAME:$IMAGE_TAG &&
+          docker push mnestix/$IMAGE_NAME:$IMAGE_TAG_VERSION
 
       - name: Push Image to development
         id: push-dev
@@ -78,6 +79,5 @@ jobs:
         env:
           BRANCH_NAME: ${{ steps.extract_branch.outputs.branch }}
         run: docker tag mnestix/$IMAGE_NAME mnestixcr.azurecr.io/$IMAGE_NAME:$BRANCH_NAME &&
-             docker login -u $AZURE_REGISTRY_USER -p $AZURE_REGISTRY_PASS mnestixcr.azurecr.io &&
-             docker push mnestixcr.azurecr.io/$IMAGE_NAME:$BRANCH_NAME
-          
+          docker login -u $AZURE_REGISTRY_USER -p $AZURE_REGISTRY_PASS mnestixcr.azurecr.io &&
+          docker push mnestixcr.azurecr.io/$IMAGE_NAME:$BRANCH_NAME

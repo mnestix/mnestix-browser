@@ -47,7 +47,10 @@ export function SubmodelDetail(props: SubmodelDetailProps) {
                 <TimeSeriesDetail submodel={props.submodel} />
             </Box>
         );
-    } else if (semanticId === SubmodelSemanticId.HierarchicalStructures) {
+    } else if (
+        semanticId === SubmodelSemanticId.HierarchicalStructuresV10 ||
+        semanticId === SubmodelSemanticId.HierarchicalStructuresV11
+    ) {
         return (
             <Box width="100%">
                 <HierarchicalStructuresDetail submodel={props.submodel} />

@@ -1,4 +1,4 @@
-﻿import { AssetAdministrationShell, Key, Reference } from '@aas-core-works/aas-core3.0-typescript/types';
+﻿import { AssetAdministrationShell, Reference } from '@aas-core-works/aas-core3.0-typescript/types';
 import { createContext, PropsWithChildren, useContext, useEffect, useState } from 'react';
 import { SubmodelCompareData } from 'lib/types/SubmodelCompareData';
 import { generateSubmodelCompareData, isCompareData, isCompareDataRecord } from 'lib/util/CompareAasUtil';
@@ -23,7 +23,7 @@ const CompareAasContext = createContext<CompareAasContextType | undefined>(undef
 export const useCompareAasContext = () => useContext(CompareAasContext) as CompareAasContextType;
 
 export const CompareAasContextProvider = (props: PropsWithChildren) => {
-    const { repositoryClient, submodelClient } = useApis();
+    const { repositoryClient, submodelClient, submodelRegistryServiceClient } = useApis();
     const [compareAas, setCompareAas] = useState<AssetAdministrationShell[]>(() => {
         const storedList = localStorage.getItem(aasCompareStorage);
         return storedList ? JSON.parse(storedList) : [];
@@ -144,25 +144,31 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
         if (submodelDescriptors && submodelDescriptors.length > 0) {
             for (const submodelDescriptor of submodelDescriptors) {
                 const submodelData = await getSubmodelFromSubmodelDescriptor(
-                    submodelDescriptor.endpoints[0].protocolInformation.href,
-                );
+                    submodelDescriptor.endpoints[0].protocolInformation.href);
                 const dataRecord = generateSubmodelCompareData(submodelData);
                 newCompareData.push(dataRecord);
             }
         } else {
             for (const reference of input as Reference[]) {
-                for (const key of reference.keys as Key[]) {
-                    try {
-                        const submodelData = await submodelClient.getSubmodelById(key.value);
-                        const dataRecord = generateSubmodelCompareData(submodelData);
-                        newCompareData.push(dataRecord);
-                    } catch (e) {
-                        console.error(e);
-                    }
+                let submodelAdded = false;
+                try {
+                    const submodelDescriptor = await submodelRegistryServiceClient.getSubmodelDescriptorsById(reference.keys[0].value);
+                    const submodelData = await getSubmodelFromSubmodelDescriptor(
+                        submodelDescriptor.endpoints[0].protocolInformation.href);
+                    const dataRecord = generateSubmodelCompareData(submodelData);
+                    newCompareData.push(dataRecord);
+                    submodelAdded = true;
+                } catch (e) {
+                    console.warn(`Could not be found in Submodel Registry, will continue to look in the repository. ${e}`);
+                }
+                // Submodel registry is not available or submodel not found there -> search in repo
+                if (!submodelAdded) {
+                    const submodelData = await submodelClient.getSubmodelById(reference.keys[0].value);
+                    const dataRecord = generateSubmodelCompareData(submodelData);
+                    newCompareData.push(dataRecord);
                 }
             }
         }
-
         return addCompareData(previousCompareData, newCompareData, aasCount);
     };
 

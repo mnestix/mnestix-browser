@@ -1,21 +1,21 @@
-FROM node:18-alpine as base
+FROM node:18-alpine AS base
 
-FROM base as deps
+FROM base AS deps
 WORKDIR /app
 COPY package*.json yarn.lock* ./
 RUN yarn install --frozen-lockfile --production
 
 # Next.js collects completely anonymous telemetry data about general usage. Learn more here: https://nextjs.org/telemetry
 # Comment the following line to enable telemetry at run time
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_TELEMETRY_DISABLED=1
 
-FROM deps as builder
+FROM deps AS builder
 WORKDIR /app
 COPY . .
 
 RUN yarn build
 
-FROM base as production
+FROM base AS production
 WORKDIR /app
 
 ENV NODE_ENV=production
@@ -35,8 +35,8 @@ COPY ./scripts scripts
 ENTRYPOINT [ "/bin/sh" ]
 CMD [ "/app/scripts/start.sh" ]
 
-FROM deps as dev
+FROM deps AS dev
 ENV NODE_ENV=development
 COPY . .
 
-CMD yarn dev
+CMD [ "yarn", "dev"]

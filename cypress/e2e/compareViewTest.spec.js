@@ -10,9 +10,10 @@ describe('Test compare feature view', function () {
             cy.visit('/');
             cy.getByTestId('aasId-input').as('IDInput');
             cy.setResolution(resolutions[0]);
-            //insert first aas to compare and redirect to compare view
+            //insert first aas to compare and redirect to detail view
             cy.get('@IDInput').click().type(compareAAS[0].id);
             cy.getByTestId('aasId-submit-button').click();
+            cy.getByTestId('detail-compare-button').should('be.visible');
         });
 
         it('In the viewer detail page clicking Compare redirects to compare feature and loads first data to compare', function () {
@@ -52,6 +53,8 @@ describe('Test compare feature view', function () {
             cy.getByTestId('add-aas-to-compare-button').click();
             cy.get('@IDInput').click().type(compareAAS[1].assetInformation.globalAssetId);
             cy.getByTestId('aasId-submit-button').click();
+            // wait for aas to be loaded and visible
+            cy.getByTestId('compare-aas-1').should('be.visible');
             // assert that adding aas should still be possible
             cy.getByTestId('add-aas-to-compare-button').should('exist');
             // open popup dialog and insert third aas to compare
@@ -60,7 +63,7 @@ describe('Test compare feature view', function () {
             cy.getByTestId('aasId-submit-button').click();
             // assert if third aas is visible and contains correct values
             cy.getByTestId('compare-aas-2').should('be.visible');
-            cy.getByTestId('compare-Data-0').click();
+            cy.getByTestId('compare-Data-0').should('be.visible').click();
             // assert that adding aas should not be possible
             cy.getByTestId('add-aas-to-compare-button').should('not.exist');
             // assert if third aas contains correct values

@@ -69,15 +69,17 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
     const navigate = useRouter();
     const [productImageUrl, setProductImageUrl] = useState<string | undefined>('');
     const { repositoryClient } = useApis();
-    const [ registryAasData] = useRegistryAasState();
-    
+    const [registryAasData] = useRegistryAasState();
+
     useAsyncEffect(async () => {
         if (!props.productImage) return;
 
         if (!isValidUrl(props.productImage!) && props.aas) {
             try {
-                if(registryAasData) {
-                    const registryRepository = new AssetAdministrationShellRepositoryApi({basePath: registryAasData.aasRegistryRepositoryOrigin});
+                if (registryAasData) {
+                    const registryRepository = new AssetAdministrationShellRepositoryApi({
+                        basePath: registryAasData.aasRegistryRepositoryOrigin,
+                    });
                     const image = await registryRepository.getThumbnailFromShell(props.aas.id);
                     setProductImageUrl(URL.createObjectURL(image));
                 } else {

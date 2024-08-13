@@ -1,0 +1,15 @@
+name: Auto Add Reviewer
+
+on: 
+  pull_request:
+    types: [opened]
+    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Add Reviewers
+      uses: madrapps/add-reviewers@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        reviewers: GailMelanie,hofermo,JonathanXITASO,pawel-baran-se,XAlinaGS,Xmilofranke,NilsXitaso

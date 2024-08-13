@@ -139,6 +139,6 @@ export interface ProtocolInformationSecurityAttributes {
 }
 
 export interface RegistryAasData {
-    submodelDescriptors?: SubmodelDescriptor[],
-    aasRegistryRepositoryOrigin?: string,
+    submodelDescriptors?: SubmodelDescriptor[];
+    aasRegistryRepositoryOrigin?: string;
 }

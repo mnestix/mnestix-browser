@@ -215,7 +215,7 @@ export default function MainMenu() {
                                 {versionString}
                             </Typography>
                             <StyledDivider />
-                            <MenuHeading>{auth.getAccount()?.username}</MenuHeading>
+                            <MenuHeading>{auth.getAccount()?.user?.email}</MenuHeading>
                             {adminBottomMenu.map((props, i) => (
                                 <MenuListItem {...props} key={'adminBottomMenu' + i} />
                             ))}

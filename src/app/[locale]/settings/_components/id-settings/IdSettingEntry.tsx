@@ -11,7 +11,6 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import { SquaredIconButton } from 'components/basics/SquaredIconButton';
 import { LockedTextField } from 'components/basics/LockedTextField';
 import { messages } from 'lib/i18n/localization';
 import { useEffect, useState } from 'react';
@@ -20,6 +19,7 @@ import { FormattedMessage } from 'react-intl';
 import { IdGenerationSettingFrontend } from 'lib/types/IdGenerationSettingFrontend';
 import { isValidIdPrefix, isValidShortIdPrefix } from 'lib/util/IdValidationUtil';
 import { DynamicPartText } from './DynamicPartText';
+import { SquaredIconButton } from 'components/basics/Buttons';
 
 type IdSettingEntryProps = {
     readonly idSetting: IdGenerationSettingFrontend;

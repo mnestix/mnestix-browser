@@ -19,7 +19,6 @@ import { showError } from 'lib/util/ErrorHandlerUtil';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { useAuth } from 'lib/hooks/UseAuth';
 import { IdSettingsCard } from './_components/id-settings/IdSettingsCard';
-import { useEnv } from 'app/env/provider';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 
 export default function Page() {
@@ -30,13 +29,12 @@ export default function Page() {
 
     const auth = useAuth();
     const bearerToken = auth.getBearerToken();
-    const env = useEnv();
     const { configurationClient } = useApis();
 
     const fetchSettings = async () => {
         try {
             setIsLoading(true);
-            const res = await configurationClient.getIdGenerationSettings(bearerToken, env.AUTHENTICATION_FEATURE_FLAG);
+            const res = await configurationClient.getIdGenerationSettings();
             const _settings: IdGenerationSettingFrontend[] = [];
             // set settings from api response
             res.submodelElements?.forEach((el) => {
