@@ -1,51 +1,68 @@
 'use client';
-import { Box, Typography, useTheme } from '@mui/material';
-import ScannerLogo from 'assets/ScannerLogo.svg';
-import { useIsMobile } from 'lib/hooks/UseBreakpoints';
+import { Typography } from '@mui/material';
 import { messages } from 'lib/i18n/localization';
-import { useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { ManualAASViewerInput } from '../viewer/_components/ManualAasViewerInput';
-import QrCodeReader from 'app/[locale]/_components/QrReader';
+import { QrScanner } from 'app/[locale]/_components/QrScanner';
+import { handleAasDiscoverySearch, handleAasRegistrySearch } from 'lib/searchUtilActions/search';
+import { encodeBase64 } from 'lib/util/Base64Util';
+import { useAasState, useRegistryAasState } from 'components/contexts/CurrentAasContext';
+import { useApis } from 'components/azureAuthentication/ApiProvider';
+import { useRouter } from 'next/navigation';
 
 export const DashboardInput = () => {
-    const isMobile = useIsMobile();
-    const theme = useTheme();
-    const [isScannerActive, setQrScannerActive] = useState<boolean>(true);
-    const logoStyle = {
-        color: theme.palette.primary.main,
+    const [, setAas] = useAasState();
+    const [, setRegistryAasData] = useRegistryAasState();
+    const { repositoryClient } = useApis();
+    const navigate = useRouter();
+
+    const handleSearchForAas = async (val: string) => {
+        const aasIds = await handleAasDiscoverySearch(val);
+        if (aasIds && aasIds.length > 1) {
+            return `/viewer/discovery?assetId=${val}`;
+        } else {
+            // Check if an AAS ID is found in the Discovery service, or assign the input parameter for further search.
+            // If there is exactly one AAS ID in the aasIds array, use it; otherwise, use the input parameter 'val'.
+            const aasId = aasIds && aasIds.length === 1 ? aasIds[0] : val;
+            const registrySearchResult = await handleAasRegistrySearch(aasId);
+            const aas =
+                registrySearchResult != null
+                    ? registrySearchResult.registryAas
+                    : await repositoryClient.getAssetAdministrationShellById(encodeBase64(aasId));
+
+            setAas(aas);
+            registrySearchResult?.registryAasData != null
+                ? setRegistryAasData({
+                      submodelDescriptors: registrySearchResult?.registryAasData?.submodelDescriptors,
+                      aasRegistryRepositoryOrigin: registrySearchResult?.registryAasData?.aasRegistryRepositoryOrigin,
+                  })
+                : setRegistryAasData(null);
+
+            // If not found: Error: AAS could not be found
+
+            return `/viewer/${encodeBase64(aas.id)}`;
+        }
     };
 
-    const switchQrReader = () => {
-        setQrScannerActive(!isScannerActive);
+    const browseAasUrl = async (val: string) => {
+        try {
+            const url = await handleSearchForAas(val);
+            navigate.push(url);
+        } catch (e: unknown) {
+            console.error(e);
+        }
     };
 
     return (
         <>
-            {!isMobile && (
-                <Box>
-                    <Typography color="text.secondary" textAlign="center">
-                        <FormattedMessage {...messages.mnestix.scanAasId} />
-                    </Typography>
-                    <Box
-                        style={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            marginBottom: -10,
-                            cursor: 'pointer',
-                        }}
-                        onClick={switchQrReader}
-                    >
-                        {!isScannerActive && (<ScannerLogo style={logoStyle} alt="Scanner Logo" />)}
-                        {isScannerActive && (<QrCodeReader />)}
-                    </Box>
-                    <Typography color="text.secondary" textAlign="center" sx={{ mb: 2 }}>
-                        <FormattedMessage {...messages.mnestix.orEnterManual} />:
-                    </Typography>
-                </Box>
-            )}
-            <ManualAASViewerInput focus={isScannerActive} />
+            <Typography color="text.secondary" textAlign="center">
+                <FormattedMessage {...messages.mnestix.scanAasId} />
+            </Typography>
+            <QrScanner callback={browseAasUrl} />
+            <Typography color="text.secondary" textAlign="center" sx={{ mb: 2 }}>
+                <FormattedMessage {...messages.mnestix.orEnterManual} />:
+            </Typography>
+            <ManualAASViewerInput />
         </>
     );
 };

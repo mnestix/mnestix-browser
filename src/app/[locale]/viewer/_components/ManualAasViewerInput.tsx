@@ -14,7 +14,7 @@ import { handleAasDiscoverySearch, handleAasRegistrySearch } from 'lib/searchUti
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { SquaredIconButton } from 'components/basics/Buttons';
 
-export function ManualAASViewerInput(props: { focus: boolean }) {
+export function ManualAASViewerInput() {
     const [val, setVal] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isError, setIsError] = useState<boolean>(false);
@@ -29,7 +29,7 @@ export function ManualAASViewerInput(props: { focus: boolean }) {
 
     useEffect(() => {
         inputRef?.current?.focus();
-    }, [props.focus]);
+    }, []);
 
     const setError = (msg: string) => {
         setIsError(true);
@@ -40,35 +40,40 @@ export function ManualAASViewerInput(props: { focus: boolean }) {
         setIsError(false);
         setErrorText('');
     };
+    
+    const handleSearchForAas = async (val: string) => {
+        const aasIds = await handleAasDiscoverySearch(val);
+        if (aasIds && aasIds.length > 1) {
+            return `/viewer/discovery?assetId=${val}`;
+        } else {
+            // Check if an AAS ID is found in the Discovery service, or assign the input parameter for further search.
+            // If there is exactly one AAS ID in the aasIds array, use it; otherwise, use the input parameter 'val'.
+            const aasId = aasIds && aasIds.length === 1 ? aasIds[0] : val;
+            const registrySearchResult = await handleAasRegistrySearch(aasId);
+            const aas =
+                registrySearchResult != null
+                    ? registrySearchResult.registryAas
+                    : await repositoryClient.getAssetAdministrationShellById(encodeBase64(aasId));
+
+            setAas(aas);
+            registrySearchResult?.registryAasData != null
+                ? setRegistryAasData({
+                    submodelDescriptors: registrySearchResult?.registryAasData?.submodelDescriptors,
+                    aasRegistryRepositoryOrigin:
+                    registrySearchResult?.registryAasData?.aasRegistryRepositoryOrigin,
+                })
+                : setRegistryAasData(null);
+
+            return `/viewer/${encodeBase64(aas.id)}`;
+        }
+    }
 
     const handleSubmit = async () => {
         try {
             setIsLoading(true);
-
-            const aasIds = await handleAasDiscoverySearch(val);
-            if (aasIds && aasIds.length > 1) {
-                navigate.push(`/viewer/discovery?assetId=${val}`);
-            } else {
-                // Check if an AAS ID is found in the Discovery service, or assign the input parameter for further search.
-                // If there is exactly one AAS ID in the aasIds array, use it; otherwise, use the input parameter 'val'.
-                const aasId = aasIds && aasIds.length === 1 ? aasIds[0] : val;
-                const registrySearchResult = await handleAasRegistrySearch(aasId);
-                const aas =
-                    registrySearchResult != null
-                        ? registrySearchResult.registryAas
-                        : await repositoryClient.getAssetAdministrationShellById(encodeBase64(aasId));
-
-                setAas(aas);
-                registrySearchResult?.registryAasData != null
-                    ? setRegistryAasData({
-                          submodelDescriptors: registrySearchResult?.registryAasData?.submodelDescriptors,
-                          aasRegistryRepositoryOrigin:
-                              registrySearchResult?.registryAasData?.aasRegistryRepositoryOrigin,
-                      })
-                    : setRegistryAasData(null);
-
-                navigate.push(`/viewer/${encodeBase64(aas.id)}`);
-            }
+            const url = await handleSearchForAas(val);
+            navigate.push(url);
+            
         } catch (e: unknown) {
             setIsLoading(false);
             showError(e, notificationSpawner);
@@ -80,10 +85,10 @@ export function ManualAASViewerInput(props: { focus: boolean }) {
         }
     };
 
-    const handleKeyPress = (event: React.KeyboardEvent) => {
+    const handleKeyPress = async (event: React.KeyboardEvent) => {
         // Allow submit via enter
         if (event.key === 'Enter' && !!val) {
-            handleSubmit();
+            await handleSubmit();
         }
     };
 
