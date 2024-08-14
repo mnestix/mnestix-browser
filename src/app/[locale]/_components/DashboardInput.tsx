@@ -45,12 +45,8 @@ export const DashboardInput = () => {
     };
 
     const browseAasUrl = async (val: string) => {
-        try {
-            const url = await handleSearchForAas(val);
-            navigate.push(url);
-        } catch (e: unknown) {
-            console.error(e);
-        }
+        const url = await handleSearchForAas(val);
+        navigate.push(url);
     };
 
     return (
@@ -58,7 +54,7 @@ export const DashboardInput = () => {
             <Typography color="text.secondary" textAlign="center">
                 <FormattedMessage {...messages.mnestix.scanAasId} />
             </Typography>
-            <QrScanner callback={browseAasUrl} />
+            <QrScanner onScan={browseAasUrl} />
             <Typography color="text.secondary" textAlign="center" sx={{ mb: 2 }}>
                 <FormattedMessage {...messages.mnestix.orEnterManual} />:
             </Typography>
