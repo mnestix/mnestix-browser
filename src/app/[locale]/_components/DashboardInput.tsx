@@ -6,18 +6,18 @@ import { messages } from 'lib/i18n/localization';
 import { useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { ManualAASViewerInput } from '../viewer/_components/ManualAasViewerInput';
+import QrCodeReader from 'app/[locale]/_components/QrReader';
 
 export const DashboardInput = () => {
     const isMobile = useIsMobile();
     const theme = useTheme();
-    const [inputFocus, setInputFocus] = useState<boolean>(true);
+    const [isScannerActive, setQrScannerActive] = useState<boolean>(true);
     const logoStyle = {
         color: theme.palette.primary.main,
     };
 
-    const focusInput = () => {
-        // The value gets toggled to trigger the useEffect in the child input component 'ManualAASViewerInput'.
-        setInputFocus(!inputFocus);
+    const switchQrReader = () => {
+        setQrScannerActive(!isScannerActive);
     };
 
     return (
@@ -35,16 +35,17 @@ export const DashboardInput = () => {
                             marginBottom: -10,
                             cursor: 'pointer',
                         }}
-                        onClick={focusInput}
+                        onClick={switchQrReader}
                     >
-                        <ScannerLogo style={logoStyle} alt="Scanner Logo" />
+                        {!isScannerActive && (<ScannerLogo style={logoStyle} alt="Scanner Logo" />)}
+                        {isScannerActive && (<QrCodeReader />)}
                     </Box>
                     <Typography color="text.secondary" textAlign="center" sx={{ mb: 2 }}>
                         <FormattedMessage {...messages.mnestix.orEnterManual} />:
                     </Typography>
                 </Box>
             )}
-            <ManualAASViewerInput focus={inputFocus} />
+            <ManualAASViewerInput focus={isScannerActive} />
         </>
     );
 };
