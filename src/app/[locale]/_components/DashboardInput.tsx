@@ -29,7 +29,7 @@ export const DashboardInput = () => {
             <Typography color="text.secondary" textAlign="center">
                 <FormattedMessage {...messages.mnestix.scanAasId} />
             </Typography>
-            <QrScanner onScan={browseAasUrl} />
+            <QrScanner onScan={browseAasUrl} size={250} />
             <Typography color="text.secondary" textAlign="center" sx={{ mb: 2 }}>
                 <FormattedMessage {...messages.mnestix.orEnterManual} />:
             </Typography>

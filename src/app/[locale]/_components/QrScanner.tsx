@@ -2,13 +2,13 @@
 
 import { useState } from 'react';
 import ScannerLogo from 'assets/ScannerLogo.svg';
-import { Alert, Box, useTheme } from '@mui/material';
-import { CenteredLoadingSpinner } from 'components/basics/CenteredLoadingSpinner';
+import { Alert, Box, CircularProgress, IconButton, Snackbar, useTheme } from '@mui/material';
 import { QrStream } from 'app/[locale]/_components/QrStream';
-import { Snackbar } from '@mui/material';
+import HighlightOffRoundedIcon from '@mui/icons-material/HighlightOffRounded';
 
 export function QrScanner(props: {
     onScan: (scanResult: string) => Promise<void>;
+    size?: number | undefined;
     callbackErrorMsg?: string | undefined;
 }) {
     // Camera and QR on/off logic
@@ -16,11 +16,10 @@ export function QrScanner(props: {
     const [isQrActive, setIsQrActive] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
-    // const stopQrScanner = () => {
-    //     scanner?.current?.stop();
-    //     setIsLoading(false);
-    //     setIsQrActive(false);
-    // };
+    const stopQrScanner = () => {
+        setIsLoading(false);
+        setIsQrActive(false);
+    };
 
     const startQrScanner = async () => {
         setIsQrActive(true);
@@ -65,27 +64,42 @@ export function QrScanner(props: {
     // Scanner logo
 
     const theme = useTheme();
-    const logoStyle = {
-        color: theme.palette.primary.main,
-    };
+    const size = props.size || 250;
 
     return (
         <>
             <Box
                 style={{
                     cursor: 'pointer',
-                    height: 250,
-                    width: 250,
-                    marginLeft: 'auto',
-                    marginRight: 'auto',
+                    height: size,
+                    width: size,
+                    margin: 'auto',
+                    position: 'relative',
                 }}
             >
                 {!isQrActive && !isLoading && (
-                    <Box onClick={startQrScanner}>
-                        <ScannerLogo style={logoStyle} alt="Scanner Logo" />
+                    <Box onClick={startQrScanner} padding="50px">
+                        <ScannerLogo style={{ color: theme.palette.primary.main }} alt="Scanner Logo" />
                     </Box>
                 )}
-                {isLoading && <CenteredLoadingSpinner />}
+                {isQrActive && (
+                    <IconButton
+                        aria-label="delete"
+                        size="large"
+                        onClick={stopQrScanner}
+                        style={{ position: 'absolute', zIndex: 999, right: 0 }}
+                    >
+                        <HighlightOffRoundedIcon fontSize="inherit" />
+                    </IconButton>
+                )}
+                {isLoading && (
+                    <Box padding="50px" justifyContent="center">
+                        <CircularProgress
+                            style={{ margin: 'auto', position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }}
+                        />
+                        <ScannerLogo style={{ color: theme.palette.primary.main, opacity: 0.4 }} alt="Scanner Logo" />
+                    </Box>
+                )}
                 {isQrActive && <QrStream onScan={handleScan} onLoadingFinished={switchToVideoStream} />}
             </Box>
             <Snackbar open={isCallbackError} autoHideDuration={4000} onClose={handleCallbackErrorSnackbarClose}>

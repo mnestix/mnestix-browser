@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Scanner from 'qr-scanner';
 
 export function QrStream(props: {
@@ -9,6 +9,8 @@ export function QrStream(props: {
 }) {
     const videoEl = useRef<HTMLVideoElement>(null);
     const scanner = useRef<Scanner>();
+
+    const [showBorder, setShowBorder] = useState<boolean>(false);
 
     const onScanSuccess = async (result: Scanner.ScanResult) => {
         await props.onScan(result.data);
@@ -22,7 +24,10 @@ export function QrStream(props: {
 
             scanner?.current
                 ?.start()
-                .then(() => props.onLoadingFinished(true))
+                .then(() => {
+                    setShowBorder(true);
+                    props.onLoadingFinished(true);
+                })
                 .catch(() => props.onLoadingFinished(false));
         }
 
@@ -33,5 +38,12 @@ export function QrStream(props: {
         };
     }, []);
 
-    return <video ref={videoEl} height="100%" width="100%" style={{ objectFit: 'cover' }}></video>;
+    return (
+        <video
+            ref={videoEl}
+            height="100%"
+            width="100%"
+            style={{ objectFit: 'cover', borderRadius: 10, borderStyle: showBorder ? 'solid' : 'none' }}
+        ></video>
+    );
 }
