@@ -5,13 +5,11 @@ import { ArrowForward } from '@mui/icons-material';
 import { useAasState, useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { messages } from 'lib/i18n/localization';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
-import { encodeBase64 } from 'lib/util/Base64Util';
 import { showError } from 'lib/util/ErrorHandlerUtil';
 import CloseIcon from '@mui/icons-material/Close';
 import { useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { handleAasDiscoverySearch, handleAasRegistrySearch } from 'lib/searchUtilActions/search';
-import { useApis } from 'components/azureAuthentication/ApiProvider';
+import { handleSearchForAas } from 'lib/searchUtilActions/search';
 import { SquaredIconButton } from 'components/basics/Buttons';
 
 export function ManualAASViewerInput() {
@@ -25,7 +23,6 @@ export function ManualAASViewerInput() {
     const inputRef = useRef<HTMLInputElement>(null);
     const [, setAas] = useAasState();
     const [, setRegistryAasData] = useRegistryAasState();
-    const { repositoryClient } = useApis();
 
     useEffect(() => {
         inputRef?.current?.focus();
@@ -41,39 +38,20 @@ export function ManualAASViewerInput() {
         setErrorText('');
     };
     
-    const handleSearchForAas = async (val: string) => {
-        const aasIds = await handleAasDiscoverySearch(val);
-        if (aasIds && aasIds.length > 1) {
-            return `/viewer/discovery?assetId=${val}`;
-        } else {
-            // Check if an AAS ID is found in the Discovery service, or assign the input parameter for further search.
-            // If there is exactly one AAS ID in the aasIds array, use it; otherwise, use the input parameter 'val'.
-            const aasId = aasIds && aasIds.length === 1 ? aasIds[0] : val;
-            const registrySearchResult = await handleAasRegistrySearch(aasId);
-            const aas =
-                registrySearchResult != null
-                    ? registrySearchResult.registryAas
-                    : await repositoryClient.getAssetAdministrationShellById(encodeBase64(aasId));
+    const browseAasUrl = async (val: string) => {
+        const aasSearch = await handleSearchForAas(val);
 
-            setAas(aas);
-            registrySearchResult?.registryAasData != null
-                ? setRegistryAasData({
-                    submodelDescriptors: registrySearchResult?.registryAasData?.submodelDescriptors,
-                    aasRegistryRepositoryOrigin:
-                    registrySearchResult?.registryAasData?.aasRegistryRepositoryOrigin,
-                })
-                : setRegistryAasData(null);
-
-            return `/viewer/${encodeBase64(aas.id)}`;
+        if (aasSearch.aas){
+            setAas(aasSearch.aas);
+            setRegistryAasData(aasSearch.aasData);
         }
-    }
+        navigate.push(aasSearch.aasUrl);
+    };
 
     const handleSubmit = async () => {
         try {
             setIsLoading(true);
-            const url = await handleSearchForAas(val);
-            navigate.push(url);
-            
+            await browseAasUrl(val);
         } catch (e: unknown) {
             setIsLoading(false);
             showError(e, notificationSpawner);
