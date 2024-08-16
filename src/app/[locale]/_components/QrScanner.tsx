@@ -6,8 +6,9 @@ import { Box, CircularProgress, IconButton, useTheme } from '@mui/material';
 import { QrStream } from 'app/[locale]/_components/QrStream';
 import HighlightOffRoundedIcon from '@mui/icons-material/HighlightOffRounded';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
-import { MessageDescriptorWithId, messages } from 'lib/i18n/localization';
+import { messages } from 'lib/i18n/localization';
 import { useIntl } from 'react-intl';
+import { LocalizedError } from 'lib/util/LocalizedError';
 
 enum State {
     Stopped,
@@ -16,29 +17,13 @@ enum State {
     HandleQr,
 }
 
-type ScanErrorMsg = MessageDescriptorWithId | (() => MessageDescriptorWithId);
-
-function generateErrorCallback(errorMsg?: ScanErrorMsg) {
-    if (typeof errorMsg === 'function') {
-        return errorMsg;
-    } else {
-        const msg = errorMsg || messages.mnestix.qrScanner.defaultCallbackErrorMsg;
-        return () => msg;
-    }
-}
-
-export function QrScanner(props: {
-    onScan: (scanResult: string) => Promise<void>;
-    size?: number | undefined;
-    scanErrorMsg?: ScanErrorMsg;
-}) {
+export function QrScanner(props: { onScan: (scanResult: string) => Promise<void>; size?: number | undefined }) {
     // Camera and QR on/off logic
 
     const [state, setState] = useState<State>(State.Stopped);
 
     const notificationSpawner = useNotificationSpawner();
     const intl = useIntl();
-    const callbackErrorMsg = generateErrorCallback(props.scanErrorMsg);
 
     const switchToVideoStream = (loadingSuccessful: boolean) => {
         if (loadingSuccessful) {
@@ -46,7 +31,7 @@ export function QrScanner(props: {
         } else {
             notificationSpawner.spawn({
                 message: intl.formatMessage(messages.mnestix.qrScanner.errorOnQrScannerOpen),
-                severity: 'error'
+                severity: 'error',
             });
             setState(State.Stopped);
         }
@@ -57,10 +42,11 @@ export function QrScanner(props: {
         try {
             await props.onScan(result);
             setState(State.Stopped);
-        } catch {
+        } catch (e) {
+            const msg = e instanceof LocalizedError ? e.descriptor : messages.mnestix.qrScanner.defaultCallbackErrorMsg;
             notificationSpawner.spawn({
-                message: intl.formatMessage(callbackErrorMsg()),
-                severity: 'error'
+                message: intl.formatMessage(msg),
+                severity: 'error',
             });
             setState(State.LoadScanner);
         }
@@ -79,7 +65,7 @@ export function QrScanner(props: {
                     height: size,
                     width: size,
                     margin: 'auto',
-                    position: 'relative'
+                    position: 'relative',
                 }}
             >
                 {state === State.Stopped && (

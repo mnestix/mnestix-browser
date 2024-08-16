@@ -2,7 +2,7 @@ export const deMnestix = {
     welcome: 'Willkommen bei Mnestix',
     digitalTwinMadeEasy: 'Digitaler Zwilling leicht gemacht.',
     notFound: 'Nicht gefunden',
-    aasUrlNotFound: 'Keine Verwaltungsschale unter dieser URL.',
+    aasUrlNotFound: 'Keine Verwaltungsschale unter dieser ID.',
     cannotLoadAasId: {
         header: 'Verwaltungsschale konnte nicht geladen werden.',
         text: 'Es konnte keine Verwaltungsschale für das Asset mit id {assetId} geladen werden.',

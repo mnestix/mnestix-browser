@@ -2,7 +2,7 @@ export const enMnestix = {
     welcome: 'Welcome to Mnestix',
     digitalTwinMadeEasy: 'Digital Twin made easy.',
     notFound: 'Not found',
-    aasUrlNotFound: 'No AAS with the given URL.',
+    aasUrlNotFound: 'No AAS with the given ID.',
     cannotLoadAasId: {
         header: 'AAS could not be loaded.',
         text: 'Unable to load AAS for asset with id {assetId}',

@@ -7,6 +7,7 @@ import { QrScanner } from 'app/[locale]/_components/QrScanner';
 import { handleSearchForAas } from 'lib/searchUtilActions/search';
 import { useRouter } from 'next/navigation';
 import { useAasState, useRegistryAasState } from 'components/contexts/CurrentAasContext';
+import { LocalizedError } from 'lib/util/LocalizedError';
 
 export const DashboardInput = () => {
     
@@ -15,13 +16,17 @@ export const DashboardInput = () => {
     const navigate = useRouter();
 
     const browseAasUrl = async (val: string) => {
-        const aasSearch = await handleSearchForAas(val);
+        try {
+            const aasSearch = await handleSearchForAas(val);
 
-        if (aasSearch.aas){
-            setAas(aasSearch.aas);
-            setRegistryAasData(aasSearch.aasData);
+            if (aasSearch.aas) {
+                setAas(aasSearch.aas);
+                setRegistryAasData(aasSearch.aasData);
+            }
+            navigate.push(aasSearch.aasUrl);
+        } catch (e) {
+            throw new LocalizedError(messages.mnestix.aasUrlNotFound);
         }
-        navigate.push(aasSearch.aasUrl);
     };
 
     return (
@@ -29,7 +34,7 @@ export const DashboardInput = () => {
             <Typography color="text.secondary" textAlign="center">
                 <FormattedMessage {...messages.mnestix.scanAasId} />
             </Typography>
-            <QrScanner onScan={browseAasUrl} size={250} scanErrorMsg={messages.mnestix.aasUrlNotFound}/>
+            <QrScanner onScan={browseAasUrl} size={250} />
             <Typography color="text.secondary" textAlign="center" sx={{ mb: 2 }}>
                 <FormattedMessage {...messages.mnestix.orEnterManual} />:
             </Typography>
