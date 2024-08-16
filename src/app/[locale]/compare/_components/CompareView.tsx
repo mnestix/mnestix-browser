@@ -11,9 +11,11 @@ import { useEffect, useState } from 'react';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { useSearchParams } from 'next/navigation';
 import { showError } from 'lib/util/ErrorHandlerUtil';
+import { AasSearchResult, handleSearchForAas } from 'lib/searchUtilActions/search';
+import { LocalizedError } from 'lib/util/LocalizedError';
 
 export function CompareView() {
-    const { compareAas, addSeveralAas, deleteAas } = useCompareAasContext();
+    const { compareAas, addSeveralAas, deleteAas, addAas } = useCompareAasContext();
     const [isLoadingAas, setIsLoadingAas] = useState(false);
     const notificationSpawner = useNotificationSpawner();
     const searchParams = useSearchParams();
@@ -36,7 +38,9 @@ export function CompareView() {
             }
         }
 
-        _fetchAas();
+        _fetchAas().catch((reason) => {
+            showError(reason, notificationSpawner);
+        });
     }, []);
 
     const handleDetailsModalOpen = () => {
@@ -50,6 +54,33 @@ export function CompareView() {
     const handleDeleteAas = (aasId: string) => {
         deleteAas(aasId);
     };
+
+    const handleAddAas = async (aasId: string) => {
+        let aasSearch: AasSearchResult;
+        try {
+            aasSearch = await handleSearchForAas(aasId);
+        } catch (e) {
+            throw new LocalizedError(messages.mnestix.aasUrlNotFound);
+        }
+
+        if (!aasSearch.aas) {
+            throw new LocalizedError(messages.mnestix.compare.moreAasFound);
+        }
+
+        const aasExists = compareAas.find((aas) => aas.id === aasSearch.aas!.id);
+        if (aasExists) {
+            throw new LocalizedError(messages.mnestix.compare.aasAlreadyAdded);
+        }
+
+        try {
+            await addAas(aasSearch.aas!, aasSearch.aasData?.submodelDescriptors);
+        } catch (e) {
+            throw new LocalizedError(messages.mnestix.aasUrlNotFound); // TODO
+        }
+
+        setAddModalOpen(false);
+    };
+
     return (
         <>
             <Box width="90%" maxWidth="1125px" margin="0 auto">
@@ -98,7 +129,7 @@ export function CompareView() {
                     </>
                 )}
             </Box>
-            <CompareAasAddDialog open={addModalOpen} handleClose={handleDetailsModalClose} />
+            <CompareAasAddDialog open={addModalOpen} onSubmit={handleAddAas} onClose={handleDetailsModalClose} />
         </>
     );
 }
