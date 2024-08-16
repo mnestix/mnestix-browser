@@ -6,6 +6,13 @@ import { Alert, Box, CircularProgress, IconButton, Snackbar, useTheme } from '@m
 import { QrStream } from 'app/[locale]/_components/QrStream';
 import HighlightOffRoundedIcon from '@mui/icons-material/HighlightOffRounded';
 
+enum State {
+    Stopped,
+    LoadScanner,
+    ShowVideo,
+    HandleQr,
+}
+
 export function QrScanner(props: {
     onScan: (scanResult: string) => Promise<void>;
     size?: number | undefined;
@@ -13,37 +20,26 @@ export function QrScanner(props: {
 }) {
     // Camera and QR on/off logic
 
-    const [isQrActive, setIsQrActive] = useState<boolean>(false);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-
-    const stopQrScanner = () => {
-        setIsLoading(false);
-        setIsQrActive(false);
-    };
-
-    const startQrScanner = async () => {
-        setIsQrActive(true);
-        setIsLoading(true);
-    };
+    const [state, setState] = useState<State>(State.Stopped);
 
     const switchToVideoStream = (loadingSuccessful: boolean) => {
-        setIsLoading(false);
-        if (!loadingSuccessful) {
-            setIsQrActive(false);
+        if (loadingSuccessful) {
+            setState(State.ShowVideo);
+        } else {
             setIsCameraError(true);
+            setState(State.Stopped);
         }
     };
 
     const handleScan = async (result: string) => {
-        setIsLoading(true);
+        setState(State.HandleQr);
         try {
-            setIsQrActive(false);
             await props.onScan(result);
+            setState(State.Stopped);
         } catch {
             setIsCallbackError(true);
-            setIsQrActive(true);
+            setState(State.LoadScanner);
         }
-        setIsLoading(false);
     };
 
     // Snackbar content
@@ -77,22 +73,22 @@ export function QrScanner(props: {
                     position: 'relative',
                 }}
             >
-                {!isQrActive && !isLoading && (
-                    <Box onClick={startQrScanner} padding="50px">
+                {state === State.Stopped && (
+                    <Box onClick={() => setState(State.LoadScanner)} padding="50px">
                         <ScannerLogo style={{ color: theme.palette.primary.main }} alt="Scanner Logo" />
                     </Box>
                 )}
-                {isQrActive && (
+                {state !== State.Stopped && (
                     <IconButton
                         aria-label="delete"
                         size="large"
-                        onClick={stopQrScanner}
+                        onClick={() => setState(State.Stopped)}
                         style={{ position: 'absolute', zIndex: 999, right: 0 }}
                     >
                         <HighlightOffRoundedIcon fontSize="inherit" />
                     </IconButton>
                 )}
-                {isLoading && (
+                {(state === State.LoadScanner || state === State.HandleQr) && (
                     <Box padding="50px" justifyContent="center">
                         <CircularProgress
                             style={{ margin: 'auto', position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }}
@@ -100,7 +96,9 @@ export function QrScanner(props: {
                         <ScannerLogo style={{ color: theme.palette.primary.main, opacity: 0.4 }} alt="Scanner Logo" />
                     </Box>
                 )}
-                {isQrActive && <QrStream onScan={handleScan} onLoadingFinished={switchToVideoStream} />}
+                {(state === State.LoadScanner || state === State.ShowVideo) && (
+                    <QrStream onScan={handleScan} onLoadingFinished={switchToVideoStream} />
+                )}
             </Box>
             <Snackbar open={isCallbackError} autoHideDuration={4000} onClose={handleCallbackErrorSnackbarClose}>
                 <Alert
