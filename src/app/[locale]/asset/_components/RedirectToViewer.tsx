@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { CenteredLoadingSpinner } from 'components/basics/CenteredLoadingSpinner';
 import { useSearchParams, useRouter } from 'next/navigation';
 import AssetNotFound from 'components/basics/AssetNotFound';
+import { useAasState } from 'components/contexts/CurrentAasContext';
 
 export const RedirectToViewer = () => {
     const { discoveryServiceClient } = useApis();
@@ -19,6 +20,7 @@ export const RedirectToViewer = () => {
     const notificationSpawner = useNotificationSpawner();
     const [isLoading, setIsLoading] = useState(false);
     const [isError, setIsError] = useState(false);
+    const [ ,setAas] = useAasState();
 
     useAsyncEffect(async () => {
         try {
@@ -35,6 +37,7 @@ export const RedirectToViewer = () => {
         const aasIds = await getAasIdsOfAsset(assetId);
         assertAnAasIdExists(aasIds);
         const targetUrl = determineViewerTargetUrl(aasIds);
+        setAas(null);
         navigate.replace(targetUrl);
     }
 
