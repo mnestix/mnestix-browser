@@ -89,12 +89,12 @@ export async function handleAasDiscoverySearch(searchAssetId: string): Promise<s
     }
 }
 
-type AasData = {
+export type AasData = {
     submodelDescriptors: SubmodelDescriptor[] | undefined;
     aasRegistryRepositoryOrigin: string | undefined;
 };
 
-type AasSearchResult = {
+export type AasSearchResult = {
     aasUrl: string;
     aas: AssetAdministrationShell | null;
     aasData: AasData | null;

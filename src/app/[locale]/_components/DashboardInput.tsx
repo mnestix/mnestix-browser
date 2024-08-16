@@ -2,7 +2,7 @@
 import { Typography } from '@mui/material';
 import { messages } from 'lib/i18n/localization';
 import { FormattedMessage } from 'react-intl';
-import { ManualAASViewerInput } from '../viewer/_components/ManualAasViewerInput';
+import { ManualAasInput } from 'app/[locale]/viewer/_components/ManualAasInput';
 import { QrScanner } from 'app/[locale]/_components/QrScanner';
 import { handleSearchForAas } from 'lib/searchUtilActions/search';
 import { useRouter } from 'next/navigation';
@@ -10,7 +10,6 @@ import { useAasState, useRegistryAasState } from 'components/contexts/CurrentAas
 import { LocalizedError } from 'lib/util/LocalizedError';
 
 export const DashboardInput = () => {
-    
     const [, setAas] = useAasState();
     const [, setRegistryAasData] = useRegistryAasState();
     const navigate = useRouter();
@@ -38,7 +37,7 @@ export const DashboardInput = () => {
             <Typography color="text.secondary" textAlign="center" sx={{ mb: 2 }}>
                 <FormattedMessage {...messages.mnestix.orEnterManual} />:
             </Typography>
-            <ManualAASViewerInput />
+            <ManualAasInput onSubmit={browseAasUrl} />
         </>
     );
 };
