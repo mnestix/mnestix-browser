@@ -2,9 +2,12 @@
 
 import { useState } from 'react';
 import ScannerLogo from 'assets/ScannerLogo.svg';
-import { Alert, Box, CircularProgress, IconButton, Snackbar, useTheme } from '@mui/material';
+import { Box, CircularProgress, IconButton, useTheme } from '@mui/material';
 import { QrStream } from 'app/[locale]/_components/QrStream';
 import HighlightOffRoundedIcon from '@mui/icons-material/HighlightOffRounded';
+import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
+import { MessageDescriptorWithId, messages } from 'lib/i18n/localization';
+import { useIntl } from 'react-intl';
 
 enum State {
     Stopped,
@@ -13,20 +16,38 @@ enum State {
     HandleQr,
 }
 
+type ScanErrorMsg = MessageDescriptorWithId | (() => MessageDescriptorWithId);
+
+function generateErrorCallback(errorMsg?: ScanErrorMsg) {
+    if (typeof errorMsg === 'function') {
+        return errorMsg;
+    } else {
+        const msg = errorMsg || messages.mnestix.qrScanner.defaultCallbackErrorMsg;
+        return () => msg;
+    }
+}
+
 export function QrScanner(props: {
     onScan: (scanResult: string) => Promise<void>;
     size?: number | undefined;
-    callbackErrorMsg?: string | undefined;
+    scanErrorMsg?: ScanErrorMsg;
 }) {
     // Camera and QR on/off logic
 
     const [state, setState] = useState<State>(State.Stopped);
 
+    const notificationSpawner = useNotificationSpawner();
+    const intl = useIntl();
+    const callbackErrorMsg = generateErrorCallback(props.scanErrorMsg);
+
     const switchToVideoStream = (loadingSuccessful: boolean) => {
         if (loadingSuccessful) {
             setState(State.ShowVideo);
         } else {
-            setIsCameraError(true);
+            notificationSpawner.spawn({
+                message: intl.formatMessage(messages.mnestix.qrScanner.errorOnQrScannerOpen),
+                severity: 'error'
+            });
             setState(State.Stopped);
         }
     };
@@ -37,24 +58,12 @@ export function QrScanner(props: {
             await props.onScan(result);
             setState(State.Stopped);
         } catch {
-            setIsCallbackError(true);
+            notificationSpawner.spawn({
+                message: intl.formatMessage(callbackErrorMsg()),
+                severity: 'error'
+            });
             setState(State.LoadScanner);
         }
-    };
-
-    // Snackbar content
-
-    const [isCallbackError, setIsCallbackError] = useState<boolean>(false);
-    const [isCameraError, setIsCameraError] = useState<boolean>(false);
-
-    const callbackErrorMsg = props.callbackErrorMsg || 'Could not open the QR code!';
-
-    const handleCallbackErrorSnackbarClose = () => {
-        setIsCallbackError(false);
-    };
-
-    const handleCameraErrorSnackbarClose = () => {
-        setIsCameraError(false);
     };
 
     // Scanner logo
@@ -70,11 +79,17 @@ export function QrScanner(props: {
                     height: size,
                     width: size,
                     margin: 'auto',
-                    position: 'relative',
+                    position: 'relative'
                 }}
             >
                 {state === State.Stopped && (
-                    <Box onClick={() => setState(State.LoadScanner)} padding="50px">
+                    <Box
+                        onClick={() => setState(State.LoadScanner)}
+                        padding="50px"
+                        justifyContent="center"
+                        position="absolute"
+                        style={{ height: size, width: size }}
+                    >
                         <ScannerLogo style={{ color: theme.palette.primary.main }} alt="Scanner Logo" />
                     </Box>
                 )}
@@ -89,7 +104,12 @@ export function QrScanner(props: {
                     </IconButton>
                 )}
                 {(state === State.LoadScanner || state === State.HandleQr) && (
-                    <Box padding="50px" justifyContent="center">
+                    <Box
+                        padding="50px"
+                        justifyContent="center"
+                        position="absolute"
+                        style={{ height: size, width: size }}
+                    >
                         <CircularProgress
                             style={{ margin: 'auto', position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }}
                         />
@@ -100,26 +120,6 @@ export function QrScanner(props: {
                     <QrStream onScan={handleScan} onLoadingFinished={switchToVideoStream} />
                 )}
             </Box>
-            <Snackbar open={isCallbackError} autoHideDuration={4000} onClose={handleCallbackErrorSnackbarClose}>
-                <Alert
-                    severity="error"
-                    variant="filled"
-                    sx={{ width: '100%' }}
-                    onClose={handleCallbackErrorSnackbarClose}
-                >
-                    {callbackErrorMsg}
-                </Alert>
-            </Snackbar>
-            <Snackbar open={isCameraError} autoHideDuration={4000} onClose={handleCameraErrorSnackbarClose}>
-                <Alert
-                    severity="error"
-                    variant="filled"
-                    sx={{ width: '100%' }}
-                    onClose={handleCameraErrorSnackbarClose}
-                >
-                    Could not open the QR scanner!
-                </Alert>
-            </Snackbar>
         </>
     );
 }
