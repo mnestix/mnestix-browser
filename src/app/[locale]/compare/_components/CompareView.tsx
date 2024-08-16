@@ -75,7 +75,7 @@ export function CompareView() {
         try {
             await addAas(aasSearch.aas!, aasSearch.aasData?.submodelDescriptors);
         } catch (e) {
-            throw new LocalizedError(messages.mnestix.aasUrlNotFound); // TODO
+            throw new LocalizedError(messages.mnestix.compare.aasAddError);
         }
 
         setAddModalOpen(false);
