@@ -59,43 +59,33 @@ export function QrScanner(props: { onScan: (scanResult: string) => Promise<void>
 
     return (
         <>
-            <Box
-                style={{
-                    cursor: 'pointer',
-                    height: size,
-                    width: size,
-                    margin: 'auto',
-                    position: 'relative',
-                }}
-            >
+            <Box position="relative" margin="auto" height={size} width={size} style={{ cursor: 'pointer' }}>
                 {state === State.Stopped && (
                     <Box
                         onClick={() => setState(State.LoadScanner)}
                         padding="50px"
-                        justifyContent="center"
                         position="absolute"
-                        style={{ height: size, width: size }}
+                        height={size}
+                        width={size}
                     >
                         <ScannerLogo style={{ color: theme.palette.primary.main }} alt="Scanner Logo" />
                     </Box>
                 )}
                 {state !== State.Stopped && (
                     <IconButton
-                        aria-label="delete"
-                        size="large"
+                        aria-label="close scanner"
                         onClick={() => setState(State.Stopped)}
-                        style={{ position: 'absolute', zIndex: 999, right: 0 }}
+                        style={{
+                            position: 'absolute',
+                            zIndex: 999,
+                            right: 0,
+                        }} // Align to the right and render in front of everything
                     >
-                        <HighlightOffRoundedIcon fontSize="inherit" />
+                        <HighlightOffRoundedIcon fontSize="large" />
                     </IconButton>
                 )}
                 {(state === State.LoadScanner || state === State.HandleQr) && (
-                    <Box
-                        padding="50px"
-                        justifyContent="center"
-                        position="absolute"
-                        style={{ height: size, width: size }}
-                    >
+                    <Box padding="50px" position="absolute" height={size} width={size}>
                         <CircularProgress
                             style={{ margin: 'auto', position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }}
                         />
