@@ -3,7 +3,7 @@ import { FormattedMessage } from 'react-intl';
 import { messages } from 'lib/i18n/localization';
 import CloseIcon from '@mui/icons-material/Close';
 import { QrScanner } from 'app/[locale]/_components/QrScanner';
-import { ManualAasInput } from 'app/[locale]/viewer/_components/ManualAasInput';
+import { ManualAasInput } from 'app/[locale]/_components/ManualAasInput';
 
 type AddAasModalProps = {
     readonly onSubmit: (result: string) => Promise<void>;
