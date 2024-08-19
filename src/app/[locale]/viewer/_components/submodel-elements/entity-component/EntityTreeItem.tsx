@@ -47,7 +47,7 @@ const CustomContent = React.forwardRef(function CustomContent(props: CustomTreeI
             if (aasIds.length === 0) {
                 window.open(assetId, '_blank');
             } else {
-                navigate.push('/asset/' + encodeURIComponent(assetId));
+                navigate.push('/asset?assetId=' + encodeURIComponent(assetId));
             }
         }
     };
