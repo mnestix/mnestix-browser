@@ -202,12 +202,11 @@ export default function MainMenu() {
                 >
                     {`Copyright © ${new Date().getFullYear()} XITASO GmbH`}
                 </Typography>
-                {!useAuthentication ||
-                    (!auth.isLoggedIn && (
-                        <Typography align="left" paddingLeft="16px" paddingBottom="10px" style={{ opacity: '0.6' }}>
-                            {versionString}
-                        </Typography>
-                    ))}
+                {(!useAuthentication || !auth.isLoggedIn) && (
+                    <Typography align="left" paddingLeft="16px" paddingBottom="10px" style={{ opacity: '0.6' }}>
+                        {versionString}
+                    </Typography>
+                )}
                 {useAuthentication && auth.isLoggedIn && (
                     <Box>
                         <List>
