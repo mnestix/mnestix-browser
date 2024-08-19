@@ -243,6 +243,7 @@ Mnestix provides the following configuration options. You can adapt the values i
 |---------------------------------------|-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
 | `DISCOVERY_API_URL`                   |                             | Address of the Discovery Service to find an AAS for an Asset                                                                                                                                                                       | required |
 | `REGISTRY_API_URL`                    |                             | Address of the AAS Registry Service to retrieve the related descriptor for an AAS                                                                                                                                                  | optional |
+| `SUBMODEL_REGISTRY_API_URL`           |                             | Address of the Submodel Registry Service to retrieve the related descriptor for a Submodel                                                                                                                                         | optional |
 | `AAS_REPO_API_URL`                    |                             | Default AAS Repository to display when AAS Id is not in AAS Registry                                                                                                                                                               | required |
 | `MNESTIX_BACKEND_API_URL`             |                             | Mnestix Backend with a lot of business comfort features like the Repository-Proxy or the Template builder                                                                                                                          | optional |
 | `AAS_LIST_FEATURE_FLAG`               | false                       | Enables or disables the AasList in the frontend. This only works in combination with `Features__AllowRetrievingAllShellsAndSubmodels` being set to `true` (Needs the Mnestix Backend to work)                                      | optional |
@@ -422,13 +423,30 @@ the service will search in the local repository for the requested information.
 If the discovery service is configured, it will initially identify the relevant AAS-ID for the searched Asset ID before querying the Registry Service.
 Configuration of the Registry Service is optional. If the AAS Registry Service is not configured, the search will default to the local repository.
 
-To configure the AAS repository, please provide the URL in the Frontend Configuration variables.
+To configure the AAS registry, please provide the URL in the Frontend Configuration variables.
 
 ```yaml
 REGISTRY_API_URL: '{{REGISTRY-SERVICE-URL}}'
 ```
 
 By setting the REGISTRY_API_URL, you enable the AAS Registry Service, ensuring efficient retrieval of AAS descriptors.
+
+#### How to configure the BaSyx Submodel Registry Service
+
+The Submodel Registry feature provides an optional configuration that allows you to manage and resolve submodels efficiently. 
+When the Submodel Registry is configured, any reference to a submodel will first check if the submodel is available in the specified registry endpoint. 
+If the submodel is found in the registry, it will be fetched from there. If the submodel is not found in the registry, 
+the system will then check the local repository for the submodel.
+
+Configuring the Submodel Registry is optional. If not configured, all submodel references will default to being resolved from the local repository only.
+
+To configure the Submodel registry, please provide the URL in the Frontend Configuration variables.
+
+```yaml
+SUBMODEL_REGISTRY_API_URL: '{{SUBMODEL_REGISTRY_API_URL}}'
+```
+
+By setting the SUBMODEL_REGISTRY_API_URL, you enable the Submodel Registry Service, ensuring efficient retrieval of Submodel descriptors.
 
 #### Technical Information - Registry Service
 
