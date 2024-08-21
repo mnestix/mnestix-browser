@@ -119,6 +119,9 @@ export default function Page() {
                         handleChange={handleChangeIdGeneratorSetting}
                     />
                 </Box>
+                <Box>
+                    <p>{}</p>
+                </Box>
             </Box>
         </PrivateRoute>
     );

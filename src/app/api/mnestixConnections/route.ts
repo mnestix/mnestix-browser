@@ -1,35 +1,31 @@
-import Database from 'better-sqlite3';
-import path from 'path';
-import { NextRequest, NextResponse } from 'next/server';
-
-const dbPath = path.resolve(process.cwd(), 'mnestix-database.db');
+import { prisma } from 'lib/database/prisma';
+import { NextRequest } from 'next/server';
 
 export async function GET() {
-    const db = new Database(dbPath);
+    const mnestixConnections = await prisma.mnestixConnection.findMany()
     
-    const connections = db.prepare("SELECT * FROM Connections").all();
-    db.close();
-    
-    return Response.json(connections);
+    return Response.json(mnestixConnections);
 }
 
 export async function POST(req: NextRequest) {
-    const db = new Database(dbPath);
-    const body = await req.json()
-
-    console.log(body)
+    const mnestixConnectionRequest = await req.json()
     
-    const type = body.type;
-    const url = body.url;
-
-    if (!url || !type) {
-        return Response.json({ error: "url and type are required" });
+    if (!mnestixConnectionRequest.url || !mnestixConnectionRequest.type) {
+        return Response.json({ error: "Url and type are required" });
     }
 
     try {
-        const stmt = db.prepare("INSERT INTO Connections (url, type) VALUES (?, ?)");
-        stmt.run(url, type);
-        return Response.json({ message: 'Connection created' });
+        const mnestixType = await prisma.mnestixType.findFirst({where: {typeName: mnestixConnectionRequest.type}})
+        if (!mnestixType) {
+            return Response.json({error: "Invalid type"})
+        }
+        await prisma.mnestixConnection.create({
+            data: {
+                url: mnestixConnectionRequest.url,
+                typeId: mnestixType.id
+            }
+        })
+        return Response.json({ message: 'MnestixConnection created' });
     } catch (error) {
         return Response.json({ error: (error as Error).message });
     }
