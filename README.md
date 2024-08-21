@@ -1,8 +1,8 @@
 <img width="20%" src="src/assets/XitasoLogoBlack.svg" alt="XITASO Logo">
-<p align="center">
+<p style="text-align: center">
   <img src="public/android-chrome-192x192.png" alt="Mnestix Logo">
 </p>
-<h1 align="center">Mnestix</h1>
+<h1 style="text-align: center">Mnestix</h1>
 
 [![Made by XITASO](https://img.shields.io/badge/Made_by_XITASO-005962?style=flat-square)](https://xitaso.com/)
 [![MIT License](https://img.shields.io/badge/License-MIT-005962.svg?style=flat-square)](https://choosealicense.com/licenses/mit/)
@@ -106,7 +106,7 @@ To check what other options exist to run the Mnestix Browser, see the yarn scrip
  - `yarn docker:prod` will build everything with the production flag.
  - `yarn docker:test` will run all tests in the docker environment.
  - `yarn docker:prune` will stop all docker containers, remove them from the list and prune all volumes. Start with a blank slate :)
-  - `yarn docker:keycloak` will setup a local keycloak instance and start Mnestix with keycloak support enabled
+ - `yarn docker:keycloak` will setup a local keycloak instance and start Mnestix with keycloak support enabled
 
 ## Secret environment variables
 
@@ -245,6 +245,7 @@ Mnestix provides the following configuration options. You can adapt the values i
 | `REGISTRY_API_URL`                    |                             | Address of the AAS Registry Service to retrieve the related descriptor for an AAS                                                                                                                                                  | optional |
 | `SUBMODEL_REGISTRY_API_URL`           |                             | Address of the Submodel Registry Service to retrieve the related descriptor for a Submodel                                                                                                                                         | optional |
 | `AAS_REPO_API_URL`                    |                             | Default AAS Repository to display when AAS Id is not in AAS Registry                                                                                                                                                               | required |
+| `SUBMODEL_REPO_API_URL`               |                             | Default Submodel Repository to display when Submodel Id is not in Submodel Registry                                                                                                                                                | required |
 | `MNESTIX_BACKEND_API_URL`             |                             | Mnestix Backend with a lot of business comfort features like the Repository-Proxy or the Template builder                                                                                                                          | optional |
 | `AAS_LIST_FEATURE_FLAG`               | false                       | Enables or disables the AasList in the frontend. This only works in combination with `Features__AllowRetrievingAllShellsAndSubmodels` being set to `true` (Needs the Mnestix Backend to work)                                      | optional |
 | `AUTHENTICATION_FEATURE_FLAG`         | false                       | Enable or disable the authentication in the frontend. (Needs the Mnestix Backend to work)                                                                                                                                          | optional |
@@ -256,7 +257,7 @@ Mnestix provides the following configuration options. You can adapt the values i
 | `THEME_LOGO_URL`                      |                             | This variable **overwrites** the Logo in the theme, and thus the environment variable `THEME_LOGO_MIME_TYPE` will not be evaluated and it is not necessary to mount the image as specified below                                   | optional |
 | `KEYCLOAK_ENABLED`                    | false                       | By default, it is set to false, meaning Keycloak authentication will be disabled, and the default authentication method will be Azure Entra ID. If you set this variable to true, Keycloak authentication will be enabled instead. | optional |
 | `KEYCLOAK_CLIENT_ID`                  | mnestix-browser-client-demo | Configuration variable that specifies the client unique identifier used by your application when connecting to the Keycloak server.                                                                                                | optional |
-| `KEYCLOAK_ISSUER`                     |                             | Configuration variable that specifies the URL of the Keycloak servers issuer endpoint. This endpoint provides the base URL for the Keycloak server that issues tokens and handles authentication requests                         | optional |
+| `KEYCLOAK_ISSUER`                     |                             | Configuration variable that specifies the URL of the Keycloak servers issuer endpoint. This endpoint provides the base URL for the Keycloak server that issues tokens and handles authentication requests                          | optional |
 | `KEYCLOAK_LOCAL_URL`                  |                             | Optional configuration variable specifically used for development environments within Docker. This allows your application to connect to a Keycloak instance running in a Docker container                                         | optional |
 | `KEYCLOAK_REALM`                      | BaSyx                       | Configuration variable that specifies the name of the Keycloak realm your application will use for authentication and authorization.                                                                                               | optional |
 
@@ -353,6 +354,7 @@ For example (change `{{MNESTIX_BACKEND_API_URL}}` to the URL of the running [Mne
 ```yaml
 DISCOVERY_API_URL: '{{MNESTIX_BACKEND_API_URL}}/discovery'
 AAS_REPO_API_URL: '{{MNESTIX_BACKEND_API_URL}}/repo'
+SUBMODEL_REPO_API_URL: '{{MNESTIX_BACKEND_API_URL}}/repo'
 MNESTIX_BACKEND_API_URL: '{{MNESTIX_BACKEND_API_URL}}'
 ```
 
@@ -379,7 +381,7 @@ BASYX_CORS_ALLOWED-METHODS: GET,POST,PATCH,DELETE,PUT,OPTIONS,HEAD
 ```
 
 If you are using the Mnestix API see [here](#running-mnestix-with-its-api) on how to set the Frontend Flags.
-If you are using only the Mnestix Browser just set the environment variable `AAS_REPO_API_URL` accordingly.
+If you are using only the Mnestix Browser just set the environment variables `AAS_REPO_API_URL` and `SUBMODEL_REPO_API_URL` accordingly.
 
 #### How to configure the BaSyx Discovery Service
 
