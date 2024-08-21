@@ -4,19 +4,21 @@ import { messages } from 'lib/i18n/localization';
 import { FormattedMessage } from 'react-intl';
 import { ManualAasInput } from '../_components/ManualAasInput';
 import { QrScanner } from '../_components/QrScanner';
-import { handleSearchForAas } from 'lib/searchUtilActions/search';
+import { handleSearchForAas } from 'lib/searchUtilActions/searchClient';
 import { useRouter } from 'next/navigation';
 import { useAasState, useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { LocalizedError } from 'lib/util/LocalizedError';
+import { useApis } from 'components/azureAuthentication/ApiProvider';
 
 export const DashboardInput = () => {
     const [, setAas] = useAasState();
     const [, setRegistryAasData] = useRegistryAasState();
     const navigate = useRouter();
+    const { repositoryClient } = useApis();
 
     const browseAasUrl = async (val: string) => {
         try {
-            const aasSearch = await handleSearchForAas(val);
+            const aasSearch = await handleSearchForAas(val, repositoryClient);
 
             if (aasSearch.aas) {
                 setAas(aasSearch.aas);

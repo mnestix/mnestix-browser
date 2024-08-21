@@ -11,8 +11,9 @@ import { useEffect, useState } from 'react';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { useSearchParams } from 'next/navigation';
 import { showError } from 'lib/util/ErrorHandlerUtil';
-import { AasSearchResult, handleSearchForAas } from 'lib/searchUtilActions/search';
+import { AasSearchResult, handleSearchForAas } from 'lib/searchUtilActions/searchClient';
 import { LocalizedError } from 'lib/util/LocalizedError';
+import { useApis } from 'components/azureAuthentication/ApiProvider';
 
 export function CompareView() {
     const { compareAas, addSeveralAas, deleteAas, addAas } = useCompareAasContext();
@@ -23,6 +24,8 @@ export function CompareView() {
         return decodeURIComponent(aasId);
     });
     const [addModalOpen, setAddModalOpen] = useState(false);
+
+    const { repositoryClient } = useApis();
 
     useEffect(() => {
         async function _fetchAas() {
@@ -58,7 +61,7 @@ export function CompareView() {
     const handleAddAas = async (aasId: string) => {
         let aasSearch: AasSearchResult;
         try {
-            aasSearch = await handleSearchForAas(aasId);
+            aasSearch = await handleSearchForAas(aasId, repositoryClient);
         } catch (e) {
             throw new LocalizedError(messages.mnestix.aasUrlNotFound);
         }

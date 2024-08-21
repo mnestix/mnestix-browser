@@ -5,9 +5,6 @@ import { Endpoint, RegistryAasData, SubmodelDescriptor } from 'lib/types/registr
 import { RegistryServiceApi } from 'lib/api/registry-service-api/registryServiceApi';
 import { DiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApi';
 import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/types';
-import { encodeBase64 } from 'lib/util/Base64Util';
-import { AssetAdministrationShellRepositoryApi } from 'lib/api/basyx-v3/api';
-import { mnestixFetch } from 'lib/api/infrastructure';
 
 interface RegistrySearchResult {
     registryAas: AssetAdministrationShell;
@@ -86,58 +83,6 @@ export async function handleAasDiscoverySearch(searchAssetId: string): Promise<s
     } catch (e) {
         console.warn('Could not be found in the discovery service, will continue to look in the AAS repository.');
         return null;
-    }
-}
-
-export type AasData = {
-    submodelDescriptors: SubmodelDescriptor[] | undefined;
-    aasRegistryRepositoryOrigin: string | undefined;
-};
-
-export type AasSearchResult = {
-    aasUrl: string;
-    aas: AssetAdministrationShell | null;
-    aasData: AasData | null;
-};
-
-export async function handleSearchForAas(val: string): Promise<AasSearchResult> {
-    const repositoryClient = new AssetAdministrationShellRepositoryApi({
-        basePath: process.env.AAS_REPO_API_URL,
-        fetch: mnestixFetch(),
-    });
-
-    const aasIds = await handleAasDiscoverySearch(val);
-    if (aasIds && aasIds.length > 1) {
-        return {
-            aasUrl: `/viewer/discovery?assetId=${val}`,
-            aas: null,
-            aasData: null,
-        };
-    } else {
-        // Check if an AAS ID is found in the Discovery service, or assign the input parameter for further search.
-        // If there is exactly one AAS ID in the aasIds array, use it; otherwise, use the input parameter 'val'.
-        const aasId = aasIds && aasIds.length === 1 ? aasIds[0] : val;
-        const registrySearchResult = await handleAasRegistrySearch(aasId);
-        const aas =
-            registrySearchResult != null
-                ? registrySearchResult.registryAas
-                : await repositoryClient.getAssetAdministrationShellById(encodeBase64(aasId));
-
-        const aasData =
-            registrySearchResult?.registryAasData != null
-                ? {
-                      submodelDescriptors: registrySearchResult.registryAasData.submodelDescriptors,
-                      aasRegistryRepositoryOrigin: registrySearchResult.registryAasData.aasRegistryRepositoryOrigin,
-                  }
-                : null;
-
-        // If not found: Error: AAS could not be found
-
-        return {
-            aasUrl: `/viewer/${encodeBase64(aas.id)}`,
-            aas: aas,
-            aasData: aasData,
-        };
     }
 }
 
