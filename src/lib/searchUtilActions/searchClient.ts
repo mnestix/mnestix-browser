@@ -12,7 +12,7 @@ export type AasData = {
 };
 
 export type AasSearchResult = {
-    aasUrl: string;
+    redirectUrl: string;
     aas: AssetAdministrationShell | null;
     aasData: AasData | null;
 };
@@ -24,7 +24,7 @@ export async function handleSearchForAas(
     const aasIds = await handleAasDiscoverySearch(val);
     if (aasIds && aasIds.length > 1) {
         return {
-            aasUrl: `/viewer/discovery?assetId=${val}`,
+            redirectUrl: `/viewer/discovery?assetId=${val}`,
             aas: null,
             aasData: null,
         };
@@ -50,7 +50,7 @@ export async function handleSearchForAas(
         // If not found: Error: AAS could not be found
 
         return {
-            aasUrl: `/viewer/${encodeBase64(aas.id)}`,
+            redirectUrl: `/viewer/${encodeBase64(aas.id)}`,
             aas: aas,
             aasData: aasData,
         };

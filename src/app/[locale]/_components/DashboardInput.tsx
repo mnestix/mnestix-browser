@@ -24,7 +24,7 @@ export const DashboardInput = () => {
                 setAas(aasSearch.aas);
                 setRegistryAasData(aasSearch.aasData);
             }
-            navigate.push(aasSearch.aasUrl);
+            navigate.push(aasSearch.redirectUrl);
         } catch (e) {
             throw new LocalizedError(messages.mnestix.aasUrlNotFound);
         }

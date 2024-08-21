@@ -24,6 +24,9 @@ export function QrScanner(props: { onScan: (scanResult: string) => Promise<void>
 
     const notificationSpawner = useNotificationSpawner();
     const intl = useIntl();
+    
+    const theme = useTheme();
+    const size = props.size || 250;
 
     const switchToVideoStream = (loadingSuccessful: boolean) => {
         if (loadingSuccessful) {
@@ -52,11 +55,6 @@ export function QrScanner(props: { onScan: (scanResult: string) => Promise<void>
         }
     };
 
-    // Scanner logo
-
-    const theme = useTheme();
-    const size = props.size || 250;
-
     return (
         <>
             <Box position="relative" margin="auto" height={size} width={size} style={{ cursor: 'pointer' }}>
@@ -71,7 +69,7 @@ export function QrScanner(props: { onScan: (scanResult: string) => Promise<void>
                         <ScannerLogo style={{ color: theme.palette.primary.main }} alt="Scanner Logo" />
                     </Box>
                 )}
-                {state !== State.Stopped && (
+                {state === State.ShowVideo && (
                     <IconButton
                         aria-label="close scanner"
                         onClick={() => setState(State.Stopped)}
