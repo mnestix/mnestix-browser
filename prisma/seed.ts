@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 async function main() {
-    await prisma.mnestixType.createMany({
+    await prisma.connectionType.createMany({
         data: [
             {typeName: 'AAS_REPOSITORY'},
             {typeName: 'AAS_REGISTRY'},

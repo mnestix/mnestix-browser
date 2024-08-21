@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-        const mnestixType = await prisma.mnestixType.findFirst({where: {typeName: mnestixConnectionRequest.type}})
+        const mnestixType = await prisma.connectionType.findFirst({where: {typeName: mnestixConnectionRequest.type}})
         if (!mnestixType) {
             return Response.json({error: "Invalid type"})
         }
