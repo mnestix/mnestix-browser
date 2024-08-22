@@ -27,6 +27,7 @@
         "lodash": "^4.17.21",
         "prettier": "^3.2.5",
         "prisma": "^5.18.0",
+        "tsx": "^4.17.0",
         "typescript-eslint": "^7.8.0"
     },
     "dependencies": {
@@ -108,6 +109,6 @@
     "proxy": "https://localhost:7064",
     "packageManager": "yarn@1.22.22+sha1.ac34549e6aa8e7ead463a7407e1c7390f61a6610",
     "prisma": {
-        "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+        "seed": "tsx prisma/seed.ts"
     }
 }
