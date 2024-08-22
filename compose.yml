@@ -129,7 +129,7 @@ services:
   aas-discovery:
     image: eclipsebasyx/aas-discovery:2.0.0-SNAPSHOT
     container_name: aas-discovery
-    profiles: ["", "tests"]
+    profiles: ["", "basyx", "tests"]
     depends_on:
       - mongodb
     environment:
@@ -157,7 +157,7 @@ services:
   aas-registry:
     image: eclipsebasyx/aas-registry-log-mongodb:2.0.0-SNAPSHOT
     container_name: aas-registry
-    profiles: [""]
+    profiles: ["", "basyx"]
     ports:
       - '8083:8080'
     depends_on:
@@ -177,7 +177,7 @@ services:
   submodel-registry:
     image: eclipsebasyx/submodel-registry-log-mongodb:2.0.0-SNAPSHOT
     container_name: submodel-registry
-    profiles: [""]
+    profiles: ["", "basyx"]
     ports:
       - '8084:8080'
     depends_on:
