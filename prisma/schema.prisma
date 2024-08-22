@@ -13,12 +13,12 @@ datasource db {
 model ConnectionType {
   id String @id @default(cuid())
   typeName String
-  connection MnestixConnection?
+  connection MnestixConnection[]
 }
 
 model MnestixConnection {
   id  String @id @default(cuid())
   url String
   type ConnectionType @relation(fields: [typeId], references: [id])
-  typeId String @unique
+  typeId String
 }
