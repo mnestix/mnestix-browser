@@ -17,7 +17,7 @@ COPY . .
 ENV DATABASE_URL="file:./database/mnestix-database.db"
 RUN yarn prisma migrate deploy
 RUN yarn prisma generate
-RUN yarn prisma db seed
+# RUN yarn prisma db seed
 
 RUN yarn build
 
@@ -47,6 +47,6 @@ COPY . .
 
 RUN yarn prisma migrate deploy
 RUN yarn prisma generate
-RUN yarn prisma db seed
+# RUN yarn prisma db seed
 
 CMD [ "yarn", "dev"]
