@@ -32,7 +32,7 @@ services:
       - mnestix-network
 
   mnestix-api:
-    image: mnestix/mnestix-api:latest
+    image: mnestix/mnestix-api:1.1.0
     container_name: mnestix-api
     profiles: ["", "backend", "tests"]
     ports:
