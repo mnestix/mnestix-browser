@@ -14,6 +14,7 @@ WORKDIR /app
 COPY . .
 
 # TODO find a solution for how to seed a production database
+ENV DATABASE_URL="file:./database/mnestix-database.db"
 RUN yarn prisma migrate deploy
 RUN yarn prisma generate
 # RUN yarn prisma db seed
