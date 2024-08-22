@@ -75,7 +75,7 @@
         "string-width": "4.2.3"
     },
     "scripts": {
-        "dev": "npx prisma migrate deploy && npx prisma generate && npx prisma db seed && next dev",
+        "dev": "yarn prisma migrate deploy && yarn prisma generate && yarn prisma db seed && next dev",
         "build": "next build",
         "start": "next start",
         "prettier": "prettier --check ./",

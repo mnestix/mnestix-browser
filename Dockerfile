@@ -14,8 +14,9 @@ WORKDIR /app
 COPY . .
 
 # TODO find a solution for how to seed a production database
-# RUN npx prisma migrate deploy
-# RUN npx prisma db seed
+# RUN yarn prisma migrate deploy
+# RUN yarn prisma generate
+# RUN yarn prisma db seed
 
 RUN yarn build
 
@@ -43,8 +44,8 @@ FROM deps AS dev
 ENV NODE_ENV=development
 COPY . .
 
-RUN npx prisma migrate deploy
-RUN npx prisma generate
-RUN npx prisma db seed
+RUN yarn prisma migrate deploy
+RUN yarn prisma generate
+RUN yarn prisma db seed
 
 CMD [ "yarn", "dev"]
