@@ -13,6 +13,10 @@ FROM deps AS builder
 WORKDIR /app
 COPY . .
 
+RUN npx prisma migrate deploy
+# TODO find a solution for how to seed a production database
+# RUN npx prisma db seed
+
 RUN yarn build
 
 FROM base AS production
@@ -38,5 +42,9 @@ CMD [ "/app/scripts/start.sh" ]
 FROM deps AS dev
 ENV NODE_ENV=development
 COPY . .
+
+RUN npx prisma migrate deploy
+RUN npx prisma generate
+RUN npx prisma db seed
 
 CMD [ "yarn", "dev"]

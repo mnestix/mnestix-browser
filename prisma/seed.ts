@@ -1,6 +1,9 @@
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 async function main() {
+    /**
+     * As SQLite does not support enums, we emulate the ConnectionType Enum through this prefilled table.
+     */
     await prisma.connectionType.createMany({
         data: [
             {typeName: 'AAS_REPOSITORY'},
