@@ -259,7 +259,6 @@ Mnestix provides the following configuration options. You can adapt the values i
 | `KEYCLOAK_ISSUER`                     |                             | Configuration variable that specifies the URL of the Keycloak servers issuer endpoint. This endpoint provides the base URL for the Keycloak server that issues tokens and handles authentication requests                          | optional |
 | `KEYCLOAK_LOCAL_URL`                  |                             | Optional configuration variable specifically used for development environments within Docker. This allows your application to connect to a Keycloak instance running in a Docker container                                         | optional |
 | `KEYCLOAK_REALM`                      | BaSyx                       | Configuration variable that specifies the name of the Keycloak realm your application will use for authentication and authorization.                                                                                               | optional |
-| `DATABASE_URL`                        |                             | Location of the SQLite database file.                                                                                                                                                                                              |          |
 
 ### How to set a custom logo
 

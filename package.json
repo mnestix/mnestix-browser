@@ -74,7 +74,7 @@
         "string-width": "4.2.3"
     },
     "scripts": {
-        "dev": "yarn prisma migrate deploy && yarn prisma generate && yarn prisma db seed && next dev",
+        "dev": "yarn prisma migrate deploy && yarn prisma generate && next dev",
         "build": "next build",
         "start": "next start",
         "prettier": "prettier --check ./",
@@ -106,8 +106,5 @@
         ]
     },
     "proxy": "https://localhost:7064",
-    "packageManager": "yarn@1.22.22+sha1.ac34549e6aa8e7ead463a7407e1c7390f61a6610",
-    "prisma": {
-        "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
-    }
+    "packageManager": "yarn@1.22.22+sha1.ac34549e6aa8e7ead463a7407e1c7390f61a6610"
 }

@@ -27,12 +27,13 @@ services:
       AUTHENTICATION_FEATURE_FLAG: "false"
       LOCK_TIMESERIES_PERIOD_FEATURE_FLAG: "true"
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:-verySecureNextAuthSecret}
-      DATABASE_URL: "file:./database/mnestix-database.db"
     depends_on:
       aas-environment:
         condition: service_healthy # only after the healthcheck in aas is successful, the mnestix container is being created
     networks:
       - mnestix-network
+    volumes:
+      - mnestix-database:/app/prisma/database
 
   mnestix-api:
     image: mnestix/mnestix-api:latest

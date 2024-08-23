@@ -12,7 +12,6 @@ services:
       - ./src:/app/src
       - ./public:/app/public
 #      - ./data/logo.svg:/app/public/logo
-      - mnestix-database:/app/prisma/database
 
   mongodb:
     ports:
