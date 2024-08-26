@@ -20,6 +20,8 @@ export const enMnestix = {
     idStructure: 'ID structure',
     idStructureExplanation:
         'Define, how your IDs are represented. This is a standard setting that can be adjusted for individual imports.',
+    mnestixConnections: 'Mnestix Connections',
+    mnestixConnectionsExplanation: 'Define which data connections should be used.',
     submodels: 'Submodels',
     unknownModelType: 'Unknown ModelType: {type}',
     nameplateAddressTypes: {
