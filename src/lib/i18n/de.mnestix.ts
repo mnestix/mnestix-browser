@@ -2,6 +2,7 @@ export const deMnestix = {
     welcome: 'Willkommen bei Mnestix',
     digitalTwinMadeEasy: 'Digitaler Zwilling leicht gemacht.',
     notFound: 'Nicht gefunden',
+    aasUrlNotFound: 'Keine Verwaltungsschale unter dieser ID.',
     cannotLoadAasId: {
         header: 'Verwaltungsschale konnte nicht geladen werden.',
         text: 'Es konnte keine Verwaltungsschale für das Asset mit id {assetId} geladen werden.',
@@ -172,6 +173,7 @@ export const deMnestix = {
         assetIdNotFound: 'Asset Id nicht gefunden',
         aasAlreadyAdded: 'Verwaltungsschale kann nicht mehrmals hinzugefügt werden',
         moreAasFound: 'Mehr als eine Verwaltungsschale im Discovery Service gefunden, bitte geben Sie die AAS-ID an.',
+        aasAddError: 'Verwaltungsschale konnte nicht hinzugefügt werden.',
     },
     compareCollection: {
         show: '{idShort}',
@@ -237,5 +239,9 @@ export const deMnestix = {
         aasIdHeading: 'AAS ID',
         repositoryUrl: 'Repository Url',
         subtitle: 'Asset ID',
+    },
+    qrScanner: {
+        defaultCallbackErrorMsg: 'QR Code konnte nicht geöffnet werden!',
+        errorOnQrScannerOpen: 'QR Scanner konnte nicht geöffnet werden!',
     },
 };

@@ -1,37 +1,28 @@
 ﻿import { Box, Dialog, DialogContent, IconButton, Typography } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { messages } from 'lib/i18n/localization';
-import ScannerLogo from 'assets/ScannerLogo.svg';
 import CloseIcon from '@mui/icons-material/Close';
-import { ManualAasAddInput } from './ManualAasAddInput';
-import { useState } from 'react';
-import { useTheme } from '@mui/material/styles';
+import { QrScanner } from 'app/[locale]/_components/QrScanner';
+import { ManualAasInput } from 'app/[locale]/_components/ManualAasInput';
 
 type AddAasModalProps = {
-    readonly handleClose: () => void;
+    readonly onSubmit: (result: string) => Promise<void>;
+    readonly onClose: () => void;
     readonly open: boolean;
 };
 
 export function CompareAasAddDialog(props: AddAasModalProps) {
-    const [inputFocus, setInputFocus] = useState<boolean>(true);
-    const theme = useTheme();
-
-    const focusInput = () => {
-        // The value gets toggled to trigger the useEffect in the child input component 'ManualAasAddInput'.
-        setInputFocus(!inputFocus);
-    };
-
     return (
         <Dialog
             open={props.open}
-            onClose={props.handleClose}
+            onClose={props.onClose}
             maxWidth="sm"
             fullWidth={true}
             data-testid="compare-aas-aad-dialog"
         >
             <IconButton
                 aria-label="close"
-                onClick={props.handleClose}
+                onClick={props.onClose}
                 sx={{
                     position: 'absolute',
                     right: 8,
@@ -50,23 +41,14 @@ export function CompareAasAddDialog(props: AddAasModalProps) {
                         <Typography color="text.secondary" textAlign="center">
                             <FormattedMessage {...messages.mnestix.scanAasId} />
                         </Typography>
-                        <Box
-                            display="flex"
-                            justifyContent="center"
-                            alignItems="center"
-                            marginBottom="-40"
-                            style={{ cursor: 'pointer' }}
-                            onClick={focusInput}
-                        >
-                            <ScannerLogo style={{ color: theme.palette.primary.main }} alt="Scanner Logo" />
-                        </Box>
+                        <QrScanner onScan={props.onSubmit} size={400}  />
                         <Typography color="text.secondary" textAlign="center" sx={{ mb: 2, fontSize: '14px' }}>
                             <FormattedMessage {...messages.mnestix.orEnterManual} />:
                         </Typography>
                     </Box>
                 </Box>
                 <Box paddingY="20px">
-                    <ManualAasAddInput onSubmit={props.handleClose} focus={inputFocus} />
+                    <ManualAasInput onSubmit={props.onSubmit} />
                 </Box>
             </DialogContent>
         </Dialog>
