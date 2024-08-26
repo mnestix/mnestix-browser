@@ -22,6 +22,8 @@ export const deMnestix = {
         'Definieren Sie, wie Ihre IDs aussehen sollen. Dies ist eine Basis-Einstellung, die für individuelle Importe angepasst werden kann.',
     mnestixConnections: 'Mnestix Quellen',
     mnestixConnectionsExplanation: 'Definieren Sie, welche Daten Quellen verwendet werden sollen.',
+    menstixConnectionsRepositories: 'AAS Repositories',
+    menstixConnectionsRepositoryLabel: 'AAS Repository',
     submodels: 'Submodelle',
     unknownModelType: 'Unbekannter ModelType: {type}',
     nameplateAddressTypes: {

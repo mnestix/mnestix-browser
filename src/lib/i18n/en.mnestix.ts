@@ -22,6 +22,8 @@ export const enMnestix = {
         'Define, how your IDs are represented. This is a standard setting that can be adjusted for individual imports.',
     mnestixConnections: 'Mnestix Connections',
     mnestixConnectionsExplanation: 'Define which data connections should be used.',
+    menstixConnectionsRepositories: 'AAS Repositories',
+    menstixConnectionsRepositoryLabel: 'AAS Repository',
     submodels: 'Submodels',
     unknownModelType: 'Unknown ModelType: {type}',
     nameplateAddressTypes: {
