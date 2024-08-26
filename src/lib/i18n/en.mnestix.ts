@@ -24,6 +24,7 @@ export const enMnestix = {
     mnestixConnectionsExplanation: 'Define which data connections should be used.',
     menstixConnectionsRepositories: 'AAS Repositories',
     menstixConnectionsRepositoryLabel: 'AAS Repository',
+    mnestixConnectionsAddButton: 'Add more',
     submodels: 'Submodels',
     unknownModelType: 'Unknown ModelType: {type}',
     nameplateAddressTypes: {
