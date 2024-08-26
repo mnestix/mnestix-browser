@@ -44,7 +44,7 @@ export function IdSettingsCard(props: IdSettingsCardProps) {
         }
     }
     return (
-        <Paper sx={{ p: 3, width: '100%' }}>
+        <Box sx={{ p: 3, width: '100%' }}>
             <CardHeading
                 title={<FormattedMessage {...messages.mnestix.idStructure} />}
                 subtitle={<FormattedMessage {...messages.mnestix.idStructureExplanation} />}
@@ -86,6 +86,6 @@ export function IdSettingsCard(props: IdSettingsCardProps) {
                 open={documentationModalOpen}
                 onClose={() => setDocumentationModalOpen(false)}
             />
-        </Paper>
+        </Box>
     );
 }

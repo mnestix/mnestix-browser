@@ -20,6 +20,8 @@ export const deMnestix = {
     idStructure: 'ID Struktur',
     idStructureExplanation:
         'Definieren Sie, wie Ihre IDs aussehen sollen. Dies ist eine Basis-Einstellung, die für individuelle Importe angepasst werden kann.',
+    mnestixConnections: 'Mnestix Quellen',
+    mnestixConnectionsExplanation: 'Definieren Sie, welche Daten Quellen verwendet werden sollen.',
     submodels: 'Submodelle',
     unknownModelType: 'Unbekannter ModelType: {type}',
     nameplateAddressTypes: {
