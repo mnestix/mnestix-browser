@@ -76,7 +76,7 @@
     "scripts": {
         "dev": "yarn prisma migrate deploy && yarn prisma generate && next dev",
         "build": "next build",
-        "start": "next start",
+        "start": "yarn prisma migrate deploy && yarn prisma generate && next start",
         "prettier": "prettier --check ./",
         "format": "prettier --write ./",
         "lint": "next lint",
