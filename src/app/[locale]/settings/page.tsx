@@ -1,9 +1,10 @@
 'use client';
 
 import { PrivateRoute } from 'components/azureAuthentication/PrivateRoute';
-import { Box } from '@mui/material';
+import { Box, Card } from '@mui/material';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { ViewHeading } from 'components/basics/ViewHeading';
+import { TabSelectorItem, VerticalTabSelector } from 'components/basics/VerticalTabSelector';
 import { messages } from 'lib/i18n/localization';
 import { useState } from 'react';
 import { IdGenerationSettingFrontend } from 'lib/types/IdGenerationSettingFrontend';
@@ -20,16 +21,35 @@ import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { useAuth } from 'lib/hooks/UseAuth';
 import { IdSettingsCard } from './_components/id-settings/IdSettingsCard';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
+import { useIsMobile } from 'lib/hooks/UseBreakpoints';
+import { MnestixConnectionsCard } from 'app/[locale]/settings/_components/mnestix-connections/MnestixConnectionsCard';
+
+enum settingsPageTypes {
+    ID_STRUCTURE,
+    MNESTIX_CONNECTIONS
+}
 
 export default function Page() {
     const notificationSpawner = useNotificationSpawner();
     const intl = useIntl();
     const [settings, setSettings] = useState<IdGenerationSettingFrontend[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const isMobile = useIsMobile();
+
+    const settingsTabItems: TabSelectorItem[] = [
+        {
+            id: settingsPageTypes[settingsPageTypes.ID_STRUCTURE],
+            label: intl.formatMessage(messages.mnestix.idStructure)
+        },
+        {
+            id: settingsPageTypes[settingsPageTypes.MNESTIX_CONNECTIONS],
+            label: intl.formatMessage(messages.mnestix.mnestixConnections)
+        }]
+    const [selectedTab, setSelectedTab] = useState<TabSelectorItem>(settingsTabItems[0]);
 
     const auth = useAuth();
     const bearerToken = auth.getBearerToken();
-    const { configurationClient } = useApis();
+    const {configurationClient} = useApis();
 
     const fetchSettings = async () => {
         try {
@@ -105,20 +125,35 @@ export default function Page() {
         await fetchSettings();
     }, [bearerToken]);
 
+
+    const renderActiveSettingsTab = () => {
+        switch (selectedTab.id) {
+            case settingsPageTypes[settingsPageTypes.ID_STRUCTURE]:
+                return <IdSettingsCard
+                    idSettings={settings}
+                    isLoading={isLoading}
+                    handleChange={handleChangeIdGeneratorSetting}
+                />
+            case settingsPageTypes[settingsPageTypes.MNESTIX_CONNECTIONS]:
+                return <MnestixConnectionsCard/>
+            default:
+                return <></>
+        }
+    }
+
     return (
         <PrivateRoute>
-            <Box sx={{ p: 3, maxWidth: '1125px', width: '100%', margin: '0 auto' }}>
-                <Box sx={{ mb: 3 }}>
-                    <ViewHeading title={<FormattedMessage {...messages.mnestix.settings} />} />
-                    {/* TODO: Place action buttons here (e.g. specification button) */}
+            <Box sx={{p:4, width: '100%', margin: '0 auto'}}>
+                <Box sx={{mb: 3}}>
+                    <ViewHeading title={<FormattedMessage {...messages.mnestix.settings} />}/>
                 </Box>
-                <Box sx={{ mb: 3 }}>
-                    <IdSettingsCard
-                        idSettings={settings}
-                        isLoading={isLoading}
-                        handleChange={handleChangeIdGeneratorSetting}
-                    />
-                </Box>
+                <Card sx={{mb: 3}}>
+                    <Box display="grid" gridTemplateColumns={isMobile ? '1fr' : '1fr 3fr'}>
+                        <VerticalTabSelector items={settingsTabItems} selected={selectedTab}
+                                             setSelected={setSelectedTab}/>
+                        {renderActiveSettingsTab()}
+                    </Box>
+                </Card>
                 <Box>
                     <p>{}</p>
                 </Box>
