@@ -29,6 +29,8 @@ export const deMnestix = {
         addButton: 'Hinzufügen',
         editButton: 'Alle bearbeiten',
         saveButton: 'Alle speichern',
+        resetButton: 'Auf default zurücksetzen',
+        resetSuccessfull: 'Quellen wurden zurückgesetzt.',
         urlFieldRequired: 'URL wird benötigt',
     },
     submodels: 'Submodelle',

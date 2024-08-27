@@ -5,7 +5,7 @@ import { Box, Button, FormControl, IconButton, TextField, Typography } from '@mu
 import React, { useState } from 'react';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import {
-    getConnectionDataAction, upsertConnectionDataAction
+    getConnectionDataAction, resetConnectionTable, upsertConnectionDataAction
 } from 'app/[locale]/settings/_components/mnestix-connections/MnestixConnectionServerActions';
 import ControlPointIcon from '@mui/icons-material/ControlPoint';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
@@ -13,6 +13,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import { useEnv } from 'app/env/provider';
 
 export type ConnectionFormData = {
@@ -28,7 +29,7 @@ export function MnestixConnectionsCard() {
     const [isEditMode, setIsEditMode] = useState(false);
     const intl = useIntl();
     const env = useEnv();
-    
+
     async function getConnectionData() {
         try {
             return await getConnectionDataAction()
@@ -85,6 +86,19 @@ export function MnestixConnectionsCard() {
         setIsEditMode(false)
     }
 
+    async function resetToDefault() {
+        try {
+            await resetConnectionTable();
+            reset(await mapFormData());
+            notificationSpawner.spawn({
+                severity: 'success',
+                message: intl.formatMessage(messages.mnestix.connections.resetSuccessfull)
+            });
+        } catch (error) {
+            notificationSpawner.spawn(error);
+        }
+    }
+
     return (
         <Box sx={{p: 3, width: '100%'}}>
             <Box display="flex" flexDirection="row" justifyContent="space-between">
@@ -100,8 +114,12 @@ export function MnestixConnectionsCard() {
                                 onClick={handleSubmit((data) => saveConnectionData(data))}><FormattedMessage {...messages.mnestix.connections.saveButton} /></Button>
                     </>
                 ) : (
-                    <Button variant="contained" startIcon={<EditIcon/>}
-                            onClick={() => setIsEditMode(true)}><FormattedMessage {...messages.mnestix.connections.editButton} /></Button>
+                    <>
+                        <Button variant="outlined" startIcon={<RefreshIcon/>}
+                                onClick={() => resetToDefault()}><FormattedMessage {...messages.mnestix.connections.resetButton} /></Button>
+                        <Button variant="contained" startIcon={<EditIcon/>}
+                                onClick={() => setIsEditMode(true)}><FormattedMessage {...messages.mnestix.connections.editButton} /></Button>
+                    </>
                 )}
                 </Box>
             </Box>
@@ -109,11 +127,11 @@ export function MnestixConnectionsCard() {
                 <Typography variant="h3" color="primary" mb={2}>
                     <FormattedMessage {...messages.mnestix.connections.repositories} />
                 </Typography>
-                    <Box display="flex" flexDirection="row" mb={4} alignItems="center">
-                        <Typography variant="h4" mr={4}
-                                    width="200px"><FormattedMessage {...messages.mnestix.connections.repositoryDefaultLabel} /></Typography>
-                        <Typography>{env.AAS_REPO_API_URL}</Typography>
-                    </Box>
+                <Box display="flex" flexDirection="row" mb={4} alignItems="center">
+                    <Typography variant="h4" mr={4}
+                                width="200px"><FormattedMessage {...messages.mnestix.connections.repositoryDefaultLabel} /></Typography>
+                    <Typography>{env.AAS_REPO_API_URL}</Typography>
+                </Box>
                 {fields.map((field, index) =>
                     <FormControl fullWidth variant="filled" key={field.id}>
                         <Box display="flex" flexDirection="row" mb={2} alignItems="center">
@@ -126,7 +144,7 @@ export function MnestixConnectionsCard() {
                                         control={control}
                                         defaultValue={field.url}
                                         rules={{required: intl.formatMessage(messages.mnestix.connections.urlFieldRequired)}}
-                                        render={({field, fieldState: { error }}) => (
+                                        render={({field, fieldState: {error}}) => (
                                             <TextField
                                                 {...field}
                                                 label={
@@ -143,12 +161,14 @@ export function MnestixConnectionsCard() {
                         </Box>
                     </FormControl>
                 )}
-                { isEditMode && <Box>
-                    <Button variant="text" startIcon={<ControlPointIcon/>}
-                            onClick={() => append({id: 'temp', type: 'AAS_REPOSITORY', url: ''})}>
-                        <FormattedMessage {...messages.mnestix.connections.addButton} />
-                    </Button>
-                </Box> }
+                {isEditMode && 
+                    <Box>
+                        <Button variant="text" startIcon={<ControlPointIcon/>}
+                                onClick={() => append({id: 'temp', type: 'AAS_REPOSITORY', url: ''})}>
+                            <FormattedMessage {...messages.mnestix.connections.addButton} />
+                        </Button>
+                    </Box>
+                }
             </Box>
         </Box>
     );

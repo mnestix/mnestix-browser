@@ -29,6 +29,8 @@ export const enMnestix = {
         addButton: 'Add more',
         editButton: 'Edit all',
         saveButton: 'Save all',
+        resetButton: 'Reset to default',
+        resetSuccessfull: 'Connections were reset.',
         urlFieldRequired: 'URL field is required',
     },
     submodels: 'Submodels',

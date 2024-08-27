@@ -9,7 +9,6 @@ export async function getConnectionDataAction() {
 
 export async function upsertConnectionDataAction(formData: ConnectionFormData) {
     // todo wrap in transaction -> update all or none
-    console.log(formData)
     const data = formData.repositories;
     const existingData = await prisma?.mnestixConnection.findMany({include: {type: true}});
     for (const existing of existingData) {
@@ -27,7 +26,11 @@ export async function upsertConnectionDataAction(formData: ConnectionFormData) {
         const formData = existingData.find(value => value.id === updated.id)
         const type = await prisma.connectionType.findFirst({where: {typeName: updated.type}})
         if (!formData && type) {
-            const created = await prisma.mnestixConnection.create({data: {url: updated.url, typeId: type.id}})
+            await prisma.mnestixConnection.create({data: {url: updated.url, typeId: type.id}})
         }
     }
+}
+
+export async function resetConnectionTable() {
+    await prisma.mnestixConnection.deleteMany({})
 }
