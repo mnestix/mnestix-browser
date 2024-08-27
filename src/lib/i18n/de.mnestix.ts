@@ -26,6 +26,7 @@ export const deMnestix = {
     menstixConnectionsRepositoryLabel: 'AAS Repository',
     mnestixConnectionsAddButton: 'Hinzufügen',
     mnestixConnectionsEditButton: 'Alle bearbeiten',
+    mnestixConnectionsSaveButton: 'Alle speichern',
     submodels: 'Submodelle',
     unknownModelType: 'Unbekannter ModelType: {type}',
     nameplateAddressTypes: {
