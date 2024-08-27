@@ -7,6 +7,7 @@ import { AssetAdministrationShellRepositoryApi } from 'lib/api/basyx-v3/api';
 import { handleAasDiscoverySearch, handleAasRegistrySearch } from 'lib/searchUtilActions/searchServer';
 import { getAasFromAllRepos } from 'lib/searchUtilActions/SearchRepositoryHelper';
 
+
 export type AasData = {
     submodelDescriptors: SubmodelDescriptor[] | undefined;
     aasRegistryRepositoryOrigin: string | undefined;
@@ -54,6 +55,8 @@ export async function handleSearchForAas(
                       aasRegistryRepositoryOrigin: registrySearchResult.registryAasData.aasRegistryRepositoryOrigin,
                   }
                 : null;
+
+        // If not found: Error: AAS could not be found
 
         return {
             redirectUrl: `/viewer/${encodeBase64(aas.id)}`,
