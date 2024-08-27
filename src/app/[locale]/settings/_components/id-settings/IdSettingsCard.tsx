@@ -1,5 +1,5 @@
 import { InfoOutlined } from '@mui/icons-material';
-import { alpha, Box, Paper, Skeleton, Divider, Typography, styled } from '@mui/material';
+import { alpha, Box, Skeleton, Divider, Typography, styled } from '@mui/material';
 import { CardHeading } from 'components/basics/CardHeading';
 import { messages } from 'lib/i18n/localization';
 import { Fragment, useState } from 'react';
