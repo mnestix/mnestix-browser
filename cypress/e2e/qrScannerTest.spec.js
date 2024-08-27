@@ -7,14 +7,13 @@ describe('Use the QR Scanner', function () {
     });
 
     resolutions.forEach((res) => {
-        describe('test on resolution: ' + res, function() {
-            
-            const [qr1, qr2 ] = qrAas;
+        describe('test on resolution: ' + res, function () {
+            const [qr1, qr2] = qrAas;
 
             beforeEach(function () {
                 cy.setResolution(res);
             });
-            
+
             it('should automatically be redirected to the right viewer page', () => {
                 cy.visit('/');
                 cy.getByTestId('scanner-start').click();
