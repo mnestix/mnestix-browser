@@ -18,6 +18,7 @@ services:
       SUBMODEL_REGISTRY_API_URL: 'http://localhost:8084'
       DISCOVERY_API_URL: 'http://localhost:5064/discovery'
       AAS_REPO_API_URL: 'http://localhost:5064/repo'
+      SUBMODEL_REPO_API_URL: 'http://localhost:5064/repo'
       MNESTIX_BACKEND_API_URL: 'http://localhost:5064'
       AAS_LIST_FEATURE_FLAG: "true"
       COMPARISON_FEATURE_FLAG: "true"
@@ -31,7 +32,7 @@ services:
       - mnestix-network
 
   mnestix-api:
-    image: mnestix/mnestix-api:latest
+    image: mnestix/mnestix-api:1.1.0
     container_name: mnestix-api
     profiles: ["", "backend", "tests"]
     ports:

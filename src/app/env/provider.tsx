@@ -16,6 +16,7 @@ const initialValues: EnvironmentalVariables = {
     REGISTRY_API_URL: '',
     SUBMODEL_REGISTRY_API_URL: '',
     AAS_REPO_API_URL: '',
+    SUBMODEL_REPO_API_URL: '',
     MNESTIX_BACKEND_API_URL: '',
     THEME_PRIMARY_COLOR: undefined,
     THEME_SECONDARY_COLOR: undefined,
