@@ -43,7 +43,7 @@ export default function Page() {
         },
         {
             id: settingsPageTypes[settingsPageTypes.MNESTIX_CONNECTIONS],
-            label: intl.formatMessage(messages.mnestix.mnestixConnections)
+            label: intl.formatMessage(messages.mnestix.connections.title)
         }]
     const [selectedTab, setSelectedTab] = useState<TabSelectorItem>(settingsTabItems[0]);
 

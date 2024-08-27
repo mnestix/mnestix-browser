@@ -89,48 +89,48 @@ export function MnestixConnectionsCard() {
         <Box sx={{p: 3, width: '100%'}}>
             <Box display="flex" flexDirection="row" justifyContent="space-between">
                 <CardHeading
-                    title={<FormattedMessage {...messages.mnestix.mnestixConnections} />}
-                    subtitle={<FormattedMessage {...messages.mnestix.mnestixConnectionsExplanation} />}
+                    title={<FormattedMessage {...messages.mnestix.connections.title} />}
+                    subtitle={<FormattedMessage {...messages.mnestix.connections.subtitle} />}
                 />
                 <Box display="flex" gap={2} alignContent="center" flexWrap="wrap"> {isEditMode ? (
                     <>
                         <Button variant="outlined" startIcon={<CloseIcon/>}
                                 onClick={() => cancelEdit()}><FormattedMessage {...messages.mnestix.cancel} /></Button>
                         <Button variant="contained" startIcon={<CheckIcon/>}
-                                onClick={handleSubmit((data) => saveConnectionData(data))}><FormattedMessage {...messages.mnestix.mnestixConnectionsSaveButton} /></Button>
+                                onClick={handleSubmit((data) => saveConnectionData(data))}><FormattedMessage {...messages.mnestix.connections.saveButton} /></Button>
                     </>
                 ) : (
                     <Button variant="contained" startIcon={<EditIcon/>}
-                            onClick={() => setIsEditMode(true)}><FormattedMessage {...messages.mnestix.mnestixConnectionsEditButton} /></Button>
+                            onClick={() => setIsEditMode(true)}><FormattedMessage {...messages.mnestix.connections.editButton} /></Button>
                 )}
                 </Box>
             </Box>
             <Box mt={3}>
                 <Typography variant="h3" color="primary" mb={2}>
-                    <FormattedMessage {...messages.mnestix.menstixConnectionsRepositories} />
+                    <FormattedMessage {...messages.mnestix.connections.repositories} />
                 </Typography>
                     <Box display="flex" flexDirection="row" mb={4} alignItems="center">
                         <Typography variant="h4" mr={4}
-                                    width="200px"><FormattedMessage {...messages.mnestix.menstixConnectionsRepositoryDefaultLabel} /></Typography>
+                                    width="200px"><FormattedMessage {...messages.mnestix.connections.repositoryDefaultLabel} /></Typography>
                         <Typography>{env.AAS_REPO_API_URL}</Typography>
                     </Box>
                 {fields.map((field, index) =>
                     <FormControl fullWidth variant="filled" key={field.id}>
                         <Box display="flex" flexDirection="row" mb={2} alignItems="center">
                             <Typography variant="h4" mr={4}
-                                        width="160px"><FormattedMessage {...messages.mnestix.menstixConnectionsRepositoryLabel} /></Typography>
+                                        width="160px"><FormattedMessage {...messages.mnestix.connections.repositoryLabel} /></Typography>
                             {isEditMode ? (
                                 <Box display="flex" alignItems="center" width="100%">
                                     <Controller
                                         name={`repositories.${index}.url`}
                                         control={control}
                                         defaultValue={field.url}
-                                        rules={{required: intl.formatMessage(messages.mnestix.mnestixConnectionsUrlFieldRequired)}}
+                                        rules={{required: intl.formatMessage(messages.mnestix.connections.urlFieldRequired)}}
                                         render={({field, fieldState: { error }}) => (
                                             <TextField
                                                 {...field}
                                                 label={
-                                                    <FormattedMessage {...messages.mnestix.menstixConnectionsRepositoryLabel} />}
+                                                    <FormattedMessage {...messages.mnestix.connections.repositoryLabel} />}
                                                 sx={{flexGrow: 1, mr: 1}}
                                                 fullWidth={true}
                                                 error={!!error}
@@ -146,7 +146,7 @@ export function MnestixConnectionsCard() {
                 { isEditMode && <Box>
                     <Button variant="text" startIcon={<ControlPointIcon/>}
                             onClick={() => append({id: 'temp', type: 'AAS_REPOSITORY', url: ''})}>
-                        <FormattedMessage {...messages.mnestix.mnestixConnectionsAddButton} />
+                        <FormattedMessage {...messages.mnestix.connections.addButton} />
                     </Button>
                 </Box> }
             </Box>
