@@ -7,11 +7,11 @@
                 "contentType": "image/png",
                 "path": "https://wgrpproductdata.blob.core.windows.net/product-images/00H14DAP.png"
             },
-            "globalAssetId": "https://i40.xitaso.com/testElement_1",
+            "globalAssetId": "https://i40.xitaso.com/testQrElement_1",
             "specificAssetIds": [
                 {
                     "name": "assetIdShort",
-                    "value": "testElement_1"
+                    "value": "testQrElement_1"
                 }
             ]
         },
@@ -26,8 +26,8 @@
                 "type": "ModelReference"
             }
         ],
-        "id": "https://i40.xitaso.com/aas/testElement_1",
-        "idShort": "aas_testElement_1"
+        "id": "https://i40.xitaso.com/aas/testQrElement_1",
+        "idShort": "aas_testQrElement_1"
     },
     {
         "modelType": "AssetAdministrationShell",
@@ -37,11 +37,11 @@
                 "contentType": "image/png",
                 "path": "https://wgrpproductdata.blob.core.windows.net/product-images/00H14DAP.png"
             },
-            "globalAssetId": "https://i40.xitaso.com/testElement_2",
+            "globalAssetId": "https://i40.xitaso.com/testQrElement_2",
             "specificAssetIds": [
                 {
                     "name": "assetIdShort",
-                    "value": "testElement_2"
+                    "value": "testQrElement_2"
                 }
             ]
         },
@@ -56,8 +56,8 @@
                 "type": "ModelReference"
             }
         ],
-        "id": "https://i40.xitaso.com/aas/testElement_2",
-        "idShort": "aas_testElement_2"
+        "id": "https://i40.xitaso.com/aas/testQrElement_2.1",
+        "idShort": "aas_testQrElement_2"
     },
     {
         "modelType": "AssetAdministrationShell",
@@ -67,11 +67,11 @@
                 "contentType": "image/png",
                 "path": "https://wgrpproductdata.blob.core.windows.net/product-images/00H14DAP.png"
             },
-            "globalAssetId": "https://i40.xitaso.com/testElement_3",
+            "globalAssetId": "https://i40.xitaso.com/testQrElement_2",
             "specificAssetIds": [
                 {
                     "name": "assetIdShort",
-                    "value": "testElement_3"
+                    "value": "testQrElement_2"
                 }
             ]
         },
@@ -86,7 +86,7 @@
                 "type": "ModelReference"
             }
         ],
-        "id": "https://i40.xitaso.com/aas/testElement_3",
-        "idShort": "aas_testElement_3"
+        "id": "https://i40.xitaso.com/aas/testQrElement_2.2",
+        "idShort": "aas_testQrElement_2"
     }
 ]

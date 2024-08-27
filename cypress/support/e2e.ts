@@ -88,6 +88,16 @@ declare global {
              * @description Deletes compare mock data into the repository
              */
             deleteCompareMockData(): Chainable;
+            
+            /**
+             * @description Posts compare mock data into the repository
+             */
+            postQrScannerMockData(): Chainable;
+
+            /**
+             * @description Deletes compare mock data into the repository
+             */
+            deleteQrScannerMockData(): Chainable;
 
             /**
              * Call the Scanner callback function with the given string.
