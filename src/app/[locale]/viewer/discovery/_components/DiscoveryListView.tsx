@@ -7,7 +7,7 @@ import { useState } from 'react';
 import DiscoveryList from 'app/[locale]/viewer/discovery/_components/DiscoveryList';
 import { useSearchParams } from 'next/navigation';
 import { Box, Typography } from '@mui/material';
-import { handleAasDiscoverySearch, handleAasRegistrySearch } from 'lib/searchUtilActions/search';
+import { handleAasDiscoverySearch, handleAasRegistrySearch } from 'lib/searchUtilActions/searchServer';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { IDiscoveryListEntry } from 'lib/types/DiscoveryListEntry';
 import AssetNotFound from 'components/basics/AssetNotFound';

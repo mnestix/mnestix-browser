@@ -11,7 +11,7 @@ import { TabSelectorItem, VerticalTabSelector } from 'components/basics/Vertical
 import { MobileModal } from 'components/basics/MobileModal';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useRegistryAasState } from 'components/contexts/CurrentAasContext';
-import { getSubmodelFromSubmodelDescriptor } from 'lib/searchUtilActions/search';
+import { getSubmodelFromSubmodelDescriptor } from 'lib/searchUtilActions/searchServer';
 import { useEnv } from 'app/env/provider';
 
 export type SubmodelsOverviewCardProps = { readonly smReferences?: Reference[]; readonly isLoading?: boolean };
