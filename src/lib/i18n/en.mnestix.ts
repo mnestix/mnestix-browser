@@ -2,6 +2,7 @@ export const enMnestix = {
     welcome: 'Welcome to Mnestix',
     digitalTwinMadeEasy: 'Digital Twin made easy.',
     notFound: 'Not found',
+    aasUrlNotFound: 'No AAS with the given ID.',
     cannotLoadAasId: {
         header: 'AAS could not be loaded.',
         text: 'Unable to load AAS for asset with id {assetId}',
@@ -181,6 +182,7 @@ export const enMnestix = {
         assetIdNotFound: 'Asset Id not found',
         aasAlreadyAdded: 'AAS cannot be added more than once',
         moreAasFound: 'More than one AAS found in the discovery service, please provide the AAS ID instead.',
+        aasAddError: 'AAS could not be added.',
     },
     compareCollection: {
         show: '{idShort}',
@@ -245,5 +247,9 @@ export const enMnestix = {
         aasIdHeading: 'AAS ID',
         repositoryUrl: 'Repository Url',
         subtitle: 'Asset ID',
+    },
+    qrScanner: {
+        defaultCallbackErrorMsg: 'Could not open the QR code!',
+        errorOnQrScannerOpen: 'Could not open the QR scanner!',
     },
 };

@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="236px" height="235px" viewBox="0 0 236 235" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg viewBox="0 0 132 132" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <title>Scanner Button</title>
     <g id="NEU" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <g id="Landingpage-Copy" transform="translate(-602, -266)" fill-rule="nonzero">
-            <g id="Scanner-Button" transform="translate(602.6662, 266)">
-                <g id="Star" transform="translate(50.3338, 31)">
-                    <rect id="Clip" x="48.5" y="66" width="35" height="35"></rect>
-                    <path d="M49.5,29.7 L49.5,49.5 L29.7,49.5 L29.7,29.7 L49.5,29.7 Z M59.4,19.8 L19.8,19.8 L19.8,59.4 L59.4,59.4 L59.4,19.8 Z M49.5,82.5 L49.5,102.3 L29.7,102.3 L29.7,82.5 L49.5,82.5 Z M59.4,72.6 L19.8,72.6 L19.8,112.2 L59.4,112.2 L59.4,72.6 Z M102.3,29.7 L102.3,49.5 L82.5,49.5 L82.5,29.7 L102.3,29.7 Z M112.2,19.8 L72.6,19.8 L72.6,59.4 L112.2,59.4 L112.2,19.8 Z M72.6,72.6 L82.5,72.6 L82.5,82.5 L72.6,82.5 L72.6,72.6 Z M82.5,82.5 L92.4,82.5 L92.4,92.4 L82.5,92.4 L82.5,82.5 Z M92.4,72.6 L102.3,72.6 L102.3,82.5 L92.4,82.5 L92.4,72.6 Z M72.6,92.4 L82.5,92.4 L82.5,102.3 L72.6,102.3 L72.6,92.4 Z M82.5,102.3 L92.4,102.3 L92.4,112.2 L82.5,112.2 L82.5,102.3 Z M92.4,92.4 L102.3,92.4 L102.3,102.3 L92.4,102.3 L92.4,92.4 Z M102.3,82.5 L112.2,82.5 L112.2,92.4 L102.3,92.4 L102.3,82.5 Z M102.3,102.3 L112.2,102.3 L112.2,112.2 L102.3,112.2 L102.3,102.3 Z M132,33 L118.8,33 L118.8,13.2 L99,13.2 L99,0 L132,0 L132,33 Z M132,132 L132,99 L118.8,99 L118.8,118.8 L99,118.8 L99,132 L132,132 Z M0,132 L33,132 L33,118.8 L13.2,118.8 L13.2,99 L0,99 L0,132 Z M0,0 L0,33 L13.2,33 L13.2,13.2 L33,13.2 L33,0 L0,0 Z" id="Vector" fill="currentColor"></path>
-                </g>
-            </g>
-        </g>
+        <path d="M 0 0 v 32 h 12 v -20 h 20 v -12 z M 132 0 h -32 v 12 h 20 v 20 h 12 z M 132 132 v -32 h -12 v 20 h -20 v 12 z M 0 132 h 32 v -12 h -20 v -20 h -12 z " id="Vector" fill="currentColor" />
+        <path d="M 50 30 v 20 h -20 v -20 z M 60 20 h -40 v 40 h 40 z M 50 82 v 20 h -20 v -20 z M 60 72 h -40 v 40 h 40 z M 102 30 v 20 h -20 v -20 z M 112 20 h -40 v 40 h 40 z" id="Vector" fill="currentColor" />
+        <path d="M 72 72 h 10 v 10 h -10 z M 82 82 h 10 v 10 h -10 z M 92 72 h 10 v 10 h -10 z M 72 92 h 10 v 10 h -10 z M 82 102 h 10 v 10 h -10 z M 92 92 h 10 v 10 h -10 z M 102 82 h 10 v 10 h -10 z M 102 102 h 10 v 10 h -10 z" id="Vector" fill="currentColor" />
     </g>
 </svg>
