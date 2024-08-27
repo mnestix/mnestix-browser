@@ -8,7 +8,6 @@ export async function getConnectionDataAction() {
 }
 
 export async function upsertConnectionDataAction(formData: ConnectionFormData) {
-    // todo wrap in transaction -> update all or none
     const data = formData.repositories;
     const existingData = await prisma?.mnestixConnection.findMany({include: {type: true}});
     for (const existing of existingData) {

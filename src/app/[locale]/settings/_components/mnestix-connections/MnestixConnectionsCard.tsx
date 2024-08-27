@@ -8,7 +8,7 @@ import {
     getConnectionDataAction, resetConnectionTable, upsertConnectionDataAction
 } from 'app/[locale]/settings/_components/mnestix-connections/MnestixConnectionServerActions';
 import ControlPointIcon from '@mui/icons-material/ControlPoint';
-import { Controller, useFieldArray, useForm } from 'react-hook-form';
+import { Controller, FieldArrayWithId, useFieldArray, useForm } from 'react-hook-form';
 import EditIcon from '@mui/icons-material/Edit';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import CheckIcon from '@mui/icons-material/Check';
@@ -99,6 +99,36 @@ export function MnestixConnectionsCard() {
         }
     }
 
+    function getFormControl( field: FieldArrayWithId<ConnectionFormData, "repositories", "id">, index: number) {
+        return <FormControl fullWidth variant="filled" key={field.id}>
+            <Box display="flex" flexDirection="row" mb={2} alignItems="center">
+                <Typography variant="h4" mr={4}
+                            width="160px"><FormattedMessage {...messages.mnestix.connections.repositoryLabel} /></Typography>
+                {isEditMode ? (
+                    <Box display="flex" alignItems="center" width="100%">
+                        <Controller
+                            name={`repositories.${index}.url`}
+                            control={control}
+                            defaultValue={field.url}
+                            rules={{required: intl.formatMessage(messages.mnestix.connections.urlFieldRequired)}}
+                            render={({field, fieldState: {error}}) => (
+                                <TextField
+                                    {...field}
+                                    label={
+                                        <FormattedMessage {...messages.mnestix.connections.repositoryLabel} />}
+                                    sx={{flexGrow: 1, mr: 1}}
+                                    fullWidth={true}
+                                    error={!!error}
+                                    helperText={error ? error.message : ''}
+                                />
+                            )}/>
+                        <IconButton><RemoveCircleOutlineIcon onClick={() => remove(index)}/></IconButton>
+                    </Box>
+                ) : (<Typography>{getValues(`repositories.${index}.url`)}</Typography>)}
+            </Box>
+        </FormControl>;
+    }
+
     return (
         <Box sx={{p: 3, width: '100%'}}>
             <Box display="flex" flexDirection="row" justifyContent="space-between">
@@ -133,42 +163,14 @@ export function MnestixConnectionsCard() {
                     <Typography>{env.AAS_REPO_API_URL}</Typography>
                 </Box>
                 {fields.map((field, index) =>
-                    <FormControl fullWidth variant="filled" key={field.id}>
-                        <Box display="flex" flexDirection="row" mb={2} alignItems="center">
-                            <Typography variant="h4" mr={4}
-                                        width="160px"><FormattedMessage {...messages.mnestix.connections.repositoryLabel} /></Typography>
-                            {isEditMode ? (
-                                <Box display="flex" alignItems="center" width="100%">
-                                    <Controller
-                                        name={`repositories.${index}.url`}
-                                        control={control}
-                                        defaultValue={field.url}
-                                        rules={{required: intl.formatMessage(messages.mnestix.connections.urlFieldRequired)}}
-                                        render={({field, fieldState: {error}}) => (
-                                            <TextField
-                                                {...field}
-                                                label={
-                                                    <FormattedMessage {...messages.mnestix.connections.repositoryLabel} />}
-                                                sx={{flexGrow: 1, mr: 1}}
-                                                fullWidth={true}
-                                                error={!!error}
-                                                helperText={error ? error.message : ''}
-                                            />
-                                        )}/>
-                                    <IconButton><RemoveCircleOutlineIcon onClick={() => remove(index)}/></IconButton>
-                                </Box>
-                            ) : (<Typography>{getValues(`repositories.${index}.url`)}</Typography>)}
-                        </Box>
-                    </FormControl>
+                    getFormControl(field, index)
                 )}
-                {isEditMode && 
-                    <Box>
-                        <Button variant="text" startIcon={<ControlPointIcon/>}
-                                onClick={() => append({id: 'temp', type: 'AAS_REPOSITORY', url: ''})}>
-                            <FormattedMessage {...messages.mnestix.connections.addButton} />
-                        </Button>
-                    </Box>
-                }
+                <Box>
+                    <Button variant="text" startIcon={<ControlPointIcon/>}
+                            onClick={() => { setIsEditMode(true); append({id: 'temp', type: 'AAS_REPOSITORY', url: ''}); }}>
+                        <FormattedMessage {...messages.mnestix.connections.addButton} />
+                    </Button>
+                </Box>
             </Box>
         </Box>
     );
