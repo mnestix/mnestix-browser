@@ -57,6 +57,10 @@ export function QrScanner(props: { onScan: (scanResult: string) => Promise<void>
         [props.onScan],
     );
 
+    if (typeof window !== 'undefined' && typeof window.Cypress !== 'undefined') {
+        window.Cypress.scannerCallback = handleScan;
+    }
+
     return (
         <Box position="relative" margin="auto" height={size} width={size} style={{ cursor: 'pointer' }}>
             {state === State.Stopped && (

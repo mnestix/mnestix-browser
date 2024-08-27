@@ -3,7 +3,6 @@ import testDropdown from '../fixtures/cypress_e2e/Submodels/cyDropdown.json';
 import testDropdownSubRef from '../fixtures/cypress_e2e/Submodels/cyDropdown_SubmodelReference.json';
 import testBom from '../fixtures/cypress_e2e/Submodels/cyBillOfMaterial.json';
 import testBomSubRef from '../fixtures/cypress_e2e/Submodels/cyBillOfMaterial_SubmodelReference.json';
-import requestSettings from '../fixtures/testAAS.json';
 import AASBomComponent from '../fixtures/cypress_e2e/cyTestAas_BoM_Component.json';
 import compareAAS from '../fixtures/cypress_e2e/CompareMockData/cy_compareAas.json';
 import compareSubmodels from '../fixtures/cypress_e2e/CompareMockData/cy_compareNameplateSubmodel.json';
@@ -107,4 +106,17 @@ Cypress.Commands.add('deleteListAasMockData', () => {
         const encodedSubmodelId = btoa(submodel.id);
         cy.repoRequest('DELETE', '/submodels/' + encodedSubmodelId, null);
     });
+});
+
+Cypress.Commands.add('callScannerCallback', (value: string) => {
+    cy.window().then((window) => {
+        // @ts-ignore
+        const func = window.Cypress.scannerCallback;
+        expect(func).to.be.a('function');
+        func(value).catch();
+    });
+});
+
+Cypress.Commands.add('isNotificationSent', (msg: string) => {
+    cy.get('.MuiAlert-message').should('contain.text', msg);
 });

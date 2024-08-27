@@ -88,6 +88,20 @@ declare global {
              * @description Deletes compare mock data into the repository
              */
             deleteCompareMockData(): Chainable;
+
+            /**
+             * Call the Scanner callback function with the given string.
+             *
+             * @param value The value to be given to the Callback.
+             */
+            callScannerCallback(value: string): Chainable;
+
+            /**
+             * Checks, if a notification is sent through the notificationSpawner.
+             *
+             * @param msg The message to search for.
+             */
+            isNotificationSent(msg: string): Chainable;
         }
     }
 }
