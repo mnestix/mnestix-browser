@@ -88,5 +88,35 @@
         ],
         "id": "https://i40.xitaso.com/aas/testElement_3",
         "idShort": "aas_testElement_3"
+    },
+    {
+        "modelType": "AssetAdministrationShell",
+        "assetInformation": {
+            "assetKind": "Instance",
+            "defaultThumbnail": {
+                "contentType": "image/png",
+                "path": "https://wgrpproductdata.blob.core.windows.net/product-images/00H14DAP.png"
+            },
+            "globalAssetId": "https://i40.xitaso.com/testElement_3",
+            "specificAssetIds": [
+                {
+                    "name": "assetIdShort",
+                    "value": "testElement_3"
+                }
+            ]
+        },
+        "submodels": [
+            {
+                "keys": [
+                    {
+                        "type": "Submodel",
+                        "value": "https://i40.xitaso.com/sm/346c2484dac74e23842d94aef17c3eb4"
+                    }
+                ],
+                "type": "ModelReference"
+            }
+        ],
+        "id": "https://i40.xitaso.com/aas/testElement_3.2",
+        "idShort": "aas_testElement_3"
     }
 ]
