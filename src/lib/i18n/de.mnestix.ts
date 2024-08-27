@@ -24,9 +24,11 @@ export const deMnestix = {
     mnestixConnectionsExplanation: 'Definieren Sie, welche Daten Quellen verwendet werden sollen.',
     menstixConnectionsRepositories: 'AAS Repositories',
     menstixConnectionsRepositoryLabel: 'AAS Repository',
+    menstixConnectionsRepositoryDefaultLabel: 'Default AAS Repository',
     mnestixConnectionsAddButton: 'Hinzufügen',
     mnestixConnectionsEditButton: 'Alle bearbeiten',
     mnestixConnectionsSaveButton: 'Alle speichern',
+    mnestixConnectionsUrlFieldRequired: 'URL wird benötigt',
     submodels: 'Submodelle',
     unknownModelType: 'Unbekannter ModelType: {type}',
     nameplateAddressTypes: {
