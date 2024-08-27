@@ -13,6 +13,7 @@ import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { getSubmodelFromSubmodelDescriptor } from 'lib/searchUtilActions/searchServer';
 import { useEnv } from 'app/env/provider';
+import { getSubmodelFromAllRepos } from 'lib/searchUtilActions/SearchRepositoryHelper';
 
 export type SubmodelsOverviewCardProps = { readonly smReferences?: Reference[]; readonly isLoading?: boolean };
 
@@ -39,10 +40,13 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
         async function fetchSubmodelFromRepo(reference: Reference) {
             const id = reference.keys[0].value;
             try {
-                const metadata = await submodelClient.getSubmodelById(id);
+                let metadata = await submodelClient.getSubmodelById(id);
+                if (!metadata) {
+                    metadata = await getSubmodelFromAllRepos(id, submodelClient);
+                }
                 submodels.push({ id, label: metadata.idShort ?? '', metadata });
             } catch (e) {
-                console.error(e);
+                console.debug(e);
             }
         }
 
@@ -107,7 +111,12 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
             }
             if (!registryAasData && !fetchedSubmodel) {
                 try {
-                    fetchedSubmodel = await submodelClient.getSubmodelById(selectedSubmodel?.id ?? '');
+                    //try to fetch submodel from standard repo
+                    fetchedSubmodel = await submodelClient.getSubmodelById(selectedSubmodel?.id);
+                    // if submodel is not found in standard repo, try to fetch it from submodel repo list
+                    if (!fetchedSubmodel) {
+                        fetchedSubmodel = await getSubmodelFromAllRepos(selectedSubmodel?.id, submodelClient);
+                    }
                 } catch (e) {
                     console.debug(e);
                 }

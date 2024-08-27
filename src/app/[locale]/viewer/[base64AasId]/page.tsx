@@ -1,5 +1,4 @@
 'use client';
-/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { useEffect, useState } from 'react';
 import { Box, Button, Skeleton, Typography } from '@mui/material';
@@ -19,6 +18,7 @@ import { AASOverviewCard } from 'app/[locale]/viewer/_components/AASOverviewCard
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useEnv } from 'app/env/provider';
 import { handleAasRegistrySearch } from 'lib/searchUtilActions/searchServer';
+import { getAasFromAllRepos } from 'lib/searchUtilActions/SearchRepositoryHelper';
 
 export default function Page() {
     const navigate = useRouter();
@@ -27,7 +27,7 @@ export default function Page() {
     const [submodels, setSubmodels] = useState<Reference[]>();
     const [productImage, setProductImage] = useState<string>();
     const [isLoadingAas, setIsLoadingAas] = useState(false);
-    const [isLoadingSubmodels, setIsLoadingSubmodels] = useState(false);
+    const [isLoadingSubmodels] = useState(false);
     const [hasImage, setHasImage] = useState(true);
     const notificationSpawner = useNotificationSpawner();
     const isMobile = useIsMobile();
@@ -53,7 +53,10 @@ export default function Page() {
                         });
                         setAasData(registrySearchResult.registryAas as AssetAdministrationShell);
                     } else {
-                        const shell = await repositoryClient.getAssetAdministrationShellById(base64AasId as string);
+                        let shell = await repositoryClient.getAssetAdministrationShellById(base64AasId);
+                        if (!shell) {
+                            shell = await getAasFromAllRepos(base64AasId, repositoryClient);
+                        }
                         setAas(shell);
                         setAasData(shell);
                     }
@@ -162,7 +165,7 @@ export default function Page() {
                     <Typography color="text.secondary">
                         <FormattedMessage
                             {...messages.mnestix.noDataFoundFor}
-                            values={{ name: decodeBase64(base64AasId as string) }}
+                            values={{ name: decodeBase64(base64AasId) }}
                         />
                     </Typography>
                     <Button variant="contained" startIcon={<ArrowForward />} href="/">
