@@ -1,12 +1,18 @@
 import { InfoOutlined } from '@mui/icons-material';
-import { alpha, Box, Skeleton, Divider, Typography, styled } from '@mui/material';
+import { alpha, Box, Skeleton, Divider, Typography, styled, Button } from '@mui/material';
 import { CardHeading } from 'components/basics/CardHeading';
 import { messages } from 'lib/i18n/localization';
-import { Fragment, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { IdGenerationSettingFrontend } from 'lib/types/IdGenerationSettingFrontend';
 import { IdSettingEntry } from './IdSettingEntry';
 import { AssetIdRedirectDocumentationDialog } from './AssetIdRedirectDocumentationDialog';
+import CloseIcon from '@mui/icons-material/Close';
+import CheckIcon from '@mui/icons-material/Check';
+import EditIcon from '@mui/icons-material/Edit';
+import { SubmitHandler, useFieldArray, useForm } from 'react-hook-form';
+import { ConnectionFormData } from 'app/[locale]/settings/_components/mnestix-connections/MnestixConnectionsCard';
+import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 
 const StyledDocumentationButton = styled(Box)(({ theme }) => ({
     display: 'flex',
@@ -30,26 +36,72 @@ type IdSettingsCardProps = {
     readonly isLoading?: boolean;
     readonly handleChange: (idShort: string, values: { prefix: string; dynamicPart: string }) => void;
 };
+
+export type IdSettingsFormData = {
+    idSettings: IdGenerationSettingFrontend[];
+}
+
 export function IdSettingsCard(props: IdSettingsCardProps) {
     const settings = props.idSettings || [];
-    const [currentSettingInEditMode, setCurrentSettingInEditMode] = useState('');
+    const [isEditMode, setIsEditMode] = useState(false);
     const [documentationModalOpen, setDocumentationModalOpen] = useState(false);
 
-    // only allow one setting to be in edit mode
-    function setEditMode(name: string, value: boolean) {
-        if (value) {
-            setCurrentSettingInEditMode(name);
-        } else {
-            setCurrentSettingInEditMode('');
-        }
-    }
+    const {
+        register,
+        control,
+        handleSubmit,
+        reset,
+        formState: { errors },
+    } = useForm<IdSettingsFormData>({defaultValues: {idSettings: settings} });
+    
+    useEffect(() => {
+        reset({idSettings: settings})
+    }, [props.isLoading])
+
+    const { fields } = useFieldArray<IdSettingsFormData>({
+        control,
+        name: 'idSettings',
+    });
+    
+    const onSubmit: SubmitHandler<IdGenerationSettingFrontend[]> = (data) => {
+        console.log("save " + data[0])
+    };
+
+    const cancelEdit = () => {
+        reset();
+        setIsEditMode(false);
+    };
+
     return (
         <Box sx={{ p: 3, width: '100%' }}>
-            <CardHeading
-                title={<FormattedMessage {...messages.mnestix.idStructure} />}
-                subtitle={<FormattedMessage {...messages.mnestix.idStructureExplanation} />}
-            />
+            <Box display="flex" flexDirection="row" justifyContent="space-between">
+                <CardHeading
+                    title={<FormattedMessage {...messages.mnestix.idStructure} />}
+                    subtitle={<FormattedMessage {...messages.mnestix.idStructureExplanation} />}
+                />
+                <Box display="flex" gap={2} alignContent="center" flexWrap="wrap">
+                    {isEditMode ? (
+                        <>
+                            <Button variant="outlined" startIcon={<CloseIcon />} onClick={()=> {cancelEdit()}}>
+                                <FormattedMessage {...messages.mnestix.cancel} />
+                            </Button>
+                            <Button
+                                variant="contained"
+                                startIcon={<CheckIcon />}
+                                onClick={() => {}}
+                            >
+                                <FormattedMessage {...messages.mnestix.connections.saveButton} />
+                            </Button>
+                        </>
+                    ) : (
+                        <Button variant="contained" startIcon={<EditIcon />} onClick={() => setIsEditMode(true)}>
+                            <FormattedMessage {...messages.mnestix.connections.editButton} />
+                        </Button>
+                    )}
+                </Box>
+            </Box>
             <Box sx={{ my: 2 }}>
+                <Divider />
                 {props.isLoading &&
                     !settings.length &&
                     [0, 1, 2, 3, 4].map((i) => {
@@ -60,16 +112,18 @@ export function IdSettingsCard(props: IdSettingsCardProps) {
                             </Fragment>
                         );
                     })}
-                {settings.map((setting, index) => {
+                {fields.map((field, index) => {
                     return (
                         <IdSettingEntry
                             key={index}
-                            idSetting={setting}
-                            hasDivider={index !== 0}
+                            index={index}
+                            field={field}
                             handleChange={props.handleChange}
-                            setEditMode={setEditMode}
-                            editMode={currentSettingInEditMode === setting.name}
+                            editMode={isEditMode}
                             isLoading={props.isLoading}
+                            control={control}
+                            register={register}
+                            errors={errors}
                         />
                     );
                 })}

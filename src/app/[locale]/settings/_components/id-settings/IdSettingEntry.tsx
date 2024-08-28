@@ -1,8 +1,6 @@
-import { Check, Close } from '@mui/icons-material';
 import {
     Box,
     CircularProgress,
-    Divider,
     FormControl,
     InputLabel,
     MenuItem,
@@ -14,20 +12,27 @@ import {
 import { LockedTextField } from 'components/basics/LockedTextField';
 import { messages } from 'lib/i18n/localization';
 import { useEffect, useState } from 'react';
-import { Controller, ControllerRenderProps, SubmitHandler, useForm } from 'react-hook-form';
+import {
+    Control,
+    Controller,
+    ControllerRenderProps,
+    FieldArrayWithId, FieldErrors,
+    UseFormRegister
+} from 'react-hook-form';
 import { FormattedMessage } from 'react-intl';
-import { IdGenerationSettingFrontend } from 'lib/types/IdGenerationSettingFrontend';
 import { isValidIdPrefix, isValidShortIdPrefix } from 'lib/util/IdValidationUtil';
 import { DynamicPartText } from './DynamicPartText';
-import { SquaredIconButton } from 'components/basics/Buttons';
+import { IdSettingsFormData } from 'app/[locale]/settings/_components/id-settings/IdSettingsCard';
 
 type IdSettingEntryProps = {
-    readonly idSetting: IdGenerationSettingFrontend;
-    readonly hasDivider?: boolean;
+    readonly index: number;
     readonly editMode: boolean;
     readonly isLoading?: boolean;
     readonly handleChange: (idShort: string, values: { prefix: string; dynamicPart: string }) => void;
-    readonly setEditMode: (name: string, value: boolean) => void;
+    readonly control: Control<IdSettingsFormData>
+    readonly field: FieldArrayWithId<IdSettingsFormData>
+    readonly register: UseFormRegister<IdSettingsFormData>
+    readonly errors: FieldErrors<IdSettingsFormData> | undefined
 };
 
 type FormInputs = {
@@ -68,12 +73,11 @@ const StyledCircularProgressWrapper = styled(Box)(() => ({
 }));
 
 export function IdSettingEntry(props: IdSettingEntryProps) {
-    const setting = props.idSetting;
     let prefixValidation = undefined;
     let errorMessage = <></>;
     const [hasTriggeredChange, setHasTriggeredChange] = useState(true);
 
-    switch (setting.idType) {
+    switch (props.field.idType) {
         case 'IRI':
             prefixValidation = isValidIdPrefix;
             errorMessage = <FormattedMessage {...messages.mnestix.errorMessages.invalidIri} />;
@@ -84,32 +88,6 @@ export function IdSettingEntry(props: IdSettingEntryProps) {
             errorMessage = <FormattedMessage {...messages.mnestix.errorMessages.invalidIriPart} />;
             break;
     }
-    const {
-        register,
-        control,
-        handleSubmit,
-        reset,
-        formState: { errors },
-    } = useForm<FormInputs>();
-
-    const onSubmit: SubmitHandler<FormInputs> = (data) => {
-        props.setEditMode(setting.name, false);
-        if (data.prefix !== setting.prefix.value || data.dynamicPart !== setting.dynamicPart.value) {
-            setHasTriggeredChange(true);
-            props.handleChange(setting.name, data);
-        }
-    };
-
-    function handleCancelClick() {
-        props.setEditMode(setting.name, false);
-    }
-
-    // reset form when user clicks on other entry and this entry leaves edit mode
-    useEffect(() => {
-        if (!props.editMode) {
-            reset();
-        }
-    }, [props.editMode, reset]);
 
     // reset loading state if loading is complete
     useEffect(() => {
@@ -120,8 +98,8 @@ export function IdSettingEntry(props: IdSettingEntryProps) {
 
     // When there is only one allowed value, we show a locked Textfield instead of a dropdown.
     // The whole thing is wrapped in a <Controller> during render to make it work with react-hook-form
-    const dropdownOrLocked = (field: ControllerRenderProps<FormInputs, 'dynamicPart'>) =>
-        setting.dynamicPart.allowedValues.length > 1 ? (
+    const dropdownOrLocked = (field: ControllerRenderProps<IdSettingsFormData, `idSettings.${number}.dynamicPart.value`>) =>
+        props.field.dynamicPart.allowedValues.length > 1 ? (
             <FormControl fullWidth variant="filled">
                 <InputLabel id="dynamic-part">
                     <FormattedMessage {...messages.mnestix.dynamicPart} />
@@ -132,8 +110,8 @@ export function IdSettingEntry(props: IdSettingEntryProps) {
                     label={<FormattedMessage {...messages.mnestix.dynamicPart} />}
                     {...field}
                 >
-                    {setting.dynamicPart.allowedValues &&
-                        setting.dynamicPart.allowedValues.map((el, index) => {
+                    {props.field.dynamicPart.allowedValues &&
+                        props.field.dynamicPart.allowedValues.map((el, index) => {
                             return (
                                 <MenuItem key={index} value={el}>
                                     {el}
@@ -153,21 +131,19 @@ export function IdSettingEntry(props: IdSettingEntryProps) {
 
     return (
         <Box>
-            {!props.hasDivider && <Divider />}
             <StyledWrapper
                 className={`
                     ${props.editMode ? '' : 'has-hover'} 
                     ${hasTriggeredChange ? 'is-loading' : ''}
                 `}
-                onClick={() => !props.editMode && props.setEditMode(setting.name, true)}
             >
-                <Typography sx={{ fontWeight: 'bold', width: '160px' }}>{setting.name}</Typography>
+                <Typography sx={{ fontWeight: 'bold', width: '160px' }}>{props.field.name}</Typography>
                 {!props.editMode && (
                     <>
-                        <Typography>{setting.prefix.value}</Typography>
+                        <Typography>{props.field.prefix.value}</Typography>
                         <DynamicPartText
-                            text={setting.dynamicPart.value as string}
-                            variant={setting.dynamicPart.value === 'GUID' ? 'regular' : 'reference'}
+                            text={props.field.dynamicPart.value as string}
+                            variant={props.field.dynamicPart.value === 'GUID' ? 'regular' : 'reference'}
                         />
                         {hasTriggeredChange && (
                             <StyledCircularProgressWrapper>
@@ -177,32 +153,26 @@ export function IdSettingEntry(props: IdSettingEntryProps) {
                     </>
                 )}
                 {props.editMode && (
-                    <StyledForm onSubmit={handleSubmit(onSubmit)}>
+                    <StyledForm>
                         <TextField
                             label={<FormattedMessage {...messages.mnestix.staticPrefix} />}
                             sx={{ flexGrow: 1, mr: 1 }}
                             fullWidth={true}
-                            {...register('prefix', {
-                                validate: prefixValidation,
+                            {...props.register(`idSettings.${props.index}.prefix.value`, {
+                                 validate: prefixValidation,
                             })}
-                            defaultValue={setting.prefix.value}
-                            error={!!errors.prefix}
-                            helperText={!!errors.prefix && errorMessage}
+                            defaultValue={props.field.prefix.value}
+                            error={props.errors && props.errors[props.index] && !!props.errors[props.index].prefix}
+                            helperText={props.errors && props.errors[props.index] && !!props.errors[props.index].prefix && errorMessage}
                         />
                         <Box style={{ width: '200px', minWidth: '200px' }}>
                             <Controller
-                                control={control}
-                                name="dynamicPart"
-                                defaultValue={setting.dynamicPart.value as string}
+                                control={props.control}
+                                name={`idSettings.${props.index}.dynamicPart.value`}
+                                defaultValue={props.field.dynamicPart.value}
                                 render={({ field }) => dropdownOrLocked(field)}
                             />
                         </Box>
-                        <SquaredIconButton variant="text" endIcon={<Check />} sx={{ ml: 1 }} type="submit" />
-                        <SquaredIconButton
-                            variant="text"
-                            endIcon={<Close sx={{ color: 'grey.500' }} />}
-                            onClick={() => handleCancelClick()}
-                        />
                     </StyledForm>
                 )}
             </StyledWrapper>

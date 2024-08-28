@@ -1,7 +1,7 @@
 import { CardHeading } from 'components/basics/CardHeading';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { messages } from 'lib/i18n/localization';
-import { Box, Button, FormControl, IconButton, TextField, Typography } from '@mui/material';
+import { Box, Button, Divider, FormControl, IconButton, TextField, Typography } from '@mui/material';
 import { useState } from 'react';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import {
@@ -145,7 +145,6 @@ export function MnestixConnectionsCard() {
                     subtitle={<FormattedMessage {...messages.mnestix.connections.subtitle} />}
                 />
                 <Box display="flex" gap={2} alignContent="center" flexWrap="wrap">
-                    {' '}
                     {isEditMode ? (
                         <>
                             <Button variant="outlined" startIcon={<CloseIcon />} onClick={() => cancelEdit()}>
@@ -171,8 +170,9 @@ export function MnestixConnectionsCard() {
                     )}
                 </Box>
             </Box>
-            <Box mt={3}>
-                <Typography variant="h3" color="primary" mb={2}>
+            <Box sx={{ my: 2 }}>
+                <Divider />
+                <Typography variant="h3" color="primary" sx={{ my: 2 }}>
                     <FormattedMessage {...messages.mnestix.connections.repositories} />
                 </Typography>
                 <Box display="flex" flexDirection="row" mb={4} alignItems="center">
