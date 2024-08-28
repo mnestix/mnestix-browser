@@ -41,13 +41,6 @@ const StyledWrapper = styled(Box)(({ theme }) => ({
     position: 'relative',
     padding: theme.spacing(2),
 
-    '&.has-hover': {
-        cursor: 'pointer',
-        '&:hover': {
-            backgroundColor: theme.palette.action.hover,
-        },
-    },
-
     '&.is-loading': {
         opacity: '0.5',
         pointerEvents: 'none',
@@ -127,10 +120,7 @@ export function IdSettingEntry(props: IdSettingEntryProps) {
     return (
         <Box>
             <StyledWrapper
-                className={`
-                    ${props.editMode ? '' : 'has-hover'} 
-                    ${hasTriggeredChange ? 'is-loading' : ''}
-                `}
+                className={`${hasTriggeredChange ? 'is-loading' : ''}`}
             >
                 <Typography sx={{ fontWeight: 'bold', width: '160px' }}>{props.field.name}</Typography>
                 {!props.editMode && (
