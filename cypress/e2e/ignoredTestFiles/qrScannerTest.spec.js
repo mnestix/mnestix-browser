@@ -1,5 +1,5 @@
-﻿import resolutions from '../fixtures/resolutions';
-import qrAas from '../fixtures/cypress_e2e/QrScannerMockData/cy_qrScannerAas.json';
+﻿import resolutions from '../../fixtures/resolutions.json';
+import qrAas from '../../fixtures/cypress_e2e/QrScannerMockData/cy_qrScannerAas.json';
 
 describe('Use the QR Scanner', function () {
     before(function () {
