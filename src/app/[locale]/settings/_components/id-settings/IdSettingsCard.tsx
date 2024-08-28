@@ -63,9 +63,13 @@ export function IdSettingsCard(props: IdSettingsCardProps) {
         name: 'idSettings',
     });
     
-    const onSubmit: SubmitHandler<IdGenerationSettingFrontend[]> = (data) => {
-        console.log("save " + data[0])
-    };
+    async function saveIdSettings(data: IdSettingsFormData) {
+        for (const setting of data.idSettings) {
+            if(setting.prefix.value && setting.dynamicPart.value) {
+                props.handleChange(setting.name, {prefix: setting.prefix.value, dynamicPart: setting.dynamicPart.value})
+            }
+        }
+    }
 
     const cancelEdit = () => {
         reset();
@@ -88,7 +92,7 @@ export function IdSettingsCard(props: IdSettingsCardProps) {
                             <Button
                                 variant="contained"
                                 startIcon={<CheckIcon />}
-                                onClick={() => {}}
+                                onClick={handleSubmit((data) => saveIdSettings(data))}
                             >
                                 <FormattedMessage {...messages.mnestix.connections.saveButton} />
                             </Button>

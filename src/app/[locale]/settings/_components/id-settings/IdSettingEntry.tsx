@@ -35,11 +35,6 @@ type IdSettingEntryProps = {
     readonly errors: FieldErrors<IdSettingsFormData> | undefined
 };
 
-type FormInputs = {
-    prefix: string;
-    dynamicPart: string;
-};
-
 const StyledWrapper = styled(Box)(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
