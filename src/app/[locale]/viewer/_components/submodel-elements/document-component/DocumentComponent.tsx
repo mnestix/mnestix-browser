@@ -24,17 +24,33 @@ import { SubmodelRepositoryApi } from 'lib/api/basyx-v3/api';
 enum DocumentSpecificSemanticId {
     DocumentVersion = 'https://admin-shell.io/vdi/2770/1/0/DocumentVersion',
     Title = 'https://admin-shell.io/vdi/2770/1/0/DocumentDescription/Title',
-    File = 'https://admin-shell.io/vdi/2770/1/0/StoredDocumentRepresentation/DigitalFile',
-    PreviewFile = 'https://admin-shell.io/vdi/2770/1/0/StoredDocumentRepresentation/PreviewFile',
     OrganizationName = 'https://admin-shell.io/vdi/2770/1/0/Organization/OrganizationName',
+    DigitalFile = 'https://admin-shell.io/vdi/2770/1/0/StoredDocumentRepresentation/DigitalFile',
+    PreviewFile = 'https://admin-shell.io/vdi/2770/1/0/StoredDocumentRepresentation/PreviewFile',
 }
 
 enum DocumentSpecificSemanticIdIrdi {
     DocumentVersion = '0173-1#02-ABI503#001/0173-1#01-AHF582#001',
     Title = '0173-1#02-AAO105#002',
-    File = '0173-1#02-ABI504#001/0173-1#01-AHF583#001',
     OrganizationName = '0173-1#02-ABI002#001',
+    DigitalFile = '0173-1#02-ABI504#001/0173-1#01-AHF583#001',
     PreviewFile = '0173-1#02-ABI505#001/0173-1#01-AHF584#001',
+}
+
+enum DocumentSpecificSemanticIdV2 {
+    DocumentVersion = 'https://admin-shell.io/vdi/2770/1/0/DocumentVersion',
+    Title = 'https://admin-shell.io/vdi/2770/1/0/DocumentDescription/Title',
+    OrganizationShortName = 'https://admin-shell.io/vdi/2770/1/0/Organization/OrganizationName',
+    DigitalFile = 'https://admin-shell.io/vdi/2770/1/0/StoredDocumentRepresentation/DigitalFile',
+    PreviewFile = 'https://admin-shell.io/vdi/2770/1/0/StoredDocumentRepresentation/PreviewFile',
+}
+
+enum DocumentSpecificSemanticIdIrdiV2 {
+    DocumentVersion = '0173-1#02-ABI503#003/0173-1#01-AHF582#003',
+    Title = '0173-1#02-ABG940#004',
+    OrganizationShortName = '0173-1#02-ABI002#003',
+    DigitalFile = '0173-1#02-ABK126#003',
+    PreviewFile = '0173-1#02-ABK127#002',
 }
 
 type MarkingsComponentProps = {
