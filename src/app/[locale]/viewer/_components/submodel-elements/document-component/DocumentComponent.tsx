@@ -110,7 +110,7 @@ export function DocumentComponent(props: MarkingsComponentProps) {
         prefix: string,
         ...semanticIds: string[]
     ): string {
-        const found_files = submodelElement.value
+        const foundIdShorts = submodelElement.value
             ?.filter(
                 (element) =>
                     element &&
@@ -119,26 +119,23 @@ export function DocumentComponent(props: MarkingsComponentProps) {
             )
             .map((value) => value.idShort)
             .sort()
-            .reverse()
             .filter((value) => value != null);
 
-        if (found_files === undefined || found_files.length < 1) {
+        const lastIdShort = foundIdShorts ? foundIdShorts.at(-1) : null;
+
+        if (!foundIdShorts || !lastIdShort || foundIdShorts.length < 1) {
             console.error('Did not find a digital File');
             return 'DigitalFile';
         }
 
-        // This is here just to satisfy typescript as we filter the list above for null values, this cannot be null but typescript says it can be...
-        const returner = found_files[0];
-        if (returner == null) {
-            console.error('Did not find a digital File');
-            return 'DigitalFile';
-        }
-        if (found_files.length > 1) {
+        if (foundIdShorts.length > 1) {
             console.warn(
-                `Found multiple versions of documents: ${found_files}, displaying the last one when sorted alphabetically: ${returner}`,
+                `Found multiple versions of documents: ${foundIdShorts}, 
+                displaying the last one when sorted alphabetically: ${lastIdShort}`,
             );
         }
-        return returner;
+
+        return lastIdShort;
     }
 
     function findIdShortForLatestDocument(submodelElement: SubmodelElementCollection) {
