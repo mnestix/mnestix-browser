@@ -62,7 +62,7 @@ type MarkingsComponentProps = {
 type FileViewObject = {
     mimeType: string;
     title: string;
-    url: string;
+    digitalFileUrl: string;
     previewImgUrl: string;
     organizationName: string;
 };
@@ -156,16 +156,97 @@ export function DocumentComponent(props: MarkingsComponentProps) {
             DocumentSpecificSemanticId.PreviewFile,
             DocumentSpecificSemanticIdIrdi.PreviewFile,
             DocumentSpecificSemanticIdV2.PreviewFile,
-            DocumentSpecificSemanticIdIrdiV2.PreviewFile
+            DocumentSpecificSemanticIdIrdiV2.PreviewFile,
         );
     }
 
-    async function getFileViewObject(submodelClient: SubmodelRepositoryApi): Promise<FileViewObject> {
-        const fileViewObject: FileViewObject = {
+    async function getDigitalFile(
+        versionSubmodelEl: ISubmodelElement,
+        submodelElement: ISubmodelElement,
+        submodelClient: SubmodelRepositoryApi,
+    ) {
+        const digitalFile = {
+            digitalFileUrl: '',
             mimeType: '',
-            title: props.submodelElement?.idShort || '',
+        };
+
+        if (isValidUrl((versionSubmodelEl as File).value)) {
+            digitalFile.digitalFileUrl = (versionSubmodelEl as File).value || '';
+            digitalFile.mimeType = (versionSubmodelEl as File).contentType;
+        } else if (props.submodelId && submodelElement.idShort && props.submodelElement?.idShort) {
+            const submodelElementPath =
+                props.submodelElement.idShort +
+                '.' +
+                submodelElement.idShort +
+                '.' +
+                findIdShortForLatestDocument(submodelElement as SubmodelElementCollection);
+            digitalFile.digitalFileUrl =
+                '/submodels/' +
+                encodeBase64(props.submodelId) +
+                '/submodel-elements/' +
+                submodelElementPath +
+                '/attachment';
+            digitalFile.mimeType = (versionSubmodelEl as File).contentType;
+
+            try {
+                const image = await submodelClient.getAttachmentFromSubmodelElement(
+                    props.submodelId,
+                    submodelElementPath,
+                );
+                digitalFile.digitalFileUrl = URL.createObjectURL(image);
+                digitalFile.mimeType = (versionSubmodelEl as File).contentType;
+            } catch (e) {
+                console.error('Image not found', e);
+            }
+        }
+
+        return digitalFile;
+    }
+
+    async function getPreviewImageUrl(
+        versionSubmodelEl: ISubmodelElement,
+        submodelElement: ISubmodelElement,
+        submodelClient: SubmodelRepositoryApi,
+    ) {
+        let previewImgUrl;
+
+        if (isValidUrl((versionSubmodelEl as File).value)) {
+            previewImgUrl = (versionSubmodelEl as File).value ?? '';
+        } else if (props.submodelId && submodelElement.idShort && props.submodelElement?.idShort) {
+            const submodelElementPath =
+                props.submodelElement.idShort +
+                '.' +
+                submodelElement.idShort +
+                '.' +
+                findIdShortForLatestPreviewImage(submodelElement as SubmodelElementCollection);
+            
+            previewImgUrl =
+                '/submodels/' +
+                encodeBase64(props.submodelId) +
+                '/submodel-elements/' +
+                submodelElementPath +
+                '/attachment';
+
+            try {
+                const image = await submodelClient.getAttachmentFromSubmodelElement(
+                    props.submodelId,
+                    submodelElementPath,
+                );
+                previewImgUrl = URL.createObjectURL(image);
+            } catch (e) {
+                console.error('Image not found', e);
+            }
+        }
+        
+        return previewImgUrl ?? '';
+    }
+
+    async function getFileViewObject(submodelClient: SubmodelRepositoryApi): Promise<FileViewObject> {
+        let fileViewObject: FileViewObject = {
+            mimeType: '',
+            title: props.submodelElement?.idShort ?? '',
             organizationName: '',
-            url: '',
+            digitalFileUrl: '',
             previewImgUrl: '',
         };
 
@@ -174,126 +255,80 @@ export function DocumentComponent(props: MarkingsComponentProps) {
         for (const submodelElement of props.submodelElement.value) {
             // check for DocumentVersions
             if (
-                hasSemanticId(
+                !hasSemanticId(
                     submodelElement,
                     DocumentSpecificSemanticId.DocumentVersion,
                     DocumentSpecificSemanticIdIrdi.DocumentVersion,
                     DocumentSpecificSemanticIdV2.DocumentVersion,
                     DocumentSpecificSemanticIdIrdiV2.DocumentVersion,
                 )
-            ) {
-                const smCollection = submodelElement as SubmodelElementCollection;
-                if (smCollection.value) {
-                    for (const versionEl of Array.isArray(smCollection.value)
-                        ? smCollection.value
-                        : Object.values(smCollection.value)) {
-                        const versionSubmodelEl = versionEl as ISubmodelElement;
-                        // title
-                        if (
-                            hasSemanticId(
-                                versionSubmodelEl,
-                                DocumentSpecificSemanticId.Title,
-                                DocumentSpecificSemanticIdIrdi.Title,
-                                DocumentSpecificSemanticIdV2.Title,
-                                DocumentSpecificSemanticIdIrdiV2.Title,
-                            )
-                        ) {
-                            fileViewObject.title = getTranslationText(versionSubmodelEl as MultiLanguageProperty, intl);
-                            continue;
-                        }
-                        // file
-                        if (
-                            hasSemanticId(
-                                versionSubmodelEl,
-                                DocumentSpecificSemanticId.DigitalFile,
-                                DocumentSpecificSemanticIdIrdi.DigitalFile,
-                                DocumentSpecificSemanticIdV2.DigitalFile,
-                                DocumentSpecificSemanticIdIrdiV2.DigitalFile,
-                            )
-                        ) {
-                            if (isValidUrl((versionSubmodelEl as File).value)) {
-                                fileViewObject.url = (versionSubmodelEl as File).value || '';
-                                fileViewObject.mimeType = (versionSubmodelEl as File).contentType;
-                            } else if (props.submodelId && submodelElement.idShort && props.submodelElement?.idShort) {
-                                const submodelElementPath =
-                                    props.submodelElement.idShort +
-                                    '.' +
-                                    submodelElement.idShort +
-                                    '.' +
-                                    findIdShortForLatestDocument(submodelElement as SubmodelElementCollection);
-                                fileViewObject.url =
-                                    '/repo/submodels/' +
-                                    encodeBase64(props.submodelId) +
-                                    '/submodel-elements/' +
-                                    submodelElementPath +
-                                    '/attachment';
-                                fileViewObject.mimeType = (versionSubmodelEl as File).contentType;
+            )
+                continue;
 
-                                try {
-                                    const image = await submodelClient.getAttachmentFromSubmodelElement(
-                                        props.submodelId,
-                                        submodelElementPath,
-                                    );
-                                    fileViewObject.url = URL.createObjectURL(image);
-                                    fileViewObject.mimeType = (versionSubmodelEl as File).contentType;
-                                } catch (e) {
-                                    console.error('Image not found', e);
-                                }
-                            }
+            const smCollection = submodelElement as SubmodelElementCollection;
+            if (!smCollection.value) {
+                continue;
+            }
 
-                            continue;
-                        }
-                        // preview
-                        if (
-                            hasSemanticId(
-                                versionSubmodelEl,
-                                DocumentSpecificSemanticId.PreviewFile,
-                                DocumentSpecificSemanticIdIrdi.PreviewFile,
-                                DocumentSpecificSemanticIdV2.PreviewFile,
-                                DocumentSpecificSemanticIdIrdiV2.PreviewFile,
-                            )
-                        ) {
-                            if (isValidUrl((versionSubmodelEl as File).value)) {
-                                fileViewObject.previewImgUrl = (versionSubmodelEl as File).value || '';
-                            } else if (props.submodelId && submodelElement.idShort && props.submodelElement?.idShort) {
-                                const submodelElementPath =
-                                    props.submodelElement.idShort +
-                                    '.' +
-                                    submodelElement.idShort +
-                                    '.' +
-                                    findIdShortForLatestPreviewImage(submodelElement as SubmodelElementCollection);
-                                fileViewObject.previewImgUrl =
-                                    '/repo/submodels/' +
-                                    encodeBase64(props.submodelId) +
-                                    '/submodel-elements/' +
-                                    submodelElementPath +
-                                    '/attachment';
-
-                                try {
-                                    const image = await submodelClient.getAttachmentFromSubmodelElement(
-                                        props.submodelId,
-                                        submodelElementPath,
-                                    );
-                                    fileViewObject.previewImgUrl = URL.createObjectURL(image);
-                                } catch (e) {
-                                    console.error('Image not found', e);
-                                }
-                            }
-                            continue;
-                        }
-                        // organization name
-                        if (
-                            hasSemanticId(
-                                versionSubmodelEl,
-                                DocumentSpecificSemanticId.OrganizationName,
-                                DocumentSpecificSemanticIdIrdi.OrganizationName,
-                                DocumentSpecificSemanticIdV2.OrganizationShortName,
-                                DocumentSpecificSemanticIdIrdiV2.OrganizationShortName,
-                            )
-                        ) {
-                            fileViewObject.organizationName = (versionSubmodelEl as Property).value || '';
-                        }
-                    }
+            for (const versionEl of Array.isArray(smCollection.value)
+                ? smCollection.value
+                : Object.values(smCollection.value)) {
+                const versionSubmodelEl = versionEl as ISubmodelElement;
+                // title
+                if (
+                    hasSemanticId(
+                        versionSubmodelEl,
+                        DocumentSpecificSemanticId.Title,
+                        DocumentSpecificSemanticIdIrdi.Title,
+                        DocumentSpecificSemanticIdV2.Title,
+                        DocumentSpecificSemanticIdIrdiV2.Title,
+                    )
+                ) {
+                    fileViewObject.title = getTranslationText(versionSubmodelEl as MultiLanguageProperty, intl);
+                    continue;
+                }
+                // file
+                if (
+                    hasSemanticId(
+                        versionSubmodelEl,
+                        DocumentSpecificSemanticId.DigitalFile,
+                        DocumentSpecificSemanticIdIrdi.DigitalFile,
+                        DocumentSpecificSemanticIdV2.DigitalFile,
+                        DocumentSpecificSemanticIdIrdiV2.DigitalFile,
+                    )
+                ) {
+                    fileViewObject = {
+                        ...fileViewObject,
+                        ...(await getDigitalFile(versionSubmodelEl, submodelElement, submodelClient)),
+                    };
+                }
+                // preview
+                if (
+                    hasSemanticId(
+                        versionSubmodelEl,
+                        DocumentSpecificSemanticId.PreviewFile,
+                        DocumentSpecificSemanticIdIrdi.PreviewFile,
+                        DocumentSpecificSemanticIdV2.PreviewFile,
+                        DocumentSpecificSemanticIdIrdiV2.PreviewFile,
+                    )
+                ) {
+                    fileViewObject.previewImgUrl = await getPreviewImageUrl(
+                        versionSubmodelEl,
+                        submodelElement,
+                        submodelClient,
+                    );
+                }
+                // organization name
+                if (
+                    hasSemanticId(
+                        versionSubmodelEl,
+                        DocumentSpecificSemanticId.OrganizationName,
+                        DocumentSpecificSemanticIdIrdi.OrganizationName,
+                        DocumentSpecificSemanticIdV2.OrganizationShortName,
+                        DocumentSpecificSemanticIdIrdiV2.OrganizationShortName,
+                    )
+                ) {
+                    fileViewObject.organizationName = (versionSubmodelEl as Property).value || '';
                 }
             }
         }
@@ -306,7 +341,7 @@ export function DocumentComponent(props: MarkingsComponentProps) {
             {fileViewObject && (
                 <Box display="flex" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
                     <Box display="flex">
-                        <Link href={fileViewObject!.url} target="_blank">
+                        <Link href={fileViewObject!.digitalFileUrl} target="_blank">
                             <StyledImageWrapper>
                                 {fileViewObject!.previewImgUrl ? (
                                     <Image src={fileViewObject!.previewImgUrl} height={90} width={90} alt="Document" />
@@ -328,7 +363,7 @@ export function DocumentComponent(props: MarkingsComponentProps) {
                                 variant="outlined"
                                 startIcon={<OpenInNew />}
                                 sx={{ mt: 1 }}
-                                href={fileViewObject!.url}
+                                href={fileViewObject!.digitalFileUrl}
                                 target="_blank"
                             >
                                 <FormattedMessage {...messages.mnestix.open} />
