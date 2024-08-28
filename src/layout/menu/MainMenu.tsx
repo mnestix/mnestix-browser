@@ -123,8 +123,8 @@ export default function MainMenu() {
 
     const guestMoreMenu: MenuListItemProps[] = [
         {
-            label: 'mnestix.io',
-            to: 'https://mnestix.io/',
+            label: 'xitaso.com',
+            to: 'https://xitaso.com/kompetenzen/mnestix/',
             target: '_blank',
             external: true,
             icon: <OpenInNew />,
