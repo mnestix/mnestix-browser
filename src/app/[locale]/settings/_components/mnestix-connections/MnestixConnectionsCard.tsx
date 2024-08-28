@@ -117,7 +117,7 @@ export function MnestixConnectionsCard() {
                                 render={({ field, fieldState: { error } }) => (
                                     <TextField
                                         {...field}
-                                        label={<FormattedMessage {...messages.mnestix.connections.repositoryLabel} />}
+                                        label={<FormattedMessage {...messages.mnestix.connections.repositoryUrlLabel} />}
                                         sx={{ flexGrow: 1, mr: 1 }}
                                         fullWidth={true}
                                         error={!!error}
@@ -130,7 +130,7 @@ export function MnestixConnectionsCard() {
                             </IconButton>
                         </Box>
                     ) : (
-                        <Typography>{getValues(`repositories.${index}.url`)}</Typography>
+                        <Typography mb={2} mt={2}>{getValues(`repositories.${index}.url`)}</Typography>
                     )}
                 </Box>
             </FormControl>

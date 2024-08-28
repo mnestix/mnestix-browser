@@ -26,6 +26,7 @@ export const deMnestix = {
         subtitle: 'Definieren Sie, welche Daten Quellen verwendet werden sollen.',
         repositories: 'AAS Repositories',
         repositoryLabel: 'AAS Repository',
+        repositoryUrlLabel: 'AAS Repository Url',
         repositoryDefaultLabel: 'Default AAS Repository',
         addButton: 'Hinzufügen',
         editButton: 'Alle bearbeiten',

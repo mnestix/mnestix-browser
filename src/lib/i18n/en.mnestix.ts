@@ -26,6 +26,7 @@ export const enMnestix = {
         subtitle: 'Define which data connections should be used.',
         repositories: 'AAS Repositories',
         repositoryLabel: 'AAS Repository',
+        repositoryUrlLabel: 'AAS Repository Url',
         repositoryDefaultLabel: 'Default AAS Repository',
         addButton: 'Add more',
         editButton: 'Edit all',
