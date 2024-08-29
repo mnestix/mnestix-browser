@@ -145,7 +145,6 @@ export function MnestixConnectionsCard() {
                     subtitle={<FormattedMessage {...messages.mnestix.connections.subtitle} />}
                 />
                 <Box display="flex" gap={2} alignContent="center" flexWrap="wrap">
-                    {' '}
                     {isEditMode ? (
                         <>
                             <Button variant="outlined" startIcon={<CloseIcon />} onClick={() => cancelEdit()}>
