@@ -92,7 +92,7 @@ export function IdSettingsCard() {
                 const dynamicPart = _settingsList?.find((e) => e.idShort === 'DynamicPart') as Property;
 
                 const dynamicPartAllowedQualifier = dynamicPart?.qualifiers?.find((q: Qualifier) => {
-                    return q.type === 'AllowedValue';
+                    return q.type === 'SMT/AllowedValue';
                 });
                 const allowedDynamicPartValues = getArrayFromString(dynamicPartAllowedQualifier?.value || '');
 
