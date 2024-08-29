@@ -43,7 +43,7 @@ export default function Page() {
         },
         {
             id: settingsPageTypes[settingsPageTypes.MNESTIX_CONNECTIONS],
-            label: intl.formatMessage(messages.mnestix.mnestixConnections)
+            label: intl.formatMessage(messages.mnestix.connections.title)
         }]
     const [selectedTab, setSelectedTab] = useState<TabSelectorItem>(settingsTabItems[0]);
 
@@ -147,7 +147,7 @@ export default function Page() {
                 <Box sx={{mb: 3}}>
                     <ViewHeading title={<FormattedMessage {...messages.mnestix.settings} />}/>
                 </Box>
-                <Card sx={{mb: 3}}>
+                <Card sx={{p: 2}}>
                     <Box display="grid" gridTemplateColumns={isMobile ? '1fr' : '1fr 3fr'}>
                         <VerticalTabSelector items={settingsTabItems} selected={selectedTab}
                                              setSelected={setSelectedTab}/>
