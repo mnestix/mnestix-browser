@@ -34,7 +34,7 @@ const StyledDocumentationButton = styled(Box)(({ theme }) => ({
 type IdSettingsCardProps = {
     readonly idSettings: IdGenerationSettingFrontend[] | undefined;
     readonly isLoading?: boolean;
-    readonly handleChange: (idShort: string, values: { prefix: string; dynamicPart: string }) => void;
+    readonly handleChange: (idShort: string, values: { prefix: string; dynamicPart: string }) => Promise<void>;
 };
 
 export type IdSettingsFormData = {
@@ -66,9 +66,10 @@ export function IdSettingsCard(props: IdSettingsCardProps) {
     async function saveIdSettings(data: IdSettingsFormData) {
         for (const setting of data.idSettings) {
             if(setting.prefix.value && setting.dynamicPart.value) {
-                props.handleChange(setting.name, {prefix: setting.prefix.value, dynamicPart: setting.dynamicPart.value})
+                await props.handleChange(setting.name, {prefix: setting.prefix.value, dynamicPart: setting.dynamicPart.value})
             }
         }
+        setIsEditMode(false); // todo move save/load to card and extract form in extra component
     }
 
     const cancelEdit = () => {

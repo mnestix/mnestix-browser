@@ -147,7 +147,7 @@ export function IdSettingEntry(props: IdSettingEntryProps) {
                                  validate: prefixValidation,
                             })}
                             defaultValue={props.field.prefix.value}
-                            error={props.errors && props.errors[props.index] && !!props.errors[props.index].prefix}
+                            error={props.errors[props.index].prefix} // todo check why validation doesn't wokr
                             helperText={props.errors && props.errors[props.index] && !!props.errors[props.index].prefix && errorMessage}
                         />
                         <Box style={{ width: '200px', minWidth: '200px' }}>
