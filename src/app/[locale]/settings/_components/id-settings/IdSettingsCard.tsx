@@ -13,6 +13,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import { SubmitHandler, useFieldArray, useForm } from 'react-hook-form';
 import { ConnectionFormData } from 'app/[locale]/settings/_components/mnestix-connections/MnestixConnectionsCard';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
+import { isValidIdPrefix, isValidShortIdPrefix } from 'lib/util/IdValidationUtil';
 
 const StyledDocumentationButton = styled(Box)(({ theme }) => ({
     display: 'flex',
@@ -47,7 +48,6 @@ export function IdSettingsCard(props: IdSettingsCardProps) {
     const [documentationModalOpen, setDocumentationModalOpen] = useState(false);
 
     const {
-        register,
         control,
         handleSubmit,
         reset,
@@ -127,7 +127,6 @@ export function IdSettingsCard(props: IdSettingsCardProps) {
                             editMode={isEditMode}
                             isLoading={props.isLoading}
                             control={control}
-                            register={register}
                             errors={errors}
                         />
                     );

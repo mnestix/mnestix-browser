@@ -19,7 +19,7 @@ import {
     FieldArrayWithId, FieldErrors,
     UseFormRegister
 } from 'react-hook-form';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { isValidIdPrefix, isValidShortIdPrefix } from 'lib/util/IdValidationUtil';
 import { DynamicPartText } from './DynamicPartText';
 import { IdSettingsFormData } from 'app/[locale]/settings/_components/id-settings/IdSettingsCard';
@@ -31,7 +31,6 @@ type IdSettingEntryProps = {
     readonly handleChange: (idShort: string, values: { prefix: string; dynamicPart: string }) => void;
     readonly control: Control<IdSettingsFormData>
     readonly field: FieldArrayWithId<IdSettingsFormData>
-    readonly register: UseFormRegister<IdSettingsFormData>
     readonly errors: FieldErrors<IdSettingsFormData> | undefined
 };
 
@@ -61,20 +60,20 @@ const StyledCircularProgressWrapper = styled(Box)(() => ({
 }));
 
 export function IdSettingEntry(props: IdSettingEntryProps) {
-    let prefixValidation = undefined;
-    let errorMessage = <></>;
     const [hasTriggeredChange, setHasTriggeredChange] = useState(true);
-
-    switch (props.field.idType) {
-        case 'IRI':
-            prefixValidation = isValidIdPrefix;
-            errorMessage = <FormattedMessage {...messages.mnestix.errorMessages.invalidIri} />;
-            break;
-        case 'string':
-            // For idShorts we want to ensure that it can be part of an IRI
-            prefixValidation = isValidShortIdPrefix;
-            errorMessage = <FormattedMessage {...messages.mnestix.errorMessages.invalidIriPart} />;
-            break;
+    const intl = useIntl();
+    
+    const validateInput = (value: string | null | undefined) => {
+        if(!value) return
+        switch (props.field.idType) {
+            case 'IRI':
+                return isValidIdPrefix(value) || intl.formatMessage({...messages.mnestix.errorMessages.invalidIri});
+            case 'string':
+                // For idShorts we want to ensure that it can be part of an IRI
+                console.log(isValidShortIdPrefix(value))
+                return isValidShortIdPrefix(value) || intl.formatMessage({...messages.mnestix.errorMessages.invalidIriPart});
+        }
+        return
     }
 
     // reset loading state if loading is complete
@@ -139,16 +138,21 @@ export function IdSettingEntry(props: IdSettingEntryProps) {
                 )}
                 {props.editMode && (
                     <StyledForm>
-                        <TextField
-                            label={<FormattedMessage {...messages.mnestix.staticPrefix} />}
-                            sx={{ flexGrow: 1, mr: 1 }}
-                            fullWidth={true}
-                            {...props.register(`idSettings.${props.index}.prefix.value`, {
-                                 validate: prefixValidation,
-                            })}
-                            defaultValue={props.field.prefix.value}
-                            error={props.errors[props.index].prefix} // todo check why validation doesn't wokr
-                            helperText={props.errors && props.errors[props.index] && !!props.errors[props.index].prefix && errorMessage}
+                        <Controller
+                            control={props.control}    
+                            rules={{
+                                validate: (value) => validateInput(value)
+                                }} 
+                            name={`idSettings.${props.index}.prefix.value`} 
+                            render={() =>
+                            <TextField
+                                label={<FormattedMessage {...messages.mnestix.staticPrefix} />}
+                                sx={{ flexGrow: 1, mr: 1 }}
+                                fullWidth={true}
+                                defaultValue={props.field.prefix.value}
+                                error={!!(props.errors && props.errors.idSettings && props.errors.idSettings[props.index] && props.errors.idSettings[props.index]?.prefix)} // todo check why validation doesn't wokr
+                                helperText={props.errors && props.errors[props.index]}
+                            />} 
                         />
                         <Box style={{ width: '200px', minWidth: '200px' }}>
                             <Controller
