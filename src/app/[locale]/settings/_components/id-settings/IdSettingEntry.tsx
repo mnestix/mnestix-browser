@@ -28,7 +28,6 @@ type IdSettingEntryProps = {
     readonly index: number;
     readonly editMode: boolean;
     readonly isLoading?: boolean;
-    readonly handleChange: (idShort: string, values: { prefix: string; dynamicPart: string }) => void;
     readonly control: Control<IdSettingsFormData>
     readonly field: FieldArrayWithId<IdSettingsFormData>
     readonly register: UseFormRegister<IdSettingsFormData>
