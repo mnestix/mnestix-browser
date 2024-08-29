@@ -1,15 +1,11 @@
 import { InfoOutlined } from '@mui/icons-material';
-import { alpha, Box, Skeleton, Divider, Typography, styled, Button } from '@mui/material';
-import { CardHeading } from 'components/basics/CardHeading';
+import { alpha, Box, Skeleton, Divider, Typography, styled } from '@mui/material';
 import { messages } from 'lib/i18n/localization';
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { IdGenerationSettingFrontend } from 'lib/types/IdGenerationSettingFrontend';
 import { IdSettingEntry } from './IdSettingEntry';
 import { AssetIdRedirectDocumentationDialog } from './AssetIdRedirectDocumentationDialog';
-import CloseIcon from '@mui/icons-material/Close';
-import CheckIcon from '@mui/icons-material/Check';
-import EditIcon from '@mui/icons-material/Edit';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { showError } from 'lib/util/ErrorHandlerUtil';
@@ -22,6 +18,7 @@ import { getArrayFromString } from 'lib/util/SubmodelResolverUtil';
 import { useAuth } from 'lib/hooks/UseAuth';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
+import { SettingsCardHeader } from 'app/[locale]/settings/_components/SettingsCardHeader';
 
 const StyledDocumentationButton = styled(Box)(({theme}) => ({
     display: 'flex',
@@ -160,34 +157,11 @@ export function IdSettingsCard() {
 
     return (
         <Box sx={{p: 3, width: '100%'}}>
-            <Box display="flex" flexDirection="row" justifyContent="space-between">
-                <CardHeading
-                    title={<FormattedMessage {...messages.mnestix.idStructure} />}
-                    subtitle={<FormattedMessage {...messages.mnestix.idStructureExplanation} />}
-                />
-                <Box display="flex" gap={2} alignContent="center" flexWrap="wrap">
-                    {isEditMode ? (
-                        <>
-                            <Button variant="outlined" startIcon={<CloseIcon/>} onClick={() => {
-                                cancelEdit()
-                            }}>
-                                <FormattedMessage {...messages.mnestix.cancel} />
-                            </Button>
-                            <Button
-                                variant="contained"
-                                startIcon={<CheckIcon/>}
-                                onClick={handleSubmit((data) => saveIdSettings(data))}
-                            >
-                                <FormattedMessage {...messages.mnestix.connections.saveButton} />
-                            </Button>
-                        </>
-                    ) : (
-                        <Button variant="contained" startIcon={<EditIcon/>} onClick={() => setIsEditMode(true)}>
-                            <FormattedMessage {...messages.mnestix.connections.editButton} />
-                        </Button>
-                    )}
-                </Box>
-            </Box>
+            <SettingsCardHeader title={<FormattedMessage {...messages.mnestix.idStructure} />}
+                                subtitle={<FormattedMessage {...messages.mnestix.idStructureExplanation} />}
+                                onCancel={() => cancelEdit()} onEdit={() => setIsEditMode(true)}
+                                onSubmit={handleSubmit((data) => saveIdSettings(data))}
+                                isEditMode={isEditMode}/>
             <Box sx={{my: 2}}>
                 <Divider/>
                 {isLoading &&
@@ -196,7 +170,6 @@ export function IdSettingsCard() {
                         return (
                             <Fragment key={i}>
                                 <Skeleton variant="text" width="50%" height={26} sx={{m: 2}}/>
-                                {i < 4 && <Divider/>}
                             </Fragment>
                         );
                     })}
