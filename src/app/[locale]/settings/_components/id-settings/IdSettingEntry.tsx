@@ -31,6 +31,7 @@ type IdSettingEntryProps = {
     readonly handleChange: (idShort: string, values: { prefix: string; dynamicPart: string }) => void;
     readonly control: Control<IdSettingsFormData>
     readonly field: FieldArrayWithId<IdSettingsFormData>
+    readonly register: UseFormRegister<IdSettingsFormData>
     readonly errors: FieldErrors<IdSettingsFormData> | undefined
 };
 
@@ -150,8 +151,9 @@ export function IdSettingEntry(props: IdSettingEntryProps) {
                                 sx={{ flexGrow: 1, mr: 1 }}
                                 fullWidth={true}
                                 defaultValue={props.field.prefix.value}
-                                error={!!(props.errors && props.errors.idSettings && props.errors.idSettings[props.index] && props.errors.idSettings[props.index]?.prefix)} // todo check why validation doesn't wokr
-                                helperText={props.errors && props.errors[props.index]}
+                                error={!!(props.errors?.idSettings?.[props.index]?.prefix)}
+                                helperText={props.errors?.idSettings?.[props.index]?.prefix?.value?.message}
+                                {...props.register(`idSettings.${props.index}.prefix.value`)}
                             />} 
                         />
                         <Box style={{ width: '200px', minWidth: '200px' }}>

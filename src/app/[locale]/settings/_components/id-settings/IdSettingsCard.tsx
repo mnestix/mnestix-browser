@@ -48,6 +48,7 @@ export function IdSettingsCard(props: IdSettingsCardProps) {
     const [documentationModalOpen, setDocumentationModalOpen] = useState(false);
 
     const {
+        register,
         control,
         handleSubmit,
         reset,
@@ -128,6 +129,7 @@ export function IdSettingsCard(props: IdSettingsCardProps) {
                             isLoading={props.isLoading}
                             control={control}
                             errors={errors}
+                            register={register}
                         />
                     );
                 })}
