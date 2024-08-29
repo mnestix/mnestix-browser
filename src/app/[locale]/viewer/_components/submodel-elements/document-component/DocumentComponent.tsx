@@ -37,14 +37,6 @@ enum DocumentSpecificSemanticIdIrdi {
     PreviewFile = '0173-1#02-ABI505#001/0173-1#01-AHF584#001',
 }
 
-enum DocumentSpecificSemanticIdV2 {
-    DocumentVersion = 'https://admin-shell.io/vdi/2770/1/0/DocumentVersion',
-    Title = 'https://admin-shell.io/vdi/2770/1/0/DocumentDescription/Title',
-    OrganizationShortName = 'https://admin-shell.io/vdi/2770/1/0/Organization/OrganizationName',
-    DigitalFile = 'https://admin-shell.io/vdi/2770/1/0/StoredDocumentRepresentation/DigitalFile',
-    PreviewFile = 'https://admin-shell.io/vdi/2770/1/0/StoredDocumentRepresentation/PreviewFile',
-}
-
 enum DocumentSpecificSemanticIdIrdiV2 {
     DocumentVersion = '0173-1#02-ABI503#003/0173-1#01-AHF582#003',
     Title = '0173-1#02-ABG940#004',
@@ -144,7 +136,6 @@ export function DocumentComponent(props: MarkingsComponentProps) {
             'DigitalFile',
             DocumentSpecificSemanticId.DigitalFile,
             DocumentSpecificSemanticIdIrdi.DigitalFile,
-            DocumentSpecificSemanticIdV2.DigitalFile,
             DocumentSpecificSemanticIdIrdiV2.DigitalFile,
         );
     }
@@ -155,7 +146,6 @@ export function DocumentComponent(props: MarkingsComponentProps) {
             'PreviewFile',
             DocumentSpecificSemanticId.PreviewFile,
             DocumentSpecificSemanticIdIrdi.PreviewFile,
-            DocumentSpecificSemanticIdV2.PreviewFile,
             DocumentSpecificSemanticIdIrdiV2.PreviewFile,
         );
     }
@@ -259,7 +249,6 @@ export function DocumentComponent(props: MarkingsComponentProps) {
                     submodelElement,
                     DocumentSpecificSemanticId.DocumentVersion,
                     DocumentSpecificSemanticIdIrdi.DocumentVersion,
-                    DocumentSpecificSemanticIdV2.DocumentVersion,
                     DocumentSpecificSemanticIdIrdiV2.DocumentVersion,
                 )
             )
@@ -280,7 +269,6 @@ export function DocumentComponent(props: MarkingsComponentProps) {
                         versionSubmodelEl,
                         DocumentSpecificSemanticId.Title,
                         DocumentSpecificSemanticIdIrdi.Title,
-                        DocumentSpecificSemanticIdV2.Title,
                         DocumentSpecificSemanticIdIrdiV2.Title,
                     )
                 ) {
@@ -293,7 +281,6 @@ export function DocumentComponent(props: MarkingsComponentProps) {
                         versionSubmodelEl,
                         DocumentSpecificSemanticId.DigitalFile,
                         DocumentSpecificSemanticIdIrdi.DigitalFile,
-                        DocumentSpecificSemanticIdV2.DigitalFile,
                         DocumentSpecificSemanticIdIrdiV2.DigitalFile,
                     )
                 ) {
@@ -308,7 +295,6 @@ export function DocumentComponent(props: MarkingsComponentProps) {
                         versionSubmodelEl,
                         DocumentSpecificSemanticId.PreviewFile,
                         DocumentSpecificSemanticIdIrdi.PreviewFile,
-                        DocumentSpecificSemanticIdV2.PreviewFile,
                         DocumentSpecificSemanticIdIrdiV2.PreviewFile,
                     )
                 ) {
@@ -324,7 +310,6 @@ export function DocumentComponent(props: MarkingsComponentProps) {
                         versionSubmodelEl,
                         DocumentSpecificSemanticId.OrganizationName,
                         DocumentSpecificSemanticIdIrdi.OrganizationName,
-                        DocumentSpecificSemanticIdV2.OrganizationShortName,
                         DocumentSpecificSemanticIdIrdiV2.OrganizationShortName,
                     )
                 ) {
