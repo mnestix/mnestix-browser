@@ -6,7 +6,6 @@ import { useState } from 'react';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import {
     getConnectionDataAction,
-    resetConnectionTable,
     upsertConnectionDataAction,
 } from 'app/[locale]/settings/_components/mnestix-connections/MnestixConnectionServerActions';
 import ControlPointIcon from '@mui/icons-material/ControlPoint';
@@ -15,7 +14,6 @@ import EditIcon from '@mui/icons-material/Edit';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
-import RefreshIcon from '@mui/icons-material/Refresh';
 import { useEnv } from 'app/env/provider';
 
 export type ConnectionFormData = {
@@ -87,19 +85,6 @@ export function MnestixConnectionsCard() {
         setIsEditMode(false);
     };
 
-    async function resetToDefault() {
-        try {
-            await resetConnectionTable();
-            reset(await mapFormData());
-            notificationSpawner.spawn({
-                severity: 'success',
-                message: intl.formatMessage(messages.mnestix.connections.resetSuccessfull),
-            });
-        } catch (error) {
-            notificationSpawner.spawn(error);
-        }
-    }
-
     function getFormControl(field: FieldArrayWithId<ConnectionFormData, 'repositories', 'id'>, index: number) {
         return (
             <FormControl fullWidth variant="filled" key={field.id}>
@@ -159,14 +144,9 @@ export function MnestixConnectionsCard() {
                             </Button>
                         </>
                     ) : (
-                        <>
-                            <Button variant="outlined" startIcon={<RefreshIcon />} onClick={() => resetToDefault()}>
-                                <FormattedMessage {...messages.mnestix.connections.resetButton} />
-                            </Button>
-                            <Button variant="contained" startIcon={<EditIcon />} onClick={() => setIsEditMode(true)}>
-                                <FormattedMessage {...messages.mnestix.connections.editButton} />
-                            </Button>
-                        </>
+                        <Button variant="contained" startIcon={<EditIcon />} onClick={() => setIsEditMode(true)}>
+                            <FormattedMessage {...messages.mnestix.connections.editButton} />
+                        </Button>
                     )}
                 </Box>
             </Box>
