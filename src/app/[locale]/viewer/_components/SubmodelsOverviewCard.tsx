@@ -40,13 +40,10 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
         async function fetchSubmodelFromRepo(reference: Reference) {
             const id = reference.keys[0].value;
             try {
-                let metadata = await submodelClient.getSubmodelById(id);
-                if (!metadata) {
-                    metadata = await getSubmodelFromAllRepos(id, submodelClient);
-                }
-                submodels.push({ id, label: metadata.idShort ?? '', metadata });
+                const fetchedSubmodel = await getSubmodelFromAllRepos(id, submodelClient);
+                submodels.push({ id, label: fetchedSubmodel.idShort ?? '', metadata: fetchedSubmodel });
             } catch (e) {
-                console.debug(e);
+                console.warn(e);
             }
         }
 
@@ -104,21 +101,15 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
             if (selectedSubmodel.endpoint) {
                 try {
                     fetchedSubmodel = await getSubmodelFromSubmodelDescriptor(selectedSubmodel.endpoint);
-                } catch (e) {
-                    console.debug(e);
+                } catch (_) {
                     // expexted behaviour if submodel registry is not available or submodel is not found there
                 }
             }
             if (!registryAasData && !fetchedSubmodel) {
                 try {
-                    //try to fetch submodel from standard repo
-                    fetchedSubmodel = await submodelClient.getSubmodelById(selectedSubmodel?.id);
-                    // if submodel is not found in standard repo, try to fetch it from submodel repo list
-                    if (!fetchedSubmodel) {
-                        fetchedSubmodel = await getSubmodelFromAllRepos(selectedSubmodel?.id, submodelClient);
-                    }
+                    fetchedSubmodel = await getSubmodelFromAllRepos(selectedSubmodel?.id, submodelClient);
                 } catch (e) {
-                    console.debug(e);
+                    console.warn(e);
                 }
             }
         }
