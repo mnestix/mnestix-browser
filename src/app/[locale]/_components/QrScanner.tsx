@@ -57,6 +57,7 @@ export function QrScanner(props: { onScan: (scanResult: string) => Promise<void>
         [props.onScan],
     );
 
+    // This will allow cypress to call the callback manually and circumvent a webcam mock
     if (typeof window !== 'undefined' && typeof window.Cypress !== 'undefined') {
         window.Cypress.scannerCallback = handleScan;
     }

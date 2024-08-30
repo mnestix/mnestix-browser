@@ -1,4 +1,13 @@
-﻿import resolutions from '../../fixtures/resolutions.json';
+﻿/**
+ * This tests do not work inside a dockerized cypress instance.
+ * The camera requires https or localhost to open successfully.
+ * 
+ * If you want to run them manually, move the file up one directory inside e2e.
+ * 
+ * Maybe switching to chrome will help in the future, as there seems to be more configuration options.
+ */
+
+import resolutions from '../../fixtures/resolutions.json';
 import qrAas from '../../fixtures/cypress_e2e/QrScannerMockData/cy_qrScannerAas.json';
 
 describe('Use the QR Scanner', function () {
