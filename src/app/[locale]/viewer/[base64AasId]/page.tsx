@@ -57,7 +57,13 @@ export default function Page() {
                     });
                     setAasData(registrySearchResult.registryAas as AssetAdministrationShell);
                 } else {
-                    const fetchedAas = await getAasFromAllRepos(base64AasId, repositoryClient);
+                    let fetchedAas;
+                    try {
+                        fetchedAas = await repositoryClient.getAssetAdministrationShellById(base64AasId);
+                    } catch (e) {
+                        fetchedAas = await getAasFromAllRepos(base64AasId, repositoryClient);
+                    }
+
                     setAas(fetchedAas);
                     setAasData(fetchedAas);
                 }

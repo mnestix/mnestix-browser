@@ -73,15 +73,23 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
     const [registryAasData] = useRegistryAasState();
 
     async function createAndSetUrlForImageFile() {
+        if (!props.aas) return;
+
         try {
+            let image: Blob;
             if (registryAasData) {
                 const registryRepository = new AssetAdministrationShellRepositoryApi({
                     basePath: registryAasData.aasRegistryRepositoryOrigin,
                 });
-                const image = await registryRepository.getThumbnailFromShell(props.aas!.id);
+                image = await registryRepository.getThumbnailFromShell(props.aas.id);
                 setProductImageUrl(URL.createObjectURL(image));
             } else {
-                const image = await getAasThumbnailFromAllRepos(props.aas!.id, repositoryClient);
+                try {
+                    image = await repositoryClient.getThumbnailFromShell(props.aas.id);
+                } catch (e) {
+                    image = await getAasThumbnailFromAllRepos(props.aas.id, repositoryClient);
+                }
+
                 setProductImageUrl(URL.createObjectURL(image));
             }
         } catch (e) {
@@ -92,7 +100,7 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
     useAsyncEffect(async () => {
         if (!props.productImage) return;
 
-        if (!isValidUrl(props.productImage!) && props.aas) {
+        if (!isValidUrl(props.productImage!)) {
             await createAndSetUrlForImageFile();
         } else {
             setProductImageUrl(props.productImage);

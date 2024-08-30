@@ -105,9 +105,14 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                     // expexted behaviour if submodel registry is not available or submodel is not found there
                 }
             }
+
             if (!registryAasData && !fetchedSubmodel) {
                 try {
-                    fetchedSubmodel = await getSubmodelFromAllRepos(selectedSubmodel?.id, submodelClient);
+                    try {
+                        fetchedSubmodel = await submodelClient.getSubmodelById(selectedSubmodel?.id);
+                    } catch (e) {
+                        fetchedSubmodel = await getSubmodelFromAllRepos(selectedSubmodel?.id, submodelClient);
+                    }
                 } catch (e) {
                     console.warn(e);
                 }
