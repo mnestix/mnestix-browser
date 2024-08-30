@@ -37,7 +37,7 @@ export function AddAasToCompareCard(props: AddAasToCompareCardProps) {
                             display: 'flex',
                             justifyContent: 'center',
                             alignItems: 'center',
-                            marginBottom: -40,
+                            padding: '10px',
                         }}
                     >
                         <ScannerLogo alt="Scanner Logo" style={{ color: theme.palette.primary.main }} />

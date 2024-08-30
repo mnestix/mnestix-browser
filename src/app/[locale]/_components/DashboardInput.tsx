@@ -1,50 +1,45 @@
 'use client';
-import { Box, Typography, useTheme } from '@mui/material';
-import ScannerLogo from 'assets/ScannerLogo.svg';
-import { useIsMobile } from 'lib/hooks/UseBreakpoints';
+import { Typography } from '@mui/material';
 import { messages } from 'lib/i18n/localization';
-import { useState } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { ManualAASViewerInput } from '../viewer/_components/ManualAasViewerInput';
+import { ManualAasInput } from 'app/[locale]/_components/ManualAasInput';
+import { QrScanner } from 'app/[locale]/_components/QrScanner';
+import { handleSearchForAas } from 'lib/searchUtilActions/searchClient';
+import { useRouter } from 'next/navigation';
+import { useAasState, useRegistryAasState } from 'components/contexts/CurrentAasContext';
+import { LocalizedError } from 'lib/util/LocalizedError';
+import { useApis } from 'components/azureAuthentication/ApiProvider';
 
 export const DashboardInput = () => {
-    const isMobile = useIsMobile();
-    const theme = useTheme();
-    const [inputFocus, setInputFocus] = useState<boolean>(true);
-    const logoStyle = {
-        color: theme.palette.primary.main,
-    };
+    const [, setAas] = useAasState();
+    const [, setRegistryAasData] = useRegistryAasState();
+    const navigate = useRouter();
+    const { repositoryClient } = useApis();
 
-    const focusInput = () => {
-        // The value gets toggled to trigger the useEffect in the child input component 'ManualAASViewerInput'.
-        setInputFocus(!inputFocus);
+    const browseAasUrl = async (val: string) => {
+        try {
+            const aasSearch = await handleSearchForAas(val, repositoryClient);
+
+            if (aasSearch.aas) {
+                setAas(aasSearch.aas);
+                setRegistryAasData(aasSearch.aasData);
+            }
+            navigate.push(aasSearch.redirectUrl);
+        } catch (e) {
+            throw new LocalizedError(messages.mnestix.aasUrlNotFound);
+        }
     };
 
     return (
         <>
-            {!isMobile && (
-                <Box>
-                    <Typography color="text.secondary" textAlign="center">
-                        <FormattedMessage {...messages.mnestix.scanAasId} />
-                    </Typography>
-                    <Box
-                        style={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            marginBottom: -10,
-                            cursor: 'pointer',
-                        }}
-                        onClick={focusInput}
-                    >
-                        <ScannerLogo style={logoStyle} alt="Scanner Logo" />
-                    </Box>
-                    <Typography color="text.secondary" textAlign="center" sx={{ mb: 2 }}>
-                        <FormattedMessage {...messages.mnestix.orEnterManual} />:
-                    </Typography>
-                </Box>
-            )}
-            <ManualAASViewerInput focus={inputFocus} />
+            <Typography color="text.secondary" textAlign="center">
+                <FormattedMessage {...messages.mnestix.scanAasId} />
+            </Typography>
+            <QrScanner onScan={browseAasUrl} size={250} />
+            <Typography color="text.secondary" textAlign="center" sx={{ mb: 2 }}>
+                <FormattedMessage {...messages.mnestix.orEnterManual} />:
+            </Typography>
+            <ManualAasInput onSubmit={browseAasUrl} />
         </>
     );
 };

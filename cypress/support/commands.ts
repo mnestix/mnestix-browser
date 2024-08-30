@@ -6,6 +6,8 @@ import testBomSubRef from '../fixtures/cypress_e2e/Submodels/cyBillOfMaterial_Su
 import AASBomComponent from '../fixtures/cypress_e2e/cyTestAas_BoM_Component.json';
 import compareAAS from '../fixtures/cypress_e2e/CompareMockData/cy_compareAas.json';
 import compareSubmodels from '../fixtures/cypress_e2e/CompareMockData/cy_compareNameplateSubmodel.json';
+import qrAAS from '../fixtures/cypress_e2e/QrScannerMockData/cy_qrScannerAas.json';
+import qrSubmodels from '../fixtures/cypress_e2e/QrScannerMockData/cy_qrScannerNameplateSubmodel.json';
 import listAasMockData from '../fixtures/cypress_e2e/AasListMockData/cyListAasMockData.json';
 import listAasSubmodelMockData from '../fixtures/cypress_e2e/AasListMockData/cyListAasTechnicalDataSubmodel.json';
 
@@ -62,6 +64,26 @@ Cypress.Commands.add('deleteCompareMockData', () => {
     });
 });
 
+Cypress.Commands.add('postQrScannerMockData', () => {
+    qrAAS.forEach((aas) => {
+        cy.repoRequest('POST', '/shells', aas);
+    });
+    qrSubmodels.forEach((submodel) => {
+        cy.repoRequest('POST', '/submodels', submodel);
+    });
+});
+
+Cypress.Commands.add('deleteQrScannerMockData', () => {
+    qrAAS.forEach((aas) => {
+        const encodedAasId = btoa(aas.id);
+        cy.repoRequest('DELETE', '/shells/' + encodedAasId, null);
+    });
+    qrSubmodels.forEach((submodel) => {
+        const encodedSubmodelId = btoa(submodel.id);
+        cy.repoRequest('DELETE', '/submodels/' + encodedSubmodelId, null);
+    });
+});
+
 Cypress.Commands.add('postTestAas', () => {
     const encodedAasId = btoa(testAAS.id).replace(/=+$/g, '');
     cy.repoRequest('POST', '/shells', testAAS);
@@ -106,4 +128,17 @@ Cypress.Commands.add('deleteListAasMockData', () => {
         const encodedSubmodelId = btoa(submodel.id);
         cy.repoRequest('DELETE', '/submodels/' + encodedSubmodelId, null);
     });
+});
+
+Cypress.Commands.add('callScannerCallback', (value: string) => {
+    cy.window().then((window) => {
+        // @ts-ignore
+        const func = window.Cypress.scannerCallback;
+        expect(func).to.be.a('function');
+        func(value).catch();
+    });
+});
+
+Cypress.Commands.add('isNotificationSent', (msg: string) => {
+    cy.get('.MuiAlert-message').should('contain.text', msg);
 });
