@@ -6,6 +6,7 @@ import { encodeBase64 } from 'lib/util/Base64Util';
 import { AssetAdministrationShellRepositoryApi } from 'lib/api/basyx-v3/api';
 import { handleAasDiscoverySearch, handleAasRegistrySearch } from 'lib/searchUtilActions/searchServer';
 import { getAasFromAllRepos } from 'lib/searchUtilActions/SearchRepositoryHelper';
+import { NotFoundError } from 'lib/errors/NotFoundError';
 
 
 export type AasData = {
@@ -40,10 +41,9 @@ export async function handleSearchForAas(
         if (registrySearchResult) {
             aas = registrySearchResult.registryAas;
         } else {
-            //Try to get the AAS from the standard AAS repository
-            aas = await repositoryClient.getAssetAdministrationShellById(encodeBase64(aasId));
-            //If not found, try to get the AAS from the AAS repository list
-            if (!aas) {
+            try {
+                aas = await repositoryClient.getAssetAdministrationShellById(encodeBase64(aasId));
+            } catch (e) {
                 aas = await getAasFromAllRepos(encodeBase64(aasId), repositoryClient);
             }
         }
@@ -56,7 +56,7 @@ export async function handleSearchForAas(
                   }
                 : null;
 
-        // If not found: Error: AAS could not be found
+        if (!aas) throw new NotFoundError();
 
         return {
             redirectUrl: `/viewer/${encodeBase64(aas.id)}`,

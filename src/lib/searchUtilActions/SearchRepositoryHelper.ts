@@ -7,7 +7,6 @@ export async function getAasFromAllRepos(aasId: string, repositoryClient: AssetA
     for (const url of basePathUrls) {
         const aas = await repositoryClient.getAssetAdministrationShellById(aasId, undefined, url);
         if (aas) {
-            // Repo im Context setzen
             return aas;
         }
     }

@@ -35,8 +35,14 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
     
     async function fetchSubmodelFromRepo(reference: Reference) {
         const id = reference.keys[0].value;
+
         try {
-            const fetchedSubmodelData = await getSubmodelFromAllRepos(id, submodelClient);
+            let fetchedSubmodelData : Submodel;
+            try {
+                fetchedSubmodelData = await submodelClient.getSubmodelById(id);
+            } catch (e) {
+                fetchedSubmodelData = await getSubmodelFromAllRepos(id, submodelClient);
+            }
             submodels.push({ id, label: fetchedSubmodelData.idShort ?? '', submodelData: fetchedSubmodelData });
         } catch (e) {
             console.warn(e);
