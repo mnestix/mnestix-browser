@@ -31,22 +31,30 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
     const isMobile = useIsMobile();
     const firstSubmodelIdShort = 'Nameplate';
     const env = useEnv();
+    const submodels: { id: string; label: string; submodelData?: Submodel; endpoint?: string }[] = [];
+    
+    async function fetchSubmodelFromRepo(reference: Reference) {
+        const id = reference.keys[0].value;
+        try {
+            const fetchedSubmodelData = await getSubmodelFromAllRepos(id, submodelClient);
+            submodels.push({ id, label: fetchedSubmodelData.idShort ?? '', submodelData: fetchedSubmodelData });
+        } catch (e) {
+            console.warn(e);
+        }
+    }
+
+    function sortSubmodels() {
+        if (submodels) {
+            submodels.sort(function (x, y) {
+                return x.label == firstSubmodelIdShort ? -1 : y.label == firstSubmodelIdShort ? 1 : 0;
+            });
+            setItems(submodels);
+        }
+    }
 
     useAsyncEffect(async () => {
         if (!props.smReferences) return;
-
-        const submodels: { id: string; label: string; metadata?: Submodel; endpoint?: string }[] = [];
-
-        async function fetchSubmodelFromRepo(reference: Reference) {
-            const id = reference.keys[0].value;
-            try {
-                const fetchedSubmodel = await getSubmodelFromAllRepos(id, submodelClient);
-                submodels.push({ id, label: fetchedSubmodel.idShort ?? '', metadata: fetchedSubmodel });
-            } catch (e) {
-                console.warn(e);
-            }
-        }
-
+        
         if (registryAasData) {
             registryAasData.submodelDescriptors?.forEach((submodelDescriptor) => {
                 submodels.push({
@@ -77,12 +85,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
             }
         }
 
-        if (submodels) {
-            submodels.sort(function (x, y) {
-                return x.label == firstSubmodelIdShort ? -1 : y.label == firstSubmodelIdShort ? 1 : 0;
-            });
-            setItems(submodels);
-        }
+        sortSubmodels();
     }, [props.smReferences, registryAasData]);
 
     useEffect(() => {

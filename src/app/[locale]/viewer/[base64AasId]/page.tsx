@@ -25,7 +25,7 @@ export default function Page() {
     const navigate = useRouter();
     const searchParams = useParams<{ base64AasId: string }>();
     const base64AasId = searchParams.base64AasId;
-    const [submodels, setSubmodels] = useState<Reference[]>();
+    const [submodelReferences, setSubmodelReferences] = useState<Reference[]>();
     const [productImage, setProductImage] = useState<string>();
     const [isLoadingAas, setIsLoadingAas] = useState(false);
     const [isLoadingSubmodels] = useState(false);
@@ -84,7 +84,7 @@ export default function Page() {
         } else {
             setHasImage(false);
         }
-        setSubmodels(shell.submodels ?? undefined);
+        setSubmodelReferences(shell.submodels ?? undefined);
     };
 
     const startComparison = () => {
@@ -148,7 +148,7 @@ export default function Page() {
                         hasImage={hasImage}
                         isAccordion={isMobile}
                     />
-                    <SubmodelsOverviewCard smReferences={submodels} isLoading={isLoadingSubmodels} />
+                    <SubmodelsOverviewCard smReferences={submodelReferences} isLoading={isLoadingSubmodels} />
                 </Box>
             ) : (
                 <>
