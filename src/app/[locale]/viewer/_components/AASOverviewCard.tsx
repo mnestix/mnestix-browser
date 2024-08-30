@@ -72,28 +72,27 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
     const { repositoryClient } = useApis();
     const [registryAasData] = useRegistryAasState();
 
-    async function createAndSetUrlForImageFile() {
-        try {
-            if (registryAasData) {
-                const registryRepository = new AssetAdministrationShellRepositoryApi({
-                    basePath: registryAasData.aasRegistryRepositoryOrigin,
-                });
-                const image = await registryRepository.getThumbnailFromShell(props.aas!.id);
-                setProductImageUrl(URL.createObjectURL(image));
-            } else {
-                const image = await getAasThumbnailFromAllRepos(props.aas!.id, repositoryClient);
-                setProductImageUrl(URL.createObjectURL(image));
-            }
-        } catch (e) {
-            console.error('Image not found', e);
-        }
-    }
-
     useAsyncEffect(async () => {
         if (!props.productImage) return;
 
         if (!isValidUrl(props.productImage!) && props.aas) {
-            await createAndSetUrlForImageFile();
+            try {
+                if (registryAasData) {
+                    const registryRepository = new AssetAdministrationShellRepositoryApi({
+                        basePath: registryAasData.aasRegistryRepositoryOrigin,
+                    });
+                    const image = await registryRepository.getThumbnailFromShell(props.aas.id);
+                    setProductImageUrl(URL.createObjectURL(image));
+                } else {
+                    let image = await repositoryClient.getThumbnailFromShell(props.aas.id);
+                    if (image.size == 0) {
+                        image = await getAasThumbnailFromAllRepos(props.aas.id, repositoryClient);
+                    }
+                    setProductImageUrl(URL.createObjectURL(image));
+                }
+            } catch (e) {
+                console.error('Image not found', e);
+            }
         } else {
             setProductImageUrl(props.productImage);
         }

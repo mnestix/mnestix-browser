@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, Button, Skeleton, Typography } from '@mui/material';
 import { useAasState, useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
@@ -19,7 +19,6 @@ import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useEnv } from 'app/env/provider';
 import { handleAasRegistrySearch } from 'lib/searchUtilActions/searchServer';
 import { getAasFromAllRepos } from 'lib/searchUtilActions/SearchRepositoryHelper';
-import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 
 export default function Page() {
     const navigate = useRouter();
@@ -38,38 +37,41 @@ export default function Page() {
     const [aas, setAas] = useAasState();
     const [, setRegistryAasData] = useRegistryAasState();
 
-    useAsyncEffect(async () => {
-        await fetchAas();
-    }, [base64AasId, env]);
-
-    async function fetchAas() {
-        try {
-            setIsLoadingAas(true);
-            if (aas === null) {
-                const aasIdDecoded = safeBase64Decode(base64AasId);
-                const registrySearchResult = await handleAasRegistrySearch(aasIdDecoded);
-                if (registrySearchResult != null) {
-                    setAas(registrySearchResult.registryAas as AssetAdministrationShell);
-                    setRegistryAasData({
-                        submodelDescriptors: registrySearchResult?.registryAasData?.submodelDescriptors,
-                        aasRegistryRepositoryOrigin:
-                            registrySearchResult?.registryAasData?.aasRegistryRepositoryOrigin,
-                    });
-                    setAasData(registrySearchResult.registryAas as AssetAdministrationShell);
+    useEffect(() => {
+        async function _fetchAas() {
+            try {
+                setIsLoadingAas(true);
+                if (aas === null) {
+                    const aasIdDecoded = safeBase64Decode(base64AasId);
+                    const registrySearchResult = await handleAasRegistrySearch(aasIdDecoded);
+                    if (registrySearchResult != null) {
+                        setAas(registrySearchResult.registryAas as AssetAdministrationShell);
+                        setRegistryAasData({
+                            submodelDescriptors: registrySearchResult?.registryAasData?.submodelDescriptors,
+                            aasRegistryRepositoryOrigin:
+                                registrySearchResult?.registryAasData?.aasRegistryRepositoryOrigin,
+                        });
+                        setAasData(registrySearchResult.registryAas as AssetAdministrationShell);
+                    } else {
+                        let shell = await repositoryClient.getAssetAdministrationShellById(base64AasId);
+                        if (!shell) {
+                            shell = await getAasFromAllRepos(base64AasId, repositoryClient);
+                        }
+                        setAas(shell);
+                        setAasData(shell);
+                    }
                 } else {
-                    const fetchedAas = await getAasFromAllRepos(base64AasId, repositoryClient);
-                    setAas(fetchedAas);
-                    setAasData(fetchedAas);
+                    setAasData(aas);
                 }
-            } else {
-                setAasData(aas);
+            } catch (e) {
+                showError(e, notificationSpawner);
+            } finally {
+                setIsLoadingAas(false);
             }
-        } catch (e) {
-            showError(e, notificationSpawner);
-        } finally {
-            setIsLoadingAas(false);
         }
-    }
+
+        _fetchAas();
+    }, [base64AasId, env]);
 
     const setAasData = (shell: AssetAdministrationShell) => {
         const productImageString = shell.assetInformation?.defaultThumbnail?.path ?? '';

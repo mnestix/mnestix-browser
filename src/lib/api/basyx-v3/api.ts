@@ -138,6 +138,8 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
                 const response = await requestHandler.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
                 if (response.status >= 200 && response.status < 300) {
                     return response.json();
+                } else if (response.status >= 400 && response.status < 500) {
+                    return null;
                 } else {
                     throw response;
                 }
@@ -186,6 +188,8 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
                 const response = await requestHandler.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
                 if (response.status >= 200 && response.status < 300) {
                     return response.blob();
+                } else if (response.status >= 400 && response.status < 500) {
+                    return new Blob();
                 } else {
                     throw response;
                 }
@@ -396,7 +400,10 @@ export const SubmodelRepositoryApiFp = function (configuration?: Configuration) 
                 const response = await requestHandler.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
                 if (response.status >= 200 && response.status < 300) {
                     return response.json();
-                } else {
+                } else if (response.status >= 400 && response.status < 500) {
+                    return null;
+                } 
+                else {
                     throw response;
                 }
             };
