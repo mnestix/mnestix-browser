@@ -52,9 +52,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
         }
     }
 
-    useAsyncEffect(async () => {
-        if (!props.smReferences) return;
-        
+    async function fetchSubmodels() {
         if (registryAasData) {
             registryAasData.submodelDescriptors?.forEach((submodelDescriptor) => {
                 submodels.push({
@@ -84,7 +82,12 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                 }
             }
         }
+    }
 
+    useAsyncEffect(async () => {
+        if (!props.smReferences) return;
+
+        await fetchSubmodels();
         sortSubmodels();
     }, [props.smReferences, registryAasData]);
 
