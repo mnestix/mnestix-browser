@@ -1,3 +1,5 @@
+'use client';
+
 import { getConnectionDataByTypeAction } from 'app/[locale]/settings/_components/mnestix-connections/MnestixConnectionServerActions';
 import { AssetAdministrationShellRepositoryApi, SubmodelRepositoryApi } from 'lib/api/basyx-v3/api';
 
@@ -24,9 +26,18 @@ export async function getAasFromAllRepos(aasId: string, repositoryClient: AssetA
     throw new Error('AAS not found');
 }
 
-export async function getSubmodelFromAllRepos(submodelId: string, repositoryClient: SubmodelRepositoryApi){
+export async function getSubmodelFromAllRepos(submodelId: string, repositoryClient: SubmodelRepositoryApi) {
     const basePathUrls = await getConnectionDataByTypeAction({ id: '0', typeName: 'AAS_REPOSITORY' });
+
     let submodel;
+    try {
+        submodel = await repositoryClient.getSubmodelById(submodelId);
+    } catch (_) {
+        /* Ignore */
+    }
+
+    if (submodel) return submodel;
+
     for (const url of basePathUrls) {
         submodel = await repositoryClient.getSubmodelById(submodelId, undefined, url);
         if (submodel) {
