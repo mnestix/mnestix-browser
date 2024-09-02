@@ -2,6 +2,7 @@
 
 import { prisma } from 'lib/database/prisma';
 import { ConnectionFormData } from 'app/[locale]/settings/_components/mnestix-connections/MnestixConnectionsCard';
+import { ConnectionType } from '@prisma/client';
 
 export async function getConnectionDataAction() {
     return prisma?.mnestixConnection.findMany({ include: { type: true } });
@@ -32,4 +33,14 @@ export async function upsertConnectionDataAction(formData: ConnectionFormData) {
 
 export async function resetConnectionTable() {
     await prisma.mnestixConnection.deleteMany({});
+}
+
+export async function getConnectionDataByTypeAction(type: ConnectionType) {
+    const basePath = await prisma?.mnestixConnection.findMany({
+        where: {
+            type: type,
+        },
+    });
+
+    return basePath.map((item) => item.url);
 }

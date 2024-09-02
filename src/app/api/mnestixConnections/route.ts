@@ -3,7 +3,7 @@ import { NextRequest } from 'next/server';
 
 export async function GET() {
     try {
-        const mnestixConnections = await prisma.mnestixConnection.findMany({include: {type: true}})
+        const mnestixConnections = await prisma.mnestixConnection.findMany({ include: { type: true } })
 
         return Response.json(mnestixConnections);
     } catch (error) {
