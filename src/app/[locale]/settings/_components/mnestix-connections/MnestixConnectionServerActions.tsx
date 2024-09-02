@@ -31,10 +31,6 @@ export async function upsertConnectionDataAction(formData: ConnectionFormData) {
     }
 }
 
-export async function resetConnectionTable() {
-    await prisma.mnestixConnection.deleteMany({});
-}
-
 export async function getConnectionDataByTypeAction(type: ConnectionType) {
     const basePath = await prisma?.mnestixConnection.findMany({
         where: {
