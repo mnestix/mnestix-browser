@@ -20,7 +20,7 @@ import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { SettingsCardHeader } from 'app/[locale]/settings/_components/SettingsCardHeader';
 
-const StyledDocumentationButton = styled(Box)(({theme}) => ({
+const StyledDocumentationButton = styled(Box)(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
     backgroundColor: alpha(theme.palette.primary.main, 0.1),
@@ -46,7 +46,7 @@ export function IdSettingsCard() {
     const [documentationModalOpen, setDocumentationModalOpen] = useState(false);
     const auth = useAuth();
     const bearerToken = auth.getBearerToken();
-    const {configurationClient} = useApis();
+    const { configurationClient } = useApis();
     const notificationSpawner = useNotificationSpawner();
     const intl = useIntl();
     const [isLoading, setIsLoading] = useState(false);
@@ -57,10 +57,10 @@ export function IdSettingsCard() {
         control,
         handleSubmit,
         reset,
-        formState: {errors},
-    } = useForm<IdSettingsFormData>({defaultValues: {idSettings: settings}});
+        formState: { errors },
+    } = useForm<IdSettingsFormData>({ defaultValues: { idSettings: settings } });
 
-    const {fields} = useFieldArray<IdSettingsFormData>({
+    const { fields } = useFieldArray<IdSettingsFormData>({
         control,
         name: 'idSettings',
     });
@@ -117,7 +117,7 @@ export function IdSettingsCard() {
             });
             setSettings(_settings);
             // set form state
-            reset({idSettings: _settings})
+            reset({ idSettings: _settings })
 
         } catch (e) {
             showError(e, notificationSpawner);
@@ -156,20 +156,20 @@ export function IdSettingsCard() {
     };
 
     return (
-        <Box sx={{p: 3, width: '100%'}}>
+        <Box sx={{ p: 3, width: '100%' }}>
             <SettingsCardHeader title={<FormattedMessage {...messages.mnestix.idStructure} />}
                                 subtitle={<FormattedMessage {...messages.mnestix.idStructureExplanation} />}
                                 onCancel={() => cancelEdit()} onEdit={() => setIsEditMode(true)}
                                 onSubmit={handleSubmit((data) => saveIdSettings(data))}
                                 isEditMode={isEditMode}/>
-            <Box sx={{my: 2}}>
+            <Box sx={{ my: 2 }}>
                 <Divider/>
                 {isLoading &&
                     !settings.length &&
                     [0, 1, 2, 3, 4].map((i) => {
                         return (
                             <Fragment key={i}>
-                                <Skeleton variant="text" width="50%" height={26} sx={{m: 2}}/>
+                                <Skeleton variant="text" width="50%" height={26} sx={{ m: 2 }}/>
                             </Fragment>
                         );
                     })}
@@ -188,9 +188,9 @@ export function IdSettingsCard() {
                     );
                 })}
             </Box>
-            <Box sx={{display: 'flex'}}>
+            <Box sx={{ display: 'flex' }}>
                 <StyledDocumentationButton onClick={() => setDocumentationModalOpen(true)}>
-                    <InfoOutlined sx={{mr: 1}}/>
+                    <InfoOutlined sx={{ mr: 1 }}/>
                     <Typography>
                         <FormattedMessage {...messages.mnestix.assetIdDocumentation.title} />
                     </Typography>

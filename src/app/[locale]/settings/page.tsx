@@ -44,11 +44,11 @@ export default function Page() {
 
     return (
         <PrivateRoute>
-            <Box sx={{p:4, width: '100%', margin: '0 auto'}}>
-                <Box sx={{mb: 3}}>
+            <Box sx={{ p:4, width: '100%', margin: '0 auto' }}>
+                <Box sx={{ mb: 3 }}>
                     <ViewHeading title={<FormattedMessage {...messages.mnestix.settings} />}/>
                 </Box>
-                <Card sx={{p: 2}}>
+                <Card sx={{ p: 2 }}>
                     <Box display="grid" gridTemplateColumns={isMobile ? '1fr' : '1fr 3fr'}>
                         <VerticalTabSelector items={settingsTabItems} selected={selectedTab}
                                              setSelected={setSelectedTab}/>

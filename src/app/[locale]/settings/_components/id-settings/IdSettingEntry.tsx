@@ -62,16 +62,15 @@ const StyledCircularProgressWrapper = styled(Box)(() => ({
 export function IdSettingEntry(props: IdSettingEntryProps) {
     const [hasTriggeredChange, setHasTriggeredChange] = useState(true);
     const intl = useIntl();
-    
+
     const validateInput = (value: string | null | undefined) => {
-        if(!value) return
+        if (!value) return
         switch (props.field.idType) {
             case 'IRI':
-                return isValidIdPrefix(value) || intl.formatMessage({...messages.mnestix.errorMessages.invalidIri});
+                return isValidIdPrefix(value) || intl.formatMessage({ ...messages.mnestix.errorMessages.invalidIri });
             case 'string':
                 // For idShorts we want to ensure that it can be part of an IRI
-                console.log(isValidShortIdPrefix(value))
-                return isValidShortIdPrefix(value) || intl.formatMessage({...messages.mnestix.errorMessages.invalidIriPart});
+                return isValidShortIdPrefix(value) || intl.formatMessage({ ...messages.mnestix.errorMessages.invalidIriPart });
         }
         return
     }
@@ -131,7 +130,7 @@ export function IdSettingEntry(props: IdSettingEntryProps) {
                         />
                         {hasTriggeredChange && (
                             <StyledCircularProgressWrapper>
-                                <CircularProgress size={20} />
+                                <CircularProgress size={20}/>
                             </StyledCircularProgressWrapper>
                         )}
                     </>
@@ -139,21 +138,21 @@ export function IdSettingEntry(props: IdSettingEntryProps) {
                 {props.editMode && (
                     <StyledForm>
                         <Controller
-                            control={props.control}    
+                            control={props.control}
                             rules={{
                                 validate: (value) => validateInput(value)
-                                }} 
-                            name={`idSettings.${props.index}.prefix.value`} 
+                            }}
+                            name={`idSettings.${props.index}.prefix.value`}
                             render={() =>
-                            <TextField
-                                label={<FormattedMessage {...messages.mnestix.staticPrefix} />}
-                                sx={{ flexGrow: 1, mr: 1 }}
-                                fullWidth={true}
-                                defaultValue={props.field.prefix.value}
-                                error={!!(props.errors?.idSettings?.[props.index]?.prefix)}
-                                helperText={props.errors?.idSettings?.[props.index]?.prefix?.value?.message}
-                                {...props.register(`idSettings.${props.index}.prefix.value`)}
-                            />} 
+                                <TextField
+                                    label={<FormattedMessage {...messages.mnestix.staticPrefix} />}
+                                    sx={{ flexGrow: 1, mr: 1 }}
+                                    fullWidth={true}
+                                    defaultValue={props.field.prefix.value}
+                                    error={!!(props.errors?.idSettings?.[props.index]?.prefix)}
+                                    helperText={props.errors?.idSettings?.[props.index]?.prefix?.value?.message}
+                                    {...props.register(`idSettings.${props.index}.prefix.value`)}
+                                />}
                         />
                         <Box style={{ width: '200px', minWidth: '200px' }}>
                             <Controller

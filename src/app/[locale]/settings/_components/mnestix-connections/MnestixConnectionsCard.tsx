@@ -52,7 +52,7 @@ export function MnestixConnectionsCard() {
             };
             return defaultFormData;
         } else {
-            return {repositories: []};
+            return { repositories: [] };
         }
     }
 
@@ -61,9 +61,9 @@ export function MnestixConnectionsCard() {
         handleSubmit,
         getValues,
         reset,
-    } = useForm<ConnectionFormData>({defaultValues: async () => await mapFormData()});
+    } = useForm<ConnectionFormData>({ defaultValues: async () => await mapFormData() });
 
-    const {fields, append, remove} = useFieldArray<ConnectionFormData>({
+    const { fields, append, remove } = useFieldArray<ConnectionFormData>({
         control,
         name: 'repositories',
     });
@@ -99,13 +99,13 @@ export function MnestixConnectionsCard() {
                                 name={`repositories.${index}.url`}
                                 control={control}
                                 defaultValue={field.url}
-                                rules={{required: intl.formatMessage(messages.mnestix.connections.urlFieldRequired)}}
-                                render={({field, fieldState: {error}}) => (
+                                rules={{ required: intl.formatMessage(messages.mnestix.connections.urlFieldRequired) }}
+                                render={({ field, fieldState: { error } }) => (
                                     <TextField
                                         {...field}
                                         label={
                                             <FormattedMessage {...messages.mnestix.connections.repositoryUrlLabel} />}
-                                        sx={{flexGrow: 1, mr: 1}}
+                                        sx={{ flexGrow: 1, mr: 1 }}
                                         fullWidth={true}
                                         error={!!error}
                                         helperText={error ? error.message : ''}
@@ -125,15 +125,15 @@ export function MnestixConnectionsCard() {
     }
 
     return (
-        <Box sx={{p: 3, width: '100%'}}>
+        <Box sx={{ p: 3, width: '100%' }}>
             <SettingsCardHeader title={<FormattedMessage {...messages.mnestix.connections.title} />}
                                 subtitle={<FormattedMessage {...messages.mnestix.connections.subtitle} />}
                                 onCancel={() => cancelEdit()} onEdit={() => setIsEditMode(true)}
                                 onSubmit={handleSubmit((data) => saveConnectionData(data))}
                                 isEditMode={isEditMode}/>
-            <Box sx={{my: 2}}>
+            <Box sx={{ my: 2 }}>
                 <Divider/>
-                <Typography variant="h3" color="primary" sx={{my: 2}}>
+                <Typography variant="h3" color="primary" sx={{ my: 2 }}>
                     <FormattedMessage {...messages.mnestix.connections.repositories} />
                 </Typography>
                 <Box display="flex" flexDirection="row" mb={4} alignItems="center">
@@ -147,7 +147,7 @@ export function MnestixConnectionsCard() {
                     [0, 1, 2].map((i) => {
                         return (
                             <Fragment key={i}>
-                                <Skeleton variant="text" width="50%" height={26} sx={{m: 2}}/>
+                                <Skeleton variant="text" width="50%" height={26} sx={{ m: 2 }}/>
                             </Fragment>
                         );
                 })}
@@ -158,7 +158,7 @@ export function MnestixConnectionsCard() {
                         startIcon={<ControlPointIcon/>}
                         onClick={() => {
                             setIsEditMode(true);
-                            append({id: 'temp', type: 'AAS_REPOSITORY', url: ''});
+                            append({ id: 'temp', type: 'AAS_REPOSITORY', url: '' });
                         }}
                     >
                         <FormattedMessage {...messages.mnestix.connections.addButton} />
