@@ -13,6 +13,7 @@ import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { getSubmodelFromSubmodelDescriptor } from 'lib/searchUtilActions/searchServer';
 import { useEnv } from 'app/env/provider';
+import { getSubmodelFromAllRepos } from 'lib/searchUtilActions/SearchRepositoryHelper';
 
 export type SubmodelsOverviewCardProps = { readonly smReferences?: Reference[]; readonly isLoading?: boolean };
 
@@ -30,22 +31,34 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
     const isMobile = useIsMobile();
     const firstSubmodelIdShort = 'Nameplate';
     const env = useEnv();
+    const submodels: { id: string; label: string; submodelData?: Submodel; endpoint?: string }[] = [];
+    
+    async function fetchSubmodelFromRepo(reference: Reference) {
+        const id = reference.keys[0].value;
 
-    useAsyncEffect(async () => {
-        if (!props.smReferences) return;
-
-        const submodels: { id: string; label: string; metadata?: Submodel; endpoint?: string }[] = [];
-
-        async function fetchSubmodelFromRepo(reference: Reference) {
-            const id = reference.keys[0].value;
+        try {
+            let fetchedSubmodelData : Submodel;
             try {
-                const metadata = await submodelClient.getSubmodelById(id);
-                submodels.push({ id, label: metadata.idShort ?? '', metadata });
+                fetchedSubmodelData = await submodelClient.getSubmodelById(id);
             } catch (e) {
-                console.error(e);
+                fetchedSubmodelData = await getSubmodelFromAllRepos(id, submodelClient);
             }
+            submodels.push({ id, label: fetchedSubmodelData.idShort ?? '', submodelData: fetchedSubmodelData });
+        } catch (e) {
+            console.warn(e);
         }
+    }
 
+    function sortSubmodels() {
+        if (submodels) {
+            submodels.sort(function (x, y) {
+                return x.label == firstSubmodelIdShort ? -1 : y.label == firstSubmodelIdShort ? 1 : 0;
+            });
+            setItems(submodels);
+        }
+    }
+
+    async function fetchSubmodels() {
         if (registryAasData) {
             registryAasData.submodelDescriptors?.forEach((submodelDescriptor) => {
                 submodels.push({
@@ -75,13 +88,13 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                 }
             }
         }
+    }
 
-        if (submodels) {
-            submodels.sort(function (x, y) {
-                return x.label == firstSubmodelIdShort ? -1 : y.label == firstSubmodelIdShort ? 1 : 0;
-            });
-            setItems(submodels);
-        }
+    useAsyncEffect(async () => {
+        if (!props.smReferences) return;
+
+        await fetchSubmodels();
+        sortSubmodels();
     }, [props.smReferences, registryAasData]);
 
     useEffect(() => {
@@ -100,16 +113,20 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
             if (selectedSubmodel.endpoint) {
                 try {
                     fetchedSubmodel = await getSubmodelFromSubmodelDescriptor(selectedSubmodel.endpoint);
-                } catch (e) {
-                    console.debug(e);
+                } catch (_) {
                     // expexted behaviour if submodel registry is not available or submodel is not found there
                 }
             }
+
             if (!registryAasData && !fetchedSubmodel) {
                 try {
-                    fetchedSubmodel = await submodelClient.getSubmodelById(selectedSubmodel?.id ?? '');
+                    try {
+                        fetchedSubmodel = await submodelClient.getSubmodelById(selectedSubmodel?.id);
+                    } catch (e) {
+                        fetchedSubmodel = await getSubmodelFromAllRepos(selectedSubmodel?.id, submodelClient);
+                    }
                 } catch (e) {
-                    console.debug(e);
+                    console.warn(e);
                 }
             }
         }
