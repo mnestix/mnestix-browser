@@ -4,26 +4,31 @@ import { AssetAdministrationShellRepositoryApi, SubmodelRepositoryApi } from 'li
 export async function getAasFromAllRepos(aasId: string, repositoryClient: AssetAdministrationShellRepositoryApi) {
     const basePathUrls = await getConnectionDataByTypeAction({ id: '0', typeName: 'AAS_REPOSITORY' });
 
-    for (const url of basePathUrls) {
-        const aas = await repositoryClient.getAssetAdministrationShellById(aasId, undefined, url);
-        if (aas) {
-            return aas;
-        }
-    }
+    // Erstellen Sie ein Array von Promises mit Fehlerbehandlung
+    const promises = basePathUrls.map((url) => repositoryClient.getAssetAdministrationShellById(aasId, undefined, url));
 
-    throw new Error('AAS not found');
+    try {
+        // Promise.any wartet auf das erste erfüllte Promise
+        return await Promise.any(promises);
+    } catch {
+        // Falls alle abgelehnt werden, werfen wir einen Fehler
+        throw new Error('AAS not found');
+    }
 }
 
 export async function getSubmodelFromAllRepos(submodelId: string, repositoryClient: SubmodelRepositoryApi) {
     const basePathUrls = await getConnectionDataByTypeAction({ id: '0', typeName: 'AAS_REPOSITORY' });
 
-    for (const url of basePathUrls) {
-        const submodel = await repositoryClient.getSubmodelById(submodelId, undefined, url);
-        if (submodel) {
-            return submodel;
-        }
+    // Erstellen Sie ein Array von Promises
+    const promises = basePathUrls.map((url) => repositoryClient.getSubmodelById(submodelId, undefined, url));
+
+    // Promise.any wartet auf den ersten erfüllten Promise
+    try {
+        return await Promise.any(promises);
+    } catch (error) {
+        // Falls alle abgelehnt werden, werfen wir einen Fehler
+        throw new Error('Submodel not found');
     }
-    throw new Error('Submodel not found');
 }
 
 export async function getAasThumbnailFromAllRepos(
@@ -32,11 +37,21 @@ export async function getAasThumbnailFromAllRepos(
 ) {
     const basePathUrls = await getConnectionDataByTypeAction({ id: '0', typeName: 'AAS_REPOSITORY' });
 
-    for (const url of basePathUrls) {
-        const image = await repositoryClient.getThumbnailFromShell(aasId, undefined, url);
-        if (image.size != 0) {
+    // Erstellen Sie ein Array von Promises mit Fehlerbehandlung
+    const promises = basePathUrls.map((url) =>
+        repositoryClient.getThumbnailFromShell(aasId, undefined, url).then((image) => {
+            if (image.size === 0) {
+                throw new Error('Empty image');
+            }
             return image;
-        }
+        }),
+    );
+
+    try {
+        // Promise.any wartet auf das erste erfüllte Promise
+        return await Promise.any(promises);
+    } catch {
+        // Falls alle abgelehnt werden, werfen wir einen Fehler
+        throw new Error('Image not found');
     }
-    throw new Error('Image not found');
 }
