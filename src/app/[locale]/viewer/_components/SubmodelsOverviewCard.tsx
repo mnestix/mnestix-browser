@@ -87,12 +87,14 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                             : null;
                         const endpoint = submodelDescriptor?.endpoints[0].protocolInformation.href;
 
-                        submodelData = await getSubmodelFromSubmodelDescriptor(endpoint);
-                        submodelData = {
-                            id: submodelDescriptor.id,
-                            label: submodelDescriptor.idShort ?? '',
-                            submodelData: submodelData,
-                        };
+                        if (endpoint) {
+                            submodelData = await getSubmodelFromSubmodelDescriptor(endpoint);
+                            submodelData = {
+                                id: submodelDescriptor.id,
+                                label: submodelDescriptor.idShort ?? '',
+                                submodelData: submodelData
+                            };
+                        }
                     } catch (e) {
                         if (!(e instanceof TypeError || (e instanceof Response && e.status === 404))) {
                             console.error(e);
