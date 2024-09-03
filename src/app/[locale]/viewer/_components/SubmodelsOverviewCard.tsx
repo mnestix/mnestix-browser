@@ -32,12 +32,12 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
     const firstSubmodelIdShort = 'Nameplate';
     const env = useEnv();
     const submodels: { id: string; label: string; submodelData?: Submodel; endpoint?: string }[] = [];
-    
+
     async function fetchSubmodelFromRepo(reference: Reference) {
         const id = reference.keys[0].value;
 
         try {
-            let fetchedSubmodelData : Submodel;
+            let fetchedSubmodelData: Submodel;
             try {
                 fetchedSubmodelData = await submodelClient.getSubmodelById(id);
             } catch (e) {
@@ -54,7 +54,6 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
             submodels.sort(function (x, y) {
                 return x.label == firstSubmodelIdShort ? -1 : y.label == firstSubmodelIdShort ? 1 : 0;
             });
-            setItems(submodels);
         }
     }
 
@@ -95,6 +94,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
 
         await fetchSubmodels();
         sortSubmodels();
+        setItems(submodels);
     }, [props.smReferences, registryAasData]);
 
     useEffect(() => {
@@ -106,35 +106,23 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
     }, [isMobile, items]);
 
     useAsyncEffect(async () => {
-        const selectedSubmodel = items?.find((el) => el.id === selectedItem?.id);
-        let fetchedSubmodel;
+        let selectedSubmodel = items?.find((el) => el.id === selectedItem?.id);
 
-        if (selectedSubmodel) {
-            if (selectedSubmodel.endpoint) {
-                try {
-                    fetchedSubmodel = await getSubmodelFromSubmodelDescriptor(selectedSubmodel.endpoint);
-                } catch (_) {
-                    // expexted behaviour if submodel registry is not available or submodel is not found there
-                }
-            }
-
-            if (!registryAasData && !fetchedSubmodel) {
-                try {
-                    try {
-                        fetchedSubmodel = await submodelClient.getSubmodelById(selectedSubmodel?.id);
-                    } catch (e) {
-                        fetchedSubmodel = await getSubmodelFromAllRepos(selectedSubmodel?.id, submodelClient);
-                    }
-                } catch (e) {
-                    console.warn(e);
-                }
+        if (selectedSubmodel?.endpoint && !selectedSubmodel?.submodelData) {
+            try {
+                selectedSubmodel = {
+                    ...selectedSubmodel,
+                    submodelData: await getSubmodelFromSubmodelDescriptor(selectedSubmodel.endpoint),
+                };
+            } catch (_) {
+                // expected behaviour if submodel registry is not available or submodel is not found there
             }
         }
 
-        if (fetchedSubmodel) {
-            setSelectedSubmodel(fetchedSubmodel);
+        if (selectedSubmodel?.submodelData) {
+            setSelectedSubmodel(selectedSubmodel?.submodelData);
         }
-    }, [selectedItem, props.smReferences]);
+    }, [selectedItem]);
 
     const handleClose = () => {
         setOpen(false);

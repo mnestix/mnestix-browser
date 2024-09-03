@@ -81,7 +81,7 @@ export async function handleAasDiscoverySearch(searchAssetId: string): Promise<s
 
         return aasIds;
     } catch (e) {
-        console.warn('Could not be found in the discovery service, will continue to look in the AAS repository.');
+        console.warn('Could not be found in the discovery service, will continue to look in the AAS registry.');
         return null;
     }
 }
