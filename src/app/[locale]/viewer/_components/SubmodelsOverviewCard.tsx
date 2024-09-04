@@ -99,17 +99,18 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                         if (!(e instanceof TypeError || (e instanceof Response && e.status === 404))) {
                             console.error(e);
                         }
-                    } finally {
-                        if (!submodelData) {
-                            // Submodel registry is not available or submodel not found there -> search in repo
-                            const fetchedSubmodel = await fetchSubmodelFromRepo(reference);
-                            submodelData = {
-                                id: fetchedSubmodel?.id,
-                                label: fetchedSubmodel?.idShort,
-                                submodelData: fetchedSubmodel,
-                            };
-                        }
                     }
+
+                    if (!submodelData) {
+                        // Submodel registry is not available or submodel not found there -> search in repo
+                        const fetchedSubmodel = await fetchSubmodelFromRepo(reference);
+                        submodelData = {
+                            id: fetchedSubmodel?.id,
+                            label: fetchedSubmodel?.idShort,
+                            submodelData: fetchedSubmodel,
+                        };
+                    }
+
                     return submodelData;
                 })
             );
