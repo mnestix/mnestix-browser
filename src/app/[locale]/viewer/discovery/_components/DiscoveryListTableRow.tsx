@@ -24,9 +24,9 @@ export const DiscoveryListTableRow = (props: DiscoveryListTableRowProps) => {
     const navigate = useRouter();
     const intl = useIntl();
 
-    const navigateToAas = (aasId: string) => {
+    const navigateToAas = (aasId: string, repoUrl?: string) => {
         setAas(null); 
-        navigate.push(`/viewer/${encodeBase64(aasId)}`);
+        navigate.push(`/viewer/${encodeBase64(aasId)}${repoUrl ? `?repoUrl=${repoUrl}` : ''}`);
     };
 
     return (
@@ -36,12 +36,12 @@ export const DiscoveryListTableRow = (props: DiscoveryListTableRowProps) => {
                 {aasListEntry.aasId}
             </TableCell>
             <TableCell align="left" sx={tableBodyText}>
-                {aasListEntry.repositoryUrl}
+                {aasListEntry.repositoryUrl ?? '-'}
             </TableCell>
             <TableCell align="center">
                 <RoundedIconButton
                     endIcon={<ArrowForward />}
-                    onClick={() => navigateToAas(aasListEntry.aasId)}
+                    onClick={() => navigateToAas(aasListEntry.aasId, aasListEntry.repositoryUrl)}
                     title={intl.formatMessage(messages.mnestix.aasList.titleViewAASButton)}
                 />
             </TableCell>

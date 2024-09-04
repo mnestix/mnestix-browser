@@ -5,7 +5,7 @@ export const enMnestix = {
     aasUrlNotFound: 'No AAS with the given ID.',
     cannotLoadAasId: {
         header: 'AAS could not be loaded.',
-        text: 'Unable to load AAS for asset with id {assetId}',
+        text: 'Unable to load AAS for the given ID "{id}"',
     },
     idShort: 'idShort: {idShort}',
     manufacturer: 'Manufacturer: {manufacturerName}',
@@ -247,7 +247,7 @@ export const enMnestix = {
         header: 'Discovery result list',
         aasIdHeading: 'AAS ID',
         repositoryUrl: 'Repository Url',
-        subtitle: 'Asset ID',
+        subtitle: 'Results for ID',
     },
     qrScanner: {
         defaultCallbackErrorMsg: 'Could not open the QR code!',

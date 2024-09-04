@@ -1,14 +1,31 @@
 import { getConnectionDataByTypeAction } from 'app/[locale]/settings/_components/mnestix-connections/MnestixConnectionServerActions';
 import { AssetAdministrationShellRepositoryApi, SubmodelRepositoryApi } from 'lib/api/basyx-v3/api';
+import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/types';
 
-export async function getAasFromAllRepos(aasId: string, repositoryClient: AssetAdministrationShellRepositoryApi) {
+export type RepoSearchResult = {
+    aas: AssetAdministrationShell;
+    location: string;
+};
+
+export async function getAasFromAllRepos(
+    aasId: string,
+    repositoryClient: AssetAdministrationShellRepositoryApi,
+): Promise<RepoSearchResult[]> {
     const basePathUrls = await getConnectionDataByTypeAction({ id: '0', typeName: 'AAS_REPOSITORY' });
 
-    const promises = basePathUrls.map((url) => repositoryClient.getAssetAdministrationShellById(aasId, undefined, url));
+    const promises = basePathUrls.map(
+        (url) =>
+            repositoryClient
+                .getAssetAdministrationShellById(aasId, undefined, url)
+                .then((aas) => ({ aas: aas, location: url })), // add the URL to the resolved value
+    );
 
-    try {
-        return await Promise.any(promises);
-    } catch {
+    const results = await Promise.allSettled(promises);
+    const fulfilledResults = results.filter(result => result.status === 'fulfilled');
+
+    if (fulfilledResults.length > 0) {
+        return fulfilledResults.map(result => (result as any).value);
+    } else {
         throw new Error('AAS not found');
     }
 }

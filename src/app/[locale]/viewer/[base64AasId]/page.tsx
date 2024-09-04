@@ -37,44 +37,57 @@ export default function Page() {
     const { repositoryClient } = useApis();
     const [aas, setAas] = useAasState();
     const [, setRegistryAasData] = useRegistryAasState();
+    const repoUrl = searchParams['repoUrl'];
 
     useAsyncEffect(async () => {
         await fetchAas();
     }, [base64AasId, env]);
 
     async function fetchAas() {
-        try {
-            setIsLoadingAas(true);
-            if (aas === null) {
-                const aasIdDecoded = safeBase64Decode(base64AasId);
-                const registrySearchResult = await handleAasRegistrySearch(aasIdDecoded);
-                if (registrySearchResult != null) {
-                    setAas(registrySearchResult.registryAas as AssetAdministrationShell);
-                    setRegistryAasData({
-                        submodelDescriptors: registrySearchResult?.registryAasData?.submodelDescriptors,
-                        aasRegistryRepositoryOrigin:
-                            registrySearchResult?.registryAasData?.aasRegistryRepositoryOrigin,
-                    });
-                    setAasData(registrySearchResult.registryAas as AssetAdministrationShell);
-                } else {
-                    let fetchedAas;
-                    try {
-                        fetchedAas = await repositoryClient.getAssetAdministrationShellById(base64AasId);
-                    } catch (e) {
-                        fetchedAas = await getAasFromAllRepos(base64AasId, repositoryClient);
-                    }
+        setIsLoadingAas(true);
 
-                    setAas(fetchedAas);
-                    setAasData(fetchedAas);
-                }
+        if (aas) {
+            setAasData(aas);
+            setIsLoadingAas(false);
+            return;
+        }
+
+        try {
+            const aasIdDecoded = safeBase64Decode(base64AasId);
+            const registrySearchResult = await handleAasRegistrySearch(aasIdDecoded);
+
+            if (registrySearchResult) {
+                setAas(registrySearchResult.registryAas as AssetAdministrationShell);
+                setRegistryAasData({
+                    submodelDescriptors: registrySearchResult?.registryAasData?.submodelDescriptors,
+                    aasRegistryRepositoryOrigin: registrySearchResult?.registryAasData?.aasRegistryRepositoryOrigin,
+                });
+                setAasData(registrySearchResult.registryAas as AssetAdministrationShell);
             } else {
-                setAasData(aas);
+                let fetchedAas;
+                try {
+                    // TODO check why repoUrl is undefined here
+                    fetchedAas = await repositoryClient.getAssetAdministrationShellById(
+                        base64AasId,
+                        undefined,
+                        repoUrl,
+                    );
+                } catch (e) {
+                    const repoSearchResults = await getAasFromAllRepos(base64AasId, repositoryClient);
+                    if (repoSearchResults.length > 1) {
+                        navigate.push(`/viewer/discovery?aasId=${decodeBase64(base64AasId)}`);
+                    }
+                    fetchedAas = repoSearchResults[0].aas
+                }
+
+                setAas(fetchedAas);
+                setAasData(fetchedAas);
             }
         } catch (e) {
             showError(e, notificationSpawner);
-        } finally {
-            setIsLoadingAas(false);
         }
+
+        setIsLoadingAas(false);
     }
 
     const setAasData = (shell: AssetAdministrationShell) => {

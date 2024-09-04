@@ -5,7 +5,7 @@ export const deMnestix = {
     aasUrlNotFound: 'Keine Verwaltungsschale unter dieser ID.',
     cannotLoadAasId: {
         header: 'Verwaltungsschale konnte nicht geladen werden.',
-        text: 'Es konnte keine Verwaltungsschale für das Asset mit id {assetId} geladen werden.',
+        text: 'Es konnte keine Verwaltungsschale für die angegebene ID "{id}" geladen werden.',
     },
     idShort: 'idShort: {idShort}',
     manufacturer: 'Hersteller: {manufacturerName}',
@@ -248,7 +248,7 @@ export const deMnestix = {
         header: 'Ergebnisliste der Discovery',
         aasIdHeading: 'AAS ID',
         repositoryUrl: 'Repository Url',
-        subtitle: 'Asset ID',
+        subtitle: 'Ergebnisse für die ID',
     },
     qrScanner: {
         defaultCallbackErrorMsg: 'QR Code konnte nicht geöffnet werden!',

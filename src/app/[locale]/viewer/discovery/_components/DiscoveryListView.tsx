@@ -13,6 +13,9 @@ import { IDiscoveryListEntry } from 'lib/types/DiscoveryListEntry';
 import AssetNotFound from 'components/basics/AssetNotFound';
 import { isAasAvailableInRepo } from 'lib/util/checkAasAvailabilityUtil';
 import { useEnv } from 'app/env/provider';
+import { getAasFromAllRepos, RepoSearchResult } from 'lib/searchUtilActions/SearchRepositoryHelper';
+import { encodeBase64 } from 'lib/util/Base64Util';
+import { useApis } from 'components/azureAuthentication/ApiProvider';
 
 export const DiscoveryListView = () => {
     const [isLoadingList, setIsLoadingList] = useState(false);
@@ -21,38 +24,56 @@ export const DiscoveryListView = () => {
     const intl = useIntl();
     const searchParams = useSearchParams();
     const assetId = searchParams.get('assetId');
+    const aasId = searchParams.get('aasId');
+    const { repositoryClient } = useApis();
     const env = useEnv();
 
     useAsyncEffect(async () => {
         setIsLoadingList(true);
         const entryList: IDiscoveryListEntry[] = [];
-        if (assetId == null) {
-            setIsError(true);
-            setIsLoadingList(false);
-        } else {
-            const aasIds = await handleAasDiscoverySearch(assetId);
-            if (aasIds === null) {
-                setIsError(true);
-                setIsLoadingList(false);
-            } else {
-                for (const aasId of aasIds) {
-                    const registrySearchResult = await handleAasRegistrySearch(aasId);
 
-                    const aasRepositoryUrl = registrySearchResult
-                        ? registrySearchResult.registryAasData?.aasRegistryRepositoryOrigin
-                        : (await isAasAvailableInRepo(aasId, env.AAS_REPO_API_URL))
-                          ? env.AAS_REPO_API_URL
-                          : '-';
-                    entryList.push({
-                        aasId: aasId,
-                        repositoryUrl: aasRepositoryUrl,
-                    });
+        if (assetId) {
+            const aasIds = await handleAasDiscoverySearch(assetId);
+
+            // TODO do it asynchronous
+            for (const aasId of aasIds) {
+                const registrySearchResult = await handleAasRegistrySearch(aasId);
+
+                let aasRepositoryUrl;
+                if (registrySearchResult) {
+                    aasRepositoryUrl = (await isAasAvailableInRepo(aasId, env.AAS_REPO_API_URL))
+                        ? env.AAS_REPO_API_URL
+                        : undefined;
                 }
-                setIsLoadingList(false);
+
+                entryList.push({
+                    aasId: aasId,
+                    repositoryUrl: aasRepositoryUrl,
+                });
+            }
+        } else if (aasId) {
+            let searchResults: RepoSearchResult[] = [];
+            try {
+                searchResults = await getAasFromAllRepos(encodeBase64(aasId), repositoryClient);
+            } catch (e) {
+                setIsError(true);
+            }
+
+            for (const searchResult of searchResults) {
+                entryList.push({
+                    aasId: searchResult.aas.id,
+                    repositoryUrl: searchResult.location,
+                });
             }
         }
 
-        setDiscoveryListEntries(entryList);
+        if (entryList.length < 1) {
+            setIsError(true);
+        } else {
+            setDiscoveryListEntries(entryList);
+        }
+
+        setIsLoadingList(false);
     }, []);
 
     const tableHeaders = [
@@ -69,13 +90,13 @@ export const DiscoveryListView = () => {
                     <Typography marginBottom={3}>
                         <FormattedMessage {...messages.mnestix.discoveryList.subtitle} />:{' '}
                         <Box component="span" display="inline" fontWeight={600}>
-                            {assetId}
+                            {assetId ?? aasId}
                         </Box>
                     </Typography>
                     <DiscoveryList tableHeaders={tableHeaders} data={discoveryListEntries} />
                 </>
             )}
-            {isError && <AssetNotFound assetId={assetId ? assetId : ''} />}
+            {isError && <AssetNotFound id={assetId ?? aasId} />}
         </>
     );
 };
