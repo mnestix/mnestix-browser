@@ -17,6 +17,7 @@ export const deMnestix = {
     goToListButton: 'Zur Aas Liste',
     scanAasId: 'AAS ID oder Asset ID scannen',
     unexpectedError: 'Unerwarteter Fehler',
+    unauthorizedError: 'Unautorisierter Zugriff',
     settings: 'Einstellungen',
     idStructure: 'ID Struktur',
     idStructureExplanation:
