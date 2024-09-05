@@ -54,6 +54,7 @@ export const DiscoveryListView = () => {
         } else if (aasId) {
             let searchResults: RepoSearchResult[] = [];
             try {
+                // TODO should aasId be encoded here?
                 searchResults = await getAasFromAllRepos(encodeBase64(aasId), repositoryClient);
             } catch (e) {
                 setIsError(true);

@@ -22,7 +22,7 @@ export const enMnestix = {
     idStructureExplanation:
         'Define, how your IDs are represented. This is a standard setting that can be adjusted for individual imports.',
     connections: {
-        title: 'Mnestix Connections',
+        title: 'Data sources',
         subtitle: 'Define which data connections should be used.',
         repositories: 'AAS Repositories',
         repositoryLabel: 'AAS Repository',

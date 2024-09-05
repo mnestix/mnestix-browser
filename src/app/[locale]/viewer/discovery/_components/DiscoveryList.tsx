@@ -34,6 +34,7 @@ export default function DiscoveryList(props: AasListProps) {
                 <TableBody>
                     {data?.map((aasListEntry) => (
                         <TableRow
+                            // TODO fix same key
                             key={aasListEntry.aasId}
                             sx={{
                                 '&:last-child td, &:last-child th': { border: 0 },

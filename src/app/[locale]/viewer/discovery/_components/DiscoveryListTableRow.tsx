@@ -25,7 +25,7 @@ export const DiscoveryListTableRow = (props: DiscoveryListTableRowProps) => {
     const intl = useIntl();
 
     const navigateToAas = (aasId: string, repoUrl?: string) => {
-        setAas(null); 
+        setAas(null);
         navigate.push(`/viewer/${encodeBase64(aasId)}${repoUrl ? `?repoUrl=${repoUrl}` : ''}`);
     };
 
