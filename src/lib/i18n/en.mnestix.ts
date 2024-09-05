@@ -17,7 +17,10 @@ export const enMnestix = {
     goToListButton: 'Go to Aas List',
     scanAasId: 'Scan AAS ID or Asset ID',
     unexpectedError: 'Unexpected error',
-    unauthorizedError: 'Unauthorized access',
+    unauthorizedError: {
+        title: 'Unauthorized access',
+        content: 'You don\'t have access to this AAS. You may login or contact your administrator to get access.',
+    },
     settings: 'Settings',
     idStructure: 'ID structure',
     idStructureExplanation:
