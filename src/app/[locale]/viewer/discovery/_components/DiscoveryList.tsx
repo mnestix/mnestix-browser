@@ -32,10 +32,9 @@ export default function DiscoveryList(props: AasListProps) {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {data?.map((aasListEntry) => (
+                    {data?.map((aasListEntry, index) => (
                         <TableRow
-                            // TODO fix same key
-                            key={aasListEntry.aasId}
+                            key={index}
                             sx={{
                                 '&:last-child td, &:last-child th': { border: 0 },
                                 backgroundColor: theme.palette?.common?.white,

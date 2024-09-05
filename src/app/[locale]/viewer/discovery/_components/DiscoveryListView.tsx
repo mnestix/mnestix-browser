@@ -24,7 +24,8 @@ export const DiscoveryListView = () => {
     const intl = useIntl();
     const searchParams = useSearchParams();
     const assetId = searchParams.get('assetId');
-    const aasId = searchParams.get('aasId');
+    const base64AasId = searchParams.get('aasId')
+    const aasId = base64AasId? decodeURIComponent(base64AasId) : undefined;
     const { repositoryClient } = useApis();
     const env = useEnv();
 
@@ -54,7 +55,6 @@ export const DiscoveryListView = () => {
         } else if (aasId) {
             let searchResults: RepoSearchResult[] = [];
             try {
-                // TODO should aasId be encoded here?
                 searchResults = await getAasFromAllRepos(encodeBase64(aasId), repositoryClient);
             } catch (e) {
                 setIsError(true);

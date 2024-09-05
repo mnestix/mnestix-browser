@@ -12,7 +12,7 @@ import { showError } from 'lib/util/ErrorHandlerUtil';
 import { AssetAdministrationShell, LangStringNameType, Reference } from '@aas-core-works/aas-core3.0-typescript/types';
 import { useIsMobile } from 'lib/hooks/UseBreakpoints';
 import { getTranslationText } from 'lib/util/SubmodelResolverUtil';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { SubmodelsOverviewCard } from '../_components/SubmodelsOverviewCard';
 import { AASOverviewCard } from 'app/[locale]/viewer/_components/AASOverviewCard';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
@@ -37,9 +37,11 @@ export default function Page() {
     const { repositoryClient } = useApis();
     const [aas, setAas] = useAasState();
     const [, setRegistryAasData] = useRegistryAasState();
-    const repoUrl = searchParams['repoUrl'];
+    //const base64RepoUrl = searchParams['repoUrl'];
+    const base64RepoUrl = useSearchParams().get('repoUrl');
+    const repoUrl = base64RepoUrl ? safeBase64Decode(base64RepoUrl!) : undefined;
 
-    useAsyncEffect(async () => {
+        useAsyncEffect(async () => {
         await fetchAas();
     }, [base64AasId, env]);
 
@@ -66,7 +68,6 @@ export default function Page() {
             } else {
                 let fetchedAas;
                 try {
-                    // TODO check why repoUrl is undefined here
                     fetchedAas = await repositoryClient.getAssetAdministrationShellById(
                         base64AasId,
                         undefined,
