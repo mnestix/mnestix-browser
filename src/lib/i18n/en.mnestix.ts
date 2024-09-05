@@ -22,7 +22,7 @@ export const enMnestix = {
     idStructureExplanation:
         'Define, how your IDs are represented. This is a standard setting that can be adjusted for individual imports.',
     connections: {
-        title: 'Mnestix Connections',
+        title: 'Data Sources',
         subtitle: 'Define which data connections should be used.',
         addButton: 'Add more',
         editButton: 'Edit all',
@@ -35,14 +35,12 @@ export const enMnestix = {
             repositoryLabel: 'AAS Repository',
             repositoryUrlLabel: 'AAS Repository Url',
             repositoryDefaultLabel: 'Default AAS Repository',
-            connectionType: 'AAS_REPOSITORY',
         },
         submodelRepository: {
             repositories: 'Submodel Repositories',
             repositoryLabel: 'Submodel Repository',
             repositoryUrlLabel: 'Submodel Repository Url',
             repositoryDefaultLabel: 'Default Submodel Repository',
-            connectionType: 'SUBMODEL_REPOSITORY',
         }
     },
     submodels: 'Submodels',

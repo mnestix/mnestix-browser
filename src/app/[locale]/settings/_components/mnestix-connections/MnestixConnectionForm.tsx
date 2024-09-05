@@ -4,8 +4,20 @@ import { messages } from 'lib/i18n/localization';
 import { Dispatch, Fragment, SetStateAction } from 'react';
 import ControlPointIcon from '@mui/icons-material/ControlPoint';
 import { Control, Controller, FieldArrayWithId, useFieldArray, UseFormGetValues } from 'react-hook-form';
-import { ConnectionFormData } from 'app/[locale]/settings/_components/mnestix-connections/MnestixConnectionsCard';
+import {
+    ConnectionFormData,
+} from 'app/[locale]/settings/_components/mnestix-connections/MnestixConnectionsCard';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+
+enum ConnectionType {
+    AAS_REPOSITORY = 'AAS_REPOSITORY',
+    SUBMODEL_REPOSITORY = 'SUBMODEL_REPOSITORY'
+}
+
+const ConnectionTypeMap: Record<string, ConnectionType> = {
+    'aasRepository': ConnectionType.AAS_REPOSITORY,
+    'submodelRepository': ConnectionType.SUBMODEL_REPOSITORY
+};
 
 export type MnestixConnectionsFormProps = {
     readonly connectionType: string;
@@ -17,30 +29,42 @@ export type MnestixConnectionsFormProps = {
     readonly getValues: UseFormGetValues<ConnectionFormData>;
 }
 
+const getConnectionType = (connectionType: string): keyof ConnectionFormData => {
+    const map: Record<string, keyof ConnectionFormData> = {
+        aasRepository: 'aasRepository',
+        submodelRepository: 'submodelRepository',
+    };
+
+    return map[connectionType];
+};
+
 export function MnestixConnectionsForm(props: MnestixConnectionsFormProps) {
     const { connectionType, defaultUrl, getValues, isLoading, setIsEditMode, isEditMode } = props;
     const control = props.control as Control<ConnectionFormData, never>;
     const intl = useIntl();
+
+    const dataConnectionName = getConnectionType(connectionType);
+    const dataConnectionType = ConnectionTypeMap[connectionType];
     
     const { fields, append, remove } = useFieldArray<ConnectionFormData>({
         control,
-        name: 'repositories',
+        name: dataConnectionName,
     });
     
-    const dataConnectionType = intl.formatMessage(messages.mnestix.connections[connectionType].connectionType);
-
-    function getFormControl(field: FieldArrayWithId<ConnectionFormData, 'repositories', 'id'>, index: number) {
+    function getFormControl(field: FieldArrayWithId<ConnectionFormData, keyof ConnectionFormData, 'id'>, 
+                            index: number,
+                            arrayName: keyof ConnectionFormData
+    ) {
         return (
-            field.type === dataConnectionType && (
                 <FormControl fullWidth variant="filled" key={field.id}>
                     <Box display="flex" flexDirection="row" mb={2} alignItems="center">
                         <Typography variant="h4" mr={4} width="200px">
-                            <FormattedMessage {...messages.mnestix.connections[connectionType].repositoryLabel} />
+                            <FormattedMessage {...messages.mnestix.connections[connectionType].repositoryLabel} /> {index + 1}
                         </Typography>
                         {isEditMode ? (
                             <Box display="flex" alignItems="center" width="100%">
                                 <Controller
-                                    name={`repositories.${index}.url`}
+                                    name={`${arrayName}.${index}.url`}
                                     control={control}
                                     defaultValue={field.url}
                                     rules={{
@@ -67,12 +91,11 @@ export function MnestixConnectionsForm(props: MnestixConnectionsFormProps) {
                             </Box>
                         ) : (
                             <Typography mb={2} mt={2}>
-                                {getValues(`repositories.${index}.url`)}
+                                {getValues(`${arrayName}.${index}.url`)}
                             </Typography>
                         )}
                     </Box>
                 </FormControl>
-            )
         );
     }
     
@@ -97,7 +120,7 @@ export function MnestixConnectionsForm(props: MnestixConnectionsFormProps) {
                         </Fragment>
                     );
                 })}
-            {!isLoading && fields.map((field, index) => getFormControl(field, index))}
+            {!isLoading && fields.map((field, index) => getFormControl(field, index, dataConnectionName))}
             <Box>
                 <Button
                     variant="text"

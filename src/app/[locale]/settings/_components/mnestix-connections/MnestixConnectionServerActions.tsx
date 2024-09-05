@@ -8,8 +8,8 @@ export async function getConnectionDataAction() {
     return prisma?.mnestixConnection.findMany({ include: { type: true } });
 }
 
-export async function upsertConnectionDataAction(formData: ConnectionFormData) {
-    const data = formData.repositories;
+export async function upsertConnectionDataAction(formData: { id: string, url: string, type: string }[] ) {
+    const data = formData;
     const existingData = await prisma?.mnestixConnection.findMany({ include: { type: true } });
     for (const existing of existingData) {
         const formData = data.find((value) => value.id === existing.id);

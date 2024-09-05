@@ -22,7 +22,7 @@ export const deMnestix = {
     idStructureExplanation:
         'Definieren Sie, wie Ihre IDs aussehen sollen. Dies ist eine Basis-Einstellung, die für individuelle Importe angepasst werden kann.',
     connections: {
-        title: 'Mnestix Quellen',
+        title: 'Datenquellen',
         subtitle: 'Definieren Sie, welche Datenquellen verwendet werden sollen.',
         resetSuccessfull: 'Quellen wurden zurückgesetzt.',
         urlFieldRequired: 'URL wird benötigt',

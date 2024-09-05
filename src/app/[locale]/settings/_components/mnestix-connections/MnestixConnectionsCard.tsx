@@ -7,13 +7,18 @@ import {
     getConnectionDataAction,
     upsertConnectionDataAction,
 } from 'app/[locale]/settings/_components/mnestix-connections/MnestixConnectionServerActions';
-import {  useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { useEnv } from 'app/env/provider';
 import { SettingsCardHeader } from 'app/[locale]/settings/_components/SettingsCardHeader';
 import { MnestixConnectionsForm } from 'app/[locale]/settings/_components/mnestix-connections/MnestixConnectionForm';
 
 export type ConnectionFormData = {
-    repositories: {
+    aasRepository: {
+        id: string;
+        url: string;
+        type: string;
+    }[];
+    submodelRepository: {
         id: string;
         url: string;
         type: string;
@@ -43,7 +48,12 @@ export function MnestixConnectionsCard() {
         const rawConnectionData = await getConnectionData();
         if (rawConnectionData) {
             const defaultFormData: ConnectionFormData = {
-                repositories: rawConnectionData?.map((data) => ({
+                aasRepository: rawConnectionData?.filter((data) => data.type.typeName === 'AAS_REPOSITORY').map((data) => ({
+                    id: data.id,
+                    url: data.url,
+                    type: data.type.typeName,
+                })),
+                submodelRepository: rawConnectionData?.filter((data) => data.type.typeName === 'SUBMODEL_REPOSITORY').map((data) => ({
                     id: data.id,
                     url: data.url,
                     type: data.type.typeName,
@@ -51,7 +61,7 @@ export function MnestixConnectionsCard() {
             };
             return defaultFormData;
         } else {
-            return { repositories: [] };
+            return { aasRepository: [], submodelRepository: [] };
         }
     }
 
@@ -61,10 +71,10 @@ export function MnestixConnectionsCard() {
         getValues,
         reset,
     } = useForm<ConnectionFormData>({ defaultValues: async () => await mapFormData() });
-
+    
     async function saveConnectionData(data: ConnectionFormData) {
         try {
-            await upsertConnectionDataAction(data);
+            await upsertConnectionDataAction([...data.aasRepository, ...data.submodelRepository]);
             notificationSpawner.spawn({
                 severity: 'success',
                 message: intl.formatMessage(messages.mnestix.changesSavedSuccessfully),
