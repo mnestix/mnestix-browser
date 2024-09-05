@@ -16,6 +16,7 @@ import { useEnv } from 'app/env/provider';
 import { getAasFromAllRepos, RepoSearchResult } from 'lib/searchUtilActions/SearchRepositoryHelper';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
+import ListHeader from 'components/basics/ListHeader';
 
 export const DiscoveryListView = () => {
     const [isLoadingList, setIsLoadingList] = useState(false);
@@ -85,14 +86,12 @@ export const DiscoveryListView = () => {
 
     return (
         <>
+            <ListHeader namespace={'discoveryList'} keyValue={'header'} optionalID={assetId ?? aasId } />
             {isLoadingList && <CenteredLoadingSpinner sx={{ mt: 10 }} />}
             {!isLoadingList && !isError && (
                 <>
                     <Typography marginBottom={3}>
-                        <FormattedMessage {...messages.mnestix.discoveryList.subtitle} />:{' '}
-                        <Box component="span" display="inline" fontWeight={600}>
-                            {assetId ?? aasId}
-                        </Box>
+                        <FormattedMessage {...messages.mnestix.discoveryList.subtitle} />
                     </Typography>
                     <DiscoveryList tableHeaders={tableHeaders} data={discoveryListEntries} />
                 </>

@@ -244,10 +244,10 @@ export const enMnestix = {
         logoHelperText: 'base64 encoded',
     },
     discoveryList: {
-        header: 'Discovery result list',
+        header: 'Related AAS IDs to',
         aasIdHeading: 'AAS ID',
         repositoryUrl: 'Repository Url',
-        subtitle: 'Results for ID',
+        subtitle: 'You will find all related AASs from here.',
     },
     qrScanner: {
         defaultCallbackErrorMsg: 'Could not open the QR code!',

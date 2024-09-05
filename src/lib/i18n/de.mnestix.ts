@@ -245,10 +245,10 @@ export const deMnestix = {
         logoHelperText: 'base64 encoded',
     },
     discoveryList: {
-        header: 'Ergebnisliste der Discovery',
+        header: 'Zugehörige AAS IDs für',
         aasIdHeading: 'AAS ID',
         repositoryUrl: 'Repository Url',
-        subtitle: 'Ergebnisse für die ID',
+        subtitle: 'Sie finden alle zugehörigen AASs hier.',
     },
     qrScanner: {
         defaultCallbackErrorMsg: 'QR Code konnte nicht geöffnet werden!',

@@ -37,7 +37,6 @@ export default function Page() {
     const { repositoryClient } = useApis();
     const [aas, setAas] = useAasState();
     const [, setRegistryAasData] = useRegistryAasState();
-    //const base64RepoUrl = searchParams['repoUrl'];
     const base64RepoUrl = useSearchParams().get('repoUrl');
     const repoUrl = base64RepoUrl ? safeBase64Decode(base64RepoUrl!) : undefined;
 
