@@ -19,6 +19,15 @@ const ConnectionTypeMap: Record<string, ConnectionType> = {
     'submodelRepository': ConnectionType.SUBMODEL_REPOSITORY
 };
 
+/**
+ * This function maps a given connection type string to a valid, static key of `ConnectionFormData`.
+ * It is used to pass a fixed (non-dynamic) value as the `name` to the `useFieldArray` hook.
+ * Ensuring the name is static, it satisfies the requirement from React Hook Form's documentation
+ * that field array names must not be dynamic.
+ *
+ * @param connectionType - The connection type
+ * @returns A static key from the `ConnectionFormData` type, ensuring that the field array name is valid.
+ */
 const getConnectionTypeName = (connectionType: string): keyof ConnectionFormData => {
     const map: Record<string, keyof ConnectionFormData> = {
         aasRepository: 'aasRepository',
