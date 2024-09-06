@@ -19,6 +19,15 @@ const ConnectionTypeMap: Record<string, ConnectionType> = {
     'submodelRepository': ConnectionType.SUBMODEL_REPOSITORY
 };
 
+const getConnectionTypeName = (connectionType: string): keyof ConnectionFormData => {
+    const map: Record<string, keyof ConnectionFormData> = {
+        aasRepository: 'aasRepository',
+        submodelRepository: 'submodelRepository',
+    };
+
+    return map[connectionType];
+};
+
 export type MnestixConnectionsFormProps = {
     readonly connectionType: string;
     readonly defaultUrl: string | undefined;
@@ -28,15 +37,6 @@ export type MnestixConnectionsFormProps = {
     readonly control: Control<ConnectionFormData, never>;
     readonly getValues: UseFormGetValues<ConnectionFormData>;
 }
-
-const getConnectionTypeName = (connectionType: string): keyof ConnectionFormData => {
-    const map: Record<string, keyof ConnectionFormData> = {
-        aasRepository: 'aasRepository',
-        submodelRepository: 'submodelRepository',
-    };
-
-    return map[connectionType];
-};
 
 export function MnestixConnectionsForm(props: MnestixConnectionsFormProps) {
     const { connectionType, defaultUrl, getValues, isLoading, setIsEditMode, isEditMode } = props;
