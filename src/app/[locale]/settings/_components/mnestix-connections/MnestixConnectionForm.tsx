@@ -29,7 +29,7 @@ export type MnestixConnectionsFormProps = {
     readonly getValues: UseFormGetValues<ConnectionFormData>;
 }
 
-const getConnectionType = (connectionType: string): keyof ConnectionFormData => {
+const getConnectionTypeName = (connectionType: string): keyof ConnectionFormData => {
     const map: Record<string, keyof ConnectionFormData> = {
         aasRepository: 'aasRepository',
         submodelRepository: 'submodelRepository',
@@ -43,7 +43,7 @@ export function MnestixConnectionsForm(props: MnestixConnectionsFormProps) {
     const control = props.control as Control<ConnectionFormData, never>;
     const intl = useIntl();
 
-    const dataConnectionName = getConnectionType(connectionType);
+    const dataConnectionName = getConnectionTypeName(connectionType);
     const dataConnectionType = ConnectionTypeMap[connectionType];
     
     const { fields, append, remove } = useFieldArray<ConnectionFormData>({
@@ -59,7 +59,7 @@ export function MnestixConnectionsForm(props: MnestixConnectionsFormProps) {
                 <FormControl fullWidth variant="filled" key={field.id}>
                     <Box display="flex" flexDirection="row" mb={2} alignItems="center">
                         <Typography variant="h4" mr={4} width="200px">
-                            <FormattedMessage {...messages.mnestix.connections[connectionType].repositoryLabel} /> {index + 1}
+                            <FormattedMessage {...messages.mnestix.connections[dataConnectionName].repositoryLabel} /> {index + 1}
                         </Typography>
                         {isEditMode ? (
                             <Box display="flex" alignItems="center" width="100%">
@@ -75,7 +75,7 @@ export function MnestixConnectionsForm(props: MnestixConnectionsFormProps) {
                                             {...field}
                                             label={
                                                 <FormattedMessage
-                                                    {...messages.mnestix.connections[connectionType].repositoryUrlLabel}
+                                                    {...messages.mnestix.connections[dataConnectionName].repositoryUrlLabel}
                                                 />
                                             }
                                             sx={{ flexGrow: 1, mr: 1 }}
@@ -103,11 +103,11 @@ export function MnestixConnectionsForm(props: MnestixConnectionsFormProps) {
         <Box sx={{ my: 2 }}>
             <Divider/>
             <Typography variant="h3" sx={{ my: 2 }}>
-                <FormattedMessage {...messages.mnestix.connections[connectionType].repositories} />
+                <FormattedMessage {...messages.mnestix.connections[dataConnectionName].repositories} />
             </Typography>
             <Box display="flex" flexDirection="row" mb={4} alignItems="center">
                 <Typography variant="h4" mr={4} width="200px">
-                    <FormattedMessage {...messages.mnestix.connections[connectionType].repositoryDefaultLabel} />
+                    <FormattedMessage {...messages.mnestix.connections[dataConnectionName].repositoryDefaultLabel} />
                 </Typography>
                 <Typography>{defaultUrl}</Typography>
             </Box>

@@ -25,6 +25,11 @@ export type ConnectionFormData = {
     }[];
 };
 
+type DataSource = {
+    name: string,
+    url: string | undefined
+}
+
 export function MnestixConnectionsCard() {
     const notificationSpawner = useNotificationSpawner();
     const [isEditMode, setIsEditMode] = useState(false);
@@ -32,6 +37,11 @@ export function MnestixConnectionsCard() {
     const intl = useIntl();
     const env = useEnv();
 
+    const dataSources: DataSource[] = [
+        { name: 'aasRepository', url: env.AAS_REPO_API_URL },
+        { name: 'submodelRepository', url: env.AAS_REPO_API_URL }
+    ]
+    
     async function getConnectionData() {
         try {
             setIsLoading(true);
@@ -92,25 +102,26 @@ export function MnestixConnectionsCard() {
     
     return (
         <Box sx={{ p: 3, width: '100%' }}>
-            <SettingsCardHeader title={<FormattedMessage {...messages.mnestix.connections.title} />}
-                                subtitle={<FormattedMessage {...messages.mnestix.connections.subtitle} />}
-                                onCancel={() => cancelEdit()} onEdit={() => setIsEditMode(true)}
-                                onSubmit={handleSubmit((data) => saveConnectionData(data))}
-                                isEditMode={isEditMode}/>
-            <MnestixConnectionsForm connectionType={'aasRepository'}
-                                    defaultUrl={env.AAS_REPO_API_URL} 
-                                    isLoading={isLoading} 
-                                    isEditMode={isEditMode} 
-                                    setIsEditMode={setIsEditMode} 
-                                    control={control} 
-                                    getValues={getValues}/>
-            <MnestixConnectionsForm connectionType={'submodelRepository'}
-                                    defaultUrl={env.AAS_REPO_API_URL}
-                                    isLoading={isLoading}
-                                    isEditMode={isEditMode}
-                                    setIsEditMode={setIsEditMode}
-                                    control={control}
-                                    getValues={getValues}/>
+            <SettingsCardHeader
+                title={<FormattedMessage {...messages.mnestix.connections.title} />}
+                subtitle={<FormattedMessage {...messages.mnestix.connections.subtitle} />}
+                onCancel={() => cancelEdit()}
+                onEdit={() => setIsEditMode(true)}
+                onSubmit={handleSubmit((data) => saveConnectionData(data))}
+                isEditMode={isEditMode}
+            />
+            {dataSources.map((dataSource, index) => (
+                    <MnestixConnectionsForm
+                        key={index}
+                        connectionType={dataSource.name}
+                        defaultUrl={dataSource.url}
+                        isLoading={isLoading}
+                        isEditMode={isEditMode}
+                        setIsEditMode={setIsEditMode}
+                        control={control}
+                        getValues={getValues}
+                    />
+            ))}
         </Box>
     );
 }
