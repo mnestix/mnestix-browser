@@ -14,11 +14,10 @@ export const DashboardInput = () => {
     const [, setAas] = useAasState();
     const [, setRegistryAasData] = useRegistryAasState();
     const navigate = useRouter();
-    const { repositoryClient } = useApis();
 
     const browseAasUrl = async (val: string) => {
         try {
-            const aasSearch = await handleSearchForAas(val, repositoryClient);
+            const aasSearch = await handleSearchForAas(val);
 
             if (aasSearch.aas) {
                 setAas(aasSearch.aas);

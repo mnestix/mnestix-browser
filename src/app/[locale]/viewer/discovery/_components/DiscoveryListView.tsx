@@ -7,12 +7,12 @@ import { useState } from 'react';
 import DiscoveryList from 'app/[locale]/viewer/discovery/_components/DiscoveryList';
 import { useSearchParams } from 'next/navigation';
 import { Box, Typography } from '@mui/material';
-import { handleAasDiscoverySearch, handleAasRegistrySearch } from 'lib/searchUtilActions/searchServer';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { IDiscoveryListEntry } from 'lib/types/DiscoveryListEntry';
 import AssetNotFound from 'components/basics/AssetNotFound';
 import { isAasAvailableInRepo } from 'lib/util/checkAasAvailabilityUtil';
 import { useEnv } from 'app/env/provider';
+import { performDiscoveryAasSearch, performRegistryAasSearch } from 'lib/searchUtilActions/searchServer';
 
 export const DiscoveryListView = () => {
     const [isLoadingList, setIsLoadingList] = useState(false);
@@ -30,13 +30,13 @@ export const DiscoveryListView = () => {
             setIsError(true);
             setIsLoadingList(false);
         } else {
-            const aasIds = await handleAasDiscoverySearch(assetId);
+            const aasIds = await performDiscoveryAasSearch(assetId);
             if (aasIds === null) {
                 setIsError(true);
                 setIsLoadingList(false);
             } else {
                 for (const aasId of aasIds) {
-                    const registrySearchResult = await handleAasRegistrySearch(aasId);
+                    const registrySearchResult = await performRegistryAasSearch(aasId);
 
                     const aasRepositoryUrl = registrySearchResult
                         ? registrySearchResult.registryAasData?.aasRegistryRepositoryOrigin
