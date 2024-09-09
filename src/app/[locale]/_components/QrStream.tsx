@@ -1,16 +1,18 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import Scanner from 'qr-scanner';
+import ScannerOutline from 'assets/ScannerOutline.svg';
+import { keyframes, styled } from '@mui/system';
+import { Box } from '@mui/material';
 
 export function QrStream(props: {
     onScan: (scanResult: string) => Promise<void>;
     onLoadingFinished: (successful: boolean) => void;
 }) {
     const videoEl = useRef<HTMLVideoElement>(null);
+    const overlay = useRef<HTMLDivElement>(null);
     const scanner = useRef<Scanner>();
-
-    const [showBorder, setShowBorder] = useState<boolean>(false);
 
     const onScanSuccess = useCallback(
         async (result: Scanner.ScanResult) => {
@@ -23,12 +25,13 @@ export function QrStream(props: {
         if (videoEl?.current && !scanner.current) {
             scanner.current = new Scanner(videoEl?.current, onScanSuccess, {
                 preferredCamera: 'environment',
+                highlightScanRegion: true,
+                overlay: overlay.current,
             });
 
             scanner?.current
                 ?.start()
                 .then(() => {
-                    setShowBorder(true);
                     props.onLoadingFinished(true);
                 })
                 .catch(() => props.onLoadingFinished(false));
@@ -41,13 +44,34 @@ export function QrStream(props: {
         };
     }, []);
 
+    const scale = keyframes`
+        0% {
+            transform: scale(1);
+        }
+        100% {
+            transform: scale(1.1);
+        }
+    `;
+    const AnimatedBox = styled(Box)`
+        display: inline-block;
+        padding: 10%;
+        animation: ${scale} 1s infinite ease-in-out alternate;
+    `;
+
     return (
-        <video
-            ref={videoEl}
-            height="100%"
-            width="100%"
-            data-testid="scanner-video"
-            style={{ objectFit: 'cover', borderRadius: 10, borderStyle: showBorder ? 'solid' : 'none' }}
-        ></video>
+        <>
+            <video
+                ref={videoEl}
+                height="100%"
+                width="100%"
+                data-testid="scanner-video"
+                style={{
+                    objectFit: 'cover',
+                }}
+            ></video>
+            <AnimatedBox ref={overlay}>
+                <ScannerOutline alt="Scanner Outline" style={{ color: 'white', opacity: 0.75 }} />
+            </AnimatedBox>
+        </>
     );
 }
