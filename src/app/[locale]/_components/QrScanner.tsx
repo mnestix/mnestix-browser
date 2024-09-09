@@ -38,6 +38,45 @@ export function QrScanner(props: { onScan: (scanResult: string) => Promise<void>
         }
     }, []);
 
+    const expandFromCenter = keyframes`
+        0% {
+            width: 0;
+            left: 50%;
+        }
+        100% {
+            width: 100%;
+            left: 0;
+        }
+    `;
+
+    interface VideoContainerProps {
+        theme: typeof theme;
+        focused: boolean;
+    }
+
+    const VideoContainer = styled(Box)<VideoContainerProps>(({ theme, focused }) => ({
+        position: 'relative',
+        display: 'inline-block',
+        outline: 'none',
+        '& video': {
+            display: 'block',
+            borderTopLeftRadius: 4,
+            borderTopRightRadius: 4,
+            width: size,
+            height: size,
+        },
+        '&::after': {
+            content: '""',
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            height: 4,
+            backgroundColor: theme.palette.primary.main,
+            transition: 'background-color 0.3s ease-in-out',
+            animation: focused ? `${expandFromCenter} 0.25s forwards` : 'none',
+        },
+    }));
+
     const handleScan = useCallback(
         async (result: string) => {
             setState(State.HandleQr);
@@ -99,7 +138,11 @@ export function QrScanner(props: { onScan: (scanResult: string) => Promise<void>
                 </Box>
             )}
             {(state === State.LoadScanner || state === State.ShowVideo) && (
-                <QrStream onScan={handleScan} onLoadingFinished={switchToVideoStream} />
+                <ThemeProvider theme={theme}>
+                    <VideoContainer theme={theme} focused={state === State.ShowVideo} tabIndex={0}>
+                        <QrStream onScan={handleScan} onLoadingFinished={switchToVideoStream} />
+                    </VideoContainer>
+                </ThemeProvider>
             )}
         </Box>
     );
