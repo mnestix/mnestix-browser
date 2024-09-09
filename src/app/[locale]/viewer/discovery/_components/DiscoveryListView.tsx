@@ -26,7 +26,7 @@ export const DiscoveryListView = () => {
     const searchParams = useSearchParams();
     const encodedAssetId = searchParams.get('assetId');
     const assetId = encodedAssetId ? decodeURI(encodedAssetId) : undefined;
-    const encodedAasId = searchParams.get('aasId')
+    const encodedAasId = searchParams.get('aasId');
     const aasId = encodedAasId ? decodeURI(encodedAasId) : undefined;
     const { repositoryClient } = useApis();
     const env = useEnv();
@@ -38,21 +38,31 @@ export const DiscoveryListView = () => {
         if (assetId) {
             const aasIds = await handleAasDiscoverySearch(assetId);
 
-            aasIds.map(async (aasId) => {
-                const registrySearchResult = await handleAasRegistrySearch(aasId);
+            await Promise.all(
+                aasIds.map(async (aasId) => {
+                    try {
+                        const registrySearchResult = await handleAasRegistrySearch(aasId);
 
-                let aasRepositoryUrl;
-                if (registrySearchResult) {
-                    aasRepositoryUrl = (await isAasAvailableInRepo(aasId, env.AAS_REPO_API_URL))
-                        ? env.AAS_REPO_API_URL
-                        : undefined;
-                }
+                        let aasRepositoryUrl = registrySearchResult?.registryAasData?.aasRegistryRepositoryOrigin;
+                        if (!aasRepositoryUrl) {
+                            aasRepositoryUrl = (await isAasAvailableInRepo(aasId, env.AAS_REPO_API_URL))
+                                ? env.AAS_REPO_API_URL
+                                : undefined;
+                        }
 
-                entryList.push({
-                    aasId: aasId,
-                    repositoryUrl: aasRepositoryUrl,
-                });
-            });
+                        entryList.push({
+                            aasId: aasId,
+                            repositoryUrl: aasRepositoryUrl,
+                        });
+                    } catch (e) {
+                        console.warn(e);
+                        entryList.push({
+                            aasId: aasId,
+                            repositoryUrl: undefined,
+                        });
+                    }
+                }),
+            );
         } else if (aasId) {
             let searchResults: RepoSearchResult[] = [];
             try {
@@ -86,7 +96,7 @@ export const DiscoveryListView = () => {
 
     return (
         <>
-            <ListHeader namespace={'discoveryList'} keyValue={'header'} optionalID={assetId ?? aasId } />
+            <ListHeader namespace={'discoveryList'} keyValue={'header'} optionalID={assetId ?? aasId} />
             {isLoadingList && <CenteredLoadingSpinner sx={{ mt: 10 }} />}
             {!isLoadingList && !isError && (
                 <>
