@@ -26,7 +26,7 @@ export function QrStream(props: {
             scanner.current = new Scanner(videoEl?.current, onScanSuccess, {
                 preferredCamera: 'environment',
                 highlightScanRegion: true,
-                overlay: overlay.current,
+                overlay: overlay.current || undefined,
             });
 
             scanner?.current
