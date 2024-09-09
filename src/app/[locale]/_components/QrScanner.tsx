@@ -1,10 +1,9 @@
 'use client';
 
-import { Fragment, useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 import ScannerLogo from 'assets/ScannerLogo.svg';
 import { Box, CircularProgress, IconButton, useTheme } from '@mui/material';
 import { QrStream } from 'app/[locale]/_components/QrStream';
-import HighlightOffRoundedIcon from '@mui/icons-material/HighlightOffRounded';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { messages } from 'lib/i18n/localization';
