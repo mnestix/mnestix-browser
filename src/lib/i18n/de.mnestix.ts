@@ -5,7 +5,7 @@ export const deMnestix = {
     aasUrlNotFound: 'Keine Verwaltungsschale unter dieser ID.',
     cannotLoadAasId: {
         header: 'Verwaltungsschale konnte nicht geladen werden.',
-        text: 'Es konnte keine Verwaltungsschale für das Asset mit id {assetId} geladen werden.',
+        text: 'Es konnte keine Verwaltungsschale für die angegebene ID "{id}" geladen werden.',
     },
     idShort: 'idShort: {idShort}',
     manufacturer: 'Hersteller: {manufacturerName}',
@@ -14,7 +14,7 @@ export const deMnestix = {
     aasOrAssetId: 'AAS ID oder Asset ID',
     orEnterManual: 'oder manuell eingeben',
     orSelectFromList: 'oder über Liste suchen',
-    goToListButton: 'Zur Aas Liste',
+    goToListButton: 'Zur AAS Liste',
     scanAasId: 'AAS ID oder Asset ID scannen',
     unexpectedError: 'Unerwarteter Fehler',
     settings: 'Einstellungen',
@@ -22,7 +22,7 @@ export const deMnestix = {
     idStructureExplanation:
         'Definieren Sie, wie Ihre IDs aussehen sollen. Dies ist eine Basis-Einstellung, die für individuelle Importe angepasst werden kann.',
     connections: {
-        title: 'Mnestix Quellen',
+        title: 'Datenquellen',
         subtitle: 'Definieren Sie, welche Datenquellen verwendet werden sollen.',
         repositories: 'AAS Repositorys',
         repositoryLabel: 'AAS Repository',
@@ -35,7 +35,7 @@ export const deMnestix = {
         resetSuccessfull: 'Quellen wurden zurückgesetzt.',
         urlFieldRequired: 'URL wird benötigt',
     },
-    submodels: 'Submodelle',
+    submodels: 'Teilmodelle',
     unknownModelType: 'Unbekannter ModelType: {type}',
     nameplateAddressTypes: {
         office: 'Geschäftlich',
@@ -118,7 +118,7 @@ export const deMnestix = {
     custom: 'Individuell',
     noTemplatesFound: 'Keine Vorlagen gefunden',
     templatesUseExplanation:
-        'Vorlagen erlauben es Ihnen, eine wiederverwendbare Submodell-Struktur zu definieren, angepasst auf Ihre Bedürfnisse.',
+        'Vorlagen erlauben es Ihnen, eine wiederverwendbare Teilmodell-Struktur zu definieren, angepasst auf Ihre Bedürfnisse.',
     semanticId: 'semanticId',
     createNew: 'Neu erstellen',
     chooseAStartingPoint: 'Wählen Sie einen Ausgangspunkt',
@@ -245,10 +245,10 @@ export const deMnestix = {
         logoHelperText: 'base64 encoded',
     },
     discoveryList: {
-        header: 'Ergebnisliste der Discovery',
+        header: 'Verwandte AAS für ID',
         aasIdHeading: 'AAS ID',
         repositoryUrl: 'Repository Url',
-        subtitle: 'Asset ID',
+        subtitle: 'Hier finden Sie alle zugehörigen AAS für die angegebene ID.',
     },
     qrScanner: {
         defaultCallbackErrorMsg: 'QR Code konnte nicht geöffnet werden!',

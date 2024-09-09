@@ -5,7 +5,7 @@ export const enMnestix = {
     aasUrlNotFound: 'No AAS with the given ID.',
     cannotLoadAasId: {
         header: 'AAS could not be loaded.',
-        text: 'Unable to load AAS for asset with id {assetId}',
+        text: 'Unable to load AAS for the given ID "{id}"',
     },
     idShort: 'idShort: {idShort}',
     manufacturer: 'Manufacturer: {manufacturerName}',
@@ -22,7 +22,7 @@ export const enMnestix = {
     idStructureExplanation:
         'Define, how your IDs are represented. This is a standard setting that can be adjusted for individual imports.',
     connections: {
-        title: 'Mnestix Connections',
+        title: 'Data sources',
         subtitle: 'Define which data connections should be used.',
         repositories: 'AAS Repositories',
         repositoryLabel: 'AAS Repository',
@@ -244,10 +244,10 @@ export const enMnestix = {
         logoHelperText: 'base64 encoded',
     },
     discoveryList: {
-        header: 'Discovery result list',
+        header: 'Related AAS to ID',
         aasIdHeading: 'AAS ID',
         repositoryUrl: 'Repository Url',
-        subtitle: 'Asset ID',
+        subtitle: 'Here you will find all related AAS to the given ID.',
     },
     qrScanner: {
         defaultCallbackErrorMsg: 'Could not open the QR code!',
