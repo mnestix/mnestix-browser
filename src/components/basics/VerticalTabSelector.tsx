@@ -7,9 +7,7 @@ export type TabSelectorItem = {
     readonly id: string;
     readonly label: string;
     readonly startIcon?: ReactElement<SvgIconProps>;
-
-    readonly metaData?: Submodel;
-    readonly endpoint?: string;
+    readonly submodelData?: Submodel;
 };
 
 type VerticalTabSelectorProps = {

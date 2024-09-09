@@ -150,7 +150,7 @@ class AasSearcher {
                 },
             };
         } catch (e) {
-            console.warn('Could not be found in the registry service, will continue to look in the AAS repository.');
+            console.warn('Could not be found in the registry service, will continue to look in the AAS registry.');
             return null;
         }
     }

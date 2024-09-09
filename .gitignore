@@ -8,3 +8,4 @@ cypress-artifacts
 .env
 /cypress/videos/
 /cypress/screenshots/
+/prisma/mnestix-database.db
