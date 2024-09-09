@@ -43,7 +43,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                 fetchedSubmodelData = await getSubmodelFromAllRepos(id, submodelClient);
             }
             return fetchedSubmodelData;
-        } catch (e) {
+        } catch (_) {
             return undefined;
         }
     }
