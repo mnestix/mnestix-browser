@@ -27,7 +27,7 @@ export async function handleSearchForAas(
     const aasIds = await handleAasDiscoverySearch(val);
     if (aasIds.length > 1) {
         return {
-            redirectUrl: `/viewer/discovery?assetId=${val}`,
+            redirectUrl: `/viewer/discovery?assetId=${encodeURI(val)}`,
             aas: null,
             aasData: null,
         };

@@ -24,7 +24,9 @@ export async function getAasFromAllRepos(
     const fulfilledResults = results.filter(result => result.status === 'fulfilled');
 
     if (fulfilledResults.length > 0) {
-        return fulfilledResults.map(result => (result as any).value);
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+        return fulfilledResults.map(result => (result as unknown).value);
     } else {
         throw new Error('AAS not found');
     }

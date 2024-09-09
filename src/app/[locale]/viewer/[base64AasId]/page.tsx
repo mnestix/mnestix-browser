@@ -37,10 +37,10 @@ export default function Page() {
     const { repositoryClient } = useApis();
     const [aas, setAas] = useAasState();
     const [, setRegistryAasData] = useRegistryAasState();
-    const base64RepoUrl = useSearchParams().get('repoUrl');
-    const repoUrl = base64RepoUrl ? safeBase64Decode(base64RepoUrl!) : undefined;
+    const encodedRepoUrl = useSearchParams().get('repoUrl');
+    const repoUrl = encodedRepoUrl ? decodeURI(encodedRepoUrl) : undefined;
 
-        useAsyncEffect(async () => {
+    useAsyncEffect(async () => {
         await fetchAas();
     }, [base64AasId, env]);
 
@@ -75,7 +75,7 @@ export default function Page() {
                 } catch (e) {
                     const repoSearchResults = await getAasFromAllRepos(base64AasId, repositoryClient);
                     if (repoSearchResults.length > 1) {
-                        navigate.push(`/viewer/discovery?aasId=${decodeBase64(base64AasId)}`);
+                        navigate.push(`/viewer/discovery?aasId=${encodeURI(decodeBase64(base64AasId))}`);
                     }
                     fetchedAas = repoSearchResults[0].aas
                 }
