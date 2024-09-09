@@ -13,23 +13,23 @@ import { IDiscoveryServiceApi } from 'lib/api/discovery-service-api/discoverySer
 import { IRegistryServiceApi } from 'lib/api/registry-service-api/registryServiceApiInterface';
 import { IAssetAdministrationShellRepositoryApi } from 'lib/api/basyx-v3/apiInterface';
 
-interface RegistrySearchResult {
+export interface RegistrySearchResult {
     registryAas: AssetAdministrationShell;
     registryAasData?: RegistryAasData;
 }
 
 export async function performFullAasSearch(searchInput: string): Promise<AasSearchResult> {
-    const searcher  = await getAasSearcher();
+    const searcher = await getAasSearcher();
     return searcher.fullSearch(searchInput);
 }
 
 export async function performRegistryAasSearch(searchInput: string): Promise<RegistrySearchResult | null> {
-    const searcher  = await getAasSearcher();
+    const searcher = await getAasSearcher();
     return searcher.handleAasRegistrySearch(searchInput);
 }
 
 export async function performDiscoveryAasSearch(searchInput: string): Promise<string[] | null> {
-    const searcher  = await getAasSearcher();
+    const searcher = await getAasSearcher();
     return searcher.handleAasDiscoverySearch(searchInput);
 }
 
@@ -40,14 +40,15 @@ export async function getAasSearcher(): Promise<AasSearcher> {
     });
     const registryServiceClient = new RegistryServiceApi(process.env.REGISTRY_API_URL);
     const discoveryServiceClient = new DiscoveryServiceApi(process.env.DISCOVERY_API_URL);
-    return new AasSearcher(discoveryServiceClient, registryServiceClient, repositoryClient);
+    return new AasSearcher(discoveryServiceClient, registryServiceClient, repositoryClient, fetch);
 }
 
-class AasSearcher {
+export class AasSearcher {
     constructor(
         protected readonly discoveryServiceClient: IDiscoveryServiceApi,
         protected readonly registryService: IRegistryServiceApi,
         protected readonly repositoryClient: IAssetAdministrationShellRepositoryApi,
+        protected readonly fetch: (input: RequestInfo | URL, init?: RequestInit | undefined) => Promise<Response>,
     ) {}
 
     async fullSearch(val: string) {
@@ -138,15 +139,17 @@ class AasSearcher {
                 throw new NotFoundError();
             }
 
-            const aasEndpoint = endpoints.map((endpoint) => endpoint.protocolInformation.href)[0];
+            const aasEndpoint = endpoints[0].protocolInformation.href;
             const aasRepositoryOrigin = getAasRepositoryOrigin(aasEndpoint);
 
-            const aas = await fetch(aasEndpoint, {
+            const aas = await this.fetch(aasEndpoint, {
                 method: 'GET',
             });
 
+            const aasJson = await aas.json();
+            
             return {
-                registryAas: await aas.json(),
+                registryAas: aasJson,
                 registryAasData: {
                     submodelDescriptors: submodelDescriptors,
                     aasRegistryRepositoryOrigin: aasRepositoryOrigin,

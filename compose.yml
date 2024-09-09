@@ -17,12 +17,12 @@ services:
     ports:
       - '3000:3000'
     environment:
-      REGISTRY_API_URL: 'https://localhost:8083/' # 'https://registry.dpp40-2-v2.industrialdigitaltwin.org/'
-      SUBMODEL_REGISTRY_API_URL: 'http://localhost:8084'
-      DISCOVERY_API_URL: 'http://localhost:5064/discovery'
-      AAS_REPO_API_URL: 'http://localhost:5064/repo'
-      SUBMODEL_REPO_API_URL: 'http://localhost:5064/repo'
-      MNESTIX_BACKEND_API_URL: 'http://localhost:5064'
+      REGISTRY_API_URL: 'https://aas-registry:8083/' # 'https://registry.dpp40-2-v2.industrialdigitaltwin.org/'
+      SUBMODEL_REGISTRY_API_URL: 'http://submodel-registry:8084'
+      DISCOVERY_API_URL: 'http://mnestix-api:5064/discovery'
+      AAS_REPO_API_URL: 'http://mnestix-api:5064/repo'
+      SUBMODEL_REPO_API_URL: 'http://mnestix-api:5064/repo'
+      MNESTIX_BACKEND_API_URL: 'http://mnestix-api:5064'
       AAS_LIST_FEATURE_FLAG: "true"
       COMPARISON_FEATURE_FLAG: "true"
       AUTHENTICATION_FEATURE_FLAG: "false"
