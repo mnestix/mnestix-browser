@@ -6,7 +6,7 @@ import { CenteredLoadingSpinner } from 'components/basics/CenteredLoadingSpinner
 import { useState } from 'react';
 import DiscoveryList from 'app/[locale]/viewer/discovery/_components/DiscoveryList';
 import { useSearchParams } from 'next/navigation';
-import { Box, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 import { handleAasDiscoverySearch, handleAasRegistrySearch } from 'lib/searchUtilActions/searchServer';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { IDiscoveryListEntry } from 'lib/types/DiscoveryListEntry';
@@ -24,9 +24,10 @@ export const DiscoveryListView = () => {
     const [isError, setIsError] = useState<boolean>(false);
     const intl = useIntl();
     const searchParams = useSearchParams();
-    const assetId = searchParams.get('assetId');
-    const base64AasId = searchParams.get('aasId')
-    const aasId = base64AasId? decodeURIComponent(base64AasId) : undefined;
+    const encodedAssetId = searchParams.get('assetId');
+    const assetId = encodedAssetId ? decodeURI(encodedAssetId) : undefined;
+    const encodedAasId = searchParams.get('aasId')
+    const aasId = encodedAasId ? decodeURI(encodedAasId) : undefined;
     const { repositoryClient } = useApis();
     const env = useEnv();
 
@@ -37,8 +38,7 @@ export const DiscoveryListView = () => {
         if (assetId) {
             const aasIds = await handleAasDiscoverySearch(assetId);
 
-            // TODO do it asynchronous
-            for (const aasId of aasIds) {
+            aasIds.map(async (aasId) => {
                 const registrySearchResult = await handleAasRegistrySearch(aasId);
 
                 let aasRepositoryUrl;
@@ -52,7 +52,7 @@ export const DiscoveryListView = () => {
                     aasId: aasId,
                     repositoryUrl: aasRepositoryUrl,
                 });
-            }
+            });
         } else if (aasId) {
             let searchResults: RepoSearchResult[] = [];
             try {
