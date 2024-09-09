@@ -4,26 +4,25 @@ import { AssetAdministrationShellRepositoryApi, SubmodelRepositoryApi } from 'li
 export async function getAasFromAllRepos(aasId: string, repositoryClient: AssetAdministrationShellRepositoryApi) {
     const basePathUrls = await getConnectionDataByTypeAction({ id: '0', typeName: 'AAS_REPOSITORY' });
 
-    for (const url of basePathUrls) {
-        const aas = await repositoryClient.getAssetAdministrationShellById(aasId, undefined, url);
-        if (aas) {
-            return aas;
-        }
-    }
+    const promises = basePathUrls.map((url) => repositoryClient.getAssetAdministrationShellById(aasId, undefined, url));
 
-    throw new Error('AAS not found');
+    try {
+        return await Promise.any(promises);
+    } catch {
+        throw new Error('AAS not found');
+    }
 }
 
 export async function getSubmodelFromAllRepos(submodelId: string, repositoryClient: SubmodelRepositoryApi) {
     const basePathUrls = await getConnectionDataByTypeAction({ id: '0', typeName: 'AAS_REPOSITORY' });
 
-    for (const url of basePathUrls) {
-        const submodel = await repositoryClient.getSubmodelById(submodelId, undefined, url);
-        if (submodel) {
-            return submodel;
-        }
+    const promises = basePathUrls.map((url) => repositoryClient.getSubmodelById(submodelId, undefined, url));
+
+    try {
+        return await Promise.any(promises);
+    } catch (error) {
+        throw new Error('Submodel not found');
     }
-    throw new Error('Submodel not found');
 }
 
 export async function getAasThumbnailFromAllRepos(
@@ -32,11 +31,18 @@ export async function getAasThumbnailFromAllRepos(
 ) {
     const basePathUrls = await getConnectionDataByTypeAction({ id: '0', typeName: 'AAS_REPOSITORY' });
 
-    for (const url of basePathUrls) {
-        const image = await repositoryClient.getThumbnailFromShell(aasId, undefined, url);
-        if (image.size != 0) {
+    const promises = basePathUrls.map((url) =>
+        repositoryClient.getThumbnailFromShell(aasId, undefined, url).then((image) => {
+            if (image.size === 0) {
+                throw new Error('Empty image');
+            }
             return image;
-        }
+        }),
+    );
+
+    try {
+        return await Promise.any(promises);
+    } catch {
+        throw new Error('Image not found');
     }
-    throw new Error('Image not found');
 }
