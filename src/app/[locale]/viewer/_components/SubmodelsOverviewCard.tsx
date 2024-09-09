@@ -14,6 +14,8 @@ import { useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { getSubmodelFromSubmodelDescriptor } from 'lib/searchUtilActions/searchServer';
 import { useEnv } from 'app/env/provider';
 import { getSubmodelFromAllRepos } from 'lib/searchUtilActions/SearchRepositoryHelper';
+import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
+import { showError } from 'lib/util/ErrorHandlerUtil';
 
 export type SubmodelsOverviewCardProps = { readonly smReferences?: Reference[]; readonly isLoading?: boolean };
 
@@ -23,6 +25,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
     const { submodelClient } = useApis();
     const [registryAasData] = useRegistryAasState();
     const { submodelRegistryServiceClient } = useApis();
+    const notificationSpawner = useNotificationSpawner();
 
     SubmodelSorting(selectedSubmodel);
 
@@ -43,7 +46,9 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                 fetchedSubmodelData = await getSubmodelFromAllRepos(id, submodelClient);
             }
             return fetchedSubmodelData;
-        } catch (_) {
+        } catch (e) {
+            console.error(e);
+            showError(e, notificationSpawner);
             return undefined;
         }
     }
