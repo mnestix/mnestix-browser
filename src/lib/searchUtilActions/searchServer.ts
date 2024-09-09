@@ -9,6 +9,9 @@ import { AssetAdministrationShellRepositoryApi } from 'lib/api/basyx-v3/api';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { mnestixFetch } from 'lib/api/infrastructure';
 import { AasSearchResult } from 'lib/searchUtilActions/searchClient';
+import { IDiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApiInterface';
+import { IRegistryServiceApi } from 'lib/api/registry-service-api/registryServiceApiInterface';
+import { IAssetAdministrationShellRepositoryApi } from 'lib/api/basyx-v3/apiInterface';
 
 interface RegistrySearchResult {
     registryAas: AssetAdministrationShell;
@@ -42,9 +45,9 @@ export async function getAasSearcher(): Promise<AasSearcher> {
 
 class AasSearcher {
     constructor(
-        protected readonly discoveryServiceClient: DiscoveryServiceApi,
-        protected readonly registryService: RegistryServiceApi,
-        protected readonly repositoryClient: AssetAdministrationShellRepositoryApi,
+        protected readonly discoveryServiceClient: IDiscoveryServiceApi,
+        protected readonly registryService: IRegistryServiceApi,
+        protected readonly repositoryClient: IAssetAdministrationShellRepositoryApi,
     ) {}
 
     async fullSearch(val: string) {

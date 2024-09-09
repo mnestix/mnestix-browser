@@ -1,13 +1,14 @@
 import { encodeBase64 } from 'lib/util/Base64Util';
+import { IDiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApiInterface';
 
-export class DiscoveryServiceApi {
+export class DiscoveryServiceApi implements IDiscoveryServiceApi {
     baseUrl: string;
 
     constructor(protected _baseUrl: string = '') {
         this.baseUrl = _baseUrl;
     }
 
-    public async linkAasIdAndAssetId(aasId: string, assetId: string) {
+    async linkAasIdAndAssetId(aasId: string, assetId: string) {
         return this.postAllAssetLinksById(aasId, [
             {
                 name: 'globalAssetId',
@@ -16,7 +17,7 @@ export class DiscoveryServiceApi {
         ]);
     }
 
-    public async getAasIdsByAssetId(assetId: string) {
+    async getAasIdsByAssetId(assetId: string) {
         return this.getAllAssetAdministrationShellIdsByAssetLink([
             {
                 name: 'globalAssetId',
@@ -25,7 +26,7 @@ export class DiscoveryServiceApi {
         ]);
     }
 
-    public async deleteAllAssetLinksById(aasId: string) {
+    async deleteAllAssetLinksById(aasId: string) {
         const b64_aasId = encodeBase64(aasId);
 
         const headers = {
@@ -45,7 +46,7 @@ export class DiscoveryServiceApi {
         }
     }
 
-    public async getAllAssetAdministrationShellIdsByAssetLink(
+    async getAllAssetAdministrationShellIdsByAssetLink(
         assetIds: { name: string; value: string }[],
     ): Promise<{ paging_metadata: string; result: string[] }> {
         const headers = {
@@ -71,7 +72,7 @@ export class DiscoveryServiceApi {
         }
     }
 
-    public async getAllAssetLinksById(aasId: string) {
+    async getAllAssetLinksById(aasId: string) {
         const b64_aasId = encodeBase64(aasId);
 
         const headers = {
@@ -91,7 +92,7 @@ export class DiscoveryServiceApi {
         }
     }
 
-    public async postAllAssetLinksById(aasId: string, assetLinks: { name: string; value: string }[]) {
+    async postAllAssetLinksById(aasId: string, assetLinks: { name: string; value: string }[]) {
         const b64_aasId = encodeBase64(aasId);
 
         const headers = {

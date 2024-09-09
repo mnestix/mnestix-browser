@@ -4,6 +4,7 @@ import url from 'url';
 import { Configuration } from './configuration';
 import { AssetAdministrationShell, Reference, Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
 import { encodeBase64 } from 'lib/util/Base64Util';
+import { IAssetAdministrationShellRepositoryApi } from 'lib/api/basyx-v3/apiInterface';
 
 const BASE_PATH = '/'.replace(/\/+$/, '');
 
@@ -15,6 +16,7 @@ const BASE_PATH = '/'.replace(/\/+$/, '');
 export type FetchAPI = {
     fetch: (url: RequestInfo, init?: RequestInit) => Promise<Response>;
 };
+
 /**
  *
  * @export
@@ -68,7 +70,7 @@ export class RequiredError extends Error {
  * @class AssetAdministrationShellRepositoryApi
  * @extends {BaseAPI}
  */
-export class AssetAdministrationShellRepositoryApi extends BaseAPI {
+export class AssetAdministrationShellRepositoryApi extends BaseAPI implements IAssetAdministrationShellRepositoryApi {
     /**
      * @summary Retrieves a specific Asset Administration Shell from the Asset Administration Shell repository
      * @param {string} aasId The Asset Administration Shell&#x27;s unique id
@@ -77,7 +79,7 @@ export class AssetAdministrationShellRepositoryApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AssetAdministrationShellRepositoryApi
      */
-    public getAssetAdministrationShellById(aasId: string, options?: any, basePath?: string) {
+    getAssetAdministrationShellById(aasId: string, options?: any, basePath?: string) {
         return AssetAdministrationShellRepositoryApiFp(this.configuration).getAssetAdministrationShellById(
             aasId,
             options,
@@ -92,7 +94,7 @@ export class AssetAdministrationShellRepositoryApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AssetAdministrationShellRepositoryApi
      */
-    public getSubmodelReferencesFromShell(aasId: string, options?: any) {
+    getSubmodelReferencesFromShell(aasId: string, options?: any) {
         return AssetAdministrationShellRepositoryApiFp(this.configuration).getSubmodelReferencesFromShell(
             aasId,
             options,
@@ -106,7 +108,7 @@ export class AssetAdministrationShellRepositoryApi extends BaseAPI {
      * @param {string} [basePath] The URL for the current repository endpoint.
      * @returns The thumbnail retrieved from the Asset Administration Shell.
      */
-    public getThumbnailFromShell(aasId: string, options?: any, basePath?: string) {
+    getThumbnailFromShell(aasId: string, options?: any, basePath?: string) {
         return AssetAdministrationShellRepositoryApiFp(this.configuration).getThumbnailFromAssetInformation(
             aasId,
             options,
@@ -135,7 +137,10 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
                 configuration,
             ).getAssetAdministrationShellById(aasId, options);
             return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                const response = await requestHandler.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
+                const response = await requestHandler.fetch(
+                    basePath + localVarFetchArgs.url,
+                    localVarFetchArgs.options,
+                );
                 if (response.status >= 200 && response.status < 300) {
                     return response.json();
                 } else {
@@ -158,7 +163,10 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
                 configuration,
             ).getSubmodelReferencesFromShell(aasId, options);
             return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                const response = await requestHandler.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
+                const response = await requestHandler.fetch(
+                    basePath + localVarFetchArgs.url,
+                    localVarFetchArgs.options,
+                );
                 if (response.status >= 200 && response.status < 300) {
                     return response.json().then((resp) => {
                         return resp.result as Reference[];
@@ -183,7 +191,10 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
                 configuration,
             ).getThumbnailFromAssetInformation(aasId, options);
             return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                const response = await requestHandler.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
+                const response = await requestHandler.fetch(
+                    basePath + localVarFetchArgs.url,
+                    localVarFetchArgs.options,
+                );
                 if (response.status >= 200 && response.status < 300) {
                     return response.blob();
                 } else {
@@ -373,7 +384,10 @@ export const SubmodelRepositoryApiFp = function (configuration?: Configuration) 
                 options,
             );
             return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                const response = await requestHandler.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
+                const response = await requestHandler.fetch(
+                    basePath + localVarFetchArgs.url,
+                    localVarFetchArgs.options,
+                );
                 if (response.status >= 200 && response.status < 300) {
                     return response.json();
                 } else {
@@ -393,7 +407,10 @@ export const SubmodelRepositoryApiFp = function (configuration?: Configuration) 
                 options,
             );
             return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                const response = await requestHandler.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
+                const response = await requestHandler.fetch(
+                    basePath + localVarFetchArgs.url,
+                    localVarFetchArgs.options,
+                );
                 if (response.status >= 200 && response.status < 300) {
                     return response.json();
                 } else {
@@ -416,7 +433,10 @@ export const SubmodelRepositoryApiFp = function (configuration?: Configuration) 
                 configuration,
             ).getAttachmentFromSubmodelElement(submodelId, submodelElementPath, options);
             return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                const response = await requestHandler.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
+                const response = await requestHandler.fetch(
+                    basePath + localVarFetchArgs.url,
+                    localVarFetchArgs.options,
+                );
                 if (response.status >= 200 && response.status < 300) {
                     return response.blob();
                 } else {
