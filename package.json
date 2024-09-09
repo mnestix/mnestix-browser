@@ -34,9 +34,10 @@
         "jest-environment-jsdom": "^29.7.0",
         "lodash": "^4.17.21",
         "prettier": "^3.2.5",
-        "ts-jest": "^29.2.5",
-        "ts-node": "^10.9.2",
         "prisma": "^5.18.0",
+        "ts-jest": "^29.2.5",
+        "ts-mockito": "^2.6.1",
+        "ts-node": "^10.9.2",
         "typescript-eslint": "^7.8.0"
     },
     "dependencies": {

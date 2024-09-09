@@ -1,8 +1,6 @@
 export {};
 module.exports = {
-    // transform: {
-    //     '^.+\\.ts?$': ['ts-jest', { isolatedModules: true }],
-    // },
+    moduleDirectories: ['node_modules', 'src'],
     transform: {
         '^.+\\.(t|j)sx?$': '@swc/jest',
     },

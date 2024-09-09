@@ -1,17 +1,18 @@
 import { expect } from '@jest/globals';
-import { AasSearcher, RegistrySearchResult } from 'lib/searchUtilActions/searchServer';
+import { AasSearcher } from 'lib/searchUtilActions/searchServer';
 import { IDiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApiInterface';
 import { IRegistryServiceApi } from 'lib/api/registry-service-api/registryServiceApiInterface';
 import { AssetAdministrationShellDescriptor } from 'lib/types/registryServiceTypes';
 import { IAssetAdministrationShellRepositoryApi } from 'lib/api/basyx-v3/apiInterface';
 import { AssetAdministrationShell, Reference } from '@aas-core-works/aas-core3.0-typescript/types';
-import { instance, mock, when } from 'ts-mockito';
-import { encodeBase64 } from 'lib/util/Base64Util';
+import { instance, mock } from 'ts-mockito';
+import { decodeBase64, encodeBase64 } from 'lib/util/Base64Util';
 
 interface SearchSetupParameters {
     discoveryEntries?: { assetId: string; aasIds: string[] }[];
-    registryEntries?: AssetAdministrationShellDescriptor[] | null;
-    savedShells?: { path: string; aas: AssetAdministrationShell }[] | null;
+    registryShellDescriptorEntries?: AssetAdministrationShellDescriptor[] | null;
+    shellsByRegistryEndpoint?: { path: string; aas: AssetAdministrationShell }[] | null;
+    shellsSavedInTheRepository?: AssetAdministrationShell[] | null;
 }
 
 interface DummyAasParameters {
@@ -20,54 +21,89 @@ interface DummyAasParameters {
 
 describe('Full Aas Search happy paths', () => {
     it('navigates to the discovery list when more than one aasId for a given assetId', async () => {
-        const userInputString = 'irrelevant assetId';
+        const searchString = 'irrelevant assetId';
         const searcher = prepareSearcher({
-            discoveryEntries: [
-                {
-                    assetId: userInputString,
-                    aasIds: ['first found aasId 0', 'second found aasId 1'],
-                },
-            ],
+            discoveryEntries: [{ assetId: searchString, aasIds: ['first found aasId 0', 'second found aasId 1'] }],
         });
 
-        const result = await searcher.fullSearch(userInputString);
+        const result = await searcher.fullSearch(searchString);
 
-        expect(result.redirectUrl).toBe('/viewer/discovery?assetId=' + userInputString);
+        expect(result.redirectUrl).toBe('/viewer/discovery?assetId=' + searchString);
     });
 
-    it('returns details on aas when exactly one aasId for a given assetId and it is registered in the registry', async () => {
-        const firstAasId = 'dummy aasId';
-        const firstAasPath = 'https://www.origin.com/route/for/aas/';
+    it('returns details of aas when exactly one aasId for a given assetId and it is registered in the registry', async () => {
+        const aasId = 'dummy aasId';
+        const aasEndpoint = 'https://www.origin.com/route/for/aas/';
         const userInputString = 'irrelevant assetId';
         const searcher = prepareSearcher({
-            discoveryEntries: [{ assetId: userInputString, aasIds: [firstAasId] }],
-            registryEntries: [createDummyShellDescriptor(firstAasPath, firstAasId)],
-            savedShells: [{ path: firstAasPath, aas: createDummyAas({ id: firstAasId }) }],
+            discoveryEntries: [{ assetId: userInputString, aasIds: [aasId] }],
+            registryShellDescriptorEntries: [createDummyShellDescriptor(aasEndpoint, aasId)],
+            shellsByRegistryEndpoint: [{ path: aasEndpoint, aas: createDummyAas({ id: aasId }) }],
         });
 
         const result = await searcher.fullSearch(userInputString);
 
-        expect(result.redirectUrl).toBe('/viewer/' + encodeBase64(firstAasId));
+        expect(result.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
+    });
+
+    it('returns details of aas when exactly one aasId for a given assetId and it is not registered in the registry but saved in default repository', async () => {
+        const aasId = 'dummy aasId';
+        const userInputString = 'irrelevant assetId';
+        const searcher = prepareSearcher({
+            discoveryEntries: [{ assetId: userInputString, aasIds: [aasId] }],
+            shellsSavedInTheRepository: [createDummyAas({ id: aasId })],
+        });
+
+        const result = await searcher.fullSearch(userInputString);
+
+        expect(result.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
+    });
+
+    it('returns details of aas when exactly when discovery returns nothing and the aas is registered in the registry', async () => {
+        const aasId = 'dummy aasId';
+        const userInputString = aasId;
+        const aasEndpoint = 'https://www.origin.com/route/for/aas/';
+        const searcher = prepareSearcher({
+            registryShellDescriptorEntries: [createDummyShellDescriptor(aasEndpoint, aasId)],
+            shellsByRegistryEndpoint: [{ path: aasEndpoint, aas: createDummyAas({ id: aasId }) }],
+        });
+
+        const result = await searcher.fullSearch(userInputString);
+
+        expect(result.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
+    });
+
+    it('returns aas for given aasId from default repository', async () => {
+        const aasId = 'dummy aasId';
+        const userInputString = aasId;
+        const searcher = prepareSearcher({
+            shellsSavedInTheRepository: [createDummyAas({ id: aasId })],
+        });
+
+        const result = await searcher.fullSearch(userInputString);
+
+        expect(result.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
     });
 });
 
 function prepareSearcher({
     discoveryEntries = [],
-    registryEntries = null,
-    savedShells = null,
+    registryShellDescriptorEntries = null,
+    shellsByRegistryEndpoint = null,
+    shellsSavedInTheRepository = null,
 }: SearchSetupParameters = {}) {
     const discoveryServiceClient = new DiscoveryServiceApiInMemory({
         discoveryEntries: discoveryEntries,
     });
-    const registryService = new RegistryServiceApiInMemory({ registryEntries });
-    const repositoryClient = new AssetAdministrationShellRepositoryApiInMemory();
+    const registryService = new RegistryServiceApiInMemory({ registryShellDescriptorEntries });
+    const repositoryClient = new AssetAdministrationShellRepositoryApiInMemory({ shellsSavedInTheRepository });
     return new AasSearcher(
         discoveryServiceClient,
         registryService,
         repositoryClient,
         async (input: RequestInfo | URL): Promise<Response> => {
-            if (!savedShells) return Promise.reject(new Error('no registry configuration'));
-            for (const aasEntry of savedShells) {
+            if (!shellsByRegistryEndpoint) return Promise.reject(new Error('no registry configuration'));
+            for (const aasEntry of shellsByRegistryEndpoint) {
                 if (aasEntry.path === input) return new Response(JSON.stringify(aasEntry.aas));
             }
             return Promise.reject(new Error('no aas for on href:' + input));
@@ -94,7 +130,7 @@ class DiscoveryServiceApiInMemory implements IDiscoveryServiceApi {
                     result: discoveryEntry.aasIds,
                 });
         }
-        return Promise.reject('not found')
+        return Promise.reject('not found');
     }
 
     deleteAllAssetLinksById(aasId: string): Promise<JSON> {
@@ -120,11 +156,11 @@ class DiscoveryServiceApiInMemory implements IDiscoveryServiceApi {
 }
 
 class RegistryServiceApiInMemory implements IRegistryServiceApi {
-    private registryEntries: AssetAdministrationShellDescriptor[] | null;
+    private registryShellDescriptorEntries: AssetAdministrationShellDescriptor[] | null;
     baseUrl: string;
 
-    constructor(options: { registryEntries: AssetAdministrationShellDescriptor[] | null }) {
-        this.registryEntries = options.registryEntries;
+    constructor(options: { registryShellDescriptorEntries: AssetAdministrationShellDescriptor[] | null }) {
+        this.registryShellDescriptorEntries = options.registryShellDescriptorEntries;
     }
 
     getAllAssetAdministrationShellDescriptors(): Promise<JSON> {
@@ -132,9 +168,9 @@ class RegistryServiceApiInMemory implements IRegistryServiceApi {
     }
 
     getAssetAdministrationShellDescriptorById(aasId: string): Promise<AssetAdministrationShellDescriptor> {
-        if (!this.registryEntries) return Promise.reject(new Error('no registry configuration'));
+        if (!this.registryShellDescriptorEntries) return Promise.reject(new Error('no registry configuration'));
         let shellDescriptor: AssetAdministrationShellDescriptor;
-        for (shellDescriptor of this.registryEntries) {
+        for (shellDescriptor of this.registryShellDescriptorEntries) {
             if (shellDescriptor.id === aasId) return Promise.resolve(shellDescriptor);
         }
         return Promise.reject(new Error('no shell descriptor for aasId:' + aasId));
@@ -157,12 +193,28 @@ class RegistryServiceApiInMemory implements IRegistryServiceApi {
 }
 
 class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdministrationShellRepositoryApi {
+    private shellsSavedInTheRepository: AssetAdministrationShell[] | null | undefined;
+
+    constructor(options: { shellsSavedInTheRepository: AssetAdministrationShell[] | null | undefined }) {
+        this.shellsSavedInTheRepository = options.shellsSavedInTheRepository;
+    }
+
     getAssetAdministrationShellById(
         aasId: string,
         options?: object | undefined,
         basePath?: string | undefined,
     ): Promise<AssetAdministrationShell> {
-        throw new Error('Method not implemented.');
+        if (!this.shellsSavedInTheRepository) return Promise.reject('no repository configuration');
+        for (const aas of this.shellsSavedInTheRepository) {
+            if (encodeBase64(aas.id) === aasId) return Promise.resolve(aas);
+        }
+        return Promise.reject(
+            'no aas found in the default repository for aasId: ' +
+                aasId +
+                ', which is :' +
+                decodeBase64(aasId) +
+                ' encoded in base64',
+        );
     }
 
     getSubmodelReferencesFromShell(aasId: string, options?: object | undefined): Promise<Reference[]> {
