@@ -14,6 +14,8 @@ import { useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { getSubmodelFromSubmodelDescriptor } from 'lib/searchUtilActions/searchServer';
 import { useEnv } from 'app/env/provider';
 import { getSubmodelFromAllRepos } from 'lib/searchUtilActions/SearchRepositoryHelper';
+import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
+import { showError } from 'lib/util/ErrorHandlerUtil';
 
 export type SubmodelsOverviewCardProps = { readonly smReferences?: Reference[]; readonly isLoading?: boolean };
 
@@ -23,78 +25,114 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
     const { submodelClient } = useApis();
     const [registryAasData] = useRegistryAasState();
     const { submodelRegistryServiceClient } = useApis();
+    const notificationSpawner = useNotificationSpawner();
 
     SubmodelSorting(selectedSubmodel);
 
-    const [items, setItems] = useState<TabSelectorItem[]>([]);
+    const [submodelSelectorItems, setSubmodelSelectorItems] = useState<TabSelectorItem[]>([]);
     const [open, setOpen] = useState<boolean>(false);
     const isMobile = useIsMobile();
     const firstSubmodelIdShort = 'Nameplate';
     const env = useEnv();
-    const submodels: { id: string; label: string; submodelData?: Submodel; endpoint?: string }[] = [];
-    
-    async function fetchSubmodelFromRepo(reference: Reference) {
+
+    async function fetchSubmodelFromRepo(reference: Reference): Promise<Submodel | undefined> {
         const id = reference.keys[0].value;
 
         try {
-            let fetchedSubmodelData : Submodel;
+            let fetchedSubmodelData: Submodel;
             try {
                 fetchedSubmodelData = await submodelClient.getSubmodelById(id);
             } catch (e) {
                 fetchedSubmodelData = await getSubmodelFromAllRepos(id, submodelClient);
             }
-            submodels.push({ id, label: fetchedSubmodelData.idShort ?? '', submodelData: fetchedSubmodelData });
+            return fetchedSubmodelData;
         } catch (e) {
-            console.warn(e);
+            console.error(e);
+            showError(e, notificationSpawner);
+            return undefined;
         }
     }
 
-    function sortSubmodels() {
-        if (submodels) {
-            submodels.sort(function (x, y) {
+    function sortSubmodelSelectorTabs() {
+        if (submodelSelectorItems) {
+            submodelSelectorItems.sort(function (x, y) {
                 return x.label == firstSubmodelIdShort ? -1 : y.label == firstSubmodelIdShort ? 1 : 0;
             });
-            setItems(submodels);
         }
     }
 
     async function fetchSubmodels() {
-        if (registryAasData) {
-            registryAasData.submodelDescriptors?.forEach((submodelDescriptor) => {
-                submodels.push({
-                    id: submodelDescriptor.id,
-                    label: submodelDescriptor.idShort ?? '',
-                    endpoint: submodelDescriptor.endpoints[0].protocolInformation.href,
-                });
-            });
-        } else {
-            for (const reference of props.smReferences as Reference[]) {
-                try {
-                    const submodelFromRegistry = env.SUBMODEL_REGISTRY_API_URL
-                        ? await submodelRegistryServiceClient.getSubmodelDescriptorsById(reference.keys[0].value)
-                        : null;
-                    submodels.push({
-                        id: submodelFromRegistry.id,
-                        label: submodelFromRegistry.idShort ?? '',
-                        endpoint: submodelFromRegistry.endpoints[0].protocolInformation.href,
-                    });
-                } catch (e) {
-                    // Submodel registry is not available or submodel not found there -> search in repo
-                    if (e instanceof TypeError || (e instanceof Response && e.status === 404)) {
-                        await fetchSubmodelFromRepo(reference);
-                    } else {
-                        console.error(e);
+        let submodelsPromise;
+
+        if (registryAasData && registryAasData.submodelDescriptors) {
+            // Fetch submodel from provided endpoint
+             submodelsPromise = Promise.all(
+                registryAasData.submodelDescriptors.map(async (submodelDescriptor): Promise<TabSelectorItem | null> => {
+                    const endpoint = submodelDescriptor?.endpoints[0].protocolInformation.href;
+
+                    if (endpoint) {
+                        const submodelData = await getSubmodelFromSubmodelDescriptor(endpoint);
+                        return {
+                            id: submodelDescriptor.id,
+                            label: submodelDescriptor.idShort ?? '',
+                            submodelData: submodelData,
+                        };
                     }
-                }
-            }
+                    return null;
+                })
+            );
+        } else {
+            // Search in default registry
+            submodelsPromise = Promise.all(
+                (props.smReferences as Reference[]).map(async (reference): Promise<TabSelectorItem | null> => {
+                    let tabSelectorItem: TabSelectorItem | null = null;
+                    try {
+                        const submodelDescriptor = env.SUBMODEL_REGISTRY_API_URL
+                            ? await submodelRegistryServiceClient.getSubmodelDescriptorsById(reference.keys[0].value)
+                            : null;
+                        const endpoint = submodelDescriptor?.endpoints[0].protocolInformation.href;
+
+                        if (endpoint) {
+                            const submodelData = await getSubmodelFromSubmodelDescriptor(endpoint);
+                            tabSelectorItem = {
+                                id: submodelDescriptor.id,
+                                label: submodelDescriptor.idShort ?? '',
+                                submodelData: submodelData
+                            };
+                        }
+                    } catch (e) {
+                        if (!(e instanceof TypeError || (e instanceof Response && e.status === 404))) {
+                            console.error(e);
+                        }
+                    }
+
+                    if (!tabSelectorItem) {
+                        // Submodel registry is not available or submodel not found there -> search in repo
+                        const fetchedSubmodel = await fetchSubmodelFromRepo(reference);
+
+                        if (!fetchedSubmodel) return null;
+
+                        tabSelectorItem = {
+                            id: fetchedSubmodel.id,
+                            label: fetchedSubmodel.idShort ?? '',
+                            submodelData: fetchedSubmodel,
+                        };
+                    }
+
+                    return tabSelectorItem;
+                })
+            );
         }
+
+        const submodels = await submodelsPromise as TabSelectorItem[];
+        setSubmodelSelectorItems(submodels.filter(item => !!item));
     }
 
     useAsyncEffect(async () => {
         if (!props.smReferences) return;
 
         await fetchSubmodels();
-        sortSubmodels();
+        sortSubmodelSelectorTabs();
     }, [props.smReferences, registryAasData]);
 
     useEffect(() => {
@@ -102,39 +140,16 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
     }, [isMobile, selectedItem]);
 
     useEffect(() => {
-        setSelectedItem(isMobile ? undefined : items?.[0]);
-    }, [isMobile, items]);
+        setSelectedItem(isMobile ? undefined : submodelSelectorItems?.[0]);
+    }, [isMobile, submodelSelectorItems]);
 
     useAsyncEffect(async () => {
-        const selectedSubmodel = items?.find((el) => el.id === selectedItem?.id);
-        let fetchedSubmodel;
+        const selectedSubmodel = submodelSelectorItems?.find((el) => el.id === selectedItem?.id)?.submodelData;
 
         if (selectedSubmodel) {
-            if (selectedSubmodel.endpoint) {
-                try {
-                    fetchedSubmodel = await getSubmodelFromSubmodelDescriptor(selectedSubmodel.endpoint);
-                } catch (_) {
-                    // expexted behaviour if submodel registry is not available or submodel is not found there
-                }
-            }
-
-            if (!registryAasData && !fetchedSubmodel) {
-                try {
-                    try {
-                        fetchedSubmodel = await submodelClient.getSubmodelById(selectedSubmodel?.id);
-                    } catch (e) {
-                        fetchedSubmodel = await getSubmodelFromAllRepos(selectedSubmodel?.id, submodelClient);
-                    }
-                } catch (e) {
-                    console.warn(e);
-                }
-            }
+            setSelectedSubmodel(selectedSubmodel);
         }
-
-        if (fetchedSubmodel) {
-            setSelectedSubmodel(fetchedSubmodel);
-        }
-    }, [selectedItem, props.smReferences]);
+    }, [selectedItem]);
 
     const handleClose = () => {
         setOpen(false);
@@ -169,10 +184,14 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                         </>
                     ) : (
                         <>
-                            <VerticalTabSelector items={items} selected={selectedItem} setSelected={setSelectedItem} />
+                            <VerticalTabSelector
+                                items={submodelSelectorItems}
+                                selected={selectedItem}
+                                setSelected={setSelectedItem}
+                            />
                             {isMobile ? (
                                 <MobileModal
-                                    title={items.find((i) => i.id === selectedItem?.id)?.label}
+                                    title={submodelSelectorItems.find((i) => i.id === selectedItem?.id)?.label}
                                     open={open}
                                     handleClose={handleClose}
                                     content={<SubmodelDetail submodel={selectedSubmodel} />}

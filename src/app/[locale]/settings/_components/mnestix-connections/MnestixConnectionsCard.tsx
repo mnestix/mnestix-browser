@@ -47,7 +47,10 @@ export function MnestixConnectionsCard() {
             setIsLoading(true);
             return await getConnectionDataAction();
         } catch (error) {
-            notificationSpawner.spawn(error);
+            notificationSpawner.spawn({
+                message: error,
+                severity: 'error',
+            });
         } finally {
             setIsLoading(false);
         }
@@ -87,12 +90,15 @@ export function MnestixConnectionsCard() {
         try {
             await upsertConnectionDataAction([...data.aasRepository, ...data.submodelRepository]);
             notificationSpawner.spawn({
-                severity: 'success',
                 message: intl.formatMessage(messages.mnestix.changesSavedSuccessfully),
+                severity: 'success',
             });
             setIsEditMode(false);
         } catch (error) {
-            notificationSpawner.spawn(error);
+            notificationSpawner.spawn({
+                message: error,
+                severity: 'error',
+            });
         }
     }
 

@@ -25,9 +25,9 @@ export async function handleSearchForAas(
     repositoryClient: AssetAdministrationShellRepositoryApi,
 ): Promise<AasSearchResult> {
     const aasIds = await handleAasDiscoverySearch(val);
-    if (aasIds && aasIds.length > 1) {
+    if (aasIds.length > 1) {
         return {
-            redirectUrl: `/viewer/discovery?assetId=${val}`,
+            redirectUrl: `/viewer/discovery?assetId=${encodeURI(val)}`,
             aas: null,
             aasData: null,
         };
@@ -44,7 +44,15 @@ export async function handleSearchForAas(
             try {
                 aas = await repositoryClient.getAssetAdministrationShellById(encodeBase64(aasId));
             } catch (e) {
-                aas = await getAasFromAllRepos(encodeBase64(aasId), repositoryClient);
+                const repoSearchResults = await getAasFromAllRepos(encodeBase64(aasId), repositoryClient);
+                if (repoSearchResults.length > 1) {
+                    return {
+                        redirectUrl: `/viewer/discovery?aasId=${encodeURIComponent(val)}`,
+                        aas: null,
+                        aasData: null,
+                    };
+                }
+                aas = repoSearchResults[0].aas;
             }
         }
 
