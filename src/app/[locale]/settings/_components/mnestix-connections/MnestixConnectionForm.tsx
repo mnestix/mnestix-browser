@@ -92,11 +92,15 @@ export function MnestixConnectionsForm(props: MnestixConnectionsFormProps) {
                                         fullWidth={true}
                                         error={!!error}
                                         helperText={error ? error.message : ''}
+                                        data-testid={'repository-input-field'}
                                     />
                                 )}
                             />
                             <IconButton>
-                                <RemoveCircleOutlineIcon onClick={() => remove(index)} />
+                                <RemoveCircleOutlineIcon
+                                    onClick={() => remove(index)}
+                                    data-testid="remove-repository-button"
+                                />
                             </IconButton>
                         </Box>
                     ) : (
@@ -139,6 +143,7 @@ export function MnestixConnectionsForm(props: MnestixConnectionsFormProps) {
                         setIsEditMode(true);
                         append({ id: 'temp', type: dataConnectionType, url: '' });
                     }}
+                    data-testid="add-more-button"
                 >
                     <FormattedMessage {...messages.mnestix.connections.addButton} />
                 </Button>

@@ -35,7 +35,7 @@ describe('Test the settings page', function () {
             cy.setResolution(resolutions[0]);
             cy.getByTestId('submodel-tab').contains('Data sources').click();
             cy.getByTestId('edit-button').click();
-            cy.getByTestId('add-more-button').click();
+            cy.getByTestId('add-more-button').first().click();
             cy.getByTestId('repository-input-field').last().as('inputField').should('be.visible');
             cy.get('@inputField').click();
             cy.get('@inputField').type('testRepository');
@@ -55,7 +55,7 @@ describe('Test the settings page', function () {
             cy.setResolution(resolutions[0]);
             cy.getByTestId('submodel-tab').contains('Data sources').click();
             cy.getByTestId('edit-button').click();
-            cy.getByTestId('add-more-button').click();
+            cy.getByTestId('add-more-button').first().click();
             cy.getByTestId('repository-input-field').last().as('inputField').should('be.visible');
             cy.get('@inputField').click();
             cy.get('@inputField').type('testRepository');
