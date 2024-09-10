@@ -22,7 +22,7 @@ export const enMnestix = {
     idStructureExplanation:
         'Define, how your IDs are represented. This is a standard setting that can be adjusted for individual imports.',
     connections: {
-        title: 'Data Sources',
+        title: 'Data sources',
         subtitle: 'Define which data connections should be used.',
         addButton: 'Add more',
         editButton: 'Edit all',
