@@ -5,6 +5,7 @@ import { Configuration } from './configuration';
 import { AssetAdministrationShell, Reference, Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { IAssetAdministrationShellRepositoryApi } from 'lib/api/basyx-v3/apiInterface';
+import { AssetAdministrationShellRepositoryApiInMemory } from 'lib/api/basyx-v3/apiInMemory';
 
 const BASE_PATH = '/'.replace(/\/+$/, '');
 
@@ -71,6 +72,21 @@ export class RequiredError extends Error {
  * @extends {BaseAPI}
  */
 export class AssetAdministrationShellRepositoryApi extends BaseAPI implements IAssetAdministrationShellRepositoryApi {
+
+    constructor(configuration?: Configuration | undefined, basePath?: string, fetch?: FetchAPI) {
+        super(configuration, basePath, fetch);
+    }
+
+    static create(configuration?: Configuration | undefined, basePath?: string, fetch?: FetchAPI): AssetAdministrationShellRepositoryApi {
+        return new AssetAdministrationShellRepositoryApi(configuration, basePath, fetch);
+    }
+
+    static createNull(options: {
+        shellsSavedInTheRepository: AssetAdministrationShell[] | null;
+    }): AssetAdministrationShellRepositoryApiInMemory {
+        return new AssetAdministrationShellRepositoryApiInMemory(options);
+    }
+
     /**
      * @summary Retrieves a specific Asset Administration Shell from the Asset Administration Shell repository
      * @param {string} aasId The Asset Administration Shell&#x27;s unique id

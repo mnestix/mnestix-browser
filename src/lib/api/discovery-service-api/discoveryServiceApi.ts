@@ -1,11 +1,22 @@
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { IDiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApiInterface';
+import { DiscoveryServiceApiInMemory } from 'lib/api/discovery-service-api/discoveryServiceApiInMemory';
 
 export class DiscoveryServiceApi implements IDiscoveryServiceApi {
     baseUrl: string;
 
-    constructor(protected _baseUrl: string = '') {
+    private constructor(protected _baseUrl: string = '') {
         this.baseUrl = _baseUrl;
+    }
+
+    static create(_baseUrl: string = ''): DiscoveryServiceApi {
+        return new DiscoveryServiceApi(_baseUrl);
+    }
+
+    static createNull(options: {
+        discoveryEntries: { assetId: string; aasIds: string[] }[];
+    }): DiscoveryServiceApiInMemory {
+        return new DiscoveryServiceApiInMemory(options);
     }
 
     async linkAasIdAndAssetId(aasId: string, assetId: string) {

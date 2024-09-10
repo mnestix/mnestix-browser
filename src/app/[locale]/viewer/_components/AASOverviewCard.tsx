@@ -78,7 +78,7 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
         try {
             let image: Blob;
             if (registryAasData) {
-                const registryRepository = new AssetAdministrationShellRepositoryApi({
+                const registryRepository = AssetAdministrationShellRepositoryApi.create({
                     basePath: registryAasData.aasRegistryRepositoryOrigin,
                 });
                 image = await registryRepository.getThumbnailFromShell(props.aas.id);

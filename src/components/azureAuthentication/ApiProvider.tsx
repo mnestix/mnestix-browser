@@ -10,6 +10,7 @@ import { TemplateShellApi } from 'lib/api/template-shell-api/templateShellApi';
 import { DiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApi';
 import { RegistryServiceApi } from 'lib/api/registry-service-api/registryServiceApi';
 import { SubmodelRegistryServiceApi } from 'lib/api/submodel-registry-service/submodelRegistryServiceApi';
+import { IRegistryServiceApi } from 'lib/api/registry-service-api/registryServiceApiInterface';
 
 const ApiContext = React.createContext<Apis | null>(null);
 export const ApiProvider = (props: PropsWithChildren) => {
@@ -33,8 +34,8 @@ export const ApiProvider = (props: PropsWithChildren) => {
         ),
         repositoryClient: new AssetAdministrationShellRepositoryApi({ basePath: env.AAS_REPO_API_URL, fetch: mnestixFetch() }),
         submodelClient: new SubmodelRepositoryApi({ basePath: env.SUBMODEL_REPO_API_URL ?? env.AAS_REPO_API_URL, fetch: mnestixFetch() }),
-        discoveryServiceClient: new DiscoveryServiceApi(env.DISCOVERY_API_URL),
-        registryServiceClient: new RegistryServiceApi(env.REGISTRY_API_URL),
+        discoveryServiceClient: DiscoveryServiceApi.create(env.DISCOVERY_API_URL),
+        registryServiceClient: RegistryServiceApi.create(env.REGISTRY_API_URL),
         submodelRegistryServiceClient: new SubmodelRegistryServiceApi(env.SUBMODEL_REGISTRY_API_URL),
     };
 
@@ -57,6 +58,6 @@ export type Apis = {
     templatesClient: TemplateShellApi;
     submodelClient: SubmodelRepositoryApi;
     discoveryServiceClient: DiscoveryServiceApi;
-    registryServiceClient: RegistryServiceApi;
+    registryServiceClient: IRegistryServiceApi;
     submodelRegistryServiceClient: SubmodelRegistryServiceApi;
 };

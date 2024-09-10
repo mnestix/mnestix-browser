@@ -1,12 +1,21 @@
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { AssetAdministrationShellDescriptor } from 'lib/types/registryServiceTypes';
 import { IRegistryServiceApi } from 'lib/api/registry-service-api/registryServiceApiInterface';
+import { RegistryServiceApiInMemory } from 'lib/api/registry-service-api/registryServiceApiInMemory';
 
 export class RegistryServiceApi implements IRegistryServiceApi {
     baseUrl: string;
 
     constructor(protected _baseUrl: string = '') {
         this.baseUrl = _baseUrl;
+    }
+
+    static create(_baseUrl: string = '') {
+        return new RegistryServiceApi(_baseUrl);
+    }
+
+    static createNull(options: { registryShellDescriptorEntries: AssetAdministrationShellDescriptor[] | null }) {
+        return new RegistryServiceApiInMemory(options);
     }
 
     async getAllAssetAdministrationShellDescriptors() {
