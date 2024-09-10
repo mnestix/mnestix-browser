@@ -34,7 +34,7 @@ export default function PictureTableCell(props: PictureTableCellProps) {
                 data-testid="list-thumbnail"
                 title={title ?? undefined}
             >
-                {children || <ShellIcon/>}
+                {children || <ShellIcon />}
             </Paper>
         </TableCell>
     );
