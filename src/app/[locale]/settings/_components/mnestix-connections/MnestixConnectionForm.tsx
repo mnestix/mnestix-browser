@@ -6,6 +6,7 @@ import ControlPointIcon from '@mui/icons-material/ControlPoint';
 import { Control, Controller, FieldArrayWithId, useFieldArray, UseFormGetValues } from 'react-hook-form';
 import { ConnectionFormData } from 'app/[locale]/settings/_components/mnestix-connections/MnestixConnectionsCard';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+import { tooltipText } from 'lib/util/ToolTipText';
 
 enum ConnectionType {
     AAS_REPOSITORY = 'AAS_REPOSITORY',
@@ -100,7 +101,7 @@ export function MnestixConnectionsForm(props: MnestixConnectionsFormProps) {
                         </Box>
                     ) : (
                         <Typography mb={2} mt={2}>
-                            {getValues(`${arrayName}.${index}.url`)}
+                            {tooltipText(getValues(`${arrayName}.${index}.url`), 80)}
                         </Typography>
                     )}
                 </Box>
