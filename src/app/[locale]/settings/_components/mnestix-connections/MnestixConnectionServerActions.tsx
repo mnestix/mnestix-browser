@@ -1,18 +1,22 @@
 'use server';
 
 import { prisma } from 'lib/database/prisma';
-import { ConnectionFormData } from 'app/[locale]/settings/_components/mnestix-connections/MnestixConnectionsCard';
 import { ConnectionType } from '@prisma/client';
+
+type DataSourceFormData = {
+    id: string;
+    url: string;
+    type: string;
+};
 
 export async function getConnectionDataAction() {
     return prisma?.mnestixConnection.findMany({ include: { type: true } });
 }
 
-export async function upsertConnectionDataAction(formData: { id: string, url: string, type: string }[] ) {
-    const data = formData;
+export async function upsertConnectionDataAction(formDataInput: DataSourceFormData[]) {
     const existingData = await prisma?.mnestixConnection.findMany({ include: { type: true } });
     for (const existing of existingData) {
-        const formData = data.find((value) => value.id === existing.id);
+        const formData = formDataInput.find((value) => value.id === existing.id);
         // If an entry exists in the db and the updated data, update the existing db entry
         if (formData) {
             await prisma.mnestixConnection.update({ where: { id: existing.id }, data: { url: formData.url } });
@@ -22,7 +26,7 @@ export async function upsertConnectionDataAction(formData: { id: string, url: st
         }
     }
     // If an entry doesn't exist in the db but in the updated data, create it in the db
-    for (const updated of data) {
+    for (const updated of formDataInput) {
         const formData = existingData.find((value) => value.id === updated.id);
         const type = await prisma.connectionType.findFirst({ where: { typeName: updated.type } });
         if (!formData && type) {

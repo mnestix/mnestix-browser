@@ -26,9 +26,9 @@ export type ConnectionFormData = {
 };
 
 type DataSource = {
-    name: string,
-    url: string | undefined
-}
+    name: string;
+    url: string | undefined;
+};
 
 export function MnestixConnectionsCard() {
     const notificationSpawner = useNotificationSpawner();
@@ -39,9 +39,9 @@ export function MnestixConnectionsCard() {
 
     const dataSources: DataSource[] = [
         { name: 'aasRepository', url: env.AAS_REPO_API_URL },
-        { name: 'submodelRepository', url: env.AAS_REPO_API_URL }
-    ]
-    
+        { name: 'submodelRepository', url: env.AAS_REPO_API_URL },
+    ];
+
     async function getConnectionData() {
         try {
             setIsLoading(true);
@@ -58,16 +58,20 @@ export function MnestixConnectionsCard() {
         const rawConnectionData = await getConnectionData();
         if (rawConnectionData) {
             const defaultFormData: ConnectionFormData = {
-                aasRepository: rawConnectionData?.filter((data) => data.type.typeName === 'AAS_REPOSITORY').map((data) => ({
-                    id: data.id,
-                    url: data.url,
-                    type: data.type.typeName,
-                })),
-                submodelRepository: rawConnectionData?.filter((data) => data.type.typeName === 'SUBMODEL_REPOSITORY').map((data) => ({
-                    id: data.id,
-                    url: data.url,
-                    type: data.type.typeName,
-                })),
+                aasRepository: rawConnectionData
+                    ?.filter((data) => data.type.typeName === 'AAS_REPOSITORY')
+                    .map((data) => ({
+                        id: data.id,
+                        url: data.url,
+                        type: data.type.typeName,
+                    })),
+                submodelRepository: rawConnectionData
+                    ?.filter((data) => data.type.typeName === 'SUBMODEL_REPOSITORY')
+                    .map((data) => ({
+                        id: data.id,
+                        url: data.url,
+                        type: data.type.typeName,
+                    })),
             };
             return defaultFormData;
         } else {
@@ -75,13 +79,10 @@ export function MnestixConnectionsCard() {
         }
     }
 
-    const {
-        control,
-        handleSubmit,
-        getValues,
-        reset,
-    } = useForm<ConnectionFormData>({ defaultValues: async () => await mapFormData() });
-    
+    const { control, handleSubmit, getValues, reset } = useForm<ConnectionFormData>({
+        defaultValues: async () => await mapFormData(),
+    });
+
     async function saveConnectionData(data: ConnectionFormData) {
         try {
             await upsertConnectionDataAction([...data.aasRepository, ...data.submodelRepository]);
@@ -99,7 +100,7 @@ export function MnestixConnectionsCard() {
         reset();
         setIsEditMode(false);
     };
-    
+
     return (
         <Box sx={{ p: 3, width: '100%' }}>
             <SettingsCardHeader
@@ -111,16 +112,16 @@ export function MnestixConnectionsCard() {
                 isEditMode={isEditMode}
             />
             {dataSources.map((dataSource, index) => (
-                    <MnestixConnectionsForm
-                        key={index}
-                        connectionType={dataSource.name}
-                        defaultUrl={dataSource.url}
-                        isLoading={isLoading}
-                        isEditMode={isEditMode}
-                        setIsEditMode={setIsEditMode}
-                        control={control}
-                        getValues={getValues}
-                    />
+                <MnestixConnectionsForm
+                    key={index}
+                    connectionType={dataSource.name}
+                    defaultUrl={dataSource.url}
+                    isLoading={isLoading}
+                    isEditMode={isEditMode}
+                    setIsEditMode={setIsEditMode}
+                    control={control}
+                    getValues={getValues}
+                />
             ))}
         </Box>
     );

@@ -33,17 +33,17 @@ export const deMnestix = {
         aasRepository: {
             repositories: 'AAS Repositorys',
             repositoryLabel: 'AAS Repository',
-            repositoryUrlLabel: 'AAS Repository Url',
+            repositoryUrlLabel: 'AAS Repository URL',
             repositoryDefaultLabel: 'Default AAS Repository',
             connectionType: 'AAS_REPOSITORY',
         },
         submodelRepository: {
             repositories: 'Submodel Repositorys',
             repositoryLabel: 'Submodel Repository',
-            repositoryUrlLabel: 'Submodel Repository Url',
+            repositoryUrlLabel: 'Submodel Repository URL',
             repositoryDefaultLabel: 'Default Submodel Repository',
             connectionType: 'SUBMODEL_REPOSITORY',
-        }
+        },
     },
     submodels: 'Submodelle',
     unknownModelType: 'Unbekannter ModelType: {type}',

@@ -33,15 +33,15 @@ export const enMnestix = {
         aasRepository: {
             repositories: 'AAS Repositories',
             repositoryLabel: 'AAS Repository',
-            repositoryUrlLabel: 'AAS Repository Url',
+            repositoryUrlLabel: 'AAS Repository URL',
             repositoryDefaultLabel: 'Default AAS Repository',
         },
         submodelRepository: {
             repositories: 'Submodel Repositories',
             repositoryLabel: 'Submodel Repository',
-            repositoryUrlLabel: 'Submodel Repository Url',
+            repositoryUrlLabel: 'Submodel Repository URL',
             repositoryDefaultLabel: 'Default Submodel Repository',
-        }
+        },
     },
     submodels: 'Submodels',
     unknownModelType: 'Unknown ModelType: {type}',
