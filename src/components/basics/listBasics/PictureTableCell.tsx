@@ -1,6 +1,6 @@
 ﻿'use client';
 import { Paper, TableCell } from '@mui/material';
-import { ShellIcon } from 'components/custom-icons/ShellIcon';
+import ShellIcon from 'assets/AasDefaultThumbnail.svg';
 
 type PictureTableCellProps = {
     children?: React.ReactNode;
@@ -34,7 +34,7 @@ export default function PictureTableCell(props: PictureTableCellProps) {
                 data-testid="list-thumbnail"
                 title={title ?? undefined}
             >
-                {children || <ShellIcon fontSize="large" color="primary" />}
+                {children || <ShellIcon/>}
             </Paper>
         </TableCell>
     );

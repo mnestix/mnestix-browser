@@ -1,6 +1,6 @@
 ﻿import { styled } from '@mui/material';
 import { useState } from 'react';
-import { ShellIcon } from 'components/custom-icons/ShellIcon';
+import ShellIcon from 'assets/AasDefaultThumbnail.svg';
 
 const StyledImage = styled('img')(() => ({
     maxHeight: '88px',
@@ -27,7 +27,7 @@ export const ImageWithFallback = (props: StyledImageWithFallBackProps) => {
             {!hasError ? (
                 <StyledImage src={src} onErrorCapture={handleError} alt={alt} />
             ) : (
-                <ShellIcon fontSize="large" color="primary" />
+                <ShellIcon/>
             )}
         </>
     );

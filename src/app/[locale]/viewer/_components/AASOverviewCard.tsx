@@ -25,6 +25,7 @@ import { useRouter } from 'next/navigation';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { AssetAdministrationShellRepositoryApi } from 'lib/api/basyx-v3/api';
+import AasPlaceHolderImg from 'assets/AasDefaultThumbnail.svg';
 
 type AASOverviewCardProps = {
     readonly aas: AssetAdministrationShell | null;
@@ -70,6 +71,7 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
     const [productImageUrl, setProductImageUrl] = useState<string | undefined>('');
     const { repositoryClient } = useApis();
     const [registryAasData] = useRegistryAasState();
+    const [hasError, setHasError] = useState(false);
 
     useAsyncEffect(async () => {
         if (!props.productImage) return;
@@ -115,6 +117,10 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
         alignItems: isAccordion ? 'center' : 'unset',
         gap: isAccordion ? '10px' : '40px',
         flexDirection: isAccordion ? 'column' : 'row',
+    };
+
+    const handleError = () => {
+        setHasError(true);
     };
 
     const navigateToAas = () => {
@@ -199,8 +205,8 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
                     </>
                 ) : (
                     <>
-                        {!!props.productImage &&
-                            (props.imageLinksToDetail ? (
+                        {(props.productImage && !hasError) ? (
+                            props.imageLinksToDetail ? (
                                 <StyledImage
                                     onClick={navigateToAas}
                                     src={productImageUrl}
@@ -209,10 +215,21 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
                                             cursor: 'pointer',
                                         },
                                     }}
+                                    onErrorCapture={handleError}
                                 />
                             ) : (
-                                <StyledImage src={productImageUrl} />
-                            ))}
+                                <StyledImage src={productImageUrl} onErrorCapture={handleError} />
+                            )
+                        ) : (
+                            <AasPlaceHolderImg
+                                style={{
+                                    maxWidth: '300px',
+                                    height: '300px',
+                                    width: '100%',
+                                    objectFit: 'scale-down',
+                                }}
+                            />
+                        )}
                         {props.hasImage && !props.productImage && (
                             <Skeleton
                                 variant="rectangular"
