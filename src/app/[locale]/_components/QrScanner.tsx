@@ -4,11 +4,14 @@ import { useCallback, useState } from 'react';
 import ScannerLogo from 'assets/ScannerLogo.svg';
 import { Box, CircularProgress, IconButton, useTheme } from '@mui/material';
 import { QrStream } from 'app/[locale]/_components/QrStream';
-import HighlightOffRoundedIcon from '@mui/icons-material/HighlightOffRounded';
+import CancelIcon from '@mui/icons-material/Cancel';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { messages } from 'lib/i18n/localization';
 import { useIntl } from 'react-intl';
 import { LocalizedError } from 'lib/util/LocalizedError';
+import { keyframes, styled } from '@mui/system';
+import { ThemeProvider } from '@mui/material/styles';
+import CircleIcon from '@mui/icons-material/Circle';
 
 enum State {
     Stopped,
@@ -37,6 +40,45 @@ export function QrScanner(props: { onScan: (scanResult: string) => Promise<void>
             setState(State.Stopped);
         }
     }, []);
+
+    const expandFromCenter = keyframes`
+        0% {
+            width: 0;
+            left: 50%;
+        }
+        100% {
+            width: 100%;
+            left: 0;
+        }
+    `;
+
+    interface VideoContainerProps {
+        theme: typeof theme;
+        focused: boolean;
+    }
+
+    const VideoContainer = styled(Box)<VideoContainerProps>(({ theme, focused }) => ({
+        position: 'relative',
+        display: 'inline-block',
+        outline: 'none',
+        '& video': {
+            display: 'block',
+            borderTopLeftRadius: 4,
+            borderTopRightRadius: 4,
+            width: size,
+            height: size,
+        },
+        '&::after': {
+            content: '""',
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            height: 4,
+            backgroundColor: theme.palette.primary.main,
+            transition: 'background-color 0.3s ease-in-out',
+            animation: focused ? `${expandFromCenter} 0.25s forwards` : 'none',
+        },
+    }));
 
     const handleScan = useCallback(
         async (result: string) => {
@@ -83,11 +125,12 @@ export function QrScanner(props: { onScan: (scanResult: string) => Promise<void>
                     onClick={() => setState(State.Stopped)}
                     style={{
                         position: 'absolute',
-                        zIndex: 999,
+                        zIndex: 995,
                         right: 0,
-                    }} // Align to the right and render in front of everything
+                    }} // Align to the right top corner and render in front of everything
                 >
-                    <HighlightOffRoundedIcon fontSize="large" />
+                    <CircleIcon fontSize="medium" style={{ color: 'white', position: 'absolute', zIndex: 993 }} />
+                    <CancelIcon fontSize="large" color="primary" style={{ zIndex: 994 }} />
                 </IconButton>
             )}
             {(state === State.LoadScanner || state === State.HandleQr) && (
@@ -99,7 +142,11 @@ export function QrScanner(props: { onScan: (scanResult: string) => Promise<void>
                 </Box>
             )}
             {(state === State.LoadScanner || state === State.ShowVideo) && (
-                <QrStream onScan={handleScan} onLoadingFinished={switchToVideoStream} />
+                <ThemeProvider theme={theme}>
+                    <VideoContainer theme={theme} focused={state === State.ShowVideo} tabIndex={0}>
+                        <QrStream onScan={handleScan} onLoadingFinished={switchToVideoStream} />
+                    </VideoContainer>
+                </ThemeProvider>
             )}
         </Box>
     );
