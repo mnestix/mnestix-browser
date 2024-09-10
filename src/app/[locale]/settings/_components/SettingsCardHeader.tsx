@@ -14,36 +14,43 @@ export type SettingsCardHeaderProps = {
     readonly title: React.ReactNode;
     readonly subtitle: React.ReactNode;
     readonly isEditMode: boolean;
-}
+};
 
 export function SettingsCardHeader(props: SettingsCardHeaderProps) {
-
     return (
-            <Box display="flex" flexDirection="row" justifyContent="space-between">
-                <CardHeading
-                    title={props.title}
-                    subtitle={props.subtitle}
-                />
-                <Box display="flex" gap={2} alignContent="center" flexWrap="wrap">
-                    {props.isEditMode ? (
-                        <>
-                            <Button variant="outlined" startIcon={<CloseIcon />} onClick={() => props.onCancel()}>
-                                <FormattedMessage {...messages.mnestix.cancel} />
-                            </Button>
-                            <Button
-                                variant="contained"
-                                startIcon={<CheckIcon />}
-                                onClick={props.onSubmit}
-                            >
-                                <FormattedMessage {...messages.mnestix.connections.saveButton} />
-                            </Button>
-                        </>
-                    ) : (
-                        <Button variant="contained" startIcon={<EditIcon />} onClick={() => props.onEdit()}>
-                            <FormattedMessage {...messages.mnestix.connections.editButton} />
+        <Box display="flex" flexDirection="row" justifyContent="space-between">
+            <CardHeading title={props.title} subtitle={props.subtitle} />
+            <Box display="flex" gap={2} alignContent="center" flexWrap="wrap">
+                {props.isEditMode ? (
+                    <>
+                        <Button
+                            variant="outlined"
+                            startIcon={<CloseIcon />}
+                            onClick={() => props.onCancel()}
+                            data-testid="cancel-button"
+                        >
+                            <FormattedMessage {...messages.mnestix.cancel} />
                         </Button>
-                    )}
-                </Box>
+                        <Button
+                            variant="contained"
+                            startIcon={<CheckIcon />}
+                            onClick={props.onSubmit}
+                            data-testid="submit-button"
+                        >
+                            <FormattedMessage {...messages.mnestix.connections.saveButton} />
+                        </Button>
+                    </>
+                ) : (
+                    <Button
+                        variant="contained"
+                        startIcon={<EditIcon />}
+                        onClick={() => props.onEdit()}
+                        data-testid="edit-button"
+                    >
+                        <FormattedMessage {...messages.mnestix.connections.editButton} />
+                    </Button>
+                )}
             </Box>
+        </Box>
     );
 }

@@ -59,12 +59,9 @@ export function MnestixConnectionsCard() {
         }
     }
 
-    const {
-        control,
-        handleSubmit,
-        getValues,
-        reset,
-    } = useForm<ConnectionFormData>({ defaultValues: async () => await mapFormData() });
+    const { control, handleSubmit, getValues, reset } = useForm<ConnectionFormData>({
+        defaultValues: async () => await mapFormData(),
+    });
 
     const { fields, append, remove } = useFieldArray<ConnectionFormData>({
         control,
@@ -110,20 +107,27 @@ export function MnestixConnectionsCard() {
                                     <TextField
                                         {...field}
                                         label={
-                                            <FormattedMessage {...messages.mnestix.connections.repositoryUrlLabel} />}
+                                            <FormattedMessage {...messages.mnestix.connections.repositoryUrlLabel} />
+                                        }
                                         sx={{ flexGrow: 1, mr: 1 }}
                                         fullWidth={true}
                                         error={!!error}
                                         helperText={error ? error.message : ''}
+                                        data-testid={'repository-input-field'}
                                     />
                                 )}
                             />
                             <IconButton>
-                                <RemoveCircleOutlineIcon onClick={() => remove(index)}/>
+                                <RemoveCircleOutlineIcon
+                                    onClick={() => remove(index)}
+                                    data-testid={'remove-repository-button'}
+                                />
                             </IconButton>
                         </Box>
                     ) : (
-                        <Typography mb={2} mt={2}>{getValues(`repositories.${index}.url`)}</Typography>
+                        <Typography mb={2} mt={2} data-testid={'repository-value'}>
+                            {getValues(`repositories.${index}.url`)}
+                        </Typography>
                     )}
                 </Box>
             </FormControl>
@@ -132,13 +136,16 @@ export function MnestixConnectionsCard() {
 
     return (
         <Box sx={{ p: 3, width: '100%' }}>
-            <SettingsCardHeader title={<FormattedMessage {...messages.mnestix.connections.title} />}
-                                subtitle={<FormattedMessage {...messages.mnestix.connections.subtitle} />}
-                                onCancel={() => cancelEdit()} onEdit={() => setIsEditMode(true)}
-                                onSubmit={handleSubmit((data) => saveConnectionData(data))}
-                                isEditMode={isEditMode}/>
+            <SettingsCardHeader
+                title={<FormattedMessage {...messages.mnestix.connections.title} />}
+                subtitle={<FormattedMessage {...messages.mnestix.connections.subtitle} />}
+                onCancel={() => cancelEdit()}
+                onEdit={() => setIsEditMode(true)}
+                onSubmit={handleSubmit((data) => saveConnectionData(data))}
+                isEditMode={isEditMode}
+            />
             <Box sx={{ my: 2 }}>
-                <Divider/>
+                <Divider />
                 <Typography variant="h3" color="primary" sx={{ my: 2 }}>
                     <FormattedMessage {...messages.mnestix.connections.repositories} />
                 </Typography>
@@ -153,19 +160,20 @@ export function MnestixConnectionsCard() {
                     [0, 1, 2].map((i) => {
                         return (
                             <Fragment key={i}>
-                                <Skeleton variant="text" width="50%" height={26} sx={{ m: 2 }}/>
+                                <Skeleton variant="text" width="50%" height={26} sx={{ m: 2 }} />
                             </Fragment>
                         );
-                })}
+                    })}
                 {!isLoading && fields.map((field, index) => getFormControl(field, index))}
                 <Box>
                     <Button
                         variant="text"
-                        startIcon={<ControlPointIcon/>}
+                        startIcon={<ControlPointIcon />}
                         onClick={() => {
                             setIsEditMode(true);
                             append({ id: 'temp', type: 'AAS_REPOSITORY', url: '' });
                         }}
+                        data-testid="add-more-button"
                     >
                         <FormattedMessage {...messages.mnestix.connections.addButton} />
                     </Button>

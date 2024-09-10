@@ -3,7 +3,6 @@ import testDropdown from '../fixtures/cypress_e2e/Submodels/cyDropdown.json';
 import testDropdownSubRef from '../fixtures/cypress_e2e/Submodels/cyDropdown_SubmodelReference.json';
 import testBom from '../fixtures/cypress_e2e/Submodels/cyBillOfMaterial.json';
 import testBomSubRef from '../fixtures/cypress_e2e/Submodels/cyBillOfMaterial_SubmodelReference.json';
-import requestSettings from '../fixtures/testAAS.json';
 import AASBomComponent from '../fixtures/cypress_e2e/cyTestAas_BoM_Component.json';
 import compareAAS from '../fixtures/cypress_e2e/CompareMockData/cy_compareAas.json';
 import compareSubmodels from '../fixtures/cypress_e2e/CompareMockData/cy_compareNameplateSubmodel.json';
