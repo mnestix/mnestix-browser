@@ -43,6 +43,7 @@ export const DiscoveryListTableRow = (props: DiscoveryListTableRowProps) => {
                     endIcon={<ArrowForward />}
                     onClick={() => navigateToAas(aasListEntry.aasId, aasListEntry.repositoryUrl)}
                     title={intl.formatMessage(messages.mnestix.aasList.titleViewAASButton)}
+                    data-testid={'navigation-button'}
                 />
             </TableCell>
         </>
