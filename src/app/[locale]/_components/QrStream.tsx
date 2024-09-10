@@ -16,7 +16,9 @@ export function QrStream(props: {
 
     const onScanSuccess = useCallback(
         async (result: Scanner.ScanResult) => {
-            await props.onScan(result.data);
+            if (result.data && result.data.trim() !== '') {
+                await props.onScan(result.data.trim());
+            }
         },
         [props.onScan],
     );
@@ -27,6 +29,7 @@ export function QrStream(props: {
                 preferredCamera: 'environment',
                 highlightScanRegion: true,
                 overlay: overlay.current || undefined,
+                maxScansPerSecond: 5,
             });
 
             scanner?.current
