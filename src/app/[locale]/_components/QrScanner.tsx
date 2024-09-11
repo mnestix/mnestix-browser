@@ -21,8 +21,6 @@ enum State {
 }
 
 export function QrScanner(props: { onScan: (scanResult: string) => Promise<void>; size?: number | undefined }) {
-    // Camera and QR on/off logic
-
     const [state, setState] = useState<State>(State.Stopped);
 
     const notificationSpawner = useNotificationSpawner();
