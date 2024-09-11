@@ -5,11 +5,11 @@ import { FormattedMessage } from 'react-intl';
 import { useRouter } from 'next/navigation';
 
 type AssetNotFoundProps = {
-    assetId?: string;
+    id?: string | null;
 };
 
 export default function AssetNotFound(props: AssetNotFoundProps) {
-    const { assetId } = props;
+    const { id } = props;
     const navigate = useRouter();
 
     return (
@@ -18,7 +18,7 @@ export default function AssetNotFound(props: AssetNotFoundProps) {
                 <FormattedMessage {...messages.mnestix.cannotLoadAasId.header} />
             </Typography>
             <Typography align="center" sx={{ mt: 2 }}>
-                <FormattedMessage {...messages.mnestix.cannotLoadAasId.text} values={{ assetId: assetId }} />
+                <FormattedMessage {...messages.mnestix.cannotLoadAasId.text} values={{ id: id }} />
                 <Box display="flex" justifyContent="center" sx={{ mt: 2 }}>
                     <Button variant="contained" onClick={() => navigate.push('/')}>
                         <FormattedMessage {...messages.mnestix.toHome} />

@@ -14,6 +14,8 @@ import { useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { getSubmodelFromSubmodelDescriptor } from 'lib/searchUtilActions/searchServer';
 import { useEnv } from 'app/env/provider';
 import { getSubmodelFromAllRepos } from 'lib/searchUtilActions/SearchRepositoryHelper';
+import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
+import { showError } from 'lib/util/ErrorHandlerUtil';
 
 export type SubmodelsOverviewCardProps = { readonly smReferences?: Reference[]; readonly isLoading?: boolean };
 
@@ -23,6 +25,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
     const { submodelClient } = useApis();
     const [registryAasData] = useRegistryAasState();
     const { submodelRegistryServiceClient } = useApis();
+    const notificationSpawner = useNotificationSpawner();
 
     SubmodelSorting(selectedSubmodel);
 
@@ -43,7 +46,9 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                 fetchedSubmodelData = await getSubmodelFromAllRepos(id, submodelClient);
             }
             return fetchedSubmodelData;
-        } catch (_) {
+        } catch (e) {
+            console.error(e);
+            showError(e, notificationSpawner);
             return undefined;
         }
     }
@@ -62,7 +67,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
         if (registryAasData && registryAasData.submodelDescriptors) {
             // Fetch submodel from provided endpoint
              submodelsPromise = Promise.all(
-                registryAasData.submodelDescriptors.map(async (submodelDescriptor) => {
+                registryAasData.submodelDescriptors.map(async (submodelDescriptor): Promise<TabSelectorItem | null> => {
                     const endpoint = submodelDescriptor?.endpoints[0].protocolInformation.href;
 
                     if (endpoint) {
@@ -74,13 +79,13 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                         };
                     }
                     return null;
-                }).filter(item => !!item)
+                })
             );
         } else {
             // Search in default registry
             submodelsPromise = Promise.all(
-                (props.smReferences as Reference[]).map(async (reference) => {
-                    let submodelData;
+                (props.smReferences as Reference[]).map(async (reference): Promise<TabSelectorItem | null> => {
+                    let tabSelectorItem: TabSelectorItem | null = null;
                     try {
                         const submodelDescriptor = env.SUBMODEL_REGISTRY_API_URL
                             ? await submodelRegistryServiceClient.getSubmodelDescriptorsById(reference.keys[0].value)
@@ -88,8 +93,8 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                         const endpoint = submodelDescriptor?.endpoints[0].protocolInformation.href;
 
                         if (endpoint) {
-                            submodelData = await getSubmodelFromSubmodelDescriptor(endpoint);
-                            submodelData = {
+                            const submodelData = await getSubmodelFromSubmodelDescriptor(endpoint);
+                            tabSelectorItem = {
                                 id: submodelDescriptor.id,
                                 label: submodelDescriptor.idShort ?? '',
                                 submodelData: submodelData
@@ -101,24 +106,26 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                         }
                     }
 
-                    if (!submodelData) {
+                    if (!tabSelectorItem) {
                         // Submodel registry is not available or submodel not found there -> search in repo
                         const fetchedSubmodel = await fetchSubmodelFromRepo(reference);
-                        submodelData = {
-                            id: fetchedSubmodel?.id,
-                            label: fetchedSubmodel?.idShort,
+
+                        if (!fetchedSubmodel) return null;
+
+                        tabSelectorItem = {
+                            id: fetchedSubmodel.id,
+                            label: fetchedSubmodel.idShort ?? '',
                             submodelData: fetchedSubmodel,
                         };
                     }
 
-                    return submodelData;
+                    return tabSelectorItem;
                 })
             );
-
         }
 
         const submodels = await submodelsPromise as TabSelectorItem[];
-        setSubmodelSelectorItems(submodels);
+        setSubmodelSelectorItems(submodels.filter(item => !!item));
     }
 
     useAsyncEffect(async () => {
