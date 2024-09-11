@@ -265,8 +265,4 @@ export const enMnestix = {
         defaultCallbackErrorMsg: 'Could not open the QR code!',
         errorOnQrScannerOpen: 'Could not open the QR scanner!',
     },
-    qrScanner: {
-        defaultCallbackErrorMsg: 'Could not open the QR code!',
-        errorOnQrScannerOpen: 'Could not open the QR scanner!',
-    },
 };
