@@ -17,6 +17,10 @@ export const deMnestix = {
     goToListButton: 'Zur Aas Liste',
     scanAasId: 'AAS ID oder Asset ID scannen',
     unexpectedError: 'Unerwarteter Fehler',
+    unauthorizedError: {
+      title: 'Unautorisierter Zugriff',
+      content: 'Sie haben keinen Zugriff auf diese AAS. Bitte loggen Sie sich ein oder fragen sie Ihren Administrator um Zugriff.',
+    },
     settings: 'Einstellungen',
     idStructure: 'ID Struktur',
     idStructureExplanation:
