@@ -40,7 +40,7 @@ export default function DiscoveryList(props: AasListProps) {
                                 backgroundColor: theme.palette?.common?.white,
                                 '&:hover': { backgroundColor: theme.palette.action.hover },
                             }}
-                            data-testid={`list-row-${aasListEntry.aasId}`}
+                            data-testid={'list-row'}
                         >
                             <DiscoveryListTableRow aasListEntry={aasListEntry} />
                         </TableRow>
