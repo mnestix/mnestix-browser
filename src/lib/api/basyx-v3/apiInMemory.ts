@@ -42,7 +42,7 @@ export class SubmodelRepositoryApiInMemory implements ISubmodelRepositoryApi {
     constructor(options: { submodelsSavedInTheRepository: Submodel[] | null }) {
         this.submodelsSavedInTheRepository = options.submodelsSavedInTheRepository;
     }
-    
+
     getSubmodelMetaDataById(submodelId: string, options?: object | undefined): Promise<Submodel> {
         throw new Error('Method not implemented.');
     }
@@ -56,6 +56,7 @@ export class SubmodelRepositoryApiInMemory implements ISubmodelRepositoryApi {
         for (const submodel of this.submodelsSavedInTheRepository) {
             if (encodeBase64(submodel.id) === submodelId) return Promise.resolve(submodel);
         }
+        return Promise.reject('no submodel found in the default repository for submodelId: ' + submodelId);
     }
 
     getAttachmentFromSubmodelElement(

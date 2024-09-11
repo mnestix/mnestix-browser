@@ -2,7 +2,7 @@
 
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/types';
-import { performFullAasSearch } from 'lib/searchUtilActions/searchServer';
+import { performFullAasSearch } from 'lib/services/searchUtilActions/searchServer';
 
 export type AasData = {
     submodelDescriptors: SubmodelDescriptor[] | undefined;
@@ -15,8 +15,6 @@ export type AasSearchResult = {
     aasData: AasData | null;
 };
 
-export async function handleSearchForAas(
-    val: string,
-): Promise<AasSearchResult> {
-    return await performFullAasSearch(val)
+export async function handleSearchForAas(val: string): Promise<AasSearchResult> {
+    return await performFullAasSearch(val);
 }

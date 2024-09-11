@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { useSearchParams } from 'next/navigation';
 import { showError } from 'lib/util/ErrorHandlerUtil';
-import { AasSearchResult, handleSearchForAas } from 'lib/searchUtilActions/searchClient';
+import { AasSearchResult, handleSearchForAas } from 'lib/services/searchUtilActions/searchClient';
 import { LocalizedError } from 'lib/util/LocalizedError';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 

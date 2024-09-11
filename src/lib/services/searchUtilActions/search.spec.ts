@@ -1,17 +1,16 @@
 import { expect } from '@jest/globals';
-import { AasSearcher } from 'lib/searchUtilActions/searchServer';
+import { AasSearcher } from 'lib/services/searchUtilActions/searchServer';
 import { AssetAdministrationShellDescriptor } from 'lib/types/registryServiceTypes';
 import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/types';
 import { instance, mock } from 'ts-mockito';
 import { encodeBase64 } from 'lib/util/Base64Util';
-import { Log, LogEntry } from 'lib/util/Log';
+import { Log } from 'lib/util/Log';
 
 interface DummyAasParameters {
     id?: string;
 }
 
 const AAS_ENDPOINT = 'https://www.origin.com/route/for/aas/';
-
 
 describe('Full Aas Search happy paths', () => {
     it('navigates to the discovery list when more than one aasId for a given assetId', async () => {

@@ -12,11 +12,13 @@ import { IDiscoveryListEntry } from 'lib/types/DiscoveryListEntry';
 import AssetNotFound from 'components/basics/AssetNotFound';
 import { isAasAvailableInRepo } from 'lib/util/checkAasAvailabilityUtil';
 import { useEnv } from 'app/env/provider';
-import { getAasFromAllRepos, RepoSearchResult } from 'lib/searchUtilActions/SearchRepositoryHelper';
 import { encodeBase64 } from 'lib/util/Base64Util';
-import { useApis } from 'components/azureAuthentication/ApiProvider';
 import ListHeader from 'components/basics/ListHeader';
-import { performDiscoveryAasSearch, performRegistryAasSearch } from 'lib/searchUtilActions/searchServer';
+import { performDiscoveryAasSearch, performRegistryAasSearch } from 'lib/services/searchUtilActions/searchServer';
+import {
+    performSearchAasFromAllRepositories,
+    RepoSearchResult,
+} from 'lib/services/multipleDataSourceActions/multipleDataSourceActions';
 
 export const DiscoveryListView = () => {
     const [isLoadingList, setIsLoadingList] = useState(false);
@@ -28,7 +30,6 @@ export const DiscoveryListView = () => {
     const assetId = encodedAssetId ? decodeURI(encodedAssetId) : undefined;
     const encodedAasId = searchParams.get('aasId');
     const aasId = encodedAasId ? decodeURI(encodedAasId) : undefined;
-    const { repositoryClient } = useApis();
     const env = useEnv();
 
     useAsyncEffect(async () => {
@@ -37,6 +38,11 @@ export const DiscoveryListView = () => {
 
         if (assetId) {
             const aasIds = await performDiscoveryAasSearch(assetId);
+
+            if (!aasIds || aasIds.length === 0) {
+                setIsLoadingList(false);
+                return;
+            }
 
             await Promise.all(
                 aasIds.map(async (aasId) => {
@@ -66,7 +72,7 @@ export const DiscoveryListView = () => {
         } else if (aasId) {
             let searchResults: RepoSearchResult[] = [];
             try {
-                searchResults = await getAasFromAllRepos(encodeBase64(aasId), repositoryClient);
+                searchResults = await performSearchAasFromAllRepositories(encodeBase64(aasId));
             } catch (e) {
                 setIsError(true);
             }
