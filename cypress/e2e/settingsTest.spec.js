@@ -2,6 +2,7 @@ import resolutions from '../fixtures/resolutions';
 
 describe('Test the settings page', function () {
     beforeEach(function () {
+        cy.intercept('POST', '**/settings').as('updateSettings');
         cy.visit('/settings');
     });
     it(
@@ -34,12 +35,13 @@ describe('Test the settings page', function () {
         function () {
             cy.setResolution(resolutions[0]);
             cy.getByTestId('submodel-tab').contains('Data sources').click();
+            cy.wait('@updateSettings');
+            cy.wait('@updateSettings');
             cy.getByTestId('edit-button').click();
             cy.getByTestId('add-more-button').first().click();
             cy.getByTestId('repository-input-field').last().as('inputField').should('be.visible');
             cy.get('@inputField').click();
             cy.get('@inputField').type('testRepository');
-            cy.intercept('POST', '**/settings').as('updateSettings');
             cy.getByTestId('submit-button').click();
             cy.wait('@updateSettings');
             cy.getByTestId('repository-value').contains('testRepository').should('exist');
@@ -57,6 +59,8 @@ describe('Test the settings page', function () {
         function () {
             cy.setResolution(resolutions[0]);
             cy.getByTestId('submodel-tab').contains('Data sources').click();
+            cy.wait('@updateSettings');
+            cy.wait('@updateSettings');
             cy.getByTestId('edit-button').click();
             cy.getByTestId('add-more-button').first().click();
             cy.getByTestId('repository-input-field').last().as('inputField').should('be.visible');
