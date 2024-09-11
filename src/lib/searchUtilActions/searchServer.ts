@@ -9,15 +9,17 @@ import {
 } from 'lib/types/registryServiceTypes';
 import { RegistryServiceApi } from 'lib/api/registry-service-api/registryServiceApi';
 import { DiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApi';
-import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/types';
-import { AssetAdministrationShellRepositoryApi } from 'lib/api/basyx-v3/api';
+import { AssetAdministrationShell, Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
+import { AssetAdministrationShellRepositoryApi, SubmodelRepositoryApi } from 'lib/api/basyx-v3/api';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { mnestixFetch } from 'lib/api/infrastructure';
 import { AasSearchResult } from 'lib/searchUtilActions/searchClient';
 import { IDiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApiInterface';
 import { IRegistryServiceApi } from 'lib/api/registry-service-api/registryServiceApiInterface';
-import { IAssetAdministrationShellRepositoryApi } from 'lib/api/basyx-v3/apiInterface';
+import { IAssetAdministrationShellRepositoryApi, ISubmodelRepositoryApi } from 'lib/api/basyx-v3/apiInterface';
 import { Log } from 'lib/util/Log';
+import { getConnectionDataByTypeAction } from 'app/[locale]/settings/_components/mnestix-connections/MnestixConnectionServerActions';
+import * as process from 'node:process';
 
 export interface RegistrySearchResult {
     registryAas: AssetAdministrationShell;
@@ -44,7 +46,8 @@ interface NullableSearchSetupParameters {
     registryShellDescriptorEntries?: AssetAdministrationShellDescriptor[] | null;
     shellsByRegistryEndpoint?: { path: string; aas: AssetAdministrationShell }[] | null;
     shellsSavedInTheRepository?: AssetAdministrationShell[] | null;
-    log ?: Log | null;
+    submodelsSavedInTheRepository?: Submodel[] | null;
+    log?: Log | null;
 }
 
 export class AasSearcher {
@@ -52,6 +55,7 @@ export class AasSearcher {
         protected readonly discoveryServiceClient: IDiscoveryServiceApi,
         protected readonly registryService: IRegistryServiceApi,
         protected readonly repositoryClient: IAssetAdministrationShellRepositoryApi,
+        protected readonly submodelRepositoryClient: ISubmodelRepositoryApi,
         protected readonly fetch: (input: RequestInfo | URL, init?: RequestInit | undefined) => Promise<Response>,
         protected readonly log: Log,
     ) {}
@@ -61,10 +65,21 @@ export class AasSearcher {
             basePath: process.env.AAS_REPO_API_URL,
             fetch: mnestixFetch(),
         });
+        const submodelRepositoryClient = SubmodelRepositoryApi.create({
+            basePath: process.env.SUBMODEL_REPO_API_URL,
+            fetch: mnestixFetch(),
+        });
         const registryServiceClient = RegistryServiceApi.create(process.env.REGISTRY_API_URL);
         const discoveryServiceClient = DiscoveryServiceApi.create(process.env.DISCOVERY_API_URL);
         const log = Log.create();
-        return new AasSearcher(discoveryServiceClient, registryServiceClient, repositoryClient, fetch, log);
+        return new AasSearcher(
+            discoveryServiceClient,
+            registryServiceClient,
+            repositoryClient,
+            submodelRepositoryClient,
+            fetch,
+            log,
+        );
     }
 
     static createNull({
@@ -72,6 +87,7 @@ export class AasSearcher {
         registryShellDescriptorEntries = [],
         shellsByRegistryEndpoint = [],
         shellsSavedInTheRepository = [],
+        submodelsSavedInTheRepository = [],
         log = null,
     }: NullableSearchSetupParameters = {}): AasSearcher {
         const stubbedFetch = async (input: RequestInfo | URL): Promise<Response> => {
@@ -85,8 +101,9 @@ export class AasSearcher {
             DiscoveryServiceApi.createNull({ discoveryEntries: discoveryEntries }),
             RegistryServiceApi.createNull({ registryShellDescriptorEntries }),
             AssetAdministrationShellRepositoryApi.createNull({ shellsSavedInTheRepository }),
+            SubmodelRepositoryApi.createNull({ submodelsSavedInTheRepository }),
             stubbedFetch,
-            log ?? Log.createNull()
+            log ?? Log.createNull(),
         );
     }
 
@@ -199,6 +216,60 @@ export class AasSearcher {
             return null;
         }
     }
+
+    async getAasFromAllRepos(aasId: string): Promise<RepoSearchResult[]> {
+        const basePathUrls = await getConnectionDataByTypeAction({ id: '0', typeName: 'AAS_REPOSITORY' });
+
+        const promises = basePathUrls.map(
+            (url) =>
+                this.repositoryClient
+                    .getAssetAdministrationShellById(aasId, undefined, url)
+                    .then((aas) => ({ aas: aas, location: url })), // add the URL to the resolved value
+        );
+
+        const results = await Promise.allSettled(promises);
+        const fulfilledResults = results.filter((result) => result.status === 'fulfilled');
+
+        if (fulfilledResults.length > 0) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
+            return fulfilledResults.map((result) => (result as unknown).value);
+        } else {
+            throw new Error('AAS not found');
+        }
+    }
+
+    async getSubmodelFromAllRepos(submodelId: string) {
+        const basePathUrls = await getConnectionDataByTypeAction({ id: '0', typeName: 'AAS_REPOSITORY' });
+        const promises = basePathUrls.map((url) =>
+            this.submodelRepositoryClient.getSubmodelById(submodelId, undefined, url),
+        );
+
+        try {
+            return await Promise.any(promises);
+        } catch (error) {
+            throw new Error('Submodel not found');
+        }
+    }
+
+    async getAasThumbnailFromAllRepos(aasId: string) {
+        const basePathUrls = await getConnectionDataByTypeAction({ id: '0', typeName: 'AAS_REPOSITORY' });
+
+        const promises = basePathUrls.map((url) =>
+            this.repositoryClient.getThumbnailFromShell(aasId, undefined, url).then((image) => {
+                if (image.size === 0) {
+                    throw new Error('Empty image');
+                }
+                return image;
+            }),
+        );
+
+        try {
+            return await Promise.any(promises);
+        } catch {
+            throw new Error('Image not found');
+        }
+    }
 }
 
 export async function getSubmodelFromSubmodelDescriptor(url: string) {
@@ -212,3 +283,8 @@ function getAasRepositoryOrigin(url: string) {
     const urlObject = new URL(url);
     return urlObject.origin;
 }
+
+export type RepoSearchResult = {
+    aas: AssetAdministrationShell;
+    location: string;
+};

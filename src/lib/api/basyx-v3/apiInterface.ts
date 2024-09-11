@@ -1,4 +1,5 @@
 import { AssetAdministrationShell, Reference } from '@aas-core-works/aas-core3.0-typescript/types';
+import { Submodel } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
 
 export interface IAssetAdministrationShellRepositoryApi {
     /**
@@ -9,7 +10,11 @@ export interface IAssetAdministrationShellRepositoryApi {
      * @throws {RequiredError}
      * @memberof AssetAdministrationShellRepositoryApi
      */
-    getAssetAdministrationShellById(aasId: string, options?: object, basePath?: string): Promise<AssetAdministrationShell>;
+    getAssetAdministrationShellById(
+        aasId: string,
+        options?: object,
+        basePath?: string,
+    ): Promise<AssetAdministrationShell>;
 
     /**
      *
@@ -29,4 +34,34 @@ export interface IAssetAdministrationShellRepositoryApi {
      * @returns The thumbnail retrieved from the Asset Administration Shell.
      */
     getThumbnailFromShell(aasId: string, options?: object, basePath?: string): Promise<Blob>;
+}
+
+export interface ISubmodelRepositoryApi {
+    /**
+     * @summary Retrieves the meta data of a submodel
+     * @param {string} submodelId The Asset Administration Shell&#x27;s unique id
+     * @param {*} [options] Override http request option
+     * @throws {RequiredError}
+     * @memberof SubmodelRepositoryApi
+     */
+    getSubmodelMetaDataById(submodelId: string, options?: object): Promise<Submodel>;
+
+    /**
+     * @summary Retrieves the submodel
+     * @param {string} submodelId The Submodels unique id
+     * @param {*} [options] Override http request option
+     * @param {string} [basePath] The URL for the current repository endpoint.
+     * @throws {RequiredError}
+     * @memberof SubmodelRepositoryApi
+     */
+    getSubmodelById(submodelId: string, options?: object, basePath?: string): Promise<Submodel>;
+
+    /**
+     * @summary Retrieves the attachment from a submodel element
+     * @param submodelId The id of the submodel the submodel element is part of
+     * @param submodelElementPath The path to the submodel element
+     * @param {*} [options] Override http request option
+     * @memberof SubmodelRepositoryApi
+     */
+    getAttachmentFromSubmodelElement(submodelId: string, submodelElementPath: string, options?: object): Promise<Blob>;
 }

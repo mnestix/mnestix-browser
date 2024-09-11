@@ -65,3 +65,5 @@ export async function getAasThumbnailFromAllRepos(
         throw new Error('Image not found');
     }
 }
+
+delete those function after refactor of searchServer

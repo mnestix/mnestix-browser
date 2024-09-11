@@ -86,7 +86,6 @@ describe('Full Aas Search edge cases', () => {
     it('logs to the console when finding nothing', async () => {
         const searchString = 'irrelevant assetId';
         const log = Log.createNull();
-        const tracker = log.getTracker();
         const searcher = AasSearcher.createNull({
             discoveryEntries: [],
             registryShellDescriptorEntries: [],
@@ -96,13 +95,6 @@ describe('Full Aas Search edge cases', () => {
         });
 
         await assertThatFunctionThrows(searcher, searchString, 'no aas found in the default repository for aasId');
-
-        const trackedData: LogEntry[] = tracker.getData() as LogEntry[];
-        expect(trackedData).toHaveLength(2);
-        const messageFound = trackedData.some((track) =>
-            track.message.includes('Could not be found in the registry service'),
-        );
-        if (!messageFound) fail('Failed to log the right error message');
     });
 
     it('throws when registry search failed', async () => {

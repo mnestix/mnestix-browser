@@ -4,8 +4,11 @@ import url from 'url';
 import { Configuration } from './configuration';
 import { AssetAdministrationShell, Reference, Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
 import { encodeBase64 } from 'lib/util/Base64Util';
-import { IAssetAdministrationShellRepositoryApi } from 'lib/api/basyx-v3/apiInterface';
-import { AssetAdministrationShellRepositoryApiInMemory } from 'lib/api/basyx-v3/apiInMemory';
+import { IAssetAdministrationShellRepositoryApi, ISubmodelRepositoryApi } from 'lib/api/basyx-v3/apiInterface';
+import {
+    AssetAdministrationShellRepositoryApiInMemory,
+    SubmodelRepositoryApiInMemory,
+} from 'lib/api/basyx-v3/apiInMemory';
 
 const BASE_PATH = '/'.replace(/\/+$/, '');
 
@@ -72,12 +75,15 @@ export class RequiredError extends Error {
  * @extends {BaseAPI}
  */
 export class AssetAdministrationShellRepositoryApi extends BaseAPI implements IAssetAdministrationShellRepositoryApi {
-
     constructor(configuration?: Configuration | undefined, basePath?: string, fetch?: FetchAPI) {
         super(configuration, basePath, fetch);
     }
 
-    static create(configuration?: Configuration | undefined, basePath?: string, fetch?: FetchAPI): AssetAdministrationShellRepositoryApi {
+    static create(
+        configuration?: Configuration | undefined,
+        basePath?: string,
+        fetch?: FetchAPI,
+    ): AssetAdministrationShellRepositoryApi {
         return new AssetAdministrationShellRepositoryApi(configuration, basePath, fetch);
     }
 
@@ -329,7 +335,23 @@ export const AssetAdministrationShellRepositoryApiFetchParamCreator = function (
  * @class SubmodelRepositoryApi
  * @extends {BaseAPI}
  */
-export class SubmodelRepositoryApi extends BaseAPI {
+export class SubmodelRepositoryApi extends BaseAPI implements ISubmodelRepositoryApi {
+    private constructor(configuration?: Configuration | undefined, basePath?: string, fetch?: FetchAPI) {
+        super(configuration, basePath, fetch);
+    }
+
+    static create(
+        configuration?: Configuration | undefined,
+        basePath?: string,
+        fetch?: FetchAPI,
+    ): SubmodelRepositoryApi {
+        return new SubmodelRepositoryApi(configuration, basePath, fetch);
+    }
+
+    static createNull(options: { submodelsSavedInTheRepository: Submodel[] | null }): SubmodelRepositoryApiInMemory {
+        return new SubmodelRepositoryApiInMemory(options);
+    }
+
     /**
      * @summary Retrieves the meta data of a submodel
      * @param {string} submodelId The Asset Administration Shell&#x27;s unique id
@@ -337,7 +359,7 @@ export class SubmodelRepositoryApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof SubmodelRepositoryApi
      */
-    public getSubmodelMetaDataById(submodelId: string, options?: any): Promise<Submodel> {
+    getSubmodelMetaDataById(submodelId: string, options?: any): Promise<Submodel> {
         return SubmodelRepositoryApiFp(this.configuration).getSubmodelMetaDataById(submodelId, options)(
             this.fetch,
             this.basePath,
@@ -352,7 +374,7 @@ export class SubmodelRepositoryApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof SubmodelRepositoryApi
      */
-    public getSubmodelById(submodelId: string, options?: any, basePath?: string): Promise<Submodel> {
+    getSubmodelById(submodelId: string, options?: any, basePath?: string): Promise<Submodel> {
         return SubmodelRepositoryApiFp(this.configuration).getSubmodelById(submodelId, options)(
             this.fetch,
             basePath ?? this.basePath,
@@ -366,11 +388,7 @@ export class SubmodelRepositoryApi extends BaseAPI {
      * @param {*} [options] Override http request option
      * @memberof SubmodelRepositoryApi
      */
-    public getAttachmentFromSubmodelElement(
-        submodelId: string,
-        submodelElementPath: string,
-        options?: any,
-    ): Promise<Blob> {
+    getAttachmentFromSubmodelElement(submodelId: string, submodelElementPath: string, options?: any): Promise<Blob> {
         return SubmodelRepositoryApiFp(this.configuration).getAttachmentFromSubmodelElement(
             submodelId,
             submodelElementPath,
