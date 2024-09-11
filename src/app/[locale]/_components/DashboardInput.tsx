@@ -8,15 +8,17 @@ import { handleSearchForAas } from 'lib/searchUtilActions/searchClient';
 import { useRouter } from 'next/navigation';
 import { useAasState, useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { LocalizedError } from 'lib/util/LocalizedError';
+import { useApis } from 'components/azureAuthentication/ApiProvider';
 
 export const DashboardInput = () => {
     const [, setAas] = useAasState();
     const [, setRegistryAasData] = useRegistryAasState();
     const navigate = useRouter();
+    const { repositoryClient } = useApis();
 
     const browseAasUrl = async (val: string) => {
         try {
-            const aasSearch = await handleSearchForAas(val);
+            const aasSearch = await handleSearchForAas(val, repositoryClient);
 
             if (aasSearch.aas) {
                 setAas(aasSearch.aas);
