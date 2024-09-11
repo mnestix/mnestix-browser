@@ -104,7 +104,7 @@ export function MnestixConnectionsForm(props: MnestixConnectionsFormProps) {
                             </IconButton>
                         </Box>
                     ) : (
-                        <Typography mb={2} mt={2}>
+                        <Typography mb={2} mt={2} data-testid={'repository-value'}>
                             {tooltipText(getValues(`${arrayName}.${index}.url`), 80)}
                         </Typography>
                     )}
