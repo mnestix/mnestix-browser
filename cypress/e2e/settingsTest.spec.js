@@ -39,11 +39,14 @@ describe('Test the settings page', function () {
             cy.getByTestId('repository-input-field').last().as('inputField').should('be.visible');
             cy.get('@inputField').click();
             cy.get('@inputField').type('testRepository');
+            cy.intercept('POST', '**/settings').as('updateSettings');
             cy.getByTestId('submit-button').click();
+            cy.wait('@updateSettings');
             cy.getByTestId('repository-value').contains('testRepository').should('exist');
             cy.getByTestId('edit-button').click();
             cy.getByTestId('remove-repository-button').last().click();
             cy.getByTestId('submit-button').click();
+            cy.wait('@updateSettings');
             cy.getByTestId('repository-value').contains('testRepository').should('not.exist');
         },
     );
