@@ -7,7 +7,7 @@ export class DiscoveryServiceApiInMemory implements IDiscoveryServiceApi {
         this.discoveryEntries = options.discoveryEntries;
     }
 
-    linkAasIdAndAssetId(aasId: string, assetId: string): Promise<JSON> {
+    linkAasIdAndAssetId(_aasId: string, _assetId: string): Promise<JSON> {
         throw new Error('Method not implemented.');
     }
 
@@ -22,11 +22,11 @@ export class DiscoveryServiceApiInMemory implements IDiscoveryServiceApi {
         return Promise.reject('not found');
     }
 
-    deleteAllAssetLinksById(aasId: string): Promise<JSON> {
+    deleteAllAssetLinksById(_aasId: string): Promise<JSON> {
         throw new Error('Method not implemented.');
     }
 
-    getAllAssetAdministrationShellIdsByAssetLink(assetIds: { name: string; value: string }[]): Promise<{
+    getAllAssetAdministrationShellIdsByAssetLink(_assetIds: { name: string; value: string }[]): Promise<{
         // const registryService = new ;
         // const repositoryClient = new ;
         paging_metadata: string;
@@ -35,11 +35,11 @@ export class DiscoveryServiceApiInMemory implements IDiscoveryServiceApi {
         throw new Error('Method not implemented.');
     }
 
-    getAllAssetLinksById(aasId: string): Promise<JSON> {
+    getAllAssetLinksById(_aasId: string): Promise<JSON> {
         throw new Error('Method not implemented.');
     }
 
-    postAllAssetLinksById(aasId: string, assetLinks: { name: string; value: string }[]): Promise<JSON> {
+    postAllAssetLinksById(_aasId: string, _assetLinks: { name: string; value: string }[]): Promise<JSON> {
         throw new Error('Method not implemented.');
     }
 }
