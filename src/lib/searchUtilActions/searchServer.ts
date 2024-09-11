@@ -17,6 +17,7 @@ import { AasSearchResult } from 'lib/searchUtilActions/searchClient';
 import { IDiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApiInterface';
 import { IRegistryServiceApi } from 'lib/api/registry-service-api/registryServiceApiInterface';
 import { IAssetAdministrationShellRepositoryApi } from 'lib/api/basyx-v3/apiInterface';
+import { Log } from 'lib/util/Log';
 
 export interface RegistrySearchResult {
     registryAas: AssetAdministrationShell;
@@ -43,6 +44,7 @@ interface NullableSearchSetupParameters {
     registryShellDescriptorEntries?: AssetAdministrationShellDescriptor[] | null;
     shellsByRegistryEndpoint?: { path: string; aas: AssetAdministrationShell }[] | null;
     shellsSavedInTheRepository?: AssetAdministrationShell[] | null;
+    log ?: Log | null;
 }
 
 export class AasSearcher {
@@ -51,6 +53,7 @@ export class AasSearcher {
         protected readonly registryService: IRegistryServiceApi,
         protected readonly repositoryClient: IAssetAdministrationShellRepositoryApi,
         protected readonly fetch: (input: RequestInfo | URL, init?: RequestInit | undefined) => Promise<Response>,
+        protected readonly log: Log,
     ) {}
 
     static create(): AasSearcher {
@@ -60,14 +63,16 @@ export class AasSearcher {
         });
         const registryServiceClient = RegistryServiceApi.create(process.env.REGISTRY_API_URL);
         const discoveryServiceClient = DiscoveryServiceApi.create(process.env.DISCOVERY_API_URL);
-        return new AasSearcher(discoveryServiceClient, registryServiceClient, repositoryClient, fetch);
+        const log = Log.create();
+        return new AasSearcher(discoveryServiceClient, registryServiceClient, repositoryClient, fetch, log);
     }
 
     static createNull({
         discoveryEntries = [],
-        registryShellDescriptorEntries = null,
-        shellsByRegistryEndpoint = null,
-        shellsSavedInTheRepository = null,
+        registryShellDescriptorEntries = [],
+        shellsByRegistryEndpoint = [],
+        shellsSavedInTheRepository = [],
+        log = null,
     }: NullableSearchSetupParameters = {}): AasSearcher {
         const stubbedFetch = async (input: RequestInfo | URL): Promise<Response> => {
             if (!shellsByRegistryEndpoint) return Promise.reject(new Error('no registry configuration'));
@@ -81,6 +86,7 @@ export class AasSearcher {
             RegistryServiceApi.createNull({ registryShellDescriptorEntries }),
             AssetAdministrationShellRepositoryApi.createNull({ shellsSavedInTheRepository }),
             stubbedFetch,
+            log ?? Log.createNull()
         );
     }
 
@@ -144,7 +150,7 @@ export class AasSearcher {
 
             return aasIds;
         } catch (e) {
-            console.warn('Could not be found in the discovery service, will continue to look in the AAS repository.');
+            this.log.warn('Could not be found in the discovery service, will continue to look in the AAS repository.');
             return null;
         }
     }
@@ -189,7 +195,7 @@ export class AasSearcher {
                 },
             };
         } catch (e) {
-            console.warn('Could not be found in the registry service, will continue to look in the AAS registry.');
+            this.log.warn('Could not be found in the registry service, will continue to look in the AAS registry.');
             return null;
         }
     }

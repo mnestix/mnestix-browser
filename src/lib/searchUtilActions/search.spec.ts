@@ -4,75 +4,133 @@ import { AssetAdministrationShellDescriptor } from 'lib/types/registryServiceTyp
 import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/types';
 import { instance, mock } from 'ts-mockito';
 import { encodeBase64 } from 'lib/util/Base64Util';
+import { Log, LogEntry } from 'lib/util/Log';
 
 interface DummyAasParameters {
     id?: string;
 }
 
+const AAS_ENDPOINT = 'https://www.origin.com/route/for/aas/';
+
+
 describe('Full Aas Search happy paths', () => {
     it('navigates to the discovery list when more than one aasId for a given assetId', async () => {
         const searchString = 'irrelevant assetId';
+        const log = Log.createNull();
+        const tracker = log.getTracker();
         const searcher = AasSearcher.createNull({
             discoveryEntries: [{ assetId: searchString, aasIds: ['first found aasId 0', 'second found aasId 1'] }],
+            log: log,
         });
 
         const result = await searcher.fullSearch(searchString);
 
         expect(result.redirectUrl).toBe('/viewer/discovery?assetId=' + searchString);
+        expect(tracker.getData()).toHaveLength(0);
     });
 
     it('returns details of aas when exactly one aasId for a given assetId and it is registered in the registry', async () => {
         const aasId = 'dummy aasId';
-        const aasEndpoint = 'https://www.origin.com/route/for/aas/';
-        const userInputString = 'irrelevant assetId';
+        const searchString = 'irrelevant assetId';
         const searcher = AasSearcher.createNull({
-            discoveryEntries: [{ assetId: userInputString, aasIds: [aasId] }],
-            registryShellDescriptorEntries: [createDummyShellDescriptor(aasEndpoint, aasId)],
-            shellsByRegistryEndpoint: [{ path: aasEndpoint, aas: createDummyAas({ id: aasId }) }],
+            discoveryEntries: [{ assetId: searchString, aasIds: [aasId] }],
+            registryShellDescriptorEntries: [createDummyShellDescriptor(AAS_ENDPOINT, aasId)],
+            shellsByRegistryEndpoint: [{ path: AAS_ENDPOINT, aas: createDummyAas({ id: aasId }) }],
         });
 
-        const result = await searcher.fullSearch(userInputString);
+        const result = await searcher.fullSearch(searchString);
 
         expect(result.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
     });
 
     it('returns details of aas when exactly one aasId for a given assetId and it is not registered in the registry but saved in default repository', async () => {
         const aasId = 'dummy aasId';
-        const userInputString = 'irrelevant assetId';
+        const searchString = 'irrelevant assetId';
         const searcher = AasSearcher.createNull({
-            discoveryEntries: [{ assetId: userInputString, aasIds: [aasId] }],
+            discoveryEntries: [{ assetId: searchString, aasIds: [aasId] }],
             shellsSavedInTheRepository: [createDummyAas({ id: aasId })],
         });
 
-        const result = await searcher.fullSearch(userInputString);
+        const result = await searcher.fullSearch(searchString);
 
         expect(result.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
     });
 
     it('returns details of aas when exactly when discovery returns nothing and the aas is registered in the registry', async () => {
         const aasId = 'dummy aasId';
-        const userInputString = aasId;
-        const aasEndpoint = 'https://www.origin.com/route/for/aas/';
+        const searchString = aasId;
         const searcher = AasSearcher.createNull({
-            registryShellDescriptorEntries: [createDummyShellDescriptor(aasEndpoint, aasId)],
-            shellsByRegistryEndpoint: [{ path: aasEndpoint, aas: createDummyAas({ id: aasId }) }],
+            registryShellDescriptorEntries: [createDummyShellDescriptor(AAS_ENDPOINT, aasId)],
+            shellsByRegistryEndpoint: [{ path: AAS_ENDPOINT, aas: createDummyAas({ id: aasId }) }],
         });
 
-        const result = await searcher.fullSearch(userInputString);
+        const result = await searcher.fullSearch(searchString);
 
         expect(result.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
     });
 
     it('returns aas for given aasId from default repository', async () => {
         const aasId = 'dummy aasId';
-        const userInputString = aasId;
+        const searchString = aasId;
         const searcher = AasSearcher.createNull({
             shellsSavedInTheRepository: [createDummyAas({ id: aasId })],
         });
 
-        const result = await searcher.fullSearch(userInputString);
+        const result = await searcher.fullSearch(searchString);
 
         expect(result.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
+    });
+});
+
+describe('Full Aas Search edge cases', () => {
+    it('logs to the console when finding nothing', async () => {
+        const searchString = 'irrelevant assetId';
+        const log = Log.createNull();
+        const tracker = log.getTracker();
+        const searcher = AasSearcher.createNull({
+            discoveryEntries: [],
+            registryShellDescriptorEntries: [],
+            shellsByRegistryEndpoint: [],
+            shellsSavedInTheRepository: [],
+            log: log,
+        });
+
+        await assertThatFunctionThrows(searcher, searchString, 'no aas found in the default repository for aasId');
+
+        const trackedData: LogEntry[] = tracker.getData() as LogEntry[];
+        expect(trackedData).toHaveLength(2);
+        const messageFound = trackedData.some((track) =>
+            track.message.includes('Could not be found in the registry service'),
+        );
+        if (!messageFound) fail('Failed to log the right error message');
+    });
+
+    it('throws when registry search failed', async () => {
+        const searchString = 'irrelevant assetId';
+        const aasId = 'irrelevantAasId';
+        const log = Log.createNull();
+        const searcher = AasSearcher.createNull({
+            discoveryEntries: [{ assetId: searchString, aasIds: [aasId] }],
+            registryShellDescriptorEntries: [createDummyShellDescriptor(AAS_ENDPOINT, aasId)],
+            shellsByRegistryEndpoint: [{ path: AAS_ENDPOINT + 'wrong path', aas: createDummyAas({ id: aasId }) }],
+            log: log,
+        });
+
+        await assertThatFunctionThrows(searcher, searchString);
+    });
+
+    it('throws when discovery search failed', async () => {
+        const searchString = 'irrelevant assetId';
+        const aasId = 'irrelevantAasId';
+        const log = Log.createNull();
+        const searcher = AasSearcher.createNull({
+            discoveryEntries: [{ assetId: 'wrong asset Id', aasIds: [aasId] }],
+            registryShellDescriptorEntries: [createDummyShellDescriptor(AAS_ENDPOINT, aasId)],
+            shellsByRegistryEndpoint: [{ path: AAS_ENDPOINT + 'wrong path', aas: createDummyAas({ id: aasId }) }],
+            log: log,
+        });
+
+        await assertThatFunctionThrows(searcher, searchString);
     });
 });
 
@@ -96,4 +154,19 @@ function createDummyShellDescriptor(href: string, id: string): AssetAdministrati
         ],
         id: id,
     };
+}
+
+// Todo: Are you good at typescript? There must be a better way to it!
+//     await expect(searcher.fullSearch(searchString)).rejects.toThrow(); does not work for some reason...
+async function assertThatFunctionThrows(
+    searcher: AasSearcher,
+    searchString: string,
+    partOfExpectedErrorMessage: string | null = null,
+) {
+    try {
+        await searcher.fullSearch(searchString);
+        fail('Your method was expected to throw but did not throw at all.');
+    } catch (e) {
+        partOfExpectedErrorMessage && expect(e).toContain(partOfExpectedErrorMessage);
+    }
 }
