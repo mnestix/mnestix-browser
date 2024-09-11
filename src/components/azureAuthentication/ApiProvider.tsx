@@ -16,24 +16,25 @@ const ApiContext = React.createContext<Apis | null>(null);
 export const ApiProvider = (props: PropsWithChildren) => {
     const env = useEnv();
     const apis = {
-        templateClientWithAuth: new TemplateClient(
-            env.MNESTIX_BACKEND_API_URL,
-            mnestixFetch(),
-        ),
-        aasListClient: new AasListClient(
-            env.MNESTIX_BACKEND_API_URL,
-            mnestixFetch(),
-        ),
+        templateClientWithAuth: new TemplateClient(env.MNESTIX_BACKEND_API_URL, mnestixFetch()),
+        aasListClient: new AasListClient(env.MNESTIX_BACKEND_API_URL, mnestixFetch()),
         configurationClient: new ConfigurationShellApi(
-            env.MNESTIX_BACKEND_API_URL, 
+            env.MNESTIX_BACKEND_API_URL,
             env.AUTHENTICATION_FEATURE_FLAG,
-            mnestixFetch()),
+            mnestixFetch(),
+        ),
         templatesClient: new TemplateShellApi(
             env.MNESTIX_BACKEND_API_URL ? env.MNESTIX_BACKEND_API_URL : '',
             env.AUTHENTICATION_FEATURE_FLAG,
         ),
-        repositoryClient: new AssetAdministrationShellRepositoryApi({ basePath: env.AAS_REPO_API_URL, fetch: mnestixFetch() }),
-        submodelClient: new SubmodelRepositoryApi({ basePath: env.SUBMODEL_REPO_API_URL ?? env.AAS_REPO_API_URL, fetch: mnestixFetch() }),
+        repositoryClient: AssetAdministrationShellRepositoryApi.create({
+            basePath: env.AAS_REPO_API_URL,
+            fetch: mnestixFetch(),
+        }),
+        submodelClient: SubmodelRepositoryApi.create({
+            basePath: env.SUBMODEL_REPO_API_URL ?? env.AAS_REPO_API_URL,
+            fetch: mnestixFetch(),
+        }),
         discoveryServiceClient: DiscoveryServiceApi.create(env.DISCOVERY_API_URL),
         registryServiceClient: RegistryServiceApi.create(env.REGISTRY_API_URL),
         submodelRegistryServiceClient: new SubmodelRegistryServiceApi(env.SUBMODEL_REGISTRY_API_URL),

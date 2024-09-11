@@ -16,7 +16,7 @@ export class DiscoveryServiceApiInMemory implements IDiscoveryServiceApi {
             if (discoveryEntry.assetId === assetId)
                 return Promise.resolve({
                     paging_metadata: '',
-                    result: discoveryEntry.aasIds
+                    result: discoveryEntry.aasIds,
                 });
         }
         return Promise.reject('not found');

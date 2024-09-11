@@ -1,10 +1,10 @@
 import { expect } from '@jest/globals';
-import { AasSearcher } from 'lib/services/searchUtilActions/searchServer';
 import { AssetAdministrationShellDescriptor } from 'lib/types/registryServiceTypes';
 import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/types';
 import { instance, mock } from 'ts-mockito';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { Log } from 'lib/util/Log';
+import { AasSearcher } from 'lib/services/searchUtilActions/AasSearcher';
 
 interface DummyAasParameters {
     id?: string;

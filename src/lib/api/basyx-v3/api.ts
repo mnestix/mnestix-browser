@@ -7,7 +7,7 @@ import { encodeBase64 } from 'lib/util/Base64Util';
 import { IAssetAdministrationShellRepositoryApi, ISubmodelRepositoryApi } from 'lib/api/basyx-v3/apiInterface';
 import {
     AssetAdministrationShellRepositoryApiInMemory,
-    SubmodelRepositoryApiInMemory,
+    SubmodelRepositoryApiInMemory
 } from 'lib/api/basyx-v3/apiInMemory';
 
 const BASE_PATH = '/'.replace(/\/+$/, '');
@@ -75,7 +75,7 @@ export class RequiredError extends Error {
  * @extends {BaseAPI}
  */
 export class AssetAdministrationShellRepositoryApi extends BaseAPI implements IAssetAdministrationShellRepositoryApi {
-    constructor(configuration?: Configuration | undefined, basePath?: string, fetch?: FetchAPI) {
+    private constructor(configuration?: Configuration | undefined, basePath?: string, fetch?: FetchAPI) {
         super(configuration, basePath, fetch);
     }
 

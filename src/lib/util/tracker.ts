@@ -1,4 +1,4 @@
-import { EventEmitter } from 'node:events';
+import { EventEmitter } from 'events';
 
 export class TrackerEmitter<T> {
     private readonly emitter: EventEmitter;

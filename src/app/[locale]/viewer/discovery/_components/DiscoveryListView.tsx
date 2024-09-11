@@ -15,10 +15,8 @@ import { useEnv } from 'app/env/provider';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import ListHeader from 'components/basics/ListHeader';
 import { performDiscoveryAasSearch, performRegistryAasSearch } from 'lib/services/searchUtilActions/searchServer';
-import {
-    performSearchAasFromAllRepositories,
-    RepoSearchResult,
-} from 'lib/services/multipleDataSourceActions/multipleDataSourceActions';
+import { performSearchAasFromAllRepositories } from 'lib/services/multipleDataSourceActions/multipleDataSourceActions';
+import { RepoSearchResult } from 'lib/services/multipleDataSourceActions/MultipleDataSource';
 
 export const DiscoveryListView = () => {
     const [isLoadingList, setIsLoadingList] = useState(false);

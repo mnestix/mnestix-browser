@@ -11,8 +11,8 @@ export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdmi
 
     getAssetAdministrationShellById(
         aasId: string,
-        options?: object | undefined,
-        basePath?: string | undefined,
+        _options?: object | undefined,
+        _basePath?: string | undefined,
     ): Promise<AssetAdministrationShell> {
         if (!this.shellsSavedInTheRepository) return Promise.reject('no repository configuration');
         for (const aas of this.shellsSavedInTheRepository) {
@@ -27,11 +27,15 @@ export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdmi
         );
     }
 
-    getSubmodelReferencesFromShell(aasId: string, options?: object | undefined): Promise<Reference[]> {
+    getSubmodelReferencesFromShell(_aasId: string, _options?: object | undefined): Promise<Reference[]> {
         throw new Error('Method not implemented.');
     }
 
-    getThumbnailFromShell(aasId: string, options?: object | undefined, basePath?: string | undefined): Promise<Blob> {
+    getThumbnailFromShell(
+        _aasId: string,
+        _options?: object | undefined,
+        _basePath?: string | undefined,
+    ): Promise<Blob> {
         throw new Error('Method not implemented.');
     }
 }
@@ -43,14 +47,14 @@ export class SubmodelRepositoryApiInMemory implements ISubmodelRepositoryApi {
         this.submodelsSavedInTheRepository = options.submodelsSavedInTheRepository;
     }
 
-    getSubmodelMetaDataById(submodelId: string, options?: object | undefined): Promise<Submodel> {
+    getSubmodelMetaDataById(_submodelId: string, _options?: object | undefined): Promise<Submodel> {
         throw new Error('Method not implemented.');
     }
 
     getSubmodelById(
         submodelId: string,
-        options?: object | undefined,
-        basePath?: string | undefined,
+        _options?: object | undefined,
+        _basePath?: string | undefined,
     ): Promise<Submodel> {
         if (!this.submodelsSavedInTheRepository) return Promise.reject('no repository configuration');
         for (const submodel of this.submodelsSavedInTheRepository) {
@@ -60,9 +64,9 @@ export class SubmodelRepositoryApiInMemory implements ISubmodelRepositoryApi {
     }
 
     getAttachmentFromSubmodelElement(
-        submodelId: string,
-        submodelElementPath: string,
-        options?: object | undefined,
+        _submodelId: string,
+        _submodelElementPath: string,
+        _options?: object | undefined,
     ): Promise<Blob> {
         throw new Error('Method not implemented.');
     }

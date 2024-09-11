@@ -5,6 +5,7 @@ export class TemplateShellApi {
     basePathOwnApi: string;
     basePathCustoms: string;
     enable_authentication: boolean;
+
     constructor(backendApiUrl: string, enable_authentication: boolean) {
         this.basePathOwnApi = `${backendApiUrl}/api/Template`;
         this.basePathCustoms = `${backendApiUrl}/templates/custom`;

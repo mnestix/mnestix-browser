@@ -8,7 +8,6 @@ import { handleSearchForAas } from 'lib/services/searchUtilActions/searchClient'
 import { useRouter } from 'next/navigation';
 import { useAasState, useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { LocalizedError } from 'lib/util/LocalizedError';
-import { useApis } from 'components/azureAuthentication/ApiProvider';
 
 export const DashboardInput = () => {
     const [, setAas] = useAasState();

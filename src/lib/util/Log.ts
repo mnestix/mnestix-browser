@@ -40,7 +40,7 @@ class NulledLog implements Console {
 
     constructor() {}
 
-    assert(value?: unknown, message?: unknown, ...optionalParams: unknown[]): void {
+    assert(_value?: unknown, _message?: unknown, ..._optionalParams: unknown[]): void {
         throw new Error('Method not implemented.');
     }
 
@@ -48,35 +48,35 @@ class NulledLog implements Console {
         throw new Error('Method not implemented.');
     }
 
-    count(label?: unknown): void {
+    count(_label?: unknown): void {
         throw new Error('Method not implemented.');
     }
 
-    countReset(label?: unknown): void {
+    countReset(_label?: unknown): void {
         throw new Error('Method not implemented.');
     }
 
-    debug(message?: unknown, ...optionalParams: unknown[]): void {
+    debug(_message?: unknown, ..._optionalParams: unknown[]): void {
         throw new Error('Method not implemented.');
     }
 
-    dir(obj?: unknown, options?: unknown): void {
+    dir(_obj?: unknown, _options?: unknown): void {
         throw new Error('Method not implemented.');
     }
 
-    dirxml(...data: unknown[]): void {
+    dirxml(..._data: unknown[]): void {
         throw new Error('Method not implemented.');
     }
 
-    error(message?: unknown, ...optionalParams: unknown[]): void {
+    error(_message?: unknown, ..._optionalParams: unknown[]): void {
         throw new Error('Method not implemented.');
     }
 
-    group(...label: unknown[]): void {
+    group(..._label: unknown[]): void {
         throw new Error('Method not implemented.');
     }
 
-    groupCollapsed(...label: unknown[]): void {
+    groupCollapsed(..._label: unknown[]): void {
         throw new Error('Method not implemented.');
     }
 
@@ -84,49 +84,49 @@ class NulledLog implements Console {
         throw new Error('Method not implemented.');
     }
 
-    info(message?: unknown, ...optionalParams: unknown[]): void {
+    info(_message?: unknown, ..._optionalParams: unknown[]): void {
         throw new Error('Method not implemented.');
     }
 
-    log(message?: unknown, ...optionalParams: unknown[]): void {
+    log(message?: unknown, ..._optionalParams: unknown[]): void {
         this.logs.push({ level: 'normal', message: JSON.stringify(message) });
     }
 
-    table(tabularData?: unknown, properties?: unknown): void {
+    table(_tabularData?: unknown, _properties?: unknown): void {
         throw new Error('Method not implemented.');
     }
 
-    time(label?: unknown): void {
+    time(_label?: unknown): void {
         throw new Error('Method not implemented.');
     }
 
-    timeEnd(label?: unknown): void {
+    timeEnd(_label?: unknown): void {
         throw new Error('Method not implemented.');
     }
 
-    timeLog(label?: unknown, ...data: unknown[]): void {
+    timeLog(_label?: unknown, ..._data: unknown[]): void {
         throw new Error('Method not implemented.');
     }
 
-    timeStamp(label?: unknown): void {
+    timeStamp(_label?: unknown): void {
         throw new Error('Method not implemented.');
     }
 
-    trace(message?: unknown, ...optionalParams: unknown[]): void {
+    trace(_message?: unknown, ..._optionalParams: unknown[]): void {
         throw new Error('Method not implemented.');
     }
 
-    warn(message?: unknown, ...optionalParams: unknown[]): void {
+    warn(message?: unknown, ..._optionalParams: unknown[]): void {
         this.logs.push({ level: 'warning', message: JSON.stringify(message) });
     }
 
     Console: console.ConsoleConstructor;
 
-    profile(label?: string | undefined): void {
+    profile(_label?: string | undefined): void {
         throw new Error('Method not implemented.');
     }
 
-    profileEnd(label?: string | undefined): void {
+    profileEnd(_label?: string | undefined): void {
         throw new Error('Method not implemented.');
     }
 }

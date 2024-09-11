@@ -23,18 +23,18 @@ export class RegistryServiceApiInMemory implements IRegistryServiceApi {
         return Promise.reject(new Error('no shell descriptor for aasId:' + aasId));
     }
 
-    postAssetAdministrationShellDescriptor(shellDescriptor: AssetAdministrationShellDescriptor): Promise<JSON> {
+    postAssetAdministrationShellDescriptor(_shellDescriptor: AssetAdministrationShellDescriptor): Promise<JSON> {
         throw new Error('Method not implemented.');
     }
 
     putAssetAdministrationShellDescriptorById(
-        aasId: string,
-        shellDescriptor: AssetAdministrationShellDescriptor
+        _aasId: string,
+        _shellDescriptor: AssetAdministrationShellDescriptor,
     ): Promise<JSON> {
         throw new Error('Method not implemented.');
     }
 
-    deleteAssetAdministrationShellDescriptorById(aasId: string): Promise<Response> {
+    deleteAssetAdministrationShellDescriptorById(_aasId: string): Promise<Response> {
         throw new Error('Method not implemented.');
     }
 }
