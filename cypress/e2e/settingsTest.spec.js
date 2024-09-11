@@ -2,9 +2,7 @@ import resolutions from '../fixtures/resolutions';
 
 describe('Test the settings page', function () {
     beforeEach(function () {
-        cy.visit('/');
-        cy.getByTestId('header-burgermenu').click();
-        cy.getByTestId('sidebar-button').contains('Settings').click();
+        cy.visit('/settings');
     });
     it(
         'should navigate to the id settings, go into edit mode and change a value (Resolution: ' + resolutions[0] + ')',
