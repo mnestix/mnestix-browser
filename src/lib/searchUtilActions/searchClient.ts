@@ -8,7 +8,6 @@ import { handleAasDiscoverySearch, handleAasRegistrySearch } from 'lib/searchUti
 import { getAasFromAllRepos } from 'lib/searchUtilActions/SearchRepositoryHelper';
 import { NotFoundError } from 'lib/errors/NotFoundError';
 
-
 export type AasData = {
     submodelDescriptors: SubmodelDescriptor[] | undefined;
     aasRegistryRepositoryOrigin: string | undefined;

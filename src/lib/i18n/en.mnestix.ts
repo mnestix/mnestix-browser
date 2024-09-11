@@ -17,6 +17,10 @@ export const enMnestix = {
     goToListButton: 'Go to Aas List',
     scanAasId: 'Scan AAS ID or Asset ID',
     unexpectedError: 'Unexpected error',
+    unauthorizedError: {
+        title: 'Unauthorized access',
+        content: 'You don\'t have access to this AAS. You may login or contact your administrator to get access.',
+    },
     settings: 'Settings',
     idStructure: 'ID structure',
     idStructureExplanation:
@@ -188,8 +192,8 @@ export const enMnestix = {
         addButton: 'Add another AAS',
         addFirstAasButton: 'Add AAS',
         addAnother: 'Add another AAS',
-        assetIdNotFound: 'Asset Id not found',
-        aasAlreadyAdded: 'AAS cannot be added more than once',
+        assetIdNotFound: 'Asset Id not found.',
+        aasAlreadyAdded: 'AAS cannot be added more than once.',
         moreAasFound: 'More than one AAS found in the discovery service, please provide the AAS ID instead.',
         aasAddError: 'AAS could not be added.',
     },
@@ -256,6 +260,10 @@ export const enMnestix = {
         aasIdHeading: 'AAS ID',
         repositoryUrl: 'Repository Url',
         subtitle: 'Here you will find all related AAS to the given ID.',
+    },
+    qrScanner: {
+        defaultCallbackErrorMsg: 'Could not open the QR code!',
+        errorOnQrScannerOpen: 'Could not open the QR scanner!',
     },
     qrScanner: {
         defaultCallbackErrorMsg: 'Could not open the QR code!',

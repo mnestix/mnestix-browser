@@ -7,6 +7,7 @@ services:
     environment:
       CYPRESS_BASE_URL: 'http://mnestix-browser:3000'
       CYPRESS_AAS_REPO_API_URL: 'http://mnestix-api:5064/repo'
+      CYPRESS_SUBMODEL_REPO_API_URL: 'http://mnestix-api:5064/repo'
       CYPRESS_MNESTIX_BACKEND_API_URL: 'http://mnestix-api:5064'
       CYPRESS_AAS_DISCOVERY_API_URL: 'http://mnestix-api:5064/discovery'
       ELECTRON_ENABLE_LOGGING: 1
@@ -24,5 +25,6 @@ services:
   mnestix-browser:
     environment:
       AAS_REPO_API_URL: 'http://mnestix-api:5064/repo'
+      SUBMODEL_REPO_API_URL: 'http://mnestix-api:5064/repo'
       DISCOVERY_API_URL: 'http://mnestix-api:5064/discovery'
       MNESTIX_BACKEND_API_URL: 'http://mnestix-api:5064'

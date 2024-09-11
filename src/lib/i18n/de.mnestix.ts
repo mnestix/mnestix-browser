@@ -17,6 +17,10 @@ export const deMnestix = {
     goToListButton: 'Zur AAS Liste',
     scanAasId: 'AAS ID oder Asset ID scannen',
     unexpectedError: 'Unerwarteter Fehler',
+    unauthorizedError: {
+      title: 'Unautorisierter Zugriff',
+      content: 'Sie haben keinen Zugriff auf diese AAS. Bitte loggen Sie sich ein oder fragen sie Ihren Administrator um Zugriff.',
+    },
     settings: 'Einstellungen',
     idStructure: 'ID Struktur',
     idStructureExplanation:
@@ -259,6 +263,10 @@ export const deMnestix = {
         aasIdHeading: 'AAS ID',
         repositoryUrl: 'Repository Url',
         subtitle: 'Hier finden Sie alle zugehörigen AAS für die angegebene ID.',
+    },
+    qrScanner: {
+        defaultCallbackErrorMsg: 'QR Code konnte nicht geöffnet werden!',
+        errorOnQrScannerOpen: 'QR Scanner konnte nicht geöffnet werden!',
     },
     qrScanner: {
         defaultCallbackErrorMsg: 'QR Code konnte nicht geöffnet werden!',
