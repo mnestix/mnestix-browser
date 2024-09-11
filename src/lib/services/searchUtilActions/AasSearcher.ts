@@ -30,6 +30,16 @@ interface NullableSearchSetupParameters {
     log?: Log | null;
 }
 
+export type AasData = {
+    submodelDescriptors: SubmodelDescriptor[] | undefined;
+    aasRegistryRepositoryOrigin: string | undefined;
+};
+export type AasSearchResult = {
+    redirectUrl: string;
+    aas: AssetAdministrationShell | null;
+    aasData: AasData | null;
+};
+
 export class AasSearcher {
     private constructor(
         protected readonly discoveryServiceClient: IDiscoveryServiceApi,
@@ -87,7 +97,7 @@ export class AasSearcher {
         );
     }
 
-    async fullSearch(val: string) {
+    async fullSearch(val: string): Promise<AasSearchResult> {
         const aasIds = await this.handleAasDiscoverySearch(val);
         if (aasIds && aasIds.length > 1) {
             return {

@@ -4,10 +4,10 @@ import { messages } from 'lib/i18n/localization';
 import { FormattedMessage } from 'react-intl';
 import { ManualAasInput } from 'app/[locale]/_components/ManualAasInput';
 import { QrScanner } from 'app/[locale]/_components/QrScanner';
-import { handleSearchForAas } from 'lib/services/searchUtilActions/searchClient';
 import { useRouter } from 'next/navigation';
 import { useAasState, useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { LocalizedError } from 'lib/util/LocalizedError';
+import { performFullAasSearch } from 'lib/services/searchUtilActions/searchServer';
 
 export const DashboardInput = () => {
     const [, setAas] = useAasState();
@@ -16,7 +16,7 @@ export const DashboardInput = () => {
 
     const browseAasUrl = async (val: string) => {
         try {
-            const aasSearch = await handleSearchForAas(val);
+            const aasSearch = await performFullAasSearch(val);
 
             if (aasSearch.aas) {
                 setAas(aasSearch.aas);

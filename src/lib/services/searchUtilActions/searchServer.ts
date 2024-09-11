@@ -1,7 +1,6 @@
 'use server';
 
-import { AasSearchResult } from 'lib/services/searchUtilActions/searchClient';
-import { AasSearcher, RegistrySearchResult } from 'lib/services/searchUtilActions/AasSearcher';
+import { AasSearcher, AasSearchResult, RegistrySearchResult } from 'lib/services/searchUtilActions/AasSearcher';
 
 export async function performFullAasSearch(searchInput: string): Promise<AasSearchResult> {
     const searcher = AasSearcher.create();
