@@ -13,7 +13,9 @@ describe('Test the discovery list', function () {
         cy.getByTestId('repository-input-field').last().click().type(Cypress.env('AAS_REPO_API_URL'));
         cy.getByTestId('add-more-button').first().click();
         cy.getByTestId('repository-input-field').last().click().type(Cypress.env('AAS_REPO_API_URL'));
+        cy.intercept('POST', '**/settings').as('updateSettings');
         cy.getByTestId('submit-button').click();
+        cy.wait('@updateSettings');
     });
     it('navigate to discovery list with asset id and select aas (Resolution: ' + resolutions[0] + ')', function () {
         cy.setResolution(resolutions[0]);
