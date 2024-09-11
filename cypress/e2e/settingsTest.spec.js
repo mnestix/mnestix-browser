@@ -2,8 +2,9 @@ import resolutions from '../fixtures/resolutions';
 
 describe('Test the settings page', function () {
     beforeEach(function () {
-        cy.intercept('POST', '**/settings').as('updateSettings');
-        cy.visit('/settings');
+        cy.visit('/');
+        cy.getByTestId('header-burgermenu').click();
+        cy.getByTestId('sidebar-button').contains('Settings').click();
     });
     it(
         'should navigate to the id settings, go into edit mode and change a value (Resolution: ' + resolutions[0] + ')',
@@ -35,20 +36,16 @@ describe('Test the settings page', function () {
         function () {
             cy.setResolution(resolutions[0]);
             cy.getByTestId('submodel-tab').contains('Data sources').click();
-            cy.wait('@updateSettings');
-            cy.wait('@updateSettings');
             cy.getByTestId('edit-button').click();
             cy.getByTestId('add-more-button').first().click();
             cy.getByTestId('repository-input-field').last().as('inputField').should('be.visible');
             cy.get('@inputField').click();
             cy.get('@inputField').type('testRepository');
             cy.getByTestId('submit-button').click();
-            cy.wait('@updateSettings');
             cy.getByTestId('repository-value').contains('testRepository').should('exist');
             cy.getByTestId('edit-button').click();
             cy.getByTestId('remove-repository-button').last().click();
             cy.getByTestId('submit-button').click();
-            cy.wait('@updateSettings');
             cy.getByTestId('repository-value').contains('testRepository').should('not.exist');
         },
     );
@@ -59,8 +56,6 @@ describe('Test the settings page', function () {
         function () {
             cy.setResolution(resolutions[0]);
             cy.getByTestId('submodel-tab').contains('Data sources').click();
-            cy.wait('@updateSettings');
-            cy.wait('@updateSettings');
             cy.getByTestId('edit-button').click();
             cy.getByTestId('add-more-button').first().click();
             cy.getByTestId('repository-input-field').last().as('inputField').should('be.visible');
