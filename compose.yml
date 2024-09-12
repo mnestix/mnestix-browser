@@ -3,6 +3,9 @@ networks:
     driver: bridge
     name: mnestix-network
 
+volumes:
+  mnestix-database:
+
 services:
   mnestix-browser:
     container_name: mnestix-browser
