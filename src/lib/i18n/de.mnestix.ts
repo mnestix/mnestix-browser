@@ -5,7 +5,7 @@ export const deMnestix = {
     aasUrlNotFound: 'Keine Verwaltungsschale unter dieser ID.',
     cannotLoadAasId: {
         header: 'Verwaltungsschale konnte nicht geladen werden.',
-        text: 'Es konnte keine Verwaltungsschale für das Asset mit id {assetId} geladen werden.',
+        text: 'Es konnte keine Verwaltungsschale für die angegebene ID "{id}" geladen werden.',
     },
     idShort: 'idShort: {idShort}',
     manufacturer: 'Hersteller: {manufacturerName}',
@@ -14,18 +14,43 @@ export const deMnestix = {
     aasOrAssetId: 'AAS ID oder Asset ID',
     orEnterManual: 'oder manuell eingeben',
     orSelectFromList: 'oder über Liste suchen',
-    goToListButton: 'Zur Aas Liste',
+    goToListButton: 'Zur AAS Liste',
     scanAasId: 'AAS ID oder Asset ID scannen',
     unexpectedError: 'Unerwarteter Fehler',
     unauthorizedError: {
-      title: 'Unautorisierter Zugriff',
-      content: 'Sie haben keinen Zugriff auf diese AAS. Bitte loggen Sie sich ein oder fragen sie Ihren Administrator um Zugriff.',
+        title: 'Unautorisierter Zugriff',
+        content:
+            'Sie haben keinen Zugriff auf diese AAS. Bitte loggen Sie sich ein oder fragen sie Ihren Administrator um Zugriff.',
     },
     settings: 'Einstellungen',
     idStructure: 'ID Struktur',
     idStructureExplanation:
         'Definieren Sie, wie Ihre IDs aussehen sollen. Dies ist eine Basis-Einstellung, die für individuelle Importe angepasst werden kann.',
-    submodels: 'Submodelle',
+    connections: {
+        title: 'Datenquellen',
+        subtitle: 'Definieren Sie, welche Datenquellen verwendet werden sollen.',
+        resetSuccessfull: 'Quellen wurden zurückgesetzt.',
+        urlFieldRequired: 'URL wird benötigt',
+        addButton: 'Hinzufügen',
+        editButton: 'Alle bearbeiten',
+        saveButton: 'Alle speichern',
+        resetButton: 'Auf Default zurücksetzen',
+        aasRepository: {
+            repositories: 'AAS Repositorys',
+            repositoryLabel: 'AAS Repository',
+            repositoryUrlLabel: 'AAS Repository URL',
+            repositoryDefaultLabel: 'Default AAS Repository',
+            connectionType: 'AAS_REPOSITORY',
+        },
+        submodelRepository: {
+            repositories: 'Submodel Repositorys',
+            repositoryLabel: 'Submodel Repository',
+            repositoryUrlLabel: 'Submodel Repository URL',
+            repositoryDefaultLabel: 'Default Submodel Repository',
+            connectionType: 'SUBMODEL_REPOSITORY',
+        },
+    },
+    submodels: 'Teilmodelle',
     unknownModelType: 'Unbekannter ModelType: {type}',
     nameplateAddressTypes: {
         office: 'Geschäftlich',
@@ -108,7 +133,7 @@ export const deMnestix = {
     custom: 'Individuell',
     noTemplatesFound: 'Keine Vorlagen gefunden',
     templatesUseExplanation:
-        'Vorlagen erlauben es Ihnen, eine wiederverwendbare Submodell-Struktur zu definieren, angepasst auf Ihre Bedürfnisse.',
+        'Vorlagen erlauben es Ihnen, eine wiederverwendbare Teilmodell-Struktur zu definieren, angepasst auf Ihre Bedürfnisse.',
     semanticId: 'semanticId',
     createNew: 'Neu erstellen',
     chooseAStartingPoint: 'Wählen Sie einen Ausgangspunkt',
@@ -235,10 +260,10 @@ export const deMnestix = {
         logoHelperText: 'base64 encoded',
     },
     discoveryList: {
-        header: 'Ergebnisliste der Discovery',
+        header: 'Verwandte AAS für ID',
         aasIdHeading: 'AAS ID',
         repositoryUrl: 'Repository Url',
-        subtitle: 'Asset ID',
+        subtitle: 'Hier finden Sie alle zugehörigen AAS für die angegebene ID.',
     },
     qrScanner: {
         defaultCallbackErrorMsg: 'QR Code konnte nicht geöffnet werden!',

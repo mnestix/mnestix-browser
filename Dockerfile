@@ -13,6 +13,9 @@ FROM deps AS builder
 WORKDIR /app
 COPY . .
 
+RUN yarn prisma migrate deploy
+RUN yarn prisma generate
+
 RUN yarn build
 
 FROM base AS production
@@ -38,5 +41,8 @@ CMD [ "/app/scripts/start.sh" ]
 FROM deps AS dev
 ENV NODE_ENV=development
 COPY . .
+
+RUN yarn prisma migrate deploy
+RUN yarn prisma generate
 
 CMD [ "yarn", "dev"]

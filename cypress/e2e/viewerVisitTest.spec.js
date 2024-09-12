@@ -23,7 +23,7 @@ describe('Visit the Viewer page', function () {
             },
         );
         it(
-            'should put an Asset Id into the input field, click the arrow and be redicted to the right viewer page (Resolution: ' +
+            'should put an Asset Id into the input field, click the arrow and be redirected to the right viewer page (Resolution: ' +
                 el +
                 ')',
             function () {

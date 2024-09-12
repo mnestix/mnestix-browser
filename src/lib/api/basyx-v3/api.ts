@@ -73,14 +73,15 @@ export class AssetAdministrationShellRepositoryApi extends BaseAPI {
      * @summary Retrieves a specific Asset Administration Shell from the Asset Administration Shell repository
      * @param {string} aasId The Asset Administration Shell&#x27;s unique id
      * @param {*} [options] Override http request option.
+     * @param {string} [basePath] The URL for the current repository endpoint.
      * @throws {RequiredError}
      * @memberof AssetAdministrationShellRepositoryApi
      */
-    public getAssetAdministrationShellById(aasId: string, options?: any) {
+    public getAssetAdministrationShellById(aasId: string, options?: any, basePath?: string) {
         return AssetAdministrationShellRepositoryApiFp(this.configuration).getAssetAdministrationShellById(
             aasId,
             options,
-        )(this.fetch, this.basePath);
+        )(this.fetch, basePath ?? this.basePath);
     }
 
     /**
@@ -102,13 +103,14 @@ export class AssetAdministrationShellRepositoryApi extends BaseAPI {
      * @summary Retrieves the thumbnail from the Asset Administration Shell.
      * @param aasId aasId The ID of the Asset Administration Shell.
      * @param options {*} [options] Override http request option.
+     * @param {string} [basePath] The URL for the current repository endpoint.
      * @returns The thumbnail retrieved from the Asset Administration Shell.
      */
-    public getThumbnailFromShell(aasId: string, options?: any) {
+    public getThumbnailFromShell(aasId: string, options?: any, basePath?: string) {
         return AssetAdministrationShellRepositoryApiFp(this.configuration).getThumbnailFromAssetInformation(
             aasId,
             options,
-        )(this.fetch, this.basePath);
+        )(this.fetch, basePath ?? this.basePath);
     }
 }
 
@@ -319,13 +321,14 @@ export class SubmodelRepositoryApi extends BaseAPI {
      * @summary Retrieves the submodel
      * @param {string} submodelId The Submodels unique id
      * @param {*} [options] Override http request option
+     * @param {string} [basePath] The URL for the current repository endpoint.
      * @throws {RequiredError}
      * @memberof SubmodelRepositoryApi
      */
-    public getSubmodelById(submodelId: string, options?: any): Promise<Submodel> {
+    public getSubmodelById(submodelId: string, options?: any, basePath?: string): Promise<Submodel> {
         return SubmodelRepositoryApiFp(this.configuration).getSubmodelById(submodelId, options)(
             this.fetch,
-            this.basePath,
+            basePath ?? this.basePath,
         );
     }
 

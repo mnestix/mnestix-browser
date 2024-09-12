@@ -2,6 +2,9 @@ networks:
   mnestix-network:
     driver: bridge
     name: mnestix-network
+    
+volumes:
+  mnestix-database:
 
 services:
   mnestix-browser:
@@ -30,6 +33,8 @@ services:
         condition: service_healthy # only after the healthcheck in aas is successful, the mnestix container is being created
     networks:
       - mnestix-network
+    volumes:
+      - mnestix-database:/app/prisma/database
 
   mnestix-api:
     image: mnestix/mnestix-api:1.1.0
