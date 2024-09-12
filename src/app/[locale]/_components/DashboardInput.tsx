@@ -26,7 +26,13 @@ export const DashboardInput = () => {
             }
             navigate.push(aasSearch.redirectUrl);
         } catch (e) {
-            throw new LocalizedError(messages.mnestix.aasUrlNotFound);
+            switch (e.status) {
+                case 401:
+                    throw new LocalizedError(messages.mnestix.unauthorizedError.content);
+                default:
+                    throw new LocalizedError(messages.mnestix.aasUrlNotFound);
+            }
+
         }
     };
 
