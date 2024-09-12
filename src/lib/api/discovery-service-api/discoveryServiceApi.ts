@@ -5,12 +5,22 @@ import { DiscoveryServiceApiInMemory } from 'lib/api/discovery-service-api/disco
 export class DiscoveryServiceApi implements IDiscoveryServiceApi {
     baseUrl: string;
 
-    private constructor(protected _baseUrl: string = '') {
+    private constructor(
+        protected _baseUrl: string = '',
+        protected http: {
+            fetch(url: RequestInfo, init?: RequestInit): Promise<Response>;
+        },
+    ) {
         this.baseUrl = _baseUrl;
     }
 
-    static create(_baseUrl: string = ''): DiscoveryServiceApi {
-        return new DiscoveryServiceApi(_baseUrl);
+    static create(
+        _baseUrl: string = '',
+        http?: {
+            fetch(url: RequestInfo, init?: RequestInit): Promise<Response>;
+        },
+    ): DiscoveryServiceApi {
+        return new DiscoveryServiceApi(_baseUrl, http ?? window);
     }
 
     static createNull(options: {
@@ -45,7 +55,7 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
             'Content-Type': 'application/json',
         };
 
-        const response = await fetch(`${this.baseUrl}/lookup/shells/${b64_aasId}`, {
+        const response = await this.http.fetch(`${this.baseUrl}/lookup/shells/${b64_aasId}`, {
             method: 'DELETE',
             headers,
         });
@@ -71,7 +81,7 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
             url.searchParams.append('assetIds', encodeBase64(JSON.stringify(obj)));
         });
 
-        const response = await fetch(url, {
+        const response = await this.http.fetch(url.toString(), {
             method: 'GET',
             headers,
         });
@@ -91,7 +101,7 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
             'Content-Type': 'application/json',
         };
 
-        const response = await fetch(`${this.baseUrl}/lookup/shells/${b64_aasId}`, {
+        const response = await this.http.fetch(`${this.baseUrl}/lookup/shells/${b64_aasId}`, {
             method: 'GET',
             headers,
         });
@@ -111,7 +121,7 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
             'Content-Type': 'application/json',
         };
 
-        const response = await fetch(`${this.baseUrl}/lookup/shells/${b64_aasId}`, {
+        const response = await this.http.fetch(`${this.baseUrl}/lookup/shells/${b64_aasId}`, {
             method: 'POST',
             headers,
             body: JSON.stringify(assetLinks),

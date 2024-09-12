@@ -5,17 +5,23 @@ export class TemplateShellApi {
     basePathOwnApi: string;
     basePathCustoms: string;
     enable_authentication: boolean;
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
 
-    constructor(backendApiUrl: string, enable_authentication: boolean) {
+    constructor(
+        backendApiUrl: string,
+        enable_authentication: boolean,
+        http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> },
+    ) {
         this.basePathOwnApi = `${backendApiUrl}/api/Template`;
         this.basePathCustoms = `${backendApiUrl}/templates/custom`;
         this.enable_authentication = enable_authentication;
+        this.http = http ? http : window;
     }
 
     public async getDefaults(token: string): Promise<Submodel[]> {
         const headers = this.prepareHeader(token);
 
-        const response = await fetch(`${this.basePathOwnApi}/allDefaultSubmodels`, {
+        const response = await this.http.fetch(`${this.basePathOwnApi}/allDefaultSubmodels`, {
             method: 'GET',
             headers,
         });
@@ -30,7 +36,7 @@ export class TemplateShellApi {
     public async getCustoms(token: string): Promise<Submodel[]> {
         const headers = this.prepareHeader(token);
 
-        const response = await fetch(`${this.basePathOwnApi}/allCustomSubmodels`, {
+        const response = await this.http.fetch(`${this.basePathOwnApi}/allCustomSubmodels`, {
             method: 'GET',
             headers,
         });
@@ -45,10 +51,13 @@ export class TemplateShellApi {
     public async getCustom(token: string, submodelIdShort: string): Promise<Submodel> {
         const headers = this.prepareHeader(token);
 
-        const response = await fetch(`${this.basePathOwnApi}/CustomSubmodel/${encodeBase64(submodelIdShort)}`, {
-            method: 'GET',
-            headers,
-        });
+        const response = await this.http.fetch(
+            `${this.basePathOwnApi}/CustomSubmodel/${encodeBase64(submodelIdShort)}`,
+            {
+                method: 'GET',
+                headers,
+            },
+        );
 
         if (response.status >= 200 && response.status < 300) {
             return response.json();
@@ -62,7 +71,7 @@ export class TemplateShellApi {
 
         // We use the regular delete endpoint, which expects an idShort, but because of our backend interception, we saved the actual id in the idShort field earlier.
         // That's why this works.
-        const response = await fetch(`${this.basePathCustoms}/${encodeBase64(id)}`, {
+        const response = await this.http.fetch(`${this.basePathCustoms}/${encodeBase64(id)}`, {
             method: 'DELETE',
             headers,
         });

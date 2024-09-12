@@ -6,12 +6,24 @@ import { RegistryServiceApiInMemory } from 'lib/api/registry-service-api/registr
 export class RegistryServiceApi implements IRegistryServiceApi {
     baseUrl: string;
 
-    constructor(protected _baseUrl: string = '') {
+    constructor(
+        protected _baseUrl: string = '',
+        protected http: {
+            fetch(url: RequestInfo, init?: RequestInit): Promise<Response>;
+        },
+    ) {
         this.baseUrl = _baseUrl;
     }
 
-    static create(_baseUrl: string = '') {
-        return new RegistryServiceApi(_baseUrl);
+    static create(
+        _baseUrl: string | undefined,
+        mnestixFetch:
+            | {
+                  fetch(url: RequestInfo, init?: RequestInit | undefined): Promise<Response>;
+              }
+            | undefined,
+    ) {
+        return new RegistryServiceApi(_baseUrl, mnestixFetch ?? window);
     }
 
     static createNull(options: { registryShellDescriptorEntries: AssetAdministrationShellDescriptor[] | null }) {
@@ -25,7 +37,7 @@ export class RegistryServiceApi implements IRegistryServiceApi {
 
         const url = new URL(`${this.baseUrl}/shell-descriptors`);
 
-        const response = await fetch(url, {
+        const response = await this.http.fetch(url.toString(), {
             method: 'GET',
             headers,
         });
@@ -47,7 +59,7 @@ export class RegistryServiceApi implements IRegistryServiceApi {
 
         const url = new URL(`${this.baseUrl}/shell-descriptors/${b64_aasId}`);
 
-        const response = await fetch(url, {
+        const response = await this.http.fetch(url.toString(), {
             method: 'GET',
             headers,
         });
@@ -67,7 +79,7 @@ export class RegistryServiceApi implements IRegistryServiceApi {
 
         const url = new URL(`${this.baseUrl}/shell-descriptors`);
 
-        const response = await fetch(url, {
+        const response = await this.http.fetch(url.toString(), {
             method: 'POST',
             headers,
             body: JSON.stringify(shellDescriptor),
@@ -93,7 +105,7 @@ export class RegistryServiceApi implements IRegistryServiceApi {
 
         const url = new URL(`${this.baseUrl}/shell-descriptors/${b64_aasId}`);
 
-        const response = await fetch(url, {
+        const response = await this.http.fetch(url.toString(), {
             method: 'PUT',
             headers,
             body: JSON.stringify(shellDescriptor),
@@ -111,7 +123,7 @@ export class RegistryServiceApi implements IRegistryServiceApi {
 
         const url = new URL(`${this.baseUrl}/shell-descriptors/${b64_aasId}`);
 
-        const response = await fetch(url, {
+        const response = await this.http.fetch(url.toString(), {
             method: 'DELETE',
         });
 

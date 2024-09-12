@@ -26,6 +26,7 @@ export const ApiProvider = (props: PropsWithChildren) => {
         templatesClient: new TemplateShellApi(
             env.MNESTIX_BACKEND_API_URL ? env.MNESTIX_BACKEND_API_URL : '',
             env.AUTHENTICATION_FEATURE_FLAG,
+            mnestixFetch(),
         ),
         repositoryClient: AssetAdministrationShellRepositoryApi.create({
             basePath: env.AAS_REPO_API_URL,
@@ -35,9 +36,9 @@ export const ApiProvider = (props: PropsWithChildren) => {
             basePath: env.SUBMODEL_REPO_API_URL ?? env.AAS_REPO_API_URL,
             fetch: mnestixFetch(),
         }),
-        discoveryServiceClient: DiscoveryServiceApi.create(env.DISCOVERY_API_URL),
-        registryServiceClient: RegistryServiceApi.create(env.REGISTRY_API_URL),
-        submodelRegistryServiceClient: new SubmodelRegistryServiceApi(env.SUBMODEL_REGISTRY_API_URL),
+        discoveryServiceClient: DiscoveryServiceApi.create(env.DISCOVERY_API_URL, mnestixFetch()),
+        registryServiceClient: RegistryServiceApi.create(env.REGISTRY_API_URL, mnestixFetch()),
+        submodelRegistryServiceClient: new SubmodelRegistryServiceApi(env.SUBMODEL_REGISTRY_API_URL, mnestixFetch()),
     };
 
     return <ApiContext.Provider value={apis}>{props.children}</ApiContext.Provider>;

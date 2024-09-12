@@ -17,6 +17,7 @@ import {
     NullableMultipleDataSourceSetupParameters,
 } from 'lib/services/multipleDataSourceActions/MultipleDataSource';
 import { INullableAasRepositoryEntries } from 'lib/api/basyx-v3/apiInMemory';
+import { mnestixFetch } from 'lib/api/infrastructure';
 
 export interface RegistrySearchResult {
     registryAas: AssetAdministrationShell;
@@ -52,10 +53,10 @@ export class AasSearcher {
         protected readonly log: Log,
     ) {}
 
-    static create(): AasSearcher {
+    static create(_baseUrl: string = ''): AasSearcher {
         const multipleDataSource = MultipleDataSource.create();
-        const registryServiceClient = RegistryServiceApi.create(process.env.REGISTRY_API_URL);
-        const discoveryServiceClient = DiscoveryServiceApi.create(process.env.DISCOVERY_API_URL);
+        const registryServiceClient = RegistryServiceApi.create(process.env.REGISTRY_API_URL, mnestixFetch());
+        const discoveryServiceClient = DiscoveryServiceApi.create(process.env.DISCOVERY_API_URL, mnestixFetch());
         const log = Log.create();
         return new AasSearcher(discoveryServiceClient, registryServiceClient, multipleDataSource, fetch, log);
     }
