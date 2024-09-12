@@ -2,11 +2,20 @@ import { IAssetAdministrationShellRepositoryApi, ISubmodelRepositoryApi } from '
 import { AssetAdministrationShell, Reference, Submodel } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
 import { decodeBase64, encodeBase64 } from 'lib/util/Base64Util';
 
-export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdministrationShellRepositoryApi {
-    private shellsSavedInTheRepository: AssetAdministrationShell[] | null | undefined;
+export interface INullableAasRepositoryEntries {
+    repositoryUrl: string;
+    aas: AssetAdministrationShell;
+}
 
-    constructor(options: { shellsSavedInTheRepository: AssetAdministrationShell[] | null }) {
-        this.shellsSavedInTheRepository = options.shellsSavedInTheRepository;
+export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdministrationShellRepositoryApi {
+    private shellsSavedInTheRepositories: INullableAasRepositoryEntries[] | null | undefined;
+
+    constructor(options: { shellsSavedInTheRepositories: INullableAasRepositoryEntries[] | null }) {
+        this.shellsSavedInTheRepositories = options.shellsSavedInTheRepositories;
+    }
+
+    static getDefaultRepositoryUrl(): string {
+        return 'www.aas.default.com/repository';
     }
 
     getAssetAdministrationShellById(
@@ -14,12 +23,22 @@ export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdmi
         _options?: object | undefined,
         _basePath?: string | undefined,
     ): Promise<AssetAdministrationShell> {
-        if (!this.shellsSavedInTheRepository) return Promise.reject('no repository configuration');
-        for (const aas of this.shellsSavedInTheRepository) {
-            if (encodeBase64(aas.id) === aasId) return Promise.resolve(aas);
+        if (!this.shellsSavedInTheRepositories) return Promise.reject('no repository configuration');
+        const defaultRepositoryUrl = AssetAdministrationShellRepositoryApiInMemory.getDefaultRepositoryUrl();
+        const isSearchingInDefaultRepository = _basePath === defaultRepositoryUrl || _basePath === undefined;
+        for (const entry of this.shellsSavedInTheRepositories) {
+            if (encodeBase64(entry.aas.id) === aasId) {
+                const isInDefaultRepository = entry.repositoryUrl === defaultRepositoryUrl;
+                if (isInDefaultRepository || !isSearchingInDefaultRepository) {
+                    return Promise.resolve(entry.aas);
+                }
+            }
         }
+        const targetRepositoryKind = isSearchingInDefaultRepository ? 'default' : 'foreign';
         return Promise.reject(
-            'no aas found in the default repository for aasId: ' +
+            'no aas found in the ' +
+                targetRepositoryKind +
+                ' repository for aasId: ' +
                 aasId +
                 ', which is :' +
                 decodeBase64(aasId) +

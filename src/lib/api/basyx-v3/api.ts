@@ -7,6 +7,7 @@ import { encodeBase64 } from 'lib/util/Base64Util';
 import { IAssetAdministrationShellRepositoryApi, ISubmodelRepositoryApi } from 'lib/api/basyx-v3/apiInterface';
 import {
     AssetAdministrationShellRepositoryApiInMemory,
+    INullableAasRepositoryEntries,
     SubmodelRepositoryApiInMemory
 } from 'lib/api/basyx-v3/apiInMemory';
 
@@ -88,7 +89,7 @@ export class AssetAdministrationShellRepositoryApi extends BaseAPI implements IA
     }
 
     static createNull(options: {
-        shellsSavedInTheRepository: AssetAdministrationShell[] | null;
+        shellsSavedInTheRepositories: INullableAasRepositoryEntries[] | null;
     }): AssetAdministrationShellRepositoryApiInMemory {
         return new AssetAdministrationShellRepositoryApiInMemory(options);
     }

@@ -5,6 +5,7 @@ import { instance, mock } from 'ts-mockito';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { Log } from 'lib/util/Log';
 import { AasSearcher } from 'lib/services/searchUtilActions/AasSearcher';
+import { AssetAdministrationShellRepositoryApiInMemory } from 'lib/api/basyx-v3/apiInMemory';
 
 interface DummyAasParameters {
     id?: string;
@@ -47,7 +48,12 @@ describe('Full Aas Search happy paths', () => {
         const searchString = 'irrelevant assetId';
         const searcher = AasSearcher.createNull({
             discoveryEntries: [{ assetId: searchString, aasIds: [aasId] }],
-            shellsSavedInTheRepository: [createDummyAas({ id: aasId })],
+            shellsSavedInTheRepositories: [
+                {
+                    aas: createDummyAas({ id: aasId }),
+                    repositoryUrl: AssetAdministrationShellRepositoryApiInMemory.getDefaultRepositoryUrl(),
+                },
+            ],
         });
 
         const result = await searcher.fullSearch(searchString);
@@ -72,12 +78,57 @@ describe('Full Aas Search happy paths', () => {
         const aasId = 'dummy aasId';
         const searchString = aasId;
         const searcher = AasSearcher.createNull({
-            shellsSavedInTheRepository: [createDummyAas({ id: aasId })],
+            shellsSavedInTheRepositories: [
+                {
+                    aas: createDummyAas({ id: aasId }),
+                    repositoryUrl: AssetAdministrationShellRepositoryApiInMemory.getDefaultRepositoryUrl(),
+                },
+            ],
         });
 
         const result = await searcher.fullSearch(searchString);
 
         expect(result.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
+    });
+
+    it('returns aas for given aasId from foreign repository if only one found', async () => {
+        const aasId = 'dummy aasId';
+        const searchString = aasId;
+        const searcher = AasSearcher.createNull({
+            shellsSavedInTheRepositories: [
+                {
+                    aas: createDummyAas({ id: aasId }),
+                    repositoryUrl: 'www.aas.foreign.cz/repository',
+                },
+            ],
+        });
+
+        const result = await searcher.fullSearch(searchString);
+
+        expect(result.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
+    });
+
+    it('returns aas for given aasId from foreign repository if two are found', async () => {
+        const aasId = 'dummy aasId';
+        const searchString = aasId;
+        const firstEntryWithSameIdButComingFromRepositoryOne = {
+            aas: createDummyAas({ id: aasId }),
+            repositoryUrl: 'www.aas.foreign.cz/repository',
+        };
+        const secondEntryWithSameIdButComingFromRepositoryTwo = {
+            aas: createDummyAas({ id: aasId }),
+            repositoryUrl: 'www.aas.another-foreign.uk/repository',
+        };
+        const searcher = AasSearcher.createNull({
+            shellsSavedInTheRepositories: [
+                firstEntryWithSameIdButComingFromRepositoryOne,
+                secondEntryWithSameIdButComingFromRepositoryTwo,
+            ],
+        });
+
+        const result = await searcher.fullSearch(searchString);
+
+        expect(result.redirectUrl).toBe('/viewer/discovery?assetId=' + searchString);
     });
 });
 
@@ -86,14 +137,10 @@ describe('Full Aas Search edge cases', () => {
         const searchString = 'irrelevant assetId';
         const log = Log.createNull();
         const searcher = AasSearcher.createNull({
-            discoveryEntries: [],
-            registryShellDescriptorEntries: [],
-            shellsByRegistryEndpoint: [],
-            shellsSavedInTheRepository: [],
             log: log,
         });
 
-        await assertThatFunctionThrows(searcher, searchString, 'no aas found in the default repository for aasId');
+        await assertThatFunctionThrows(searcher, searchString);
     });
 
     it('throws when registry search failed', async () => {

@@ -8,13 +8,15 @@ import { AssetAdministrationShell, Submodel } from '@aas-core-works/aas-core3.0-
 import { Log } from 'lib/util/Log';
 import { IDiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApiInterface';
 import { IRegistryServiceApi } from 'lib/api/registry-service-api/registryServiceApiInterface';
-import { IAssetAdministrationShellRepositoryApi, ISubmodelRepositoryApi } from 'lib/api/basyx-v3/apiInterface';
-import { AssetAdministrationShellRepositoryApi, SubmodelRepositoryApi } from 'lib/api/basyx-v3/api';
-import { mnestixFetch } from 'lib/api/infrastructure';
 import { RegistryServiceApi } from 'lib/api/registry-service-api/registryServiceApi';
 import { DiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApi';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { NotFoundError } from 'lib/errors/NotFoundError';
+import {
+    MultipleDataSource,
+    NullableMultipleDataSourceSetupParameters,
+} from 'lib/services/multipleDataSourceActions/MultipleDataSource';
+import { INullableAasRepositoryEntries } from 'lib/api/basyx-v3/apiInMemory';
 
 export interface RegistrySearchResult {
     registryAas: AssetAdministrationShell;
@@ -25,8 +27,9 @@ interface NullableSearchSetupParameters {
     discoveryEntries?: { assetId: string; aasIds: string[] }[];
     registryShellDescriptorEntries?: AssetAdministrationShellDescriptor[] | null;
     shellsByRegistryEndpoint?: { path: string; aas: AssetAdministrationShell }[] | null;
-    shellsSavedInTheRepository?: AssetAdministrationShell[] | null;
+    shellsSavedInTheRepositories?: INullableAasRepositoryEntries[] | null;
     submodelsSavedInTheRepository?: Submodel[] | null;
+    entitiesInMultipleDataSources?: NullableMultipleDataSourceSetupParameters | null;
     log?: Log | null;
 }
 
@@ -44,39 +47,24 @@ export class AasSearcher {
     private constructor(
         protected readonly discoveryServiceClient: IDiscoveryServiceApi,
         protected readonly registryService: IRegistryServiceApi,
-        protected readonly repositoryClient: IAssetAdministrationShellRepositoryApi,
-        protected readonly submodelRepositoryClient: ISubmodelRepositoryApi,
+        protected readonly multipleDataSource: MultipleDataSource,
         protected readonly fetch: (input: RequestInfo | URL, init?: RequestInit | undefined) => Promise<Response>,
         protected readonly log: Log,
     ) {}
 
     static create(): AasSearcher {
-        const repositoryClient = AssetAdministrationShellRepositoryApi.create({
-            basePath: process.env.AAS_REPO_API_URL,
-            fetch: mnestixFetch(),
-        });
-        const submodelRepositoryClient = SubmodelRepositoryApi.create({
-            basePath: process.env.SUBMODEL_REPO_API_URL,
-            fetch: mnestixFetch(),
-        });
+        const multipleDataSource = MultipleDataSource.create();
         const registryServiceClient = RegistryServiceApi.create(process.env.REGISTRY_API_URL);
         const discoveryServiceClient = DiscoveryServiceApi.create(process.env.DISCOVERY_API_URL);
         const log = Log.create();
-        return new AasSearcher(
-            discoveryServiceClient,
-            registryServiceClient,
-            repositoryClient,
-            submodelRepositoryClient,
-            fetch,
-            log,
-        );
+        return new AasSearcher(discoveryServiceClient, registryServiceClient, multipleDataSource, fetch, log);
     }
 
     static createNull({
         discoveryEntries = [],
         registryShellDescriptorEntries = [],
         shellsByRegistryEndpoint = [],
-        shellsSavedInTheRepository = [],
+        shellsSavedInTheRepositories = [],
         submodelsSavedInTheRepository = [],
         log = null,
     }: NullableSearchSetupParameters = {}): AasSearcher {
@@ -90,8 +78,11 @@ export class AasSearcher {
         return new AasSearcher(
             DiscoveryServiceApi.createNull({ discoveryEntries: discoveryEntries }),
             RegistryServiceApi.createNull({ registryShellDescriptorEntries }),
-            AssetAdministrationShellRepositoryApi.createNull({ shellsSavedInTheRepository }),
-            SubmodelRepositoryApi.createNull({ submodelsSavedInTheRepository }),
+            MultipleDataSource.createNull({
+                shellsByRegistryEndpoint,
+                shellsSavedInTheRepositories: shellsSavedInTheRepositories,
+                submodelsSavedInTheRepository,
+            }),
             stubbedFetch,
             log ?? Log.createNull(),
         );
@@ -111,10 +102,24 @@ export class AasSearcher {
             const aasId = aasIds && aasIds.length === 1 ? aasIds[0] : val;
             const registrySearchResult = await this.handleAasRegistrySearch(aasId);
 
-            const aas =
-                registrySearchResult != null
-                    ? registrySearchResult.registryAas
-                    : await this.repositoryClient.getAssetAdministrationShellById(encodeBase64(aasId));
+            let aas: AssetAdministrationShell;
+            if (registrySearchResult != null) {
+                aas = registrySearchResult.registryAas;
+            } else {
+                const aasIdEncoded = encodeBase64(aasId);
+                try {
+                    aas = await this.multipleDataSource.getAasFromDefaultRepository(aasIdEncoded);
+                } catch (e) {
+                    const potentiallyMultipleAas = await this.multipleDataSource.getAasFromAllRepos(aasIdEncoded);
+                    if (potentiallyMultipleAas.length > 1)
+                        return {
+                            redirectUrl: `/viewer/discovery?assetId=${val}`,
+                            aas: null,
+                            aasData: null,
+                        };
+                    aas = potentiallyMultipleAas[0].aas;
+                }
+            }
 
             const aasData =
                 registrySearchResult?.registryAasData != null
