@@ -39,7 +39,7 @@ export function MnestixConnectionsCard() {
 
     const dataSources: DataSource[] = [
         { name: 'aasRepository', url: env.AAS_REPO_API_URL },
-        { name: 'submodelRepository', url: env.AAS_REPO_API_URL }, //TODO: Update env to SUBMODEL_REPO_API_URL after merge with "dev" branch
+        { name: 'submodelRepository', url: env.SUBMODEL_REPO_API_URL },
     ];
 
     async function getConnectionData() {
