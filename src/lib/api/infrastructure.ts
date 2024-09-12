@@ -1,4 +1,5 @@
 ﻿import { getSession } from 'next-auth/react';
+import { performServerFetch } from 'lib/api/serverFetch';
 
 const initializeRequestOptions = async (bearerToken: string, init?: RequestInit) => {
     init = init || {};
@@ -19,12 +20,17 @@ const getBearerToken = async () => {
     }
 };
 
-export const mnestixFetch = (): {
-    fetch(url: RequestInfo, init?: (RequestInit | undefined)): Promise<Response>
-} | undefined => {
+export const mnestixFetch = ():
+    | {
+          fetch(url: RequestInfo, init?: RequestInit | undefined): Promise<Response>;
+      }
+    | undefined => {
     return {
         fetch: async (url: RequestInfo, init?: RequestInit) => {
-            const response = await fetch(url, await initializeRequestOptions(await getBearerToken(), init));
+            const response = await performServerFetch(
+                url,
+                await initializeRequestOptions(await getBearerToken(), init),
+            );
 
             if (response.status !== 401) {
                 return response;
@@ -41,4 +47,4 @@ export const sessionLogOut = async (keycloakEnabled: boolean) => {
     } catch (err) {
         console.error(err);
     }
-}
+};
