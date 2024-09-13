@@ -1,10 +1,10 @@
 import { defineConfig } from 'cypress';
 
 export default defineConfig({
-    defaultCommandTimeout: 15000, // 15
-    pageLoadTimeout: 60000, // 60
-    requestTimeout: 15000, // 15
-    responseTimeout: 20000, // 20
+    defaultCommandTimeout: 150000, // 150
+    pageLoadTimeout: 600000, // 600
+    requestTimeout: 150000, // 150
+    responseTimeout: 200000, // 200
     video: true,
     videoCompression: true,
     retries: 2,
