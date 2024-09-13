@@ -13,6 +13,7 @@ export default defineConfig({
         baseUrl: 'http://localhost:3000/',
         excludeSpecPattern: '**/ignoredTestFiles/*.js',
         specPattern: 'cypress/e2e/**/*.spec.{js,jsx,ts,tsx}',
+        experimentalRunAllSpecs: true,
     },
     env: {
         AAS_REPO_API_URL: 'http://localhost:5064/repo',
