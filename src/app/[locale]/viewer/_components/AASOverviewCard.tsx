@@ -25,7 +25,7 @@ import { useRouter } from 'next/navigation';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { AssetAdministrationShellRepositoryApi } from 'lib/api/basyx-v3/api';
-import { getAasThumbnailFromAllRepos } from 'lib/searchUtilActions/SearchRepositoryHelper';
+import { getAasThumbnailFromAllAasRepos } from 'lib/searchUtilActions/SearchRepositoryHelper';
 
 type AASOverviewCardProps = {
     readonly aas: AssetAdministrationShell | null;
@@ -87,7 +87,7 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
                 try {
                     image = await repositoryClient.getThumbnailFromShell(props.aas.id);
                 } catch (e) {
-                    image = await getAasThumbnailFromAllRepos(props.aas.id, repositoryClient);
+                    image = await getAasThumbnailFromAllAasRepos(props.aas.id, repositoryClient);
                 }
 
                 setProductImageUrl(URL.createObjectURL(image));

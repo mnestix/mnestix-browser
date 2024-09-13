@@ -18,7 +18,7 @@ import { AASOverviewCard } from 'app/[locale]/viewer/_components/AASOverviewCard
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useEnv } from 'app/env/provider';
 import { handleAasRegistrySearch } from 'lib/searchUtilActions/searchServer';
-import { getAasFromAllRepos } from 'lib/searchUtilActions/SearchRepositoryHelper';
+import { getAasFromAllAasRepos } from 'lib/searchUtilActions/SearchRepositoryHelper';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 
 export default function Page() {
@@ -73,7 +73,7 @@ export default function Page() {
                         repoUrl,
                     );
                 } catch (e) {
-                    const repoSearchResults = await getAasFromAllRepos(base64AasId, repositoryClient);
+                    const repoSearchResults = await getAasFromAllAasRepos(base64AasId, repositoryClient);
                     if (repoSearchResults.length > 1) {
                         navigate.push(`/viewer/discovery?aasId=${encodeURI(decodeBase64(base64AasId))}`);
                     }

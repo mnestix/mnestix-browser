@@ -13,7 +13,7 @@ import { IDiscoveryListEntry } from 'lib/types/DiscoveryListEntry';
 import AssetNotFound from 'components/basics/AssetNotFound';
 import { isAasAvailableInRepo } from 'lib/util/checkAasAvailabilityUtil';
 import { useEnv } from 'app/env/provider';
-import { getAasFromAllRepos, RepoSearchResult } from 'lib/searchUtilActions/SearchRepositoryHelper';
+import { getAasFromAllAasRepos, RepoSearchResult } from 'lib/searchUtilActions/SearchRepositoryHelper';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 import ListHeader from 'components/basics/ListHeader';
@@ -66,7 +66,7 @@ export const DiscoveryListView = () => {
         } else if (aasId) {
             let searchResults: RepoSearchResult[] = [];
             try {
-                searchResults = await getAasFromAllRepos(encodeBase64(aasId), repositoryClient);
+                searchResults = await getAasFromAllAasRepos(encodeBase64(aasId), repositoryClient);
             } catch (e) {
                 setIsError(true);
             }

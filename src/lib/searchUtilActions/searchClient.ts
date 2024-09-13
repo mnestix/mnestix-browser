@@ -5,7 +5,7 @@ import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { AssetAdministrationShellRepositoryApi } from 'lib/api/basyx-v3/api';
 import { handleAasDiscoverySearch, handleAasRegistrySearch } from 'lib/searchUtilActions/searchServer';
-import { getAasFromAllRepos } from 'lib/searchUtilActions/SearchRepositoryHelper';
+import { getAasFromAllAasRepos } from 'lib/searchUtilActions/SearchRepositoryHelper';
 import { NotFoundError } from 'lib/errors/NotFoundError';
 
 export type AasData = {
@@ -43,7 +43,7 @@ export async function handleSearchForAas(
             try {
                 aas = await repositoryClient.getAssetAdministrationShellById(encodeBase64(aasId));
             } catch (e) {
-                const repoSearchResults = await getAasFromAllRepos(encodeBase64(aasId), repositoryClient);
+                const repoSearchResults = await getAasFromAllAasRepos(encodeBase64(aasId), repositoryClient);
                 if (repoSearchResults.length > 1) {
                     return {
                         redirectUrl: `/viewer/discovery?aasId=${encodeURIComponent(val)}`,

@@ -13,7 +13,7 @@ import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { getSubmodelFromSubmodelDescriptor } from 'lib/searchUtilActions/searchServer';
 import { useEnv } from 'app/env/provider';
-import { getSubmodelFromAllRepos } from 'lib/searchUtilActions/SearchRepositoryHelper';
+import { getSubmodelFromAllSubmodelRepos } from 'lib/searchUtilActions/SearchRepositoryHelper';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { showError } from 'lib/util/ErrorHandlerUtil';
 
@@ -43,7 +43,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
             try {
                 fetchedSubmodelData = await submodelClient.getSubmodelById(id);
             } catch (e) {
-                fetchedSubmodelData = await getSubmodelFromAllRepos(id, submodelClient);
+                fetchedSubmodelData = await getSubmodelFromAllSubmodelRepos(id, submodelClient);
             }
             return fetchedSubmodelData;
         } catch (e) {

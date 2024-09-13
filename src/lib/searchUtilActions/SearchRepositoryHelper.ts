@@ -1,13 +1,14 @@
 import { getConnectionDataByTypeAction } from 'app/[locale]/settings/_components/mnestix-connections/MnestixConnectionServerActions';
 import { AssetAdministrationShellRepositoryApi, SubmodelRepositoryApi } from 'lib/api/basyx-v3/api';
 import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/types';
+import { NotFoundError } from 'lib/errors/NotFoundError';
 
 export type RepoSearchResult = {
     aas: AssetAdministrationShell;
     location: string;
 };
 
-export async function getAasFromAllRepos(
+export async function getAasFromAllAasRepos(
     aasId: string,
     repositoryClient: AssetAdministrationShellRepositoryApi,
 ): Promise<RepoSearchResult[]> {
@@ -28,23 +29,23 @@ export async function getAasFromAllRepos(
         // @ts-expect-error
         return fulfilledResults.map(result => (result as unknown).value);
     } else {
-        throw new Error('AAS not found');
+        throw new NotFoundError('AAS not found');
     }
 }
 
-export async function getSubmodelFromAllRepos(submodelId: string, repositoryClient: SubmodelRepositoryApi) {
-    const basePathUrls = await getConnectionDataByTypeAction({ id: '0', typeName: 'AAS_REPOSITORY' });
+export async function getSubmodelFromAllSubmodelRepos(submodelId: string, repositoryClient: SubmodelRepositoryApi) {
+    const basePathUrls = await getConnectionDataByTypeAction({ id: '2', typeName: 'SUBMODEL_REPOSITORY' });
 
     const promises = basePathUrls.map((url) => repositoryClient.getSubmodelById(submodelId, undefined, url));
 
     try {
         return await Promise.any(promises);
     } catch (error) {
-        throw new Error('Submodel not found');
+        throw new NotFoundError('Submodel not found');
     }
 }
 
-export async function getAasThumbnailFromAllRepos(
+export async function getAasThumbnailFromAllAasRepos(
     aasId: string,
     repositoryClient: AssetAdministrationShellRepositoryApi,
 ) {
@@ -62,6 +63,6 @@ export async function getAasThumbnailFromAllRepos(
     try {
         return await Promise.any(promises);
     } catch {
-        throw new Error('Image not found');
+        throw new NotFoundError('Image not found');
     }
 }
