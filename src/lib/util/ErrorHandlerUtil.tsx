@@ -50,7 +50,7 @@ export function showError(e: unknown, notificationSpawner: NotificationSpawner) 
     function showUnauthorizedError(notificationSpawner: NotificationSpawner) {
         notificationSpawner.spawn({
             title: <FormattedMessage {...messages.mnestix.unauthorizedError.title} />,
-            message: <FormattedMessage {...messages.mnestix.unauthorizedError.content} />,
+            message: <FormattedMessage {...messages.mnestix.unauthorizedError.contentAAS} />,
             severity: 'error',
         });
     }

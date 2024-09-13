@@ -19,7 +19,8 @@ export const deMnestix = {
     unexpectedError: 'Unerwarteter Fehler',
     unauthorizedError: {
       title: 'Unautorisierter Zugriff',
-      content: 'Sie haben keinen Zugriff auf diese AAS. Bitte loggen Sie sich ein oder fragen sie Ihren Administrator um Zugriff.',
+      contentAAS: 'Sie haben keinen Zugriff auf diese AAS. Bitte loggen Sie sich ein oder fragen sie Ihren Administrator um Zugriff.',
+      contentRepository: 'Sie haben keinen Zugriff auf das Repository.',
     },
     settings: 'Einstellungen',
     idStructure: 'ID Struktur',

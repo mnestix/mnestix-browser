@@ -19,7 +19,8 @@ export const enMnestix = {
     unexpectedError: 'Unexpected error',
     unauthorizedError: {
         title: 'Unauthorized access',
-        content: 'You don\'t have access to this AAS. You may login or contact your administrator to get access.',
+        contentAAS: 'You don\'t have access to this AAS. You may login or contact your administrator to get access.',
+        contentRepository: 'You don\'t have access to the repository.',
     },
     settings: 'Settings',
     idStructure: 'ID structure',
