@@ -546,6 +546,10 @@
                             "value": "[variables('mnestixApiProxyUrl')]"
                         },
                         {
+                            "name": "SUBMODEL_REPO_API_URL",
+                            "value": "[variables('mnestixApiProxyUrl')]"
+                        },
+                        {
                             "name": "DISCOVERY_API_URL",
                             "value": "[variables('mnestixApiDiscoveryProxyUrl')]"
                         },

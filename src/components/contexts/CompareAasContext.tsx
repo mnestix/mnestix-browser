@@ -4,7 +4,7 @@ import { SubmodelCompareData } from 'lib/types/SubmodelCompareData';
 import { generateSubmodelCompareData, isCompareData, isCompareDataRecord } from 'lib/util/CompareAasUtil';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
-import { getSubmodelFromSubmodelDescriptor, handleAasRegistrySearch } from 'lib/searchUtilActions/search';
+import { getSubmodelFromSubmodelDescriptor, handleAasRegistrySearch } from 'lib/searchUtilActions/searchServer';
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 
 type CompareAasContextType = {
@@ -144,7 +144,8 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
         if (submodelDescriptors && submodelDescriptors.length > 0) {
             for (const submodelDescriptor of submodelDescriptors) {
                 const submodelData = await getSubmodelFromSubmodelDescriptor(
-                    submodelDescriptor.endpoints[0].protocolInformation.href);
+                    submodelDescriptor.endpoints[0].protocolInformation.href,
+                );
                 const dataRecord = generateSubmodelCompareData(submodelData);
                 newCompareData.push(dataRecord);
             }
@@ -152,14 +153,19 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
             for (const reference of input as Reference[]) {
                 let submodelAdded = false;
                 try {
-                    const submodelDescriptor = await submodelRegistryServiceClient.getSubmodelDescriptorsById(reference.keys[0].value);
+                    const submodelDescriptor = await submodelRegistryServiceClient.getSubmodelDescriptorsById(
+                        reference.keys[0].value,
+                    );
                     const submodelData = await getSubmodelFromSubmodelDescriptor(
-                        submodelDescriptor.endpoints[0].protocolInformation.href);
+                        submodelDescriptor.endpoints[0].protocolInformation.href,
+                    );
                     const dataRecord = generateSubmodelCompareData(submodelData);
                     newCompareData.push(dataRecord);
                     submodelAdded = true;
                 } catch (e) {
-                    console.warn(`Could not be found in Submodel Registry, will continue to look in the repository. ${e}`);
+                    console.warn(
+                        `Could not be found in Submodel Registry, will continue to look in the repository. ${e}`,
+                    );
                 }
                 // Submodel registry is not available or submodel not found there -> search in repo
                 if (!submodelAdded) {

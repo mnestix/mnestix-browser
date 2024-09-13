@@ -2,6 +2,9 @@ networks:
   mnestix-network:
     driver: bridge
     name: mnestix-network
+    
+volumes:
+  mnestix-database:
 
 services:
   mnestix-browser:
@@ -18,6 +21,7 @@ services:
       SUBMODEL_REGISTRY_API_URL: 'http://localhost:8084'
       DISCOVERY_API_URL: 'http://localhost:5064/discovery'
       AAS_REPO_API_URL: 'http://localhost:5064/repo'
+      SUBMODEL_REPO_API_URL: 'http://localhost:5064/repo'
       MNESTIX_BACKEND_API_URL: 'http://localhost:5064'
       AAS_LIST_FEATURE_FLAG: "true"
       COMPARISON_FEATURE_FLAG: "true"
@@ -29,9 +33,11 @@ services:
         condition: service_healthy # only after the healthcheck in aas is successful, the mnestix container is being created
     networks:
       - mnestix-network
+    volumes:
+      - mnestix-database:/app/prisma/database
 
   mnestix-api:
-    image: mnestix/mnestix-api:latest
+    image: mnestix/mnestix-api:1.2.0
     container_name: mnestix-api
     profiles: ["", "backend", "tests"]
     ports:
@@ -40,7 +46,8 @@ services:
       # API key authorization
       CustomerEndpointsSecurity__ApiKey: ${MNESTIX_BACKEND_API_KEY:-verySecureApiKey}
       # Connection to Repository Service:
-      ReverseProxy__Clusters__repoCluster__Destinations__destination1__Address: 'http://aas-environment:8081/'
+      ReverseProxy__Clusters__aasRepoCluster__Destinations__destination1__Address: 'http://aas-environment:8081/'
+      ReverseProxy__Clusters__submodelRepoCluster__Destinations__destination1__Address: 'http://aas-environment:8081/'
       ReverseProxy__Clusters__discoveryCluster__Destinations__destination1__Address: 'http://aas-discovery:8081/'
       # Features Configuration
       Features__AasRegistryMiddleware: "true"
@@ -91,7 +98,7 @@ services:
       - mnestix-network
 
   aas-environment:
-    image: eclipsebasyx/aas-environment:2.0.0-SNAPSHOT
+    image: eclipsebasyx/aas-environment:2.0.0-milestone-03.1
     container_name: aas-environment
     profiles: ["", "basyx", "tests"]
     depends_on:
@@ -123,7 +130,7 @@ services:
       - mnestix-network
 
   aas-discovery:
-    image: eclipsebasyx/aas-discovery:2.0.0-SNAPSHOT
+    image: eclipsebasyx/aas-discovery:2.0.0-milestone-03.1
     container_name: aas-discovery
     profiles: ["", "basyx", "tests"]
     depends_on:
@@ -151,7 +158,7 @@ services:
       - mnestix-network
 
   aas-registry:
-    image: eclipsebasyx/aas-registry-log-mongodb:2.0.0-SNAPSHOT
+    image: eclipsebasyx/aas-registry-log-mongodb:2.0.0-milestone-03.1
     container_name: aas-registry
     profiles: ["", "basyx"]
     ports:
@@ -171,7 +178,7 @@ services:
       - mnestix-network
 
   submodel-registry:
-    image: eclipsebasyx/submodel-registry-log-mongodb:2.0.0-SNAPSHOT
+    image: eclipsebasyx/submodel-registry-log-mongodb:2.0.0-milestone-03.1
     container_name: submodel-registry
     profiles: ["", "basyx"]
     ports:

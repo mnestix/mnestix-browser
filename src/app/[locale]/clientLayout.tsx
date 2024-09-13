@@ -25,7 +25,7 @@ export const ClientLayout = ({ children }: Readonly<ClientLayoutProps>) => {
                             <CurrentAasContextProvider>
                                 <NotificationContextProvider>
                                     <LayoutRoot>
-                                        <Box flexGrow={1}>
+                                        <Box flexGrow={1} data-testid="notifications">
                                             {children}
                                         </Box>
                                     </LayoutRoot>

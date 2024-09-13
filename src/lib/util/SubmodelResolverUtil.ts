@@ -42,8 +42,11 @@ export function getArrayFromString(v: string): Array<string> {
     return stripped.split('|');
 }
 
-export function hasSemanticId(el: Submodel | ISubmodelElement, semanticId: string) {
-    return el.semanticId?.keys?.some((key) => idEquals(key.value, semanticId));
+export function hasSemanticId(el: Submodel | ISubmodelElement, ...semanticIds: string[]) {
+    for (const id in semanticIds) {
+        if (el.semanticId?.keys?.some((key) => idEquals(key.value, id))) return true;
+    }
+    return false;
 }
 
 export function getValueType(submodelElement: ISubmodelElement): DataTypeDefXsd {
