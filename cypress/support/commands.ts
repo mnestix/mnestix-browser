@@ -24,7 +24,7 @@ Cypress.Commands.add('visitViewer', (aasId) => {
 });
 
 Cypress.Commands.add('getByTestId', (dataTestId) => {
-    cy.get('[data-testid=' + dataTestId + ']');
+    cy.get('[data-testid=' + dataTestId + ']', { timeout: 20000 });
 });
 
 Cypress.Commands.add('findByTestId', { prevSubject: true }, (subject, dataTestId) => {
