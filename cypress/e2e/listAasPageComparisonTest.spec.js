@@ -15,12 +15,13 @@ describe('Test that the list works together with the comparison view (Resolution
             .findByTestId('list-checkbox')
             .click();
 
+        cy.screenshot('list-selected.png');
         cy.getByTestId('compare-button').click();
-        cy.wait(100);
         cy.url().should('contain', '/compare');
+        cy.getByTestId('compare-aas-0').should('be.visible');
+        cy.getByTestId('compare-aas-1').should('be.visible');
 
         // assert that second aas is displayed correctly
-        cy.getByTestId('compare-aas-1').should('be.visible');
         cy.getByTestId('compare-Data-0').click();
         cy.getByTestId('compare-value-1').eq(1).contains('TEST_DATA2');
         cy.getByTestId('compare-value-0').eq(10).should('be.empty');
