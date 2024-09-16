@@ -1,7 +1,6 @@
 'use client';
-/* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Box, Button, Skeleton, Typography } from '@mui/material';
 import { useAasState, useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
@@ -13,21 +12,23 @@ import { showError } from 'lib/util/ErrorHandlerUtil';
 import { AssetAdministrationShell, LangStringNameType, Reference } from '@aas-core-works/aas-core3.0-typescript/types';
 import { useIsMobile } from 'lib/hooks/UseBreakpoints';
 import { getTranslationText } from 'lib/util/SubmodelResolverUtil';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { SubmodelsOverviewCard } from '../_components/SubmodelsOverviewCard';
 import { AASOverviewCard } from 'app/[locale]/viewer/_components/AASOverviewCard';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useEnv } from 'app/env/provider';
 import { handleAasRegistrySearch } from 'lib/searchUtilActions/searchServer';
+import { getAasFromAllAasRepos } from 'lib/searchUtilActions/SearchRepositoryHelper';
+import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 
 export default function Page() {
     const navigate = useRouter();
     const searchParams = useParams<{ base64AasId: string }>();
     const base64AasId = searchParams.base64AasId;
-    const [submodels, setSubmodels] = useState<Reference[]>();
+    const [submodelReferences, setSubmodelReferences] = useState<Reference[]>();
     const [productImage, setProductImage] = useState<string>();
     const [isLoadingAas, setIsLoadingAas] = useState(false);
-    const [isLoadingSubmodels, setIsLoadingSubmodels] = useState(false);
+    const [isLoadingSubmodels] = useState(false);
     const [hasImage, setHasImage] = useState(true);
     const notificationSpawner = useNotificationSpawner();
     const isMobile = useIsMobile();
@@ -36,39 +37,58 @@ export default function Page() {
     const { repositoryClient } = useApis();
     const [aas, setAas] = useAasState();
     const [, setRegistryAasData] = useRegistryAasState();
+    const encodedRepoUrl = useSearchParams().get('repoUrl');
+    const repoUrl = encodedRepoUrl ? decodeURI(encodedRepoUrl) : undefined;
 
-    useEffect(() => {
-        async function _fetchAas() {
-            try {
-                setIsLoadingAas(true);
-                if (aas === null) {
-                    const aasIdDecoded = safeBase64Decode(base64AasId);
-                    const registrySearchResult = await handleAasRegistrySearch(aasIdDecoded);
-                    if (registrySearchResult != null) {
-                        setAas(registrySearchResult.registryAas as AssetAdministrationShell);
-                        setRegistryAasData({
-                            submodelDescriptors: registrySearchResult?.registryAasData?.submodelDescriptors,
-                            aasRegistryRepositoryOrigin:
-                                registrySearchResult?.registryAasData?.aasRegistryRepositoryOrigin,
-                        });
-                        setAasData(registrySearchResult.registryAas as AssetAdministrationShell);
-                    } else {
-                        const shell = await repositoryClient.getAssetAdministrationShellById(base64AasId as string);
-                        setAas(shell);
-                        setAasData(shell);
-                    }
-                } else {
-                    setAasData(aas);
-                }
-            } catch (e) {
-                showError(e, notificationSpawner);
-            } finally {
-                setIsLoadingAas(false);
-            }
+    useAsyncEffect(async () => {
+        await fetchAas();
+    }, [base64AasId, env]);
+
+    async function fetchAas() {
+        setIsLoadingAas(true);
+
+        if (aas) {
+            setAasData(aas);
+            setIsLoadingAas(false);
+            return;
         }
 
-        _fetchAas();
-    }, [base64AasId, env]);
+        try {
+            const aasIdDecoded = safeBase64Decode(base64AasId);
+            const registrySearchResult = await handleAasRegistrySearch(aasIdDecoded);
+
+            if (registrySearchResult) {
+                setAas(registrySearchResult.registryAas as AssetAdministrationShell);
+                setRegistryAasData({
+                    submodelDescriptors: registrySearchResult?.registryAasData?.submodelDescriptors,
+                    aasRegistryRepositoryOrigin: registrySearchResult?.registryAasData?.aasRegistryRepositoryOrigin,
+                });
+                setAasData(registrySearchResult.registryAas as AssetAdministrationShell);
+            } else {
+                let fetchedAas;
+                try {
+                    fetchedAas = await repositoryClient.getAssetAdministrationShellById(
+                        base64AasId,
+                        undefined,
+                        repoUrl,
+                    );
+                } catch (e) {
+                    const repoSearchResults = await getAasFromAllAasRepos(base64AasId, repositoryClient);
+                    if (repoSearchResults.length > 1) {
+                        navigate.push(`/viewer/discovery?aasId=${encodeURI(decodeBase64(base64AasId))}`);
+                    }
+                    fetchedAas = repoSearchResults[0].aas
+                }
+
+                setAas(fetchedAas);
+                setAasData(fetchedAas);
+            }
+        } catch (e) {
+            showError(e, notificationSpawner);
+        }
+
+        setIsLoadingAas(false);
+    }
 
     const setAasData = (shell: AssetAdministrationShell) => {
         const productImageString = shell.assetInformation?.defaultThumbnail?.path ?? '';
@@ -77,7 +97,7 @@ export default function Page() {
         } else {
             setHasImage(false);
         }
-        setSubmodels(shell.submodels ?? undefined);
+        setSubmodelReferences(shell.submodels ?? undefined);
     };
 
     const startComparison = () => {
@@ -141,7 +161,7 @@ export default function Page() {
                         hasImage={hasImage}
                         isAccordion={isMobile}
                     />
-                    <SubmodelsOverviewCard smReferences={submodels} isLoading={isLoadingSubmodels} />
+                    <SubmodelsOverviewCard smReferences={submodelReferences} isLoading={isLoadingSubmodels} />
                 </Box>
             ) : (
                 <>
@@ -162,7 +182,7 @@ export default function Page() {
                     <Typography color="text.secondary">
                         <FormattedMessage
                             {...messages.mnestix.noDataFoundFor}
-                            values={{ name: decodeBase64(base64AasId as string) }}
+                            values={{ name: decodeBase64(base64AasId) }}
                         />
                     </Typography>
                     <Button variant="contained" startIcon={<ArrowForward />} href="/">
