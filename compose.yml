@@ -2,9 +2,6 @@ networks:
   mnestix-network:
     driver: bridge
     name: mnestix-network
-    
-volumes:
-  mnestix-database:
 
 volumes:
   mnestix-database:
