@@ -1,6 +1,5 @@
 ﻿'use client';
 import { Paper, TableCell } from '@mui/material';
-import ShellIcon from 'assets/AasDefaultThumbnail.svg';
 import React from 'react';
 
 type PictureTableCellProps = {

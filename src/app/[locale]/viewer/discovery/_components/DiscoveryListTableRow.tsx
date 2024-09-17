@@ -31,7 +31,7 @@ export const DiscoveryListTableRow = (props: DiscoveryListTableRowProps) => {
 
     return (
         <>
-            <PictureTableCell onClickAction={() => navigateToAas(aasListEntry.aasId)} />
+            <PictureTableCell/>
             <TableCell align="left" sx={tableBodyText}>
                 {aasListEntry.aasId}
             </TableCell>
