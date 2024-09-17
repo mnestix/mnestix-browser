@@ -14,6 +14,7 @@ services:
     volumes:
       - ./cypress-artifacts/screenshots:/cypress_Tests/cypress/screenshots
       - ./cypress-artifacts/videos:/cypress_Tests/cypress/videos
+      - ./cypress:/cypress
     depends_on:
       - mnestix-browser
       - mnestix-api
