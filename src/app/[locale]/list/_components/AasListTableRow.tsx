@@ -75,16 +75,14 @@ export const AasListTableRow = (props: AasTableRowProps) => {
                     </Box>
                 </TableCell>
             )}
-            <PictureTableCell
-                onClickAction={() => navigateToAas(aasListEntry)}
-                title={intl.formatMessage(messages.mnestix.aasList.titleViewAASButton)}
-            >
-                {aasListEntry.thumbnailUrl && (
+            <PictureTableCell title={intl.formatMessage(messages.mnestix.aasList.titleViewAASButton)}>
+                {
                     <ImageWithFallback
                         src={aasListEntry.thumbnailUrl}
                         alt={'Thumbnail image for: ' + aasListEntry.assetId}
+                        size={88}
                     />
-                )}
+                }
             </PictureTableCell>
             <TableCell align="left" sx={tableBodyText}>
                 {translateListText(aasListEntry.manufacturerName)}

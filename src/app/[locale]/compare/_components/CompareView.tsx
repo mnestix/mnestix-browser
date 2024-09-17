@@ -114,7 +114,6 @@ export function CompareView() {
                                         aas={aas}
                                         productImage={aas.assetInformation.defaultThumbnail?.path}
                                         isLoading={isLoadingAas}
-                                        hasImage={!!aas.assetInformation?.defaultThumbnail?.path}
                                         isAccordion={true}
                                         imageLinksToDetail={true}
                                     />
