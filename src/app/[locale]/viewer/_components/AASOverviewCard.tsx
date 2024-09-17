@@ -24,7 +24,6 @@ import { useRouter } from 'next/navigation';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { AssetAdministrationShellRepositoryApi } from 'lib/api/basyx-v3/api';
-import DefaultThumbnail from 'assets/AasDefaultThumbnail.svg';
 import { ImageWithFallback } from 'app/[locale]/list/_components/StyledImageWithFallBack';
 
 type AASOverviewCardProps = {
