@@ -120,6 +120,7 @@ export const AasListTableRow = (props: AasTableRowProps) => {
                     endIcon={<ArrowForward />}
                     onClick={() => navigateToAas(aasListEntry)}
                     title={intl.formatMessage(messages.mnestix.aasList.titleViewAASButton)}
+                    data-testid="list-to-detailview-button"
                 />
             </TableCell>
         </>
