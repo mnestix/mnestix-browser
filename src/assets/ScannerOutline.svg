@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 132 132" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <title>Scanner Outline</title>
+    <g id="NEU" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <path d="M 0 0 v 32 h 12 v -20 h 20 v -12 z M 132 0 h -32 v 12 h 20 v 20 h 12 z M 132 132 v -32 h -12 v 20 h -20 v 12 z M 0 132 h 32 v -12 h -20 v -20 h -12 z " id="Vector" fill="currentColor" />
+    </g>
+</svg>

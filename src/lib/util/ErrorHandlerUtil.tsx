@@ -8,6 +8,9 @@ export function showError(e: unknown, notificationSpawner: NotificationSpawner) 
     console.error('Error:', e);
     if (e instanceof Response) {
         switch (e.status) {
+            case 401:
+                showUnauthorizedError(notificationSpawner);
+                return;
             case 404:
                 showNotFoundError(notificationSpawner);
                 return;
@@ -40,6 +43,14 @@ export function showError(e: unknown, notificationSpawner: NotificationSpawner) 
     function showNotFoundError(notificationSpawner: NotificationSpawner) {
         notificationSpawner.spawn({
             message: <FormattedMessage {...messages.mnestix.notFound} />,
+            severity: 'error',
+        });
+    }
+
+    function showUnauthorizedError(notificationSpawner: NotificationSpawner) {
+        notificationSpawner.spawn({
+            title: <FormattedMessage {...messages.mnestix.unauthorizedError.title} />,
+            message: <FormattedMessage {...messages.mnestix.unauthorizedError.content} />,
             severity: 'error',
         });
     }

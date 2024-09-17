@@ -26,6 +26,8 @@ import { useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { AssetAdministrationShellRepositoryApi } from 'lib/api/basyx-v3/api';
 import DefaultThumbnail from 'assets/AasDefaultThumbnail.svg';
 import { ImageWithFallback } from 'app/[locale]/list/_components/StyledImageWithFallBack';
+import { getAasThumbnailFromAllAasRepos } from 'lib/searchUtilActions/SearchRepositoryHelper';
+
 
 type AASOverviewCardProps = {
     readonly aas: AssetAdministrationShell | null;
@@ -64,24 +66,36 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
     const { repositoryClient } = useApis();
     const [registryAasData] = useRegistryAasState();
 
+    async function createAndSetUrlForImageFile() {
+        if (!props.aas) return;
+
+        try {
+            let image: Blob;
+            if (registryAasData) {
+                const registryRepository = new AssetAdministrationShellRepositoryApi({
+                    basePath: registryAasData.aasRegistryRepositoryOrigin,
+                });
+                image = await registryRepository.getThumbnailFromShell(props.aas.id);
+                setProductImageUrl(URL.createObjectURL(image));
+            } else {
+                try {
+                    image = await repositoryClient.getThumbnailFromShell(props.aas.id);
+                } catch (e) {
+                    image = await getAasThumbnailFromAllAasRepos(props.aas.id, repositoryClient);
+                }
+
+                setProductImageUrl(URL.createObjectURL(image));
+            }
+        } catch (e) {
+            console.error('Image not found', e);
+        }
+    }
+
     useAsyncEffect(async () => {
         if (!props.productImage) return;
 
-        if (!isValidUrl(props.productImage) && props.aas) {
-            try {
-                if (registryAasData) {
-                    const registryRepository = new AssetAdministrationShellRepositoryApi({
-                        basePath: registryAasData.aasRegistryRepositoryOrigin,
-                    });
-                    const image = await registryRepository.getThumbnailFromShell(props.aas.id);
-                    setProductImageUrl(URL.createObjectURL(image));
-                } else {
-                    const image = await repositoryClient.getThumbnailFromShell(props.aas.id);
-                    setProductImageUrl(URL.createObjectURL(image));
-                }
-            } catch (e) {
-                console.error('Image not found', e);
-            }
+        if (!isValidUrl(props.productImage!)) {
+            await createAndSetUrlForImageFile();
         } else {
             setProductImageUrl(props.productImage);
         }
