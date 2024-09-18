@@ -90,7 +90,7 @@ export class AasSearcher {
     }
 
     async fullSearch(val: string): Promise<AasSearchResult> {
-        const aasIds = await this.handleAasDiscoverySearch(val);
+        const aasIds = await this.performAasDiscoverySearch(val);
         if (aasIds && aasIds.length > 1) {
             return {
                 redirectUrl: `/viewer/discovery?assetId=${val}`,
@@ -101,7 +101,7 @@ export class AasSearcher {
             // Check if an AAS ID is found in the Discovery service, or assign the input parameter for further search.
             // If there is exactly one AAS ID in the aasIds array, use it; otherwise, use the input parameter 'val'.
             const aasId = aasIds && aasIds.length === 1 ? aasIds[0] : val;
-            const registrySearchResult = await this.handleAasRegistrySearch(aasId);
+            const registrySearchResult = await this.performAasRegistrySearch(aasId);
 
             let aas: AssetAdministrationShell;
             if (registrySearchResult != null) {
@@ -150,7 +150,7 @@ export class AasSearcher {
      * @param {string} searchAssetId - The Asset ID to resolve using the discovery service.
      * @returns {Promise<string | null>} A promise that resolves to the AAS ID as a string, or `null` if the Asset ID is not found.
      */
-    async handleAasDiscoverySearch(searchAssetId: string): Promise<string[] | null> {
+    async performAasDiscoverySearch(searchAssetId: string): Promise<string[] | null> {
         try {
             if (!searchAssetId) {
                 throw new NotFoundError();
@@ -181,7 +181,7 @@ export class AasSearcher {
      *   - `registryAasData` (optional): Additional data related to the retrieved AAS.
      *   or `null` if the AAS is not found in the registry.
      */
-    async handleAasRegistrySearch(searchAasId: string): Promise<RegistrySearchResult | null> {
+    async performAasRegistrySearch(searchAasId: string): Promise<RegistrySearchResult | null> {
         try {
             const shellDescription = await this.registryService.getAssetAdministrationShellDescriptorById(searchAasId);
             const endpoints = shellDescription.endpoints as Endpoint[];

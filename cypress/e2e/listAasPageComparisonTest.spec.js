@@ -14,7 +14,6 @@ describe('Test that the list works together with the comparison view (Resolution
         cy.get('[data-testid="list-row-https://i40.xitaso.com/aas/testElement_2"]')
             .findByTestId('list-checkbox')
             .click();
-        cy.screenshot('list-selected.png');
         cy.getByTestId('compare-button').click();
         cy.url().should('contain', '/compare');
         cy.wait(60000);

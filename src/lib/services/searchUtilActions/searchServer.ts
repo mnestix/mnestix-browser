@@ -9,12 +9,12 @@ export async function performFullAasSearch(searchInput: string): Promise<AasSear
 
 export async function performRegistryAasSearch(searchInput: string): Promise<RegistrySearchResult | null> {
     const searcher = AasSearcher.create();
-    return searcher.handleAasRegistrySearch(searchInput);
+    return searcher.performAasRegistrySearch(searchInput);
 }
 
 export async function performDiscoveryAasSearch(searchInput: string): Promise<string[] | null> {
     const searcher = AasSearcher.create();
-    return searcher.handleAasDiscoverySearch(searchInput);
+    return searcher.performAasDiscoverySearch(searchInput);
 }
 
 export async function getSubmodelFromSubmodelDescriptor(url: string) {
