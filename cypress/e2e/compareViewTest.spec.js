@@ -33,7 +33,6 @@ describe('Test compare feature view', function () {
             cy.get('@IDInput').click().type(compareAAS[1].assetInformation.globalAssetId);
             cy.getByTestId('aasId-submit-button').click();
             // assert if second aas is visible and contains correct values
-            // here it is
             cy.getByTestId('compare-aas-1').should('be.visible');
             cy.getByTestId('compare-Data-0').click();
             cy.getByTestId('compare-value-1').eq(1).contains('TEST_DATA2');
