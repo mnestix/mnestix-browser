@@ -209,7 +209,7 @@ export class AasSearcher {
                 },
             };
         } catch (e) {
-            this.log.warn('Could not be found in the registry service, will continue to look in the AAS registry.');
+            this.log.warn('Could not be found in the registry service, will continue to look in the AAS repository');
             return null;
         }
     }
