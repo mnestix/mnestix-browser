@@ -18,7 +18,7 @@ export interface IAssetAdministrationShellRepositoryApi {
 
     /**
      *
-     * @summary Retrieves all Submodels from the  Asset Administration Shell
+     * @summary Retrieves all Submodel References from the  Asset Administration Shell
      * @param {string} aasId The Asset Administration Shell&#x27;s unique id
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}

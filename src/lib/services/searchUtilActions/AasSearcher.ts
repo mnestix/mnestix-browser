@@ -80,7 +80,6 @@ export class AasSearcher {
             DiscoveryServiceApi.createNull({ discoveryEntries: discoveryEntries }),
             RegistryServiceApi.createNull({ registryShellDescriptorEntries }),
             MultipleRepositorySearchService.createNull({
-                shellsByRegistryEndpoint,
                 shellsSavedInTheRepositories: shellsSavedInTheRepositories,
                 submodelsSavedInTheRepository,
             }),
