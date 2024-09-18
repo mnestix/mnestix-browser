@@ -21,8 +21,6 @@ Cypress.Commands.add('setResolution', (res) => {
 
 Cypress.Commands.add('visitViewer', (aasId) => {
     cy.visit('/viewer/' + btoa(aasId).replace(/=+$/g, ''));
-    cy.intercept('GET', '**/submodels/*').as('getSubmodels');
-    cy.wait('@getSubmodels');
 });
 
 Cypress.Commands.add('getByTestId', (dataTestId) => {

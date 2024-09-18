@@ -11,11 +11,11 @@ import { TabSelectorItem, VerticalTabSelector } from 'components/basics/Vertical
 import { MobileModal } from 'components/basics/MobileModal';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useRegistryAasState } from 'components/contexts/CurrentAasContext';
-import { getSubmodelFromSubmodelDescriptor } from 'lib/searchUtilActions/searchServer';
+import { getSubmodelFromSubmodelDescriptor } from 'lib/services/searchUtilActions/searchActions';
 import { useEnv } from 'app/env/provider';
-import { getSubmodelFromAllSubmodelRepos } from 'lib/searchUtilActions/SearchRepositoryHelper';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { showError } from 'lib/util/ErrorHandlerUtil';
+import { performSearchSubmodelFromAllRepos } from 'lib/services/MultipleRepositorySearch/MultipleRepositorySearchActions';
 
 export type SubmodelsOverviewCardProps = { readonly smReferences?: Reference[]; readonly isLoading?: boolean };
 
@@ -43,7 +43,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
             try {
                 fetchedSubmodelData = await submodelClient.getSubmodelById(id);
             } catch (e) {
-                fetchedSubmodelData = await getSubmodelFromAllSubmodelRepos(id, submodelClient);
+                fetchedSubmodelData = await performSearchSubmodelFromAllRepos(id);
             }
             return fetchedSubmodelData;
         } catch (e) {
@@ -66,7 +66,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
 
         if (registryAasData && registryAasData.submodelDescriptors) {
             // Fetch submodel from provided endpoint
-             submodelsPromise = Promise.all(
+            submodelsPromise = Promise.all(
                 registryAasData.submodelDescriptors.map(async (submodelDescriptor): Promise<TabSelectorItem | null> => {
                     const endpoint = submodelDescriptor?.endpoints[0].protocolInformation.href;
 
@@ -79,7 +79,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                         };
                     }
                     return null;
-                })
+                }),
             );
         } else {
             // Search in default registry
@@ -97,7 +97,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                             tabSelectorItem = {
                                 id: submodelDescriptor.id,
                                 label: submodelDescriptor.idShort ?? '',
-                                submodelData: submodelData
+                                submodelData: submodelData,
                             };
                         }
                     } catch (e) {
@@ -120,12 +120,12 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                     }
 
                     return tabSelectorItem;
-                })
+                }),
             );
         }
 
-        const submodels = await submodelsPromise as TabSelectorItem[];
-        setSubmodelSelectorItems(submodels.filter(item => !!item));
+        const submodels = (await submodelsPromise) as TabSelectorItem[];
+        setSubmodelSelectorItems(submodels.filter((item) => !!item));
     }
 
     useAsyncEffect(async () => {

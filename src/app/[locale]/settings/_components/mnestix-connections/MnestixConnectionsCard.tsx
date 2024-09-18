@@ -6,7 +6,7 @@ import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import {
     getConnectionDataAction,
     upsertConnectionDataAction,
-} from 'app/[locale]/settings/_components/mnestix-connections/MnestixConnectionServerActions';
+} from 'lib/services/MultipleRepositorySearch/MnestixConnectionServerActions';
 import { useForm } from 'react-hook-form';
 import { useEnv } from 'app/env/provider';
 import { SettingsCardHeader } from 'app/[locale]/settings/_components/SettingsCardHeader';
