@@ -17,9 +17,9 @@ import { SubmodelsOverviewCard } from '../_components/SubmodelsOverviewCard';
 import { AASOverviewCard } from 'app/[locale]/viewer/_components/AASOverviewCard';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useEnv } from 'app/env/provider';
-import { handleAasRegistrySearch } from 'lib/searchUtilActions/searchServer';
-import { getAasFromAllAasRepos } from 'lib/searchUtilActions/SearchRepositoryHelper';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
+import { performRegistryAasSearch } from 'lib/services/searchUtilActions/searchActions';
+import { performSearchAasFromAllRepositories } from 'lib/services/MultipleRepositorySearch/MultipleRepositorySearchActions';
 
 export default function Page() {
     const navigate = useRouter();
@@ -55,7 +55,7 @@ export default function Page() {
 
         try {
             const aasIdDecoded = safeBase64Decode(base64AasId);
-            const registrySearchResult = await handleAasRegistrySearch(aasIdDecoded);
+            const registrySearchResult = await performRegistryAasSearch(aasIdDecoded);
 
             if (registrySearchResult) {
                 setAas(registrySearchResult.registryAas as AssetAdministrationShell);
@@ -73,11 +73,11 @@ export default function Page() {
                         repoUrl,
                     );
                 } catch (e) {
-                    const repoSearchResults = await getAasFromAllAasRepos(base64AasId, repositoryClient);
+                    const repoSearchResults = await performSearchAasFromAllRepositories(base64AasId);
                     if (repoSearchResults.length > 1) {
                         navigate.push(`/viewer/discovery?aasId=${encodeURI(decodeBase64(base64AasId))}`);
                     }
-                    fetchedAas = repoSearchResults[0].aas
+                    fetchedAas = repoSearchResults[0].aas;
                 }
 
                 setAas(fetchedAas);
