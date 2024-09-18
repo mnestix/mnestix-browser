@@ -163,7 +163,7 @@ export class AasSearcher {
 
             return aasIds;
         } catch (e) {
-            this.log.warn('Could not be found in the discovery service, will continue to look in the AAS repository.');
+            this.log.warn('Could not be found in the discovery service, will continue to look in the AAS registry');
             return null;
         }
     }
