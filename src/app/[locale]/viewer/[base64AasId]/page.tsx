@@ -18,7 +18,7 @@ import { AASOverviewCard } from 'app/[locale]/viewer/_components/AASOverviewCard
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useEnv } from 'app/env/provider';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
-import { performRegistryAasSearch } from 'lib/services/searchUtilActions/searchServer';
+import { performRegistryAasSearch } from 'lib/services/searchUtilActions/searchActions';
 import { performSearchAasFromAllRepositories } from 'lib/services/multipleDataSourceActions/multipleDataSourceActions';
 
 export default function Page() {

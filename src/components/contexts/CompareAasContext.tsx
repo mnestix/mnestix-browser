@@ -7,7 +7,7 @@ import { useApis } from 'components/azureAuthentication/ApiProvider';
 import {
     getSubmodelFromSubmodelDescriptor,
     performRegistryAasSearch,
-} from 'lib/services/searchUtilActions/searchServer';
+} from 'lib/services/searchUtilActions/searchActions';
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 
 type CompareAasContextType = {

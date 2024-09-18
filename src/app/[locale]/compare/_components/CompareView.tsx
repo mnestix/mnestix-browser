@@ -12,7 +12,7 @@ import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { useSearchParams } from 'next/navigation';
 import { showError } from 'lib/util/ErrorHandlerUtil';
 import { LocalizedError } from 'lib/util/LocalizedError';
-import { performFullAasSearch } from 'lib/services/searchUtilActions/searchServer';
+import { performFullAasSearch } from 'lib/services/searchUtilActions/searchActions';
 import { AasSearchResult } from 'lib/services/searchUtilActions/AasSearcher';
 
 export function CompareView() {

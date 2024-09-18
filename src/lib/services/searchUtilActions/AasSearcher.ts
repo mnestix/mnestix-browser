@@ -13,9 +13,9 @@ import { DiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServ
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { NotFoundError } from 'lib/errors/NotFoundError';
 import {
-    MultipleDataSource,
+    MultipleRepositorySearchService,
     NullableMultipleDataSourceSetupParameters,
-} from 'lib/services/multipleDataSourceActions/MultipleDataSource';
+} from 'lib/services/multipleDataSourceActions/MultipleRepositorySearchService';
 import { INullableAasRepositoryEntries } from 'lib/api/basyx-v3/apiInMemory';
 import { mnestixFetch } from 'lib/api/infrastructure';
 
@@ -48,13 +48,13 @@ export class AasSearcher {
     private constructor(
         protected readonly discoveryServiceClient: IDiscoveryServiceApi,
         protected readonly registryService: IRegistryServiceApi,
-        protected readonly multipleDataSource: MultipleDataSource,
+        protected readonly multipleDataSource: MultipleRepositorySearchService,
         protected readonly fetch: (input: RequestInfo | URL, init?: RequestInit | undefined) => Promise<Response>,
         protected readonly log: Log,
     ) {}
 
     static create(_baseUrl: string = ''): AasSearcher {
-        const multipleDataSource = MultipleDataSource.create();
+        const multipleDataSource = MultipleRepositorySearchService.create();
         const registryServiceClient = RegistryServiceApi.create(process.env.REGISTRY_API_URL, mnestixFetch());
         const discoveryServiceClient = DiscoveryServiceApi.create(process.env.DISCOVERY_API_URL, mnestixFetch());
         const log = Log.create();
@@ -79,7 +79,7 @@ export class AasSearcher {
         return new AasSearcher(
             DiscoveryServiceApi.createNull({ discoveryEntries: discoveryEntries }),
             RegistryServiceApi.createNull({ registryShellDescriptorEntries }),
-            MultipleDataSource.createNull({
+            MultipleRepositorySearchService.createNull({
                 shellsByRegistryEndpoint,
                 shellsSavedInTheRepositories: shellsSavedInTheRepositories,
                 submodelsSavedInTheRepository,

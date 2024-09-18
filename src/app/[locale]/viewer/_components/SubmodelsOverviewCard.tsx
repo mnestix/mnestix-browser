@@ -11,7 +11,7 @@ import { TabSelectorItem, VerticalTabSelector } from 'components/basics/Vertical
 import { MobileModal } from 'components/basics/MobileModal';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useRegistryAasState } from 'components/contexts/CurrentAasContext';
-import { getSubmodelFromSubmodelDescriptor } from 'lib/services/searchUtilActions/searchServer';
+import { getSubmodelFromSubmodelDescriptor } from 'lib/services/searchUtilActions/searchActions';
 import { useEnv } from 'app/env/provider';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { showError } from 'lib/util/ErrorHandlerUtil';

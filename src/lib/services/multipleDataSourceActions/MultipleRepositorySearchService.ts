@@ -13,22 +13,20 @@ export type RepoSearchResult = {
 };
 
 export interface NullableMultipleDataSourceSetupParameters {
-    shellsByRegistryEndpoint?: { path: string; aas: AssetAdministrationShell }[] | null;
     shellsSavedInTheRepositories?: INullableAasRepositoryEntries[] | null;
     submodelsSavedInTheRepository?: Submodel[] | null;
     log?: Log | null;
 }
 
-export class MultipleDataSource {
+export class MultipleRepositorySearchService {
     private constructor(
         protected readonly repositoryClient: IAssetAdministrationShellRepositoryApi,
         protected readonly submodelRepositoryClient: ISubmodelRepositoryApi,
         protected readonly prismaConnector: IPrismaConnector,
-        protected readonly fetch: (input: RequestInfo | URL, init?: RequestInit | undefined) => Promise<Response>,
         protected readonly log: Log,
     ) {}
 
-    static create(): MultipleDataSource {
+    static create(): MultipleRepositorySearchService {
         const repositoryClient = AssetAdministrationShellRepositoryApi.create({
             basePath: process.env.AAS_REPO_API_URL,
             fetch: mnestixFetch(),
@@ -39,28 +37,19 @@ export class MultipleDataSource {
         });
         const log = Log.create();
         const prismaConnector = PrismaConnector.create();
-        return new MultipleDataSource(repositoryClient, submodelRepositoryClient, prismaConnector, fetch, log);
+        return new MultipleRepositorySearchService(repositoryClient, submodelRepositoryClient, prismaConnector, log);
     }
 
     static createNull({
-        shellsByRegistryEndpoint = [],
         shellsSavedInTheRepositories = [],
         submodelsSavedInTheRepository = [],
         log = null,
-    }: NullableMultipleDataSourceSetupParameters = {}): MultipleDataSource {
-        const stubbedFetch = async (input: RequestInfo | URL): Promise<Response> => {
-            if (!shellsByRegistryEndpoint) return Promise.reject(new Error('no registry configuration'));
-            for (const aasEntry of shellsByRegistryEndpoint) {
-                if (aasEntry.path === input) return new Response(JSON.stringify(aasEntry.aas));
-            }
-            return Promise.reject(new Error('no aas for on href:' + input));
-        };
+    }: NullableMultipleDataSourceSetupParameters = {}): MultipleRepositorySearchService {
         const aasUrls = [...new Set(shellsSavedInTheRepositories?.map((entry) => entry.repositoryUrl))];
-        return new MultipleDataSource(
+        return new MultipleRepositorySearchService(
             AssetAdministrationShellRepositoryApi.createNull({ shellsSavedInTheRepositories }),
             SubmodelRepositoryApi.createNull({ submodelsSavedInTheRepository }),
             PrismaConnector.createNull({ aasUrls }),
-            stubbedFetch,
             log ?? Log.createNull(),
         );
     }

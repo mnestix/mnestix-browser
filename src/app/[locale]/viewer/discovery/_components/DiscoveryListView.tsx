@@ -14,9 +14,9 @@ import { isAasAvailableInRepo } from 'lib/util/checkAasAvailabilityUtil';
 import { useEnv } from 'app/env/provider';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import ListHeader from 'components/basics/ListHeader';
-import { performDiscoveryAasSearch, performRegistryAasSearch } from 'lib/services/searchUtilActions/searchServer';
+import { performDiscoveryAasSearch, performRegistryAasSearch } from 'lib/services/searchUtilActions/searchActions';
 import { performSearchAasFromAllRepositories } from 'lib/services/multipleDataSourceActions/multipleDataSourceActions';
-import { RepoSearchResult } from 'lib/services/multipleDataSourceActions/MultipleDataSource';
+import { RepoSearchResult } from 'lib/services/multipleDataSourceActions/MultipleRepositorySearchService';
 
 export const DiscoveryListView = () => {
     const [isLoadingList, setIsLoadingList] = useState(false);
