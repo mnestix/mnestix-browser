@@ -141,14 +141,14 @@ export class AasSearcher {
     }
 
     /**
-     * Resolves the given AAS ID using the discovery service.
+     * Resolves the given Asset ID using the discovery service.
      *
-     * This function takes an AAS ID and attempts to resolve it using a discovery service.
-     * If the AAS ID is found, it returns the resolved AAS ID.
+     * This function takes an Asset ID and attempts to resolve it using a discovery service.
+     * If the Asset ID is found, it returns the resolved AAS ID.
      * If not found, it returns `null`.
      *
-     * @param {string} searchAssetId - The AAS ID to resolve using the discovery service.
-     * @returns {Promise<string | null>} A promise that resolves to the resolved AAS ID as a string, or `null` if the AAS ID is not found.
+     * @param {string} searchAssetId - The Asset ID to resolve using the discovery service.
+     * @returns {Promise<string | null>} A promise that resolves to the AAS ID as a string, or `null` if the Asset ID is not found.
      */
     async handleAasDiscoverySearch(searchAssetId: string): Promise<string[] | null> {
         try {
