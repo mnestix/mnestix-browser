@@ -2,7 +2,7 @@ import { Submodel } from '@aas-core-works/aas-core3.0-typescript/dist/types/type
 import {
     MultipleRepositorySearchService,
     RepoSearchResult,
-} from 'lib/services/multipleDataSourceActions/MultipleRepositorySearchService';
+} from 'lib/services/MultipleRepositorySearch/MultipleRepositorySearchService';
 
 export async function performSearchAasFromAllRepositories(searchInput: string): Promise<RepoSearchResult[]> {
     const searcher = MultipleRepositorySearchService.create();

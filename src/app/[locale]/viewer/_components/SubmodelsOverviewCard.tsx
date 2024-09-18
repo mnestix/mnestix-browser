@@ -15,7 +15,7 @@ import { getSubmodelFromSubmodelDescriptor } from 'lib/services/searchUtilAction
 import { useEnv } from 'app/env/provider';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { showError } from 'lib/util/ErrorHandlerUtil';
-import { performSearchSubmodelFromAllRepos } from 'lib/services/multipleDataSourceActions/multipleDataSourceActions';
+import { performSearchSubmodelFromAllRepos } from 'lib/services/MultipleRepositorySearch/MultipleRepositorySearchActions';
 
 export type SubmodelsOverviewCardProps = { readonly smReferences?: Reference[]; readonly isLoading?: boolean };
 

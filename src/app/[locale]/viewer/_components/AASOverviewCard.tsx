@@ -25,7 +25,7 @@ import { useRouter } from 'next/navigation';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { AssetAdministrationShellRepositoryApi } from 'lib/api/basyx-v3/api';
-import { performgetAasThumbnailFromAllRepos } from 'lib/services/multipleDataSourceActions/multipleDataSourceActions';
+import { performgetAasThumbnailFromAllRepos } from 'lib/services/MultipleRepositorySearch/MultipleRepositorySearchActions';
 
 type AASOverviewCardProps = {
     readonly aas: AssetAdministrationShell | null;

@@ -15,7 +15,7 @@ import { NotFoundError } from 'lib/errors/NotFoundError';
 import {
     MultipleRepositorySearchService,
     NullableMultipleDataSourceSetupParameters,
-} from 'lib/services/multipleDataSourceActions/MultipleRepositorySearchService';
+} from 'lib/services/MultipleRepositorySearch/MultipleRepositorySearchService';
 import { INullableAasRepositoryEntries } from 'lib/api/basyx-v3/apiInMemory';
 import { mnestixFetch } from 'lib/api/infrastructure';
 
