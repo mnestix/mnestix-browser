@@ -88,55 +88,71 @@ export class AasSearcher {
         );
     }
 
-    async fullSearch(val: string): Promise<AasSearchResult> {
-        const aasIds = await this.performAasDiscoverySearch(val);
-        if (aasIds && aasIds.length > 1) {
+    async fullSearch(searchInput: string): Promise<AasSearchResult> {
+        // const discoverySerachResult = await this. performDiscoverySerach()
+        // if discoverySerach
+        // (1)  if single result: continue with first aas id
+        // (2)  if multiple results: return list view
+        // const registrySerachResult = await this.performRegistrySerach()
+        // if registrySerachReslult
+        // return
+        // const respositorySerachResult = await this.performRepositorySerach()
+        // return
+
+        const aasIds = await this.performAasDiscoverySearch(searchInput);
+
+        const inputIsAssetIdAndAasIdWasFound: boolean = aasIds && aasIds.length > 0;
+        const assetIdHasExactlyOneAasId: boolean = inputIsAssetIdAndAasIdWasFound && aasIds!.length === 1;
+        const assetIdHasMultipleAasIds: boolean = inputIsAssetIdAndAasIdWasFound && aasIds!.length > 1;
+
+        const inputIsAssetIdAndHasMultipleAssociatedAas = inputIsAssetIdAndAasIdWasFound && aasIds!.length > 1;
+        if (inputIsAssetIdAndHasMultipleAssociatedAas) {
             return {
-                redirectUrl: `/viewer/discovery?assetId=${val}`,
+                redirectUrl: `/viewer/discovery?assetId=${searchInput}`,
                 aas: null,
                 aasData: null,
             };
-        } else {
-            // Check if an AAS ID is found in the Discovery service, or assign the input parameter for further search.
-            // If there is exactly one AAS ID in the aasIds array, use it; otherwise, use the input parameter 'val'.
-            const aasId = aasIds && aasIds.length === 1 ? aasIds[0] : val;
-            const registrySearchResult = await this.performAasRegistrySearch(aasId);
-
-            let aas: AssetAdministrationShell;
-            if (registrySearchResult != null) {
-                aas = registrySearchResult.registryAas;
-            } else {
-                const aasIdEncoded = encodeBase64(aasId);
-                try {
-                    aas = await this.multipleDataSource.getAasFromDefaultRepository(aasIdEncoded);
-                } catch (e) {
-                    const potentiallyMultipleAas = await this.multipleDataSource.getAasFromAllRepos(aasIdEncoded);
-                    if (potentiallyMultipleAas.length > 1)
-                        return {
-                            redirectUrl: `/viewer/discovery?assetId=${val}`,
-                            aas: null,
-                            aasData: null,
-                        };
-                    aas = potentiallyMultipleAas[0].aas;
-                }
-            }
-
-            const aasData =
-                registrySearchResult?.registryAasData != null
-                    ? {
-                          submodelDescriptors: registrySearchResult.registryAasData.submodelDescriptors,
-                          aasRegistryRepositoryOrigin: registrySearchResult.registryAasData.aasRegistryRepositoryOrigin,
-                      }
-                    : null;
-
-            // If not found: Error: AAS could not be found
-
-            return {
-                redirectUrl: `/viewer/${encodeBase64(aas.id)}`,
-                aas: aas,
-                aasData: aasData,
-            };
         }
+
+        // Check if an AAS ID is found in the Discovery service, or assign the input parameter for further search.
+        // If there is exactly one AAS ID in the aasIds array, use it; otherwise, use the input parameter 'val'.
+        const aasId = aasIds && aasIds.length === 1 ? aasIds[0] : searchInput;
+        const registrySearchResult = await this.performAasRegistrySearch(aasId);
+
+        let aas: AssetAdministrationShell;
+        if (registrySearchResult != null) {
+            aas = registrySearchResult.registryAas;
+        } else {
+            const aasIdEncoded = encodeBase64(aasId);
+            try {
+                aas = await this.multipleDataSource.getAasFromDefaultRepository(aasIdEncoded);
+            } catch (e) {
+                const potentiallyMultipleAas = await this.multipleDataSource.getAasFromAllRepos(aasIdEncoded);
+                if (potentiallyMultipleAas.length > 1)
+                    return {
+                        redirectUrl: `/viewer/discovery?assetId=${searchInput}`,
+                        aas: null,
+                        aasData: null,
+                    };
+                aas = potentiallyMultipleAas[0].aas;
+            }
+        }
+
+        const aasData =
+            registrySearchResult?.registryAasData != null
+                ? {
+                      submodelDescriptors: registrySearchResult.registryAasData.submodelDescriptors,
+                      aasRegistryRepositoryOrigin: registrySearchResult.registryAasData.aasRegistryRepositoryOrigin,
+                  }
+                : null;
+
+        // If not found: Error: AAS could not be found
+
+        return {
+            redirectUrl: `/viewer/${encodeBase64(aas.id)}`,
+            aas: aas,
+            aasData: aasData,
+        };
     }
 
     /**
