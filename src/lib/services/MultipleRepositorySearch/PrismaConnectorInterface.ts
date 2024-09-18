@@ -1,5 +1,5 @@
 import { ConnectionType } from '@prisma/client';
-import { DataSourceFormData } from 'app/[locale]/settings/_components/mnestix-connections/PrismaConnector';
+import { DataSourceFormData } from 'lib/services/MultipleRepositorySearch/PrismaConnector';
 
 export interface IPrismaConnector {
     getConnectionData(): unknown;

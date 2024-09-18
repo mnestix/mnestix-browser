@@ -61,7 +61,7 @@ describe('Full Aas Search happy paths', () => {
         expect(result.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
     });
 
-    it('returns details of aas when exactly when discovery returns nothing and the aas is registered in the registry', async () => {
+    it('returns details of aas when discovery returns nothing and the aas is registered in the registry', async () => {
         const aasId = 'dummy aasId';
         const searchString = aasId;
         const searcher = AasSearcher.createNull({

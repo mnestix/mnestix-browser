@@ -4,8 +4,8 @@ import { AssetAdministrationShellRepositoryApi, SubmodelRepositoryApi } from 'li
 import { mnestixFetch } from 'lib/api/infrastructure';
 import { AssetAdministrationShell, Submodel } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
 import { INullableAasRepositoryEntries } from 'lib/api/basyx-v3/apiInMemory';
-import { PrismaConnector } from 'app/[locale]/settings/_components/mnestix-connections/PrismaConnector';
-import { IPrismaConnector } from 'app/[locale]/settings/_components/mnestix-connections/PrismaConnectorInterface';
+import { PrismaConnector } from 'lib/services/MultipleRepositorySearch/PrismaConnector';
+import { IPrismaConnector } from 'lib/services/MultipleRepositorySearch/PrismaConnectorInterface';
 
 export type RepoSearchResult = {
     aas: AssetAdministrationShell;
@@ -32,7 +32,7 @@ export class MultipleRepositorySearchService {
             fetch: mnestixFetch(),
         });
         const submodelRepositoryClient = SubmodelRepositoryApi.create({
-            basePath: process.env.SUBMODEL_REPO_API_URL,
+            basePath: process.env.SUBMODEL_REPO_API_URL ?? process.env.AAS_REPO_API_URL,
             fetch: mnestixFetch(),
         });
         const log = Log.create();

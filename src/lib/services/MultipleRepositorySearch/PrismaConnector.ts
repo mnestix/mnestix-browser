@@ -1,7 +1,7 @@
 import { prisma } from 'lib/database/prisma';
 import { ConnectionType } from '@prisma/client';
-import { IPrismaConnector } from 'app/[locale]/settings/_components/mnestix-connections/PrismaConnectorInterface';
-import { PrismaConnectorInMemory } from 'app/[locale]/settings/_components/mnestix-connections/PrismaConnectorInMemory';
+import { IPrismaConnector } from 'lib/services/MultipleRepositorySearch/PrismaConnectorInterface';
+import { PrismaConnectorInMemory } from 'lib/services/MultipleRepositorySearch/PrismaConnectorInMemory';
 
 export type DataSourceFormData = {
     id: string;

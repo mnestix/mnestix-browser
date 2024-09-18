@@ -1,10 +1,7 @@
 'use server';
 
 import { ConnectionType } from '@prisma/client';
-import {
-    DataSourceFormData,
-    PrismaConnector,
-} from 'app/[locale]/settings/_components/mnestix-connections/PrismaConnector';
+import { DataSourceFormData, PrismaConnector } from 'lib/services/MultipleRepositorySearch/PrismaConnector';
 
 export async function getConnectionDataAction() {
     const prismaConnector = PrismaConnector.create();

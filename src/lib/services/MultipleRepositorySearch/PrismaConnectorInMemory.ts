@@ -1,5 +1,5 @@
-import { IPrismaConnector } from 'app/[locale]/settings/_components/mnestix-connections/PrismaConnectorInterface';
-import { DataSourceFormData } from 'app/[locale]/settings/_components/mnestix-connections/PrismaConnector';
+import { IPrismaConnector } from 'lib/services/MultipleRepositorySearch/PrismaConnectorInterface';
+import { DataSourceFormData } from 'lib/services/MultipleRepositorySearch/PrismaConnector';
 
 export class PrismaConnectorInMemory implements IPrismaConnector {
     constructor(protected connectionData: string[]) {}

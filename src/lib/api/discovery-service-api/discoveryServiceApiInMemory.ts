@@ -27,8 +27,6 @@ export class DiscoveryServiceApiInMemory implements IDiscoveryServiceApi {
     }
 
     getAllAssetAdministrationShellIdsByAssetLink(_assetIds: { name: string; value: string }[]): Promise<{
-        // const registryService = new ;
-        // const repositoryClient = new ;
         paging_metadata: string;
         result: string[];
     }> {
