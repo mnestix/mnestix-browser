@@ -21,7 +21,7 @@ import { mnestixFetch } from 'lib/api/infrastructure';
 interface NullableSearchSetupParameters {
     discoveryEntries?: { assetId: string; aasIds: string[] }[];
     registryShellDescriptorEntries?: AssetAdministrationShellDescriptor[] | null;
-    shellsByRegistryEndpoint?: { path: string; aas: AssetAdministrationShell }[] | null;
+    shellsByRegistryEndpoint?: { endpoint: URL; aas: AssetAdministrationShell }[] | null;
     shellsSavedInTheRepositories?: INullableAasRepositoryEntries[] | null;
     submodelsSavedInTheRepository?: Submodel[] | null;
     entitiesInMultipleDataSources?: NullableMultipleDataSourceSetupParameters | null;
@@ -74,10 +74,10 @@ export class AasSearcher {
         submodelsSavedInTheRepository = [],
         log = null,
     }: NullableSearchSetupParameters = {}): AasSearcher {
-        const stubbedFetch = async (input: RequestInfo | URL): Promise<Response> => {
+        const stubbedFetch = async (input: URL): Promise<Response> => {
             if (!shellsByRegistryEndpoint) return Promise.reject(new Error('no registry configuration'));
             for (const aasEntry of shellsByRegistryEndpoint) {
-                if (aasEntry.path === input) return new Response(JSON.stringify(aasEntry.aas));
+                if (aasEntry.endpoint.href === input.href) return new Response(JSON.stringify(aasEntry.aas));
             }
             return Promise.reject(new Error('no aas for on href:' + input));
         };
@@ -94,66 +94,51 @@ export class AasSearcher {
     }
 
     async fullSearch(searchInput: string): Promise<AasSearchResult> {
-        // (1) Look in discovery service -> return if multiple results
         const aasIds = await this.performAasDiscoverySearch(searchInput);
-        if (aasIds && aasIds.length > 1) {
-            return {
-                redirectUrl: `/viewer/discovery?assetId=${searchInput}`,
-                aas: null,
-                aasData: null,
-            };
+        const foundMultipleDiscoveryResults = aasIds && aasIds.length > 1;
+        const foundOneDiscoveryResult = aasIds && aasIds.length === 1;
+
+        if (foundMultipleDiscoveryResults) {
+            return this.createDiscoveryRedirectResult(searchInput);
         }
 
-        // If there is exactly one AAS ID in the aasIds array, use it; otherwise, use the input parameter 'val'.
-        const aasId = aasIds && aasIds.length === 1 ? aasIds[0] : searchInput;
-
-        // (2) Look in registry -> return first result, if any
-        // TODO: handle multiple endpoints as result
-        const registrySearchResult = await this.performAasRegistrySearch(aasId);
-        if (registrySearchResult) {
-            const endpoint = registrySearchResult.endpoints[0];
-            const aas = await this.fetchRegistrySearchResult(endpoint);
-            if (aas) {
-                return {
-                    redirectUrl: `/viewer/${encodeBase64(aas.id)}`,
-                    aas: aas,
-                    aasData: {
-                        submodelDescriptors: registrySearchResult.submodelDescriptors,
-                        aasRegistryRepositoryOrigin: endpoint.origin,
-                    },
-                };
-            }
-        }
-
-        // (3) Load AAS from default repository -> return if found in repository
+        const aasId = foundOneDiscoveryResult ? aasIds[0] : searchInput;
         const aasIdEncoded = encodeBase64(aasId);
+
+        // TODO: handle multiple endpoints as result
+        const aasRegistryResult = await this.fetchFirstAasFromRegistrySearch(aasId);
+        if (aasRegistryResult) {
+            return aasRegistryResult;
+        }
+
         const defaultResult = await this.multipleDataSource.getAasFromDefaultRepository(aasIdEncoded);
         if (defaultResult) {
-            return {
-                redirectUrl: `/viewer/${encodeBase64(defaultResult.id)}`,
-                aas: defaultResult,
-                aasData: null,
-            };
+            return this.createAasResult(defaultResult);
         }
 
-        // (4) Load AAS from all other repositories -> return discovery page if found multiple aas
         const potentiallyMultipleAas = await this.multipleDataSource.getAasFromAllRepos(aasIdEncoded);
-        if (potentiallyMultipleAas.length > 1)
-            return {
-                redirectUrl: `/viewer/discovery?assetId=${searchInput}`,
-                aas: null,
-                aasData: null,
-            };
+        if (potentiallyMultipleAas.length > 1) {
+            return this.createDiscoveryRedirectResult(searchInput);
+        }
 
-        // (5) Found exactly one aas in all repositories -> Return it
         const aas = potentiallyMultipleAas[0].aas;
+        return this.createAasResult(aas);
+    }
+
+    private createAasResult(aas: AssetAdministrationShell, data?: AasData): AasSearchResult {
         return {
             redirectUrl: `/viewer/${encodeBase64(aas.id)}`,
             aas: aas,
+            aasData: data || null,
+        };
+    }
+
+    private createDiscoveryRedirectResult(searchInput: string): AasSearchResult {
+        return {
+            redirectUrl: `/viewer/discovery?assetId=${searchInput}`,
+            aas: null,
             aasData: null,
         };
-
-        // If not found: "Error: AAS could not be found"
     }
 
     /**
@@ -188,19 +173,24 @@ export class AasSearcher {
      *   or `null` if the AAS is not found in the registry.
      */
     async performAasRegistrySearch(searchAasId: string): Promise<RegistrySearchResult | null> {
-        const shellDescription = await this.registryService.getAssetAdministrationShellDescriptorById(searchAasId);
-        const endpoints = shellDescription.endpoints as Endpoint[];
-        const submodelDescriptors = shellDescription.submodelDescriptors as SubmodelDescriptor[];
+        try {
+            const shellDescription = await this.registryService.getAssetAdministrationShellDescriptorById(searchAasId);
+            const endpoints = shellDescription.endpoints as Endpoint[];
+            const submodelDescriptors = shellDescription.submodelDescriptors as SubmodelDescriptor[];
 
-        if (!endpoints) {
+            if (!endpoints) {
+                return null;
+            }
+
+            const endpointUrls = endpoints.map((endpoint) => new URL(endpoint.protocolInformation.href));
+            return {
+                endpoints: endpointUrls,
+                submodelDescriptors: submodelDescriptors,
+            };
+        } catch (e) {
+            this.log.warn('Could not be found in the registry service, will continue to look in the AAS repository');
             return null;
         }
-
-        const endpointUrls = endpoints.map((endpoint) => new URL(endpoint.protocolInformation.href));
-        return {
-            endpoints: endpointUrls,
-            submodelDescriptors: submodelDescriptors,
-        };
     }
 
     /**
@@ -221,9 +211,26 @@ export class AasSearcher {
 
             return aas.json();
         } catch (e) {
-            this.log.warn('Could not be found in the registry service, will continue to look in the AAS repository');
+            this.log.warn(`Could not find an AAS at the given endpoint at '${endpoint}'`);
             return null;
         }
+    }
+
+    async fetchFirstAasFromRegistrySearch(searchAasId: string): Promise<AasSearchResult | null> {
+        const registrySearchResult = await this.performAasRegistrySearch(searchAasId);
+        if (!registrySearchResult) {
+            return null;
+        }
+        const endpoint = registrySearchResult.endpoints[0];
+        const aas = await this.fetchRegistrySearchResult(endpoint);
+        if (!aas) {
+            return null;
+        }
+        const data = {
+            submodelDescriptors: registrySearchResult.submodelDescriptors,
+            aasRegistryRepositoryOrigin: endpoint.origin,
+        };
+        return this.createAasResult(aas, data);
     }
 }
 

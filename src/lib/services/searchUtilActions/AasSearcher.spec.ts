@@ -11,7 +11,7 @@ interface DummyAasParameters {
     id?: string;
 }
 
-const AAS_ENDPOINT = 'https://www.origin.com/route/for/aas/';
+const AAS_ENDPOINT = new URL('https://www.origin.com/route/for/aas/');
 
 describe('Full Aas Search happy paths', () => {
     it('navigates to the discovery list when more than one aasId for a given assetId', async () => {
@@ -25,7 +25,7 @@ describe('Full Aas Search happy paths', () => {
 
         const result = await searcher.fullSearch(searchString);
 
-        // expect(result.redirectUrl).toBe('/viewer/discovery?assetId=' + searchString);
+        expect(result.redirectUrl).toBe('/viewer/discovery?assetId=' + searchString);
         expect(tracker.getData()).toHaveLength(0);
     });
 
@@ -36,7 +36,7 @@ describe('Full Aas Search happy paths', () => {
         const searcher = AasSearcher.createNull({
             discoveryEntries: [{ assetId: searchString, aasIds: [aasId] }],
             registryShellDescriptorEntries: [createDummyShellDescriptor(AAS_ENDPOINT, aasId)],
-            shellsByRegistryEndpoint: [{ path: AAS_ENDPOINT, aas: aas }],
+            shellsByRegistryEndpoint: [{ endpoint: AAS_ENDPOINT, aas: aas }],
         });
 
         const result = await searcher.fullSearch(searchString);
@@ -71,7 +71,7 @@ describe('Full Aas Search happy paths', () => {
         const aas = createDummyAas({ id: aasId });
         const searcher = AasSearcher.createNull({
             registryShellDescriptorEntries: [createDummyShellDescriptor(AAS_ENDPOINT, aasId)],
-            shellsByRegistryEndpoint: [{ path: AAS_ENDPOINT, aas: aas }],
+            shellsByRegistryEndpoint: [{ endpoint: AAS_ENDPOINT, aas: aas }],
         });
 
         const result = await searcher.fullSearch(searchString);
@@ -160,7 +160,7 @@ describe('Full Aas Search edge cases', () => {
         const searcher = AasSearcher.createNull({
             discoveryEntries: [{ assetId: searchString, aasIds: [aasId] }],
             registryShellDescriptorEntries: [createDummyShellDescriptor(AAS_ENDPOINT, aasId)],
-            shellsByRegistryEndpoint: [{ path: AAS_ENDPOINT + 'wrong path', aas: createDummyAas({ id: aasId }) }],
+            shellsByRegistryEndpoint: [{ endpoint: AAS_ENDPOINT + 'wrong path', aas: createDummyAas({ id: aasId }) }],
             log: log,
         });
 
@@ -174,7 +174,7 @@ describe('Full Aas Search edge cases', () => {
         const searcher = AasSearcher.createNull({
             discoveryEntries: [{ assetId: 'wrong asset Id', aasIds: [aasId] }],
             registryShellDescriptorEntries: [createDummyShellDescriptor(AAS_ENDPOINT, aasId)],
-            shellsByRegistryEndpoint: [{ path: AAS_ENDPOINT + 'wrong path', aas: createDummyAas({ id: aasId }) }],
+            shellsByRegistryEndpoint: [{ endpoint: AAS_ENDPOINT + 'wrong path', aas: createDummyAas({ id: aasId }) }],
             log: log,
         });
 

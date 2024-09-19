@@ -83,7 +83,7 @@ export class MultipleRepositorySearchService {
         try {
             return await this.repositoryClient.getAssetAdministrationShellById(aasId);
         } catch (e) {
-            console.error(e);
+            this.log.warn(e);
             return null;
         }
     }
