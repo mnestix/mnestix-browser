@@ -1,11 +1,7 @@
 import { Entity, Submodel, SubmodelElementCollection } from '@aas-core-works/aas-core3.0-typescript/types';
-import { SubmodelElementSemanticId } from 'lib/enums/SubmodelElementSemanticId.enum';
-import { AddressComponent } from '../submodel-elements/address-component/AddressComponent';
-import { ContactInformationComponent } from '../submodel-elements/contact-information-component/ContactInformationComponent';
-import { DocumentComponent } from '../submodel-elements/document-component/DocumentComponent';
-import { MarkingsComponent } from '../submodel-elements/MarkingsComponent';
 import { SubmodelElementRenderer } from '../submodel-elements/SubmodelElementRenderer';
 import { idEquals } from 'lib/util/IdValidationUtil';
+import { submodelElementVisualizationsMap } from 'app/[locale]/viewer/_components/submodel-elements/SubmodelElementMapping';
 
 type SubmodelDetailListProps = {
     readonly submodel: Submodel;
@@ -23,56 +19,29 @@ export function SubmodelDetailList(props: SubmodelDetailListProps) {
             {submodelElements.map((el, index) => {
                 const id = el.semanticId?.keys?.[0]?.value;
 
-                if (idEquals(id, SubmodelElementSemanticId.Address)) {
-                    return (
-                        <AddressComponent
-                            key={index}
-                            submodelElement={el as SubmodelElementCollection}
-                            hasDivider={hasDivider(index)}
-                        />
-                    );
-                } else if (idEquals(id, SubmodelElementSemanticId.ContactInformation)) {
-                    return (
-                        <ContactInformationComponent
-                            key={index}
-                            submodelElement={el as SubmodelElementCollection}
-                            hasDivider={hasDivider(index)}
-                        />
-                    );
-                } else if (
-                    idEquals(id, SubmodelElementSemanticId.MarkingsIrdi) ||
-                    idEquals(id, SubmodelElementSemanticId.Markings)
-                ) {
-                    return (
-                        <MarkingsComponent
-                            key={index}
-                            submodelElement={el as SubmodelElementCollection}
-                            hasDivider={hasDivider(index)}
-                            submodelId={submodelId}
-                        />
-                    );
-                } else if (
-                    idEquals(id, SubmodelElementSemanticId.DocumentIrdi) ||
-                    idEquals(id, SubmodelElementSemanticId.Document)
-                ) {
-                    return (
-                        <DocumentComponent
-                            key={index}
-                            submodelElement={el as SubmodelElementCollection}
-                            hasDivider={hasDivider(index)}
-                            submodelId={submodelId}
-                        />
-                    );
-                } else {
-                    return (
-                        <SubmodelElementRenderer
-                            key={index}
-                            submodelId={submodelId}
-                            submodelElement={el}
-                            hasDivider={hasDivider(index)}
-                        />
-                    );
-                }
+                const key =
+                    (Object.keys(submodelElementVisualizationsMap) as Array<string>).find((key) => idEquals(id, key)) ??
+                    '';
+
+                const SelectedComponent = submodelElementVisualizationsMap[key];
+
+                return (
+                    <>
+                        {SelectedComponent ? (
+                            <SelectedComponent
+                                key={index}
+                                submodelElement={el as SubmodelElementCollection}
+                                hasDivider={hasDivider(index)}
+                            />
+                        ) : (
+                            <SubmodelElementRenderer
+                                key={index}
+                                submodelElement={el}
+                                hasDivider={hasDivider(index)}
+                            />
+                        )}
+                    </>
+                );
             })}
         </>
     );
