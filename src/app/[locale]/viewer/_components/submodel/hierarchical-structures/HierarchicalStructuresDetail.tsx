@@ -1,16 +1,16 @@
 import {
     Entity,
-    Submodel,
-    ISubmodelElement,
-    RelationshipElement,
     EntityType,
-    Property,
+    ISubmodelElement,
     KeyTypes,
+    Property,
+    RelationshipElement,
+    Submodel,
 } from '@aas-core-works/aas-core3.0-typescript/types';
 import { EntityComponent } from '../../submodel-elements/entity-component/EntityComponent';
 import { cloneDeep } from 'lodash';
 import { SubmodelElementSemanticId } from 'lib/enums/SubmodelElementSemanticId.enum';
-import { GetKeyType } from 'lib/util/KeyTypeUtil';
+import { getKeyType } from 'lib/util/KeyTypeUtil';
 import { GetEntityType } from 'lib/util/EntityTypeUtil';
 import { Box, IconButton } from '@mui/material';
 import { SubmodelElementRenderer } from '../../submodel-elements/SubmodelElementRenderer';
@@ -32,7 +32,7 @@ export function HierarchicalStructuresDetail(props: HierarchicalStructuresDetail
     if (isSubmodelFlattened) separateEntryNode(smElements as Entity[]);
 
     const entitySubmodelElement = smElements.find((el) => {
-        if (GetKeyType(el) === KeyTypes.Entity) {
+        if (getKeyType(el) === KeyTypes.Entity) {
             return el as Entity;
         }
         return;
@@ -40,7 +40,7 @@ export function HierarchicalStructuresDetail(props: HierarchicalStructuresDetail
 
     const archeTypePropertylElement = smElements.find((el) => {
         if (
-            GetKeyType(el) === KeyTypes.Property &&
+            getKeyType(el) === KeyTypes.Property &&
             el.semanticId?.keys[0].value === SubmodelElementSemanticId.ArcheType
         ) {
             return el as Property;
@@ -99,7 +99,7 @@ const prepareEntryNodeModel = (subMod?: ISubmodelElement) => {
 
     node?.statements?.forEach((el) => {
         const elementEntity = el as Entity;
-        const elementType = GetKeyType(elementEntity);
+        const elementType = getKeyType(elementEntity);
         if (elementType === KeyTypes.RelationshipElement) {
             relationShips.push(elementEntity);
         }
@@ -114,7 +114,7 @@ const prepareEntryNodeModel = (subMod?: ISubmodelElement) => {
             for (let i = (elementEntity.statements as ISubmodelElement[])?.length - 1; i >= 0; --i) {
                 const entity = (elementEntity.statements as ISubmodelElement[])[i];
                 const entityType = GetEntityType(elementEntity);
-                const keyType = GetKeyType(entity);
+                const keyType = getKeyType(entity);
 
                 if (isBulkCountProperty(entity)) {
                     elementEntity.idShort = elementEntity.idShort + ' x' + (entity as Property).value;
@@ -245,7 +245,7 @@ function checkSubmodelsElements(smElements: ISubmodelElement[]) {
     const foundElements: ISubmodelElement[] = [];
 
     for (let i = 0; i < smElements.length; ++i) {
-        const smElementType = GetKeyType(smElements[i]);
+        const smElementType = getKeyType(smElements[i]);
         if (smElementType === KeyTypes.Entity) foundElements.push(smElements[i] as ISubmodelElement);
 
         if (foundElements.length > 1) return true;
@@ -264,7 +264,7 @@ function separateEntryNode(smElements: Entity[]) {
     smElements.splice(indexOfEntryNode, 1);
 
     for (let i = smElements.length - 1; i >= 0; --i) {
-        const smElementType = GetKeyType(smElements[i]);
+        const smElementType = getKeyType(smElements[i]);
         if (smElementType === KeyTypes.Entity || smElementType === KeyTypes.RelationshipElement) {
             entryNode?.statements?.push(smElements[i]);
             smElements.splice(i, 1);

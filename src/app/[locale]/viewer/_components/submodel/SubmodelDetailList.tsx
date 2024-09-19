@@ -9,7 +9,7 @@ type SubmodelDetailListProps = {
 
 export function SubmodelDetailList(props: SubmodelDetailListProps) {
     const submodelElements = props.submodel.submodelElements ?? [];
-    const submodelId = props.submodel.id;
+
     // Entity element always has a line at the bottom, so we don't need an extra line on the following element
     const isEntityElementAbove = (index: number) => submodelElements[index - 1] instanceof Entity;
     const hasDivider = (index: number) => !(index === 0) && !isEntityElementAbove(index);
@@ -18,11 +18,9 @@ export function SubmodelDetailList(props: SubmodelDetailListProps) {
         <>
             {submodelElements.map((el, index) => {
                 const id = el.semanticId?.keys?.[0]?.value;
-
                 const key =
                     (Object.keys(submodelElementVisualizationsMap) as Array<string>).find((key) => idEquals(id, key)) ??
                     '';
-
                 const SelectedComponent = submodelElementVisualizationsMap[key];
 
                 return (
