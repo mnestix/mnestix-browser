@@ -1,4 +1,4 @@
-import { Entity, ISubmodelElement, SubmodelElementCollection } from '@aas-core-works/aas-core3.0-typescript/types';
+import { Entity, Submodel, SubmodelElementCollection } from '@aas-core-works/aas-core3.0-typescript/types';
 import { SubmodelElementSemanticId } from 'lib/enums/SubmodelElementSemanticId.enum';
 import { AddressComponent } from '../submodel-elements/address-component/AddressComponent';
 import { ContactInformationComponent } from '../submodel-elements/contact-information-component/ContactInformationComponent';
@@ -8,18 +8,19 @@ import { SubmodelElementRenderer } from '../submodel-elements/SubmodelElementRen
 import { idEquals } from 'lib/util/IdValidationUtil';
 
 type SubmodelDetailListProps = {
-    readonly submodelId: string;
-    readonly submodelElements: ISubmodelElement[];
+    readonly submodel: Submodel;
 };
 
 export function SubmodelDetailList(props: SubmodelDetailListProps) {
+    const submodelElements = props.submodel.submodelElements ?? [];
+    const submodelId = props.submodel.id;
     // Entity element always has a line at the bottom, so we don't need an extra line on the following element
-    const isEntityElementAbove = (index: number) => props.submodelElements[index - 1] instanceof Entity;
+    const isEntityElementAbove = (index: number) => submodelElements[index - 1] instanceof Entity;
     const hasDivider = (index: number) => !(index === 0) && !isEntityElementAbove(index);
 
     return (
         <>
-            {props.submodelElements.map((el, index) => {
+            {submodelElements.map((el, index) => {
                 const id = el.semanticId?.keys?.[0]?.value;
 
                 if (idEquals(id, SubmodelElementSemanticId.Address)) {
@@ -47,7 +48,7 @@ export function SubmodelDetailList(props: SubmodelDetailListProps) {
                             key={index}
                             submodelElement={el as SubmodelElementCollection}
                             hasDivider={hasDivider(index)}
-                            submodelId={props.submodelId}
+                            submodelId={submodelId}
                         />
                     );
                 } else if (
@@ -59,14 +60,14 @@ export function SubmodelDetailList(props: SubmodelDetailListProps) {
                             key={index}
                             submodelElement={el as SubmodelElementCollection}
                             hasDivider={hasDivider(index)}
-                            submodelId={props.submodelId}
+                            submodelId={submodelId}
                         />
                     );
                 } else {
                     return (
                         <SubmodelElementRenderer
                             key={index}
-                            submodelId={props.submodelId}
+                            submodelId={submodelId}
                             submodelElement={el}
                             hasDivider={hasDivider(index)}
                         />
