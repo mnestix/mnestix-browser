@@ -31,12 +31,14 @@ export function SubmodelDetailList(props: SubmodelDetailListProps) {
                             <SelectedComponent
                                 key={index}
                                 submodelElement={el as SubmodelElementCollection}
+                                submodelId={props.submodel.id}
                                 hasDivider={hasDivider(index)}
                             />
                         ) : (
                             <SubmodelElementRenderer
                                 key={index}
                                 submodelElement={el}
+                                submodelId={props.submodel.id}
                                 hasDivider={hasDivider(index)}
                             />
                         )}
