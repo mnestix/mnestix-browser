@@ -1,15 +1,18 @@
 'use server';
 
-import { AasSearcher, AasSearchResult, RegistrySearchResult } from 'lib/services/searchUtilActions/AasSearcher';
+import { NotFoundError } from 'lib/errors/NotFoundError';
+import { AasSearcher, AasSearchResult } from 'lib/services/searchUtilActions/AasSearcher';
 
 export async function performFullAasSearch(searchInput: string): Promise<AasSearchResult> {
     const searcher = AasSearcher.create();
-    return searcher.fullSearch(searchInput);
+    return searcher.performFullSearch(searchInput);
 }
 
-export async function performRegistryAasSearch(searchInput: string): Promise<RegistrySearchResult | null> {
+export async function performRegistryAasSearch(searchInput: string): Promise<AasSearchResult | null> {
     const searcher = AasSearcher.create();
-    return searcher.performAasRegistrySearch(searchInput);
+    const result = searcher.performRegistrySearch(searchInput);
+    if (!result) throw new NotFoundError(searchInput);
+    return result;
 }
 
 export async function performDiscoveryAasSearch(searchInput: string): Promise<string[] | null> {

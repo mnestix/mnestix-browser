@@ -1,9 +1,4 @@
-import {
-    AssetAdministrationShellDescriptor,
-    Endpoint,
-    RegistryAasData,
-    SubmodelDescriptor,
-} from 'lib/types/registryServiceTypes';
+import { AssetAdministrationShellDescriptor, Endpoint, SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 import { AssetAdministrationShell, Submodel } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
 import { Log } from 'lib/util/Log';
 import { IDiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApiInterface';
@@ -11,7 +6,6 @@ import { IRegistryServiceApi } from 'lib/api/registry-service-api/registryServic
 import { RegistryServiceApi } from 'lib/api/registry-service-api/registryServiceApi';
 import { DiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApi';
 import { encodeBase64 } from 'lib/util/Base64Util';
-import { NotFoundError } from 'lib/errors/NotFoundError';
 import {
     MultipleRepositorySearchService,
     NullableMultipleDataSourceSetupParameters,
@@ -19,15 +13,10 @@ import {
 import { INullableAasRepositoryEntries } from 'lib/api/basyx-v3/apiInMemory';
 import { mnestixFetch } from 'lib/api/infrastructure';
 
-export interface RegistrySearchResult {
-    registryAas: AssetAdministrationShell;
-    registryAasData?: RegistryAasData;
-}
-
 interface NullableSearchSetupParameters {
     discoveryEntries?: { assetId: string; aasIds: string[] }[];
     registryShellDescriptorEntries?: AssetAdministrationShellDescriptor[] | null;
-    shellsByRegistryEndpoint?: { path: string; aas: AssetAdministrationShell }[] | null;
+    shellsAvailableOnRegistryEndpoints?: { endpoint: URL; aas: AssetAdministrationShell }[] | null;
     shellsSavedInTheRepositories?: INullableAasRepositoryEntries[] | null;
     submodelsSavedInTheRepository?: Submodel[] | null;
     entitiesInMultipleDataSources?: NullableMultipleDataSourceSetupParameters | null;
@@ -38,10 +27,16 @@ export type AasData = {
     submodelDescriptors: SubmodelDescriptor[] | undefined;
     aasRegistryRepositoryOrigin: string | undefined;
 };
+
 export type AasSearchResult = {
     redirectUrl: string;
     aas: AssetAdministrationShell | null;
     aasData: AasData | null;
+};
+
+export type RegistrySearchResult = {
+    endpoints: URL[];
+    submodelDescriptors: SubmodelDescriptor[];
 };
 
 export class AasSearcher {
@@ -49,7 +44,6 @@ export class AasSearcher {
         protected readonly discoveryServiceClient: IDiscoveryServiceApi,
         protected readonly registryService: IRegistryServiceApi,
         protected readonly multipleDataSource: MultipleRepositorySearchService,
-        protected readonly fetch: (input: RequestInfo | URL, init?: RequestInit | undefined) => Promise<Response>,
         protected readonly log: Log,
     ) {}
 
@@ -58,163 +52,126 @@ export class AasSearcher {
         const registryServiceClient = RegistryServiceApi.create(process.env.REGISTRY_API_URL, mnestixFetch());
         const discoveryServiceClient = DiscoveryServiceApi.create(process.env.DISCOVERY_API_URL, mnestixFetch());
         const log = Log.create();
-        return new AasSearcher(discoveryServiceClient, registryServiceClient, multipleDataSource, fetch, log);
+        return new AasSearcher(discoveryServiceClient, registryServiceClient, multipleDataSource, log);
     }
 
     static createNull({
         discoveryEntries = [],
         registryShellDescriptorEntries = [],
-        shellsByRegistryEndpoint = [],
+        shellsAvailableOnRegistryEndpoints = [],
         shellsSavedInTheRepositories = [],
         submodelsSavedInTheRepository = [],
         log = null,
     }: NullableSearchSetupParameters = {}): AasSearcher {
-        const stubbedFetch = async (input: RequestInfo | URL): Promise<Response> => {
-            if (!shellsByRegistryEndpoint) return Promise.reject(new Error('no registry configuration'));
-            for (const aasEntry of shellsByRegistryEndpoint) {
-                if (aasEntry.path === input) return new Response(JSON.stringify(aasEntry.aas));
-            }
-            return Promise.reject(new Error('no aas for on href:' + input));
-        };
         return new AasSearcher(
             DiscoveryServiceApi.createNull({ discoveryEntries: discoveryEntries }),
-            RegistryServiceApi.createNull({ registryShellDescriptorEntries }),
+            RegistryServiceApi.createNull({
+                registryShellDescriptorEntries: registryShellDescriptorEntries,
+                shellsAvailableOnEndpoints: shellsAvailableOnRegistryEndpoints,
+            }),
             MultipleRepositorySearchService.createNull({
                 shellsSavedInTheRepositories: shellsSavedInTheRepositories,
                 submodelsSavedInTheRepository,
             }),
-            stubbedFetch,
             log ?? Log.createNull(),
         );
     }
 
-    async fullSearch(val: string): Promise<AasSearchResult> {
-        const aasIds = await this.performAasDiscoverySearch(val);
-        if (aasIds && aasIds.length > 1) {
-            return {
-                redirectUrl: `/viewer/discovery?assetId=${val}`,
-                aas: null,
-                aasData: null,
-            };
-        } else {
-            // Check if an AAS ID is found in the Discovery service, or assign the input parameter for further search.
-            // If there is exactly one AAS ID in the aasIds array, use it; otherwise, use the input parameter 'val'.
-            const aasId = aasIds && aasIds.length === 1 ? aasIds[0] : val;
-            const registrySearchResult = await this.performAasRegistrySearch(aasId);
+    async performFullSearch(searchInput: string): Promise<AasSearchResult> {
+        const aasIds = await this.performAasDiscoverySearch(searchInput);
+        const foundMultipleDiscoveryResults = aasIds && aasIds.length > 1;
+        const foundOneDiscoveryResult = aasIds && aasIds.length === 1;
 
-            let aas: AssetAdministrationShell;
-            if (registrySearchResult != null) {
-                aas = registrySearchResult.registryAas;
-            } else {
-                const aasIdEncoded = encodeBase64(aasId);
-                try {
-                    aas = await this.multipleDataSource.getAasFromDefaultRepository(aasIdEncoded);
-                } catch (e) {
-                    const potentiallyMultipleAas = await this.multipleDataSource.getAasFromAllRepos(aasIdEncoded);
-                    if (potentiallyMultipleAas.length > 1)
-                        return {
-                            redirectUrl: `/viewer/discovery?assetId=${val}`,
-                            aas: null,
-                            aasData: null,
-                        };
-                    aas = potentiallyMultipleAas[0].aas;
-                }
-            }
-
-            const aasData =
-                registrySearchResult?.registryAasData != null
-                    ? {
-                          submodelDescriptors: registrySearchResult.registryAasData.submodelDescriptors,
-                          aasRegistryRepositoryOrigin: registrySearchResult.registryAasData.aasRegistryRepositoryOrigin,
-                      }
-                    : null;
-
-            // If not found: Error: AAS could not be found
-
-            return {
-                redirectUrl: `/viewer/${encodeBase64(aas.id)}`,
-                aas: aas,
-                aasData: aasData,
-            };
+        if (foundMultipleDiscoveryResults) {
+            return this.createDiscoveryRedirectResult(searchInput);
         }
+
+        const aasId = foundOneDiscoveryResult ? aasIds[0] : searchInput;
+        const aasIdEncoded = encodeBase64(aasId);
+
+        const aasRegistryResult = await this.performRegistrySearch(aasId);
+        if (aasRegistryResult) {
+            return aasRegistryResult;
+        }
+
+        const defaultResult = await this.multipleDataSource.getAasFromDefaultRepository(aasIdEncoded);
+        if (defaultResult) {
+            return this.createAasResult(defaultResult);
+        }
+
+        const potentiallyMultipleAas = await this.multipleDataSource.getAasFromAllRepos(aasIdEncoded);
+        if (potentiallyMultipleAas.length > 1) {
+            return this.createDiscoveryRedirectResult(searchInput);
+        }
+        return this.createAasResult(potentiallyMultipleAas[0].aas);
     }
 
-    /**
-     * Resolves the given Asset ID using the discovery service.
-     *
-     * This function takes an Asset ID and attempts to resolve it using a discovery service.
-     * If the Asset ID is found, it returns the resolved AAS ID.
-     * If not found, it returns `null`.
-     *
-     * @param {string} searchAssetId - The Asset ID to resolve using the discovery service.
-     * @returns {Promise<string | null>} A promise that resolves to the AAS ID as a string, or `null` if the Asset ID is not found.
-     */
-    async performAasDiscoverySearch(searchAssetId: string): Promise<string[] | null> {
-        try {
-            if (!searchAssetId) {
-                throw new NotFoundError();
-            }
-            const aasIds = (await this.discoveryServiceClient.getAasIdsByAssetId(searchAssetId)).result;
-
-            if (aasIds.length === 0) {
-                throw new NotFoundError();
-            }
-
-            return aasIds;
-        } catch (e) {
-            this.log.warn('Could not be found in the discovery service, will continue to look in the AAS registry');
+    // TODO: handle multiple endpoints as result
+    public async performRegistrySearch(searchAasId: string): Promise<AasSearchResult | null> {
+        const registrySearchResult = await this.performAasRegistrySearch(searchAasId);
+        if (!registrySearchResult) {
             return null;
         }
+        const endpoint = registrySearchResult.endpoints[0];
+
+        const aas = await this.fetchAasFromEndpoint(endpoint);
+        if (!aas) {
+            return null;
+        }
+        const data = {
+            submodelDescriptors: registrySearchResult.submodelDescriptors,
+            aasRegistryRepositoryOrigin: endpoint.origin,
+        };
+        return this.createAasResult(aas, data);
     }
 
-    /**
-     * Searches for and retrieves the Asset Administration Shell (AAS) from the registry.
-     *
-     * This function takes an AAS ID and attempts to find the corresponding AAS in the registry.
-     * If the AAS is found, it returns an object containing the AAS and any related data.
-     * If not found, it returns `null`.
-     *
-     * @param {string} searchAasId - The AAS ID to search for in the registry.
-     * @returns {Promise<RegistrySearchResult | null>} A promise that resolves to an object containing:
-     *   - `registryAas`: The retrieved Asset Administration Shell object.
-     *   - `registryAasData` (optional): Additional data related to the retrieved AAS.
-     *   or `null` if the AAS is not found in the registry.
-     */
-    async performAasRegistrySearch(searchAasId: string): Promise<RegistrySearchResult | null> {
+    public async performAasDiscoverySearch(searchAssetId: string): Promise<string[] | null> {
+        try {
+            return (await this.discoveryServiceClient.getAasIdsByAssetId(searchAssetId)).result;
+        } catch (e) {
+            this.log.warn('Could not be found in the discovery service, will continue to look in the AAS registry');
+        }
+        return null;
+    }
+
+    private createAasResult(aas: AssetAdministrationShell, data?: AasData): AasSearchResult {
+        return {
+            redirectUrl: `/viewer/${encodeBase64(aas.id)}`,
+            aas: aas,
+            aasData: data || null,
+        };
+    }
+
+    private createDiscoveryRedirectResult(searchInput: string): AasSearchResult {
+        return {
+            redirectUrl: `/viewer/discovery?assetId=${searchInput}`,
+            aas: null,
+            aasData: null,
+        };
+    }
+
+    private async performAasRegistrySearch(searchAasId: string): Promise<RegistrySearchResult | null> {
         try {
             const shellDescription = await this.registryService.getAssetAdministrationShellDescriptorById(searchAasId);
             const endpoints = shellDescription.endpoints as Endpoint[];
             const submodelDescriptors = shellDescription.submodelDescriptors as SubmodelDescriptor[];
-
-            if (!endpoints) {
-                throw new NotFoundError();
-            }
-
-            const aasEndpoint = endpoints[0].protocolInformation.href;
-            const urlObject = new URL(aasEndpoint);
-            const aasRepositoryOrigin = urlObject.origin;
-
-            const aas = await this.fetch(aasEndpoint, {
-                method: 'GET',
-            });
-
-            const aasJson = await aas.json();
-
+            const endpointUrls = endpoints.map((endpoint) => new URL(endpoint.protocolInformation.href));
             return {
-                registryAas: aasJson,
-                registryAasData: {
-                    submodelDescriptors: submodelDescriptors,
-                    aasRegistryRepositoryOrigin: aasRepositoryOrigin,
-                },
+                endpoints: endpointUrls,
+                submodelDescriptors: submodelDescriptors,
             };
         } catch (e) {
             this.log.warn('Could not be found in the registry service, will continue to look in the AAS repository');
             return null;
         }
     }
-}
 
-export type RepoSearchResult = {
-    aas: AssetAdministrationShell;
-    location: string;
-};
+    private async fetchAasFromEndpoint(endpoint: URL): Promise<AssetAdministrationShell | null> {
+        try {
+            return await this.registryService.getAssetAdministrationShellFromEndpoint(endpoint);
+        } catch (e) {
+            this.log.warn(`Could not find an AAS at the given endpoint at '${endpoint}'`);
+            return null;
+        }
+    }
+}

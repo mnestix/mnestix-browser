@@ -79,8 +79,13 @@ export class MultipleRepositorySearchService {
         }
     }
 
-    async getAasFromDefaultRepository(aasId: string): Promise<AssetAdministrationShell> {
-        return this.repositoryClient.getAssetAdministrationShellById(aasId);
+    async getAasFromDefaultRepository(aasId: string): Promise<AssetAdministrationShell | null> {
+        try {
+            return await this.repositoryClient.getAssetAdministrationShellById(aasId);
+        } catch (e) {
+            this.log.warn(e);
+            return null;
+        }
     }
 
     async getSubmodelFromAllRepos(submodelId: string) {

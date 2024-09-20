@@ -47,7 +47,7 @@ export const DiscoveryListView = () => {
                     try {
                         const registrySearchResult = await performRegistryAasSearch(aasId);
 
-                        let aasRepositoryUrl = registrySearchResult?.registryAasData?.aasRegistryRepositoryOrigin;
+                        let aasRepositoryUrl = registrySearchResult?.aasData?.aasRegistryRepositoryOrigin;
                         if (!aasRepositoryUrl) {
                             aasRepositoryUrl = (await isAasAvailableInRepo(aasId, env.AAS_REPO_API_URL))
                                 ? env.AAS_REPO_API_URL

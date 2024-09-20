@@ -58,12 +58,12 @@ export default function Page() {
             const registrySearchResult = await performRegistryAasSearch(aasIdDecoded);
 
             if (registrySearchResult) {
-                setAas(registrySearchResult.registryAas as AssetAdministrationShell);
+                setAas(registrySearchResult.aas as AssetAdministrationShell);
                 setRegistryAasData({
-                    submodelDescriptors: registrySearchResult?.registryAasData?.submodelDescriptors,
-                    aasRegistryRepositoryOrigin: registrySearchResult?.registryAasData?.aasRegistryRepositoryOrigin,
+                    submodelDescriptors: registrySearchResult?.aasData?.submodelDescriptors,
+                    aasRegistryRepositoryOrigin: registrySearchResult?.aasData?.aasRegistryRepositoryOrigin,
                 });
-                setAasData(registrySearchResult.registryAas as AssetAdministrationShell);
+                setAasData(registrySearchResult.aas as AssetAdministrationShell);
             } else {
                 let fetchedAas;
                 try {
