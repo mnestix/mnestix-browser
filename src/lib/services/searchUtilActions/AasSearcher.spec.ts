@@ -36,7 +36,7 @@ describe('Full Aas Search happy paths', () => {
         const searcher = AasSearcher.createNull({
             discoveryEntries: [{ assetId: searchString, aasIds: [aasId] }],
             registryShellDescriptorEntries: [createDummyShellDescriptor(AAS_ENDPOINT, aasId)],
-            shellsByRegistryEndpoint: [{ endpoint: AAS_ENDPOINT, aas: aas }],
+            shellsAvailableOnRegistryEndpoints: [{ endpoint: AAS_ENDPOINT, aas: aas }],
         });
 
         const result = await searcher.performFullSearch(searchString);
@@ -71,7 +71,7 @@ describe('Full Aas Search happy paths', () => {
         const aas = createDummyAas({ id: aasId });
         const searcher = AasSearcher.createNull({
             registryShellDescriptorEntries: [createDummyShellDescriptor(AAS_ENDPOINT, aasId)],
-            shellsByRegistryEndpoint: [{ endpoint: AAS_ENDPOINT, aas: aas }],
+            shellsAvailableOnRegistryEndpoints: [{ endpoint: AAS_ENDPOINT, aas: aas }],
         });
 
         const result = await searcher.performFullSearch(searchString);
@@ -160,7 +160,7 @@ describe('Full Aas Search edge cases', () => {
         const searcher = AasSearcher.createNull({
             discoveryEntries: [{ assetId: searchString, aasIds: [aasId] }],
             registryShellDescriptorEntries: [createDummyShellDescriptor(AAS_ENDPOINT, aasId)],
-            shellsByRegistryEndpoint: [
+            shellsAvailableOnRegistryEndpoints: [
                 {
                     endpoint: new URL(AAS_ENDPOINT + 'wrong path'),
                     aas: createDummyAas({ id: aasId }),
@@ -179,7 +179,7 @@ describe('Full Aas Search edge cases', () => {
         const searcher = AasSearcher.createNull({
             discoveryEntries: [{ assetId: 'wrong asset Id', aasIds: [aasId] }],
             registryShellDescriptorEntries: [createDummyShellDescriptor(AAS_ENDPOINT, aasId)],
-            shellsByRegistryEndpoint: [
+            shellsAvailableOnRegistryEndpoints: [
                 {
                     endpoint: new URL(AAS_ENDPOINT + 'wrong path'),
                     aas: createDummyAas({ id: aasId }),

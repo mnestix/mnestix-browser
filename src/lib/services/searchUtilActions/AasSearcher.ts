@@ -16,7 +16,7 @@ import { mnestixFetch } from 'lib/api/infrastructure';
 interface NullableSearchSetupParameters {
     discoveryEntries?: { assetId: string; aasIds: string[] }[];
     registryShellDescriptorEntries?: AssetAdministrationShellDescriptor[] | null;
-    shellsByRegistryEndpoint?: { endpoint: URL; aas: AssetAdministrationShell }[] | null;
+    shellsAvailableOnRegistryEndpoints?: { endpoint: URL; aas: AssetAdministrationShell }[] | null;
     shellsSavedInTheRepositories?: INullableAasRepositoryEntries[] | null;
     submodelsSavedInTheRepository?: Submodel[] | null;
     entitiesInMultipleDataSources?: NullableMultipleDataSourceSetupParameters | null;
@@ -44,7 +44,6 @@ export class AasSearcher {
         protected readonly discoveryServiceClient: IDiscoveryServiceApi,
         protected readonly registryService: IRegistryServiceApi,
         protected readonly multipleDataSource: MultipleRepositorySearchService,
-        protected readonly fetch: (input: RequestInfo | URL, init?: RequestInit | undefined) => Promise<Response>,
         protected readonly log: Log,
     ) {}
 
@@ -53,32 +52,27 @@ export class AasSearcher {
         const registryServiceClient = RegistryServiceApi.create(process.env.REGISTRY_API_URL, mnestixFetch());
         const discoveryServiceClient = DiscoveryServiceApi.create(process.env.DISCOVERY_API_URL, mnestixFetch());
         const log = Log.create();
-        return new AasSearcher(discoveryServiceClient, registryServiceClient, multipleDataSource, fetch, log);
+        return new AasSearcher(discoveryServiceClient, registryServiceClient, multipleDataSource, log);
     }
 
     static createNull({
         discoveryEntries = [],
         registryShellDescriptorEntries = [],
-        shellsByRegistryEndpoint = [],
+        shellsAvailableOnRegistryEndpoints = [],
         shellsSavedInTheRepositories = [],
         submodelsSavedInTheRepository = [],
         log = null,
     }: NullableSearchSetupParameters = {}): AasSearcher {
-        const stubbedFetch = async (input: URL): Promise<Response> => {
-            if (!shellsByRegistryEndpoint) return Promise.reject(new Error('no registry configuration'));
-            for (const aasEntry of shellsByRegistryEndpoint) {
-                if (aasEntry.endpoint.href === input.href) return new Response(JSON.stringify(aasEntry.aas));
-            }
-            return Promise.reject(new Error('no aas for on href:' + input));
-        };
         return new AasSearcher(
             DiscoveryServiceApi.createNull({ discoveryEntries: discoveryEntries }),
-            RegistryServiceApi.createNull({ registryShellDescriptorEntries }),
+            RegistryServiceApi.createNull({
+                registryShellDescriptorEntries: registryShellDescriptorEntries,
+                shellsAvailableOnEndpoints: shellsAvailableOnRegistryEndpoints,
+            }),
             MultipleRepositorySearchService.createNull({
                 shellsSavedInTheRepositories: shellsSavedInTheRepositories,
                 submodelsSavedInTheRepository,
             }),
-            stubbedFetch,
             log ?? Log.createNull(),
         );
     }
@@ -120,7 +114,7 @@ export class AasSearcher {
         }
         const endpoint = registrySearchResult.endpoints[0];
 
-        const aas = await this.fetchRegistrySearchResult(endpoint);
+        const aas = await this.fetchAasFromEndpoint(endpoint);
         if (!aas) {
             return null;
         }
@@ -172,13 +166,9 @@ export class AasSearcher {
         }
     }
 
-    private async fetchRegistrySearchResult(endpoint: URL): Promise<AssetAdministrationShell | null> {
+    private async fetchAasFromEndpoint(endpoint: URL): Promise<AssetAdministrationShell | null> {
         try {
-            const aas = await this.fetch(endpoint, {
-                method: 'GET',
-            });
-
-            return aas.json();
+            return await this.registryService.getAssetAdministrationShellFromEndpoint(endpoint);
         } catch (e) {
             this.log.warn(`Could not find an AAS at the given endpoint at '${endpoint}'`);
             return null;
