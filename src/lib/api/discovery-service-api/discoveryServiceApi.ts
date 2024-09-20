@@ -1,13 +1,35 @@
 import { encodeBase64 } from 'lib/util/Base64Util';
+import { IDiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApiInterface';
+import { DiscoveryServiceApiInMemory } from 'lib/api/discovery-service-api/discoveryServiceApiInMemory';
 
-export class DiscoveryServiceApi {
+export class DiscoveryServiceApi implements IDiscoveryServiceApi {
     baseUrl: string;
 
-    constructor(protected _baseUrl: string = '') {
+    private constructor(
+        protected _baseUrl: string = '',
+        protected http: {
+            fetch(url: RequestInfo, init?: RequestInit): Promise<Response>;
+        },
+    ) {
         this.baseUrl = _baseUrl;
     }
 
-    public async linkAasIdAndAssetId(aasId: string, assetId: string) {
+    static create(
+        _baseUrl: string = '',
+        http?: {
+            fetch(url: RequestInfo, init?: RequestInit): Promise<Response>;
+        },
+    ): DiscoveryServiceApi {
+        return new DiscoveryServiceApi(_baseUrl, http ?? window);
+    }
+
+    static createNull(options: {
+        discoveryEntries: { assetId: string; aasIds: string[] }[];
+    }): DiscoveryServiceApiInMemory {
+        return new DiscoveryServiceApiInMemory(options);
+    }
+
+    async linkAasIdAndAssetId(aasId: string, assetId: string) {
         return this.postAllAssetLinksById(aasId, [
             {
                 name: 'globalAssetId',
@@ -16,7 +38,7 @@ export class DiscoveryServiceApi {
         ]);
     }
 
-    public async getAasIdsByAssetId(assetId: string) {
+    async getAasIdsByAssetId(assetId: string) {
         return this.getAllAssetAdministrationShellIdsByAssetLink([
             {
                 name: 'globalAssetId',
@@ -25,7 +47,7 @@ export class DiscoveryServiceApi {
         ]);
     }
 
-    public async deleteAllAssetLinksById(aasId: string) {
+    async deleteAllAssetLinksById(aasId: string) {
         const b64_aasId = encodeBase64(aasId);
 
         const headers = {
@@ -33,7 +55,7 @@ export class DiscoveryServiceApi {
             'Content-Type': 'application/json',
         };
 
-        const response = await fetch(`${this.baseUrl}/lookup/shells/${b64_aasId}`, {
+        const response = await this.http.fetch(`${this.baseUrl}/lookup/shells/${b64_aasId}`, {
             method: 'DELETE',
             headers,
         });
@@ -45,7 +67,7 @@ export class DiscoveryServiceApi {
         }
     }
 
-    public async getAllAssetAdministrationShellIdsByAssetLink(
+    async getAllAssetAdministrationShellIdsByAssetLink(
         assetIds: { name: string; value: string }[],
     ): Promise<{ paging_metadata: string; result: string[] }> {
         const headers = {
@@ -59,7 +81,7 @@ export class DiscoveryServiceApi {
             url.searchParams.append('assetIds', encodeBase64(JSON.stringify(obj)));
         });
 
-        const response = await fetch(url, {
+        const response = await this.http.fetch(url.toString(), {
             method: 'GET',
             headers,
         });
@@ -71,7 +93,7 @@ export class DiscoveryServiceApi {
         }
     }
 
-    public async getAllAssetLinksById(aasId: string) {
+    async getAllAssetLinksById(aasId: string) {
         const b64_aasId = encodeBase64(aasId);
 
         const headers = {
@@ -79,7 +101,7 @@ export class DiscoveryServiceApi {
             'Content-Type': 'application/json',
         };
 
-        const response = await fetch(`${this.baseUrl}/lookup/shells/${b64_aasId}`, {
+        const response = await this.http.fetch(`${this.baseUrl}/lookup/shells/${b64_aasId}`, {
             method: 'GET',
             headers,
         });
@@ -91,7 +113,7 @@ export class DiscoveryServiceApi {
         }
     }
 
-    public async postAllAssetLinksById(aasId: string, assetLinks: { name: string; value: string }[]) {
+    async postAllAssetLinksById(aasId: string, assetLinks: { name: string; value: string }[]) {
         const b64_aasId = encodeBase64(aasId);
 
         const headers = {
@@ -99,7 +121,7 @@ export class DiscoveryServiceApi {
             'Content-Type': 'application/json',
         };
 
-        const response = await fetch(`${this.baseUrl}/lookup/shells/${b64_aasId}`, {
+        const response = await this.http.fetch(`${this.baseUrl}/lookup/shells/${b64_aasId}`, {
             method: 'POST',
             headers,
             body: JSON.stringify(assetLinks),

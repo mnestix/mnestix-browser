@@ -1,6 +1,10 @@
 import { defineConfig } from 'cypress';
 
 export default defineConfig({
+    defaultCommandTimeout: 150000, // 150
+    pageLoadTimeout: 600000, // 600
+    requestTimeout: 150000, // 150
+    responseTimeout: 200000, // 200
     video: true,
     videoCompression: true,
     retries: 2,
@@ -13,6 +17,7 @@ export default defineConfig({
         baseUrl: 'http://localhost:3000/',
         excludeSpecPattern: '**/ignoredTestFiles/*.js',
         specPattern: 'cypress/e2e/**/*.spec.{js,jsx,ts,tsx}',
+        experimentalRunAllSpecs: true,
     },
     env: {
         AAS_REPO_API_URL: 'http://localhost:5064/repo',

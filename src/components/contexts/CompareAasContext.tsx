@@ -4,7 +4,10 @@ import { SubmodelCompareData } from 'lib/types/SubmodelCompareData';
 import { generateSubmodelCompareData, isCompareData, isCompareDataRecord } from 'lib/util/CompareAasUtil';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
-import { getSubmodelFromSubmodelDescriptor, handleAasRegistrySearch } from 'lib/searchUtilActions/searchServer';
+import {
+    getSubmodelFromSubmodelDescriptor,
+    performRegistryAasSearch,
+} from 'lib/services/searchUtilActions/searchActions';
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 
 type CompareAasContextType = {
@@ -73,7 +76,7 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
         let compareDataTemp: SubmodelCompareData[] = [];
         for (const aasId of input as string[]) {
             let shell;
-            const registrySearchResult = await handleAasRegistrySearch(aasId);
+            const registrySearchResult = await performRegistryAasSearch(aasId);
             if (registrySearchResult != null) {
                 shell = registrySearchResult.registryAas as AssetAdministrationShell;
             } else {
