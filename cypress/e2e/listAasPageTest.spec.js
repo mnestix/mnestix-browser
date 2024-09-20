@@ -15,7 +15,7 @@ describe('Test all Aas List features (Resolution 1920 x 1080)', function () {
         cy.url().should('contain', '/list');
     });
     it('should redirect to the viewer page when clicking on an aas list entry', function () {
-        cy.getByTestId('list-thumbnail').first().click();
+        cy.getByTestId('list-to-detailview-button').first().click();
         cy.wait(100);
         cy.url().should('contain', '/viewer/');
     });

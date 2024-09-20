@@ -6,7 +6,6 @@ import {
     Card,
     CardContent,
     Skeleton,
-    styled,
     Typography,
 } from '@mui/material';
 import React, { useState } from 'react';
@@ -25,13 +24,14 @@ import { useRouter } from 'next/navigation';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { AssetAdministrationShellRepositoryApi } from 'lib/api/basyx-v3/api';
+import { ImageWithFallback } from 'app/[locale]/list/_components/StyledImageWithFallBack';
 import { performgetAasThumbnailFromAllRepos } from 'lib/services/MultipleRepositorySearch/MultipleRepositorySearchActions';
+
 
 type AASOverviewCardProps = {
     readonly aas: AssetAdministrationShell | null;
     readonly productImage?: string;
     readonly isLoading?: boolean;
-    readonly hasImage?: boolean;
     readonly isAccordion: boolean;
     readonly imageLinksToDetail?: boolean;
 };
@@ -41,13 +41,6 @@ type MobileAccordionProps = {
     readonly title: string;
     readonly icon: React.ReactNode;
 };
-
-const StyledImage = styled('img')(() => ({
-    maxWidth: '300px',
-    height: '300px',
-    width: '100%',
-    objectFit: 'scale-down',
-}));
 
 function MobileAccordion(props: MobileAccordionProps) {
     return (
@@ -105,11 +98,7 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
         } else {
             setProductImageUrl(props.productImage);
         }
-
-        return () => {
-            setProductImageUrl('');
-        };
-    }, [props]);
+    }, [props.productImage]);
 
     const infoBoxStyle = {
         display: 'flex',
@@ -212,25 +201,18 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
                     </>
                 ) : (
                     <>
-                        {!!props.productImage &&
-                            (props.imageLinksToDetail ? (
-                                <StyledImage
-                                    onClick={navigateToAas}
-                                    src={productImageUrl}
-                                    sx={{
-                                        '&:hover': {
-                                            cursor: 'pointer',
-                                        },
-                                    }}
-                                />
-                            ) : (
-                                <StyledImage src={productImageUrl} />
-                            ))}
-                        {props.hasImage && !props.productImage && (
+                        {props.isLoading ? (
                             <Skeleton
                                 variant="rectangular"
                                 sx={{ height: '300px', maxWidth: '300px', width: '100%' }}
                             ></Skeleton>
+                        ) : (
+                            <ImageWithFallback
+                                src={productImageUrl}
+                                alt={'Thumbnail'}
+                                onClickHandler={props.imageLinksToDetail ? navigateToAas : undefined}
+                                size={300}
+                            />
                         )}
                         {isAccordion ? (
                             <>
