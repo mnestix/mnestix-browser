@@ -78,7 +78,7 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
             let shell;
             const registrySearchResult = await performRegistryAasSearch(aasId);
             if (registrySearchResult != null) {
-                shell = registrySearchResult.registryAas as AssetAdministrationShell;
+                shell = registrySearchResult.aas as AssetAdministrationShell;
             } else {
                 shell = await repositoryClient.getAssetAdministrationShellById(encodeBase64(aasId));
             }
@@ -91,7 +91,7 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
                     compareDataTemp,
                     shell.submodels,
                     aasList.length - 1,
-                    registrySearchResult?.registryAasData?.submodelDescriptors,
+                    registrySearchResult?.aasData?.submodelDescriptors,
                 );
             }
         }
