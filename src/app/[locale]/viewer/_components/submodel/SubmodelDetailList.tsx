@@ -2,6 +2,7 @@ import { Entity, Submodel, SubmodelElementCollection } from '@aas-core-works/aas
 import { SubmodelElementRenderer } from '../submodel-elements/SubmodelElementRenderer';
 import { idEquals } from 'lib/util/IdValidationUtil';
 import { submodelElementVisualizationsMap } from 'app/[locale]/viewer/_components/submodel-elements/SubmodelElementMapping';
+import { Fragment } from 'react';
 
 type SubmodelDetailListProps = {
     readonly submodel: Submodel;
@@ -18,13 +19,13 @@ export function SubmodelDetailList(props: SubmodelDetailListProps) {
         <>
             {submodelElements.map((el, index) => {
                 const id = el.semanticId?.keys?.[0]?.value;
-                const key =
+                const visualizationMapKey =
                     (Object.keys(submodelElementVisualizationsMap) as Array<string>).find((key) => idEquals(id, key)) ??
                     '';
-                const SelectedComponent = submodelElementVisualizationsMap[key];
+                const SelectedComponent = submodelElementVisualizationsMap[visualizationMapKey];
 
                 return (
-                    <>
+                    <Fragment key={index}>
                         {SelectedComponent ? (
                             <SelectedComponent
                                 key={index}
@@ -40,7 +41,7 @@ export function SubmodelDetailList(props: SubmodelDetailListProps) {
                                 hasDivider={hasDivider(index)}
                             />
                         )}
-                    </>
+                    </Fragment>
                 );
             })}
         </>
