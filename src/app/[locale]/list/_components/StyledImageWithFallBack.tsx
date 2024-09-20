@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import DefaultThumbnail from 'assets/AasDefaultThumbnail.svg';
 
-// Define the props for the styled component
 interface StyledImageProps {
     size: number;
 }

@@ -76,13 +76,11 @@ export const AasListTableRow = (props: AasTableRowProps) => {
                 </TableCell>
             )}
             <PictureTableCell title={intl.formatMessage(messages.mnestix.aasList.titleViewAASButton)}>
-                {
-                    <ImageWithFallback
-                        src={aasListEntry.thumbnailUrl}
-                        alt={'Thumbnail image for: ' + aasListEntry.assetId}
-                        size={88}
-                    />
-                }
+                <ImageWithFallback
+                    src={aasListEntry.thumbnailUrl}
+                    alt={'Thumbnail image for: ' + aasListEntry.assetId}
+                    size={88}
+                />
             </PictureTableCell>
             <TableCell align="left" sx={tableBodyText}>
                 {translateListText(aasListEntry.manufacturerName)}

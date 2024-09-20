@@ -12,6 +12,7 @@ const tableBodyText = {
     fontSize: '16px',
     color: 'text.primary',
 };
+
 export default function PictureTableCell(props: PictureTableCellProps) {
     const { children, title } = props;
 
