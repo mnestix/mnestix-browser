@@ -1,36 +1,18 @@
 'use server';
 
-import { AasSearcher, AasSearchResult, AasResult } from 'lib/services/searchUtilActions/AasSearcher';
+import { NotFoundError } from 'lib/errors/NotFoundError';
+import { AasSearcher, AasSearchResult } from 'lib/services/searchUtilActions/AasSearcher';
 
 export async function performFullAasSearch(searchInput: string): Promise<AasSearchResult> {
     const searcher = AasSearcher.create();
-    return searcher.fullSearch(searchInput);
+    return searcher.performFullSearch(searchInput);
 }
 
-export async function performRegistryAasSearch(searchInput: string): Promise<AasResult | null> {
+export async function performRegistryAasSearch(searchInput: string): Promise<AasSearchResult | null> {
     const searcher = AasSearcher.create();
-    
-    // If AAS is not found in the repository -> return null
-    const registrySearchResult = await searcher.performAasRegistrySearch(searchInput);
-    if (!registrySearchResult) {
-        return null;
-    }
-
-    // If the endpoint in the registry fails to fetch the AAS -> return null
-    const endpoint = registrySearchResult.endpoints[0];
-    const aasResult = await searcher.fetchRegistrySearchResult(endpoint);
-    if (!aasResult) {
-        return null;
-    }
-
-    // Wrap the result in a combined object
-    return {
-        registryAas: aasResult,
-        registryAasData: {
-            submodelDescriptors: registrySearchResult.submodelDescriptors,
-            aasRegistryRepositoryOrigin: endpoint.origin,
-        },
-    };
+    const result = searcher.performRegistrySearch(searchInput);
+    if (!result) throw new NotFoundError(searchInput);
+    return result;
 }
 
 export async function performDiscoveryAasSearch(searchInput: string): Promise<string[] | null> {

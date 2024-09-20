@@ -23,7 +23,7 @@ describe('Full Aas Search happy paths', () => {
             log: log,
         });
 
-        const result = await searcher.fullSearch(searchString);
+        const result = await searcher.performFullSearch(searchString);
 
         expect(result.redirectUrl).toBe('/viewer/discovery?assetId=' + searchString);
         expect(tracker.getData()).toHaveLength(0);
@@ -39,7 +39,7 @@ describe('Full Aas Search happy paths', () => {
             shellsByRegistryEndpoint: [{ endpoint: AAS_ENDPOINT, aas: aas }],
         });
 
-        const result = await searcher.fullSearch(searchString);
+        const result = await searcher.performFullSearch(searchString);
 
         expect(result.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
         expect(result.aas?.id).toEqual(aas.id);
@@ -59,7 +59,7 @@ describe('Full Aas Search happy paths', () => {
             ],
         });
 
-        const result = await searcher.fullSearch(searchString);
+        const result = await searcher.performFullSearch(searchString);
 
         expect(result.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
         expect(result.aas?.id).toEqual(aas.id);
@@ -74,7 +74,7 @@ describe('Full Aas Search happy paths', () => {
             shellsByRegistryEndpoint: [{ endpoint: AAS_ENDPOINT, aas: aas }],
         });
 
-        const result = await searcher.fullSearch(searchString);
+        const result = await searcher.performFullSearch(searchString);
 
         expect(result.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
         expect(result.aas?.id).toEqual(aas.id);
@@ -93,7 +93,7 @@ describe('Full Aas Search happy paths', () => {
             ],
         });
 
-        const result = await searcher.fullSearch(searchString);
+        const result = await searcher.performFullSearch(searchString);
 
         expect(result.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
         expect(result.aas?.id).toEqual(aas.id);
@@ -112,7 +112,7 @@ describe('Full Aas Search happy paths', () => {
             ],
         });
 
-        const result = await searcher.fullSearch(searchString);
+        const result = await searcher.performFullSearch(searchString);
 
         expect(result.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
         expect(result.aas?.id).toEqual(aas.id);
@@ -136,7 +136,7 @@ describe('Full Aas Search happy paths', () => {
             ],
         });
 
-        const result = await searcher.fullSearch(searchString);
+        const result = await searcher.performFullSearch(searchString);
 
         expect(result.redirectUrl).toBe('/viewer/discovery?assetId=' + searchString);
     });
@@ -160,7 +160,12 @@ describe('Full Aas Search edge cases', () => {
         const searcher = AasSearcher.createNull({
             discoveryEntries: [{ assetId: searchString, aasIds: [aasId] }],
             registryShellDescriptorEntries: [createDummyShellDescriptor(AAS_ENDPOINT, aasId)],
-            shellsByRegistryEndpoint: [{ endpoint: AAS_ENDPOINT + 'wrong path', aas: createDummyAas({ id: aasId }) }],
+            shellsByRegistryEndpoint: [
+                {
+                    endpoint: new URL(AAS_ENDPOINT + 'wrong path'),
+                    aas: createDummyAas({ id: aasId }),
+                },
+            ],
             log: log,
         });
 
@@ -174,7 +179,12 @@ describe('Full Aas Search edge cases', () => {
         const searcher = AasSearcher.createNull({
             discoveryEntries: [{ assetId: 'wrong asset Id', aasIds: [aasId] }],
             registryShellDescriptorEntries: [createDummyShellDescriptor(AAS_ENDPOINT, aasId)],
-            shellsByRegistryEndpoint: [{ endpoint: AAS_ENDPOINT + 'wrong path', aas: createDummyAas({ id: aasId }) }],
+            shellsByRegistryEndpoint: [
+                {
+                    endpoint: new URL(AAS_ENDPOINT + 'wrong path'),
+                    aas: createDummyAas({ id: aasId }),
+                },
+            ],
             log: log,
         });
 
@@ -190,13 +200,13 @@ function createDummyAas({ id = 'irrelevant AasId' }: DummyAasParameters = {}) {
     return s;
 }
 
-function createDummyShellDescriptor(href: string, id: string): AssetAdministrationShellDescriptor {
+function createDummyShellDescriptor(href: URL, id: string): AssetAdministrationShellDescriptor {
     return {
         endpoints: [
             {
                 interface: 'AAS-3.0',
                 protocolInformation: {
-                    href: href,
+                    href: href.toString(),
                 },
             },
         ],
@@ -212,7 +222,7 @@ async function assertThatFunctionThrows(
     partOfExpectedErrorMessage: string | null = null,
 ) {
     try {
-        await searcher.fullSearch(searchString);
+        await searcher.performFullSearch(searchString);
         fail('Your method was expected to throw but did not throw at all.');
     } catch (e) {
         partOfExpectedErrorMessage && expect(e).toContain(partOfExpectedErrorMessage);
