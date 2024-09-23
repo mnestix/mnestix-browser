@@ -106,8 +106,8 @@ export function CompareView() {
                                     </IconButton>
                                     <AASOverviewCard
                                         key={index}
-                                        aas={aas}
-                                        productImage={aas.assetInformation.defaultThumbnail?.path}
+                                        aas={aas ?? null}
+                                        productImage={aas?.assetInformation?.defaultThumbnail?.path}
                                         isLoading={isLoadingAas}
                                         isAccordion={true}
                                         imageLinksToDetail={true}

@@ -23,6 +23,7 @@ export default function Page() {
     const navigate = useRouter();
     const searchParams = useParams<{ base64AasId: string }>();
     const base64AasId = searchParams.base64AasId;
+    const aasIdDecoded = safeBase64Decode(base64AasId);
     const [isLoadingAas, setIsLoadingAas] = useState(false);
     const notificationSpawner = useNotificationSpawner();
     const isMobile = useIsMobile();
@@ -42,7 +43,6 @@ export default function Page() {
     }, [base64AasId, env]);
 
     async function loadAasContent() {
-        const aasIdDecoded = safeBase64Decode(base64AasId);
         if (repoUrl) {
             const repoAas = await getAasFromRepository(aasIdDecoded, repoUrl);
             setAas(repoAas ?? undefined);
@@ -60,7 +60,7 @@ export default function Page() {
     }
 
     const startComparison = () => {
-        navigate.push(`/compare?aasId=${encodeURIComponent(aas?.id ?? '')}`);
+        navigate.push(`/compare?aasId=${encodeURIComponent(aasIdDecoded)}`);
     };
 
     const pageStyles = {

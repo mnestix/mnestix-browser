@@ -94,8 +94,8 @@ export class MultipleRepositorySearchService {
 
     async getSubmodelFromAllRepos(submodelId: string) {
         const basePathUrls = await this.prismaConnector.getConnectionDataByTypeAction({
-            id: '0',
-            typeName: 'AAS_REPOSITORY',
+            id: '2',
+            typeName: 'SUBMODEL_REPOSITORY',
         });
         const promises = basePathUrls.map((url) =>
             this.submodelRepositoryClient.getSubmodelById(submodelId, undefined, url),
