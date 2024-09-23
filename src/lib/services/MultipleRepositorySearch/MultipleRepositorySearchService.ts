@@ -79,12 +79,11 @@ export class MultipleRepositorySearchService {
         }
     }
 
-    async getAasFromDefaultRepository(aasId: string): Promise<AssetAdministrationShell | null> {
+    async getAasFromDefaultRepository(aasId: string): Promise<AssetAdministrationShell> {
         try {
             return await this.repositoryClient.getAssetAdministrationShellById(aasId);
         } catch (e) {
-            this.log.warn(e);
-            return null;
+            throw new Error('AAS not found');
         }
     }
 

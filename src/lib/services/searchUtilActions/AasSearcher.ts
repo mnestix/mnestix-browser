@@ -9,6 +9,7 @@ import { encodeBase64 } from 'lib/util/Base64Util';
 import {
     MultipleRepositorySearchService,
     NullableMultipleDataSourceSetupParameters,
+    RepoSearchResult,
 } from 'lib/services/MultipleRepositorySearch/MultipleRepositorySearchService';
 import { INullableAasRepositoryEntries } from 'lib/api/basyx-v3/apiInMemory';
 import { mnestixFetch } from 'lib/api/infrastructure';
@@ -77,7 +78,7 @@ export class AasSearcher {
         );
     }
 
-    async performFullSearch(searchInput: string): Promise<AasSearchResult> {
+    async performFullSearch(searchInput: string): Promise<AasSearchResult | null> {
         const aasIds = await this.performAasDiscoverySearch(searchInput);
         const foundMultipleDiscoveryResults = aasIds && aasIds.length > 1;
         const foundOneDiscoveryResult = aasIds && aasIds.length === 1;
@@ -94,16 +95,19 @@ export class AasSearcher {
             return aasRegistryResult;
         }
 
-        const defaultResult = await this.multipleDataSource.getAasFromDefaultRepository(aasIdEncoded);
+        const defaultResult = await this.getAasFromDefaultRepository(aasIdEncoded);
         if (defaultResult) {
             return this.createAasResult(defaultResult);
         }
 
-        const potentiallyMultipleAas = await this.multipleDataSource.getAasFromAllRepos(aasIdEncoded);
-        if (potentiallyMultipleAas.length > 1) {
+        const potentiallyMultipleAas = await this.getAasFromAllRepositories(aasIdEncoded);
+        if (potentiallyMultipleAas && potentiallyMultipleAas.length > 1) {
             return this.createDiscoveryRedirectResult(searchInput);
         }
-        return this.createAasResult(potentiallyMultipleAas[0].aas);
+        if (potentiallyMultipleAas) {
+            return this.createAasResult(potentiallyMultipleAas[0].aas);
+        }
+        return null; // No AAS found for the given ID
     }
 
     // TODO: handle multiple endpoints as result
@@ -172,6 +176,24 @@ export class AasSearcher {
             return await this.registryService.getAssetAdministrationShellFromEndpoint(endpoint);
         } catch (e) {
             this.log.warn(`Could not find an AAS at the given endpoint at '${endpoint}'`);
+            return null;
+        }
+    }
+
+    private async getAasFromDefaultRepository(aasId: string): Promise<AssetAdministrationShell | null> {
+        try {
+            return await this.multipleDataSource.getAasFromDefaultRepository(aasId);
+        } catch (e) {
+            this.log.warn(`Could not find the AAS '${aasId}' in the default repository`);
+            return null;
+        }
+    }
+
+    private async getAasFromAllRepositories(aasId: string): Promise<RepoSearchResult[] | null> {
+        try {
+            return await this.multipleDataSource.getAasFromAllRepos(aasId);
+        } catch (e) {
+            this.log.warn(`Could not find the AAS '${aasId}' in any configured repository`);
             return null;
         }
     }

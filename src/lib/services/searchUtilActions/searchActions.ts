@@ -3,7 +3,7 @@
 import { NotFoundError } from 'lib/errors/NotFoundError';
 import { AasSearcher, AasSearchResult } from 'lib/services/searchUtilActions/AasSearcher';
 
-export async function performFullAasSearch(searchInput: string): Promise<AasSearchResult> {
+export async function performFullAasSearch(searchInput: string): Promise<AasSearchResult | null> {
     const searcher = AasSearcher.create();
     return searcher.performFullSearch(searchInput);
 }
