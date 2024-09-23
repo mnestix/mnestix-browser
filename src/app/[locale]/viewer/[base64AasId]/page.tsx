@@ -24,7 +24,6 @@ export default function Page() {
     const searchParams = useParams<{ base64AasId: string }>();
     const base64AasId = searchParams.base64AasId;
     const [isLoadingAas, setIsLoadingAas] = useState(false);
-    const [isLoadingSubmodels] = useState(false);
     const notificationSpawner = useNotificationSpawner();
     const isMobile = useIsMobile();
     const intl = useIntl();
@@ -37,7 +36,6 @@ export default function Page() {
         if (aas) {
             return;
         }
-
         setIsLoadingAas(true);
         await loadAasContent();
         setIsLoadingAas(false);
@@ -52,13 +50,12 @@ export default function Page() {
         }
 
         const result = await performFullAasSearch(aasIdDecoded);
-
         if (!result) {
             showError(new LocalizedError(messages.mnestix.aasUrlNotFound), notificationSpawner);
         } else if (result.aas) {
             setAas(result.aas);
         } else {
-            navigate.push(`/viewer/discovery?aasId=${encodeURI(decodeBase64(base64AasId))}`);
+            navigate.push(result.redirectUrl);
         }
     }
 
@@ -87,7 +84,7 @@ export default function Page() {
 
     return (
         <Box sx={pageStyles}>
-            {aas || isLoadingAas || isLoadingSubmodels ? (
+            {aas || isLoadingAas ? (
                 <Box sx={viewerStyles}>
                     <Box display="flex" flexDirection="row" alignContent="flex-end">
                         <Typography
@@ -122,7 +119,9 @@ export default function Page() {
                         isLoading={isLoadingAas}
                         isAccordion={isMobile}
                     />
-                    <SubmodelsOverviewCard smReferences={aas?.submodels ?? undefined} isLoading={isLoadingSubmodels} />
+                    {aas?.submodels && aas.submodels.length > 0 && (
+                        <SubmodelsOverviewCard smReferences={aas.submodels} />
+                    )}
                 </Box>
             ) : (
                 <>

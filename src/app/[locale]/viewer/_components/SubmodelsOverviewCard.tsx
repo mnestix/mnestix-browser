@@ -17,11 +17,12 @@ import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { showError } from 'lib/util/ErrorHandlerUtil';
 import { performSearchSubmodelFromAllRepos } from 'lib/services/MultipleRepositorySearch/MultipleRepositorySearchActions';
 
-export type SubmodelsOverviewCardProps = { readonly smReferences?: Reference[]; readonly isLoading?: boolean };
+export type SubmodelsOverviewCardProps = { readonly smReferences: Reference[] };
 
 export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
     const [selectedItem, setSelectedItem] = useState<TabSelectorItem>();
     const [selectedSubmodel, setSelectedSubmodel] = useState<Submodel>();
+    const [isLoading, setIsLoading] = useState<boolean>(true);
     const { submodelClient } = useApis();
     const [registryAasData] = useRegistryAasState();
     const { submodelRegistryServiceClient } = useApis();
@@ -131,8 +132,10 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
     useAsyncEffect(async () => {
         if (!props.smReferences) return;
 
+        setIsLoading(true);
         await fetchSubmodels();
         sortSubmodelSelectorTabs();
+        setIsLoading(false);
     }, [props.smReferences, registryAasData]);
 
     useEffect(() => {
@@ -163,7 +166,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                     <FormattedMessage {...messages.mnestix.submodels} />
                 </Typography>
                 <Box display="grid" gridTemplateColumns={isMobile ? '1fr' : '1fr 2fr'} gap="40px">
-                    {props.isLoading && !props.smReferences ? (
+                    {isLoading ? (
                         <>
                             <Box>
                                 {[0, 1, 2].map((i) => {
