@@ -19,11 +19,10 @@ export const DashboardInput = () => {
         if (!aasSearch) throw new LocalizedError(messages.mnestix.aasUrlNotFound);
 
         if (aasSearch.aas) {
-            // SingleAasResult
             setAas(aasSearch.aas);
             setRegistryAasData(aasSearch.aasData);
         }
-        navigate.push(aasSearch.redirectUrl); // buildUrlFromReturnType
+        navigate.push(aasSearch.redirectUrl);
     };
 
     return (

@@ -133,7 +133,7 @@ export class AasSearcher {
         try {
             return (await this.discoveryServiceClient.getAasIdsByAssetId(searchAssetId)).result;
         } catch (e) {
-            this.log.warn('Could not be found in the discovery service, will continue to look in the AAS registry');
+            this.log.warn(`Could not find the asset '${searchAssetId}' in the discovery service`);
             return null;
         }
     }
@@ -142,7 +142,7 @@ export class AasSearcher {
         try {
             return await this.multipleDataSource.getAasFromRepo(aasId, repoUrl);
         } catch (e) {
-            this.log.warn(`AAS '${aasId}' not found in repository '${repoUrl}'`);
+            this.log.warn(`Could not find an AAS '${aasId}' in the repository '${repoUrl}'`);
             return null;
         }
     }
@@ -174,7 +174,7 @@ export class AasSearcher {
                 submodelDescriptors: submodelDescriptors,
             };
         } catch (e) {
-            this.log.warn('Could not be found in the registry service, will continue to look in the AAS repository');
+            this.log.warn(`Could not find the AAS '${searchAasId}' in the registry service`);
             return null;
         }
     }
@@ -183,7 +183,7 @@ export class AasSearcher {
         try {
             return await this.registryService.getAssetAdministrationShellFromEndpoint(endpoint);
         } catch (e) {
-            this.log.warn(`Could not find an AAS at the given endpoint at '${endpoint}'`);
+            this.log.warn(`Could not find an AAS at the endpoint '${endpoint}'`);
             return null;
         }
     }
