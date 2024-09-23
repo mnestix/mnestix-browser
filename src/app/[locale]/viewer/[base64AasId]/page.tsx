@@ -28,8 +28,7 @@ export default function Page() {
     const [submodelReferences, setSubmodelReferences] = useState<Reference[]>();
     const [productImage, setProductImage] = useState<string>();
     const [isLoadingAas, setIsLoadingAas] = useState(false);
-    const [isLoadingSubmodels] = useState(false);
-    const [hasImage, setHasImage] = useState(true);
+    const [isLoadingSubmodels, setIsLoadingSubmodels] = useState(false);
     const notificationSpawner = useNotificationSpawner();
     const isMobile = useIsMobile();
     const intl = useIntl();
@@ -91,11 +90,9 @@ export default function Page() {
     }
 
     const setAasData = (shell: AssetAdministrationShell) => {
-        const productImageString = shell.assetInformation?.defaultThumbnail?.path ?? '';
+        const productImageString = shell.assetInformation?.defaultThumbnail?.path;
         if (productImageString) {
             setProductImage(productImageString);
-        } else {
-            setHasImage(false);
         }
         setSubmodelReferences(shell.submodels ?? undefined);
     };
@@ -158,7 +155,6 @@ export default function Page() {
                         aas={aas}
                         productImage={productImage}
                         isLoading={isLoadingAas}
-                        hasImage={hasImage}
                         isAccordion={isMobile}
                     />
                     <SubmodelsOverviewCard smReferences={submodelReferences} isLoading={isLoadingSubmodels} />
