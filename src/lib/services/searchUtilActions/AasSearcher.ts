@@ -114,7 +114,7 @@ export class AasSearcher {
         }
         const endpoint = registrySearchResult.endpoints[0];
 
-        const aas = await this.fetchAasFromEndpoint(endpoint);
+        const aas = await this.getAasFromEndpoint(endpoint);
         if (!aas) {
             return null;
         }
@@ -130,6 +130,7 @@ export class AasSearcher {
             return (await this.discoveryServiceClient.getAasIdsByAssetId(searchAssetId)).result;
         } catch (e) {
             this.log.warn('Could not be found in the discovery service, will continue to look in the AAS registry');
+            return null;
         }
         return null;
     }
@@ -166,7 +167,7 @@ export class AasSearcher {
         }
     }
 
-    private async fetchAasFromEndpoint(endpoint: URL): Promise<AssetAdministrationShell | null> {
+    private async getAasFromEndpoint(endpoint: URL): Promise<AssetAdministrationShell | null> {
         try {
             return await this.registryService.getAssetAdministrationShellFromEndpoint(endpoint);
         } catch (e) {
