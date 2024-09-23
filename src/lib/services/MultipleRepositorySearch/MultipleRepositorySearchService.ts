@@ -54,6 +54,14 @@ export class MultipleRepositorySearchService {
         );
     }
 
+    async getAasFromRepo(aasId: string, repoUrl: string): Promise<AssetAdministrationShell> {
+        try {
+            return await this.repositoryClient.getAssetAdministrationShellById(aasId, undefined, repoUrl);
+        } catch (e) {
+            throw new Error(`AAS '${aasId}' not found in repository '${repoUrl}'`);
+        }
+    }
+
     async getAasFromAllRepos(aasId: string): Promise<RepoSearchResult[]> {
         const basePathUrls = await this.prismaConnector.getConnectionDataByTypeAction({
             id: '0',
@@ -61,10 +69,7 @@ export class MultipleRepositorySearchService {
         });
 
         const promises = basePathUrls.map(
-            (url) =>
-                this.repositoryClient
-                    .getAssetAdministrationShellById(aasId, undefined, url)
-                    .then((aas) => ({ aas: aas, location: url })), // add the URL to the resolved value
+            (url) => this.getAasFromRepo(aasId, url).then((aas) => ({ aas: aas, location: url })), // add the URL to the resolved value
         );
 
         const results = await Promise.allSettled(promises);

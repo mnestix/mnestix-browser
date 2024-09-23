@@ -136,7 +136,15 @@ export class AasSearcher {
             this.log.warn('Could not be found in the discovery service, will continue to look in the AAS registry');
             return null;
         }
-        return null;
+    }
+
+    public async getAasFromRepository(aasId: string, repoUrl: string): Promise<AssetAdministrationShell | null> {
+        try {
+            return await this.multipleDataSource.getAasFromRepo(aasId, repoUrl);
+        } catch (e) {
+            this.log.warn(`AAS '${aasId}' not found in repository '${repoUrl}'`);
+            return null;
+        }
     }
 
     private createAasResult(aas: AssetAdministrationShell, data?: AasData): AasSearchResult {
