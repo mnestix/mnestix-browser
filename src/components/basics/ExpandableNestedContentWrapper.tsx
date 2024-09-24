@@ -1,4 +1,4 @@
-import { KeyboardArrowUp, KeyboardArrowDown } from '@mui/icons-material';
+import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
 import { Box, Button } from '@mui/material';
 import { DataRow } from 'components/basics/DataRow';
 import { NestedContentWrapper } from 'components/basics/NestedContentWrapper';
@@ -27,10 +27,7 @@ export function ExpandableDefaultSubmodelDisplay(props: { submodel: Submodel }) 
                 </Button>
                 {isExpanded && (
                     <NestedContentWrapper>
-                        <SubmodelDetailList
-                            submodelId={props.submodel.id}
-                            submodelElements={props.submodel.submodelElements}
-                        />
+                        <SubmodelDetailList submodel={props.submodel} />
                     </NestedContentWrapper>
                 )}
             </Box>

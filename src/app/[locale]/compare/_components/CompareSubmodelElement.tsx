@@ -10,7 +10,7 @@ import {
     Property,
     SubmodelElementCollection,
 } from '@aas-core-works/aas-core3.0-typescript/types';
-import { GetKeyType } from 'lib/util/KeyTypeUtil';
+import { getKeyType } from 'lib/util/KeyTypeUtil';
 import { PropertyComponent } from 'app/[locale]/viewer/_components/submodel-elements/PropertyComponent';
 import { EntityComponent } from 'app/[locale]/viewer/_components/submodel-elements/entity-component/EntityComponent';
 import { MultiLanguagePropertyComponent } from 'app/[locale]/viewer/_components/submodel-elements/MultiLanguagePropertyComponent';
@@ -31,7 +31,7 @@ export function CompareSubmodelElement(props: CompareSubmodelElementProps) {
             return;
         }
 
-        const submodelElementType = GetKeyType(props.submodelElement);
+        const submodelElementType = getKeyType(props.submodelElement);
 
         switch (submodelElementType) {
             case KeyTypes.Property:
