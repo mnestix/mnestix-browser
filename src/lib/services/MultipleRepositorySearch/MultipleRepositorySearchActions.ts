@@ -1,3 +1,5 @@
+'use server';
+
 import { Submodel } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
 import {
     MultipleRepositorySearchService,
@@ -14,7 +16,7 @@ export async function performSearchSubmodelFromAllRepos(searchInput: string): Pr
     return searcher.getSubmodelFromAllRepos(searchInput);
 }
 
-export async function performgetAasThumbnailFromAllRepos(searchInput: string): Promise<Blob> {
+export async function performGetAasThumbnailFromAllRepos(searchInput: string): Promise<Blob> {
     const searcher = MultipleRepositorySearchService.create();
     return searcher.getAasThumbnailFromAllRepos(searchInput);
 }

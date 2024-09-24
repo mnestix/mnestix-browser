@@ -2,10 +2,19 @@
 
 import { NotFoundError } from 'lib/errors/NotFoundError';
 import { AasSearcher, AasSearchResult } from 'lib/services/searchUtilActions/AasSearcher';
+import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
 
-export async function performFullAasSearch(searchInput: string): Promise<AasSearchResult> {
+export async function performFullAasSearch(searchInput: string): Promise<AasSearchResult | null> {
     const searcher = AasSearcher.create();
     return searcher.performFullSearch(searchInput);
+}
+
+export async function getAasFromRepository(
+    aasId: string,
+    repositoryUrl: string,
+): Promise<AssetAdministrationShell | null> {
+    const searcher = AasSearcher.create();
+    return searcher.getAasFromRepository(aasId, repositoryUrl);
 }
 
 export async function performRegistryAasSearch(searchInput: string): Promise<AasSearchResult | null> {

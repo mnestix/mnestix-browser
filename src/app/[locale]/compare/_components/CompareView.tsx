@@ -13,7 +13,6 @@ import { useSearchParams } from 'next/navigation';
 import { showError } from 'lib/util/ErrorHandlerUtil';
 import { LocalizedError } from 'lib/util/LocalizedError';
 import { performFullAasSearch } from 'lib/services/searchUtilActions/searchActions';
-import { AasSearchResult } from 'lib/services/searchUtilActions/AasSearcher';
 
 export function CompareView() {
     const { compareAas, addSeveralAas, deleteAas, addAas } = useCompareAasContext();
@@ -57,10 +56,8 @@ export function CompareView() {
     };
 
     const handleAddAas = async (aasId: string) => {
-        let aasSearch: AasSearchResult;
-        try {
-            aasSearch = await performFullAasSearch(aasId);
-        } catch (e) {
+        const aasSearch = await performFullAasSearch(aasId);
+        if (!aasSearch) {
             throw new LocalizedError(messages.mnestix.aasUrlNotFound);
         }
 
@@ -109,8 +106,8 @@ export function CompareView() {
                                     </IconButton>
                                     <AASOverviewCard
                                         key={index}
-                                        aas={aas}
-                                        productImage={aas.assetInformation.defaultThumbnail?.path}
+                                        aas={aas ?? null}
+                                        productImage={aas?.assetInformation?.defaultThumbnail?.path}
                                         isLoading={isLoadingAas}
                                         isAccordion={true}
                                         imageLinksToDetail={true}
