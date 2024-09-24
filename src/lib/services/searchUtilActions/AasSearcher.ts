@@ -101,11 +101,13 @@ export class AasSearcher {
         }
 
         const potentiallyMultipleAas = await this.getAasFromAllRepositories(aasIdEncoded);
-        if (potentiallyMultipleAas && potentiallyMultipleAas.length > 1) {
-            return this.createDiscoveryRedirectResult(searchInput);
-        }
         if (potentiallyMultipleAas) {
-            return this.createAasResult(potentiallyMultipleAas[0].aas);
+            if (potentiallyMultipleAas.length === 1){
+                return this.createAasResult(potentiallyMultipleAas[0].aas);
+            }
+            if (potentiallyMultipleAas.length > 1) {
+                return this.createDiscoveryRedirectResult(searchInput);
+            }
         }
         return null; // No AAS found for the given ID
     }
