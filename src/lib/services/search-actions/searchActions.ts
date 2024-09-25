@@ -1,7 +1,7 @@
 'use server';
 
 import { NotFoundError } from 'lib/errors/NotFoundError';
-import { AasSearcher, AasSearchResult } from 'lib/services/searchUtilActions/AasSearcher';
+import { AasSearcher, AasSearchResult } from 'lib/services/search-actions/AasSearcher';
 import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
 
 export async function performFullAasSearch(searchInput: string): Promise<AasSearchResult | null> {

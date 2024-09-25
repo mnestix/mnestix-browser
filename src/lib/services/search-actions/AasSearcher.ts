@@ -10,7 +10,7 @@ import {
     MultipleRepositorySearchService,
     NullableMultipleDataSourceSetupParameters,
     RepoSearchResult,
-} from 'lib/services/MultipleRepositorySearch/MultipleRepositorySearchService';
+} from 'lib/services/multiple-repository-access/MultipleRepositorySearchService';
 import { INullableAasRepositoryEntries } from 'lib/api/basyx-v3/apiInMemory';
 import { mnestixFetch } from 'lib/api/infrastructure';
 
@@ -48,7 +48,7 @@ export class AasSearcher {
         protected readonly log: Log,
     ) {}
 
-    static create(_baseUrl: string = ''): AasSearcher {
+    static create(): AasSearcher {
         const multipleDataSource = MultipleRepositorySearchService.create();
         const registryServiceClient = RegistryServiceApi.create(process.env.REGISTRY_API_URL, mnestixFetch());
         const discoveryServiceClient = DiscoveryServiceApi.create(process.env.DISCOVERY_API_URL, mnestixFetch());
@@ -102,7 +102,7 @@ export class AasSearcher {
 
         const potentiallyMultipleAas = await this.getAasFromAllRepositories(aasIdEncoded);
         if (potentiallyMultipleAas) {
-            if (potentiallyMultipleAas.length === 1){
+            if (potentiallyMultipleAas.length === 1) {
                 return this.createAasResult(potentiallyMultipleAas[0].aas);
             }
             if (potentiallyMultipleAas.length > 1) {

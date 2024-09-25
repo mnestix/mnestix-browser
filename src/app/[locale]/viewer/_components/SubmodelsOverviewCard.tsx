@@ -11,11 +11,11 @@ import { TabSelectorItem, VerticalTabSelector } from 'components/basics/Vertical
 import { MobileModal } from 'components/basics/MobileModal';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useRegistryAasState } from 'components/contexts/CurrentAasContext';
-import { getSubmodelFromSubmodelDescriptor } from 'lib/services/searchUtilActions/searchActions';
+import { getSubmodelFromSubmodelDescriptor } from 'lib/services/search-actions/searchActions';
 import { useEnv } from 'app/env/provider';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { showError } from 'lib/util/ErrorHandlerUtil';
-import { performSearchSubmodelFromAllRepos } from 'lib/services/MultipleRepositorySearch/MultipleRepositorySearchActions';
+import { performSearchSubmodelFromAllRepos } from 'lib/services/multiple-repository-access/MultipleRepositorySearchActions';
 
 export type SubmodelsOverviewCardProps = { readonly smReferences: Reference[] };
 

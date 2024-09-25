@@ -16,7 +16,7 @@ import { SubmodelsOverviewCard } from '../_components/SubmodelsOverviewCard';
 import { AASOverviewCard } from 'app/[locale]/viewer/_components/AASOverviewCard';
 import { useEnv } from 'app/env/provider';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
-import { getAasFromRepository, performFullAasSearch } from 'lib/services/searchUtilActions/searchActions';
+import { getAasFromRepository, performFullAasSearch } from 'lib/services/search-actions/searchActions';
 import { LocalizedError } from 'lib/util/LocalizedError';
 
 export default function Page() {

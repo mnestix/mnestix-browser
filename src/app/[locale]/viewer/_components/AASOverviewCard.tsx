@@ -25,8 +25,7 @@ import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { AssetAdministrationShellRepositoryApi } from 'lib/api/basyx-v3/api';
 import { ImageWithFallback } from 'app/[locale]/list/_components/StyledImageWithFallBack';
-import { performGetAasThumbnailFromAllRepos } from 'lib/services/MultipleRepositorySearch/MultipleRepositorySearchActions';
-
+import { performGetAasThumbnailFromAllRepos } from 'lib/services/multiple-repository-access/MultipleRepositorySearchActions';
 
 type AASOverviewCardProps = {
     readonly aas: AssetAdministrationShell | null;

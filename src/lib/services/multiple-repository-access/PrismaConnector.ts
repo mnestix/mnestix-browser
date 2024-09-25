@@ -1,7 +1,7 @@
 import { prisma } from 'lib/database/prisma';
 import { ConnectionType } from '@prisma/client';
-import { IPrismaConnector } from 'lib/services/MultipleRepositorySearch/PrismaConnectorInterface';
-import { PrismaConnectorInMemory } from 'lib/services/MultipleRepositorySearch/PrismaConnectorInMemory';
+import { IPrismaConnector } from 'lib/services/multiple-repository-access/PrismaConnectorInterface';
+import { PrismaConnectorInMemory } from 'lib/services/multiple-repository-access/PrismaConnectorInMemory';
 
 export type DataSourceFormData = {
     id: string;

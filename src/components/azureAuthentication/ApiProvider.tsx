@@ -2,10 +2,9 @@
 
 import React, { PropsWithChildren } from 'react';
 import { mnestixFetch } from 'lib/api/infrastructure';
-import { AasListClient, TemplateClient } from 'lib/api/generated-api/clients.g';
+import { TemplateClient } from 'lib/api/generated-api/clients.g';
 import { useEnv } from 'app/env/provider';
 import { AssetAdministrationShellRepositoryApi, SubmodelRepositoryApi } from 'lib/api/basyx-v3/api';
-import { ConfigurationShellApi } from 'lib/api/configuration-shell-api/configurationShellApi';
 import { TemplateShellApi } from 'lib/api/template-shell-api/templateShellApi';
 import { DiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApi';
 import { RegistryServiceApi } from 'lib/api/registry-service-api/registryServiceApi';
@@ -17,12 +16,6 @@ export const ApiProvider = (props: PropsWithChildren) => {
     const env = useEnv();
     const apis = {
         templateClientWithAuth: new TemplateClient(env.MNESTIX_BACKEND_API_URL, mnestixFetch()),
-        aasListClient: new AasListClient(env.MNESTIX_BACKEND_API_URL, mnestixFetch()),
-        configurationClient: new ConfigurationShellApi(
-            env.MNESTIX_BACKEND_API_URL,
-            env.AUTHENTICATION_FEATURE_FLAG,
-            mnestixFetch(),
-        ),
         templatesClient: new TemplateShellApi(
             env.MNESTIX_BACKEND_API_URL ? env.MNESTIX_BACKEND_API_URL : '',
             env.AUTHENTICATION_FEATURE_FLAG,
@@ -54,8 +47,6 @@ export function useApis(): Apis {
 
 export type Apis = {
     templateClientWithAuth: TemplateClient;
-    aasListClient: AasListClient;
-    configurationClient: ConfigurationShellApi;
     repositoryClient: AssetAdministrationShellRepositoryApi;
     templatesClient: TemplateShellApi;
     submodelClient: SubmodelRepositoryApi;

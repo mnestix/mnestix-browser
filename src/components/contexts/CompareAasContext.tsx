@@ -4,10 +4,7 @@ import { SubmodelCompareData } from 'lib/types/SubmodelCompareData';
 import { generateSubmodelCompareData, isCompareData, isCompareDataRecord } from 'lib/util/CompareAasUtil';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
-import {
-    getSubmodelFromSubmodelDescriptor,
-    performRegistryAasSearch,
-} from 'lib/services/searchUtilActions/searchActions';
+import { getSubmodelFromSubmodelDescriptor, performRegistryAasSearch } from 'lib/services/search-actions/searchActions';
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 
 type CompareAasContextType = {

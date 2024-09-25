@@ -7,7 +7,7 @@ import { QrScanner } from 'app/[locale]/_components/QrScanner';
 import { useRouter } from 'next/navigation';
 import { useAasState, useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { LocalizedError } from 'lib/util/LocalizedError';
-import { performFullAasSearch } from 'lib/services/searchUtilActions/searchActions';
+import { performFullAasSearch } from 'lib/services/search-actions/searchActions';
 
 export const DashboardInput = () => {
     const [, setAas] = useAasState();
