@@ -125,7 +125,7 @@ export class AasListClient {
                 let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
                 if (Array.isArray(resultData200)) {
                     result200 = [] as any;
-                    for (let item of resultData200) result200!.push(AasListEntry.fromJS(item));
+                    for (let item of resultData200) result200!.push(item);
                 } else {
                     result200 = <any>null;
                 }
@@ -620,6 +620,15 @@ export class TemplateClient {
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : (window as any);
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : '';
+    }
+
+    static create(
+        _baseUrl: string = '',
+        http?: {
+            fetch(url: RequestInfo, init?: RequestInit): Promise<Response>;
+        },
+    ): TemplateClient {
+        return new TemplateClient(_baseUrl, http ?? window);
     }
 
     /**
