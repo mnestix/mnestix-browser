@@ -2,7 +2,7 @@
 import { FormattedMessage } from 'react-intl';
 import { messages } from 'lib/i18n/localization';
 import CloseIcon from '@mui/icons-material/Close';
-import { QrScanner } from 'app/[locale]/_components/QrScanner';
+import { QrScanner } from 'app/[locale]/_components/qrScanner/QrScanner';
 import { ManualAasInput } from 'app/[locale]/_components/ManualAasInput';
 
 type AddAasModalProps = {

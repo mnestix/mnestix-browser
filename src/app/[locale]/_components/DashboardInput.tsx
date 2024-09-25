@@ -3,7 +3,7 @@ import { Typography } from '@mui/material';
 import { messages } from 'lib/i18n/localization';
 import { FormattedMessage } from 'react-intl';
 import { ManualAasInput } from 'app/[locale]/_components/ManualAasInput';
-import { QrScanner } from 'app/[locale]/_components/QrScanner';
+import { QrScanner } from 'app/[locale]/_components/qrScanner/QrScanner';
 import { useRouter } from 'next/navigation';
 import { useAasState, useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { LocalizedError } from 'lib/util/LocalizedError';
