@@ -33,15 +33,15 @@ export function ManualAasInput(props: { onSubmit: (input: string) => Promise<voi
     };
 
     const handleSubmit = async () => {
+        setIsLoading(true);
         try {
-            setIsLoading(true);
             await props.onSubmit(inputValue);
         } catch (e) {
-            setIsLoading(false);
             const msg = e instanceof LocalizedError ? e.descriptor : messages.mnestix.unexpectedError;
             setError(intl.formatMessage(msg));
             if (!(e instanceof LocalizedError)) showError(e, notificationSpawner);
         }
+        setIsLoading(false);
     };
 
     const handleKeyPress = async (event: React.KeyboardEvent) => {
