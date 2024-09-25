@@ -8516,6 +8516,11 @@ ts-node@^10.9.2:
     v8-compile-cache-lib "^3.0.1"
     yn "3.1.1"
 
+ts-semaphore@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/ts-semaphore/-/ts-semaphore-1.0.0.tgz#b1746944cfa9cab87e4ebbca6c7f9ad149a1f2a5"
+  integrity sha512-pVttFT51kQiiq6MzdFGOLhKKIAbcI7CdTtSWMsFDBo02PqLMmTK337mMvGXU7vBL+fdTFFvEeE8lDgImOeHW7g==
+
 tsconfig-paths@^3.15.0:
   version "3.15.0"
   resolved "https://registry.yarnpkg.com/tsconfig-paths/-/tsconfig-paths-3.15.0.tgz#5299ec605e55b1abb23ec939ef15edaf483070d4"
