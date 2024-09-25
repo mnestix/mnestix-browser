@@ -2,20 +2,16 @@
 
 import React, { PropsWithChildren } from 'react';
 import { mnestixFetch } from 'lib/api/infrastructure';
-import { TemplateClient } from 'lib/api/generated-api/clients.g';
 import { useEnv } from 'app/env/provider';
 import { AssetAdministrationShellRepositoryApi, SubmodelRepositoryApi } from 'lib/api/basyx-v3/api';
 import { TemplateShellApi } from 'lib/api/template-shell-api/templateShellApi';
 import { DiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApi';
-import { RegistryServiceApi } from 'lib/api/registry-service-api/registryServiceApi';
 import { SubmodelRegistryServiceApi } from 'lib/api/submodel-registry-service/submodelRegistryServiceApi';
-import { IRegistryServiceApi } from 'lib/api/registry-service-api/registryServiceApiInterface';
 
 const ApiContext = React.createContext<Apis | null>(null);
 export const ApiProvider = (props: PropsWithChildren) => {
     const env = useEnv();
     const apis = {
-        templateClientWithAuth: new TemplateClient(env.MNESTIX_BACKEND_API_URL, mnestixFetch()),
         templatesClient: new TemplateShellApi(
             env.MNESTIX_BACKEND_API_URL ? env.MNESTIX_BACKEND_API_URL : '',
             env.AUTHENTICATION_FEATURE_FLAG,
@@ -30,7 +26,6 @@ export const ApiProvider = (props: PropsWithChildren) => {
             fetch: mnestixFetch(),
         }),
         discoveryServiceClient: DiscoveryServiceApi.create(env.DISCOVERY_API_URL, mnestixFetch()),
-        registryServiceClient: RegistryServiceApi.create(env.REGISTRY_API_URL, mnestixFetch()),
         submodelRegistryServiceClient: new SubmodelRegistryServiceApi(env.SUBMODEL_REGISTRY_API_URL, mnestixFetch()),
     };
 
@@ -46,11 +41,9 @@ export function useApis(): Apis {
 }
 
 export type Apis = {
-    templateClientWithAuth: TemplateClient;
     repositoryClient: AssetAdministrationShellRepositoryApi;
     templatesClient: TemplateShellApi;
     submodelClient: SubmodelRepositoryApi;
     discoveryServiceClient: DiscoveryServiceApi;
-    registryServiceClient: IRegistryServiceApi;
     submodelRegistryServiceClient: SubmodelRegistryServiceApi;
 };

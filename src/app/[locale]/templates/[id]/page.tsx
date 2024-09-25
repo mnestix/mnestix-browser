@@ -38,6 +38,7 @@ import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { useEnv } from 'app/env/provider';
 import { useParams, useRouter } from 'next/navigation';
 import { SubmodelViewObject } from 'lib/types/SubmodelViewObject';
+import { updateCustomSubmodel } from 'lib/services/templateApiWithAuthActions';
 
 export default function Page() {
     const { id } = useParams<{ id: string }>();
@@ -54,7 +55,6 @@ export default function Page() {
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [editFieldsProps, setEditFieldsProps] = useState<TemplateEditFieldsProps>();
     const navigate = useRouter();
-    const { templateClientWithAuth } = useApis();
     const auth = useAuth();
     const bearerToken = auth.getBearerToken();
     const [deletedItems, setDeletedItems] = useState<string[]>([]);
@@ -188,7 +188,7 @@ export default function Page() {
             try {
                 setIsSaving(true);
                 const submodel = generateSubmodel(updatedTemplate);
-                await templateClientWithAuth.updateCustomSubmodel(submodel, submodel.id);
+                await updateCustomSubmodel(submodel, submodel.id);
                 handleSuccessfulSave();
                 setLocalFrontendTemplate(updatedTemplate);
             } catch (e) {

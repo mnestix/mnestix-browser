@@ -21,6 +21,7 @@ import { Qualifier, Submodel } from '@aas-core-works/aas-core3.0-typescript/type
 import { sortWithNullableValues } from 'lib/util/SortingUtil';
 import { useEnv } from 'app/env/provider';
 import { useRouter } from 'next/navigation';
+import { createCustomSubmodel } from 'lib/services/templateApiWithAuthActions';
 
 enum SpecialDefaultTabIds {
     All = 'all',
@@ -28,7 +29,7 @@ enum SpecialDefaultTabIds {
 }
 
 export default function Page() {
-    const { templateClientWithAuth, templatesClient } = useApis();
+    const { templatesClient } = useApis();
     const env = useEnv();
     const intl = useIntl();
     const navigate = useRouter();
@@ -173,7 +174,7 @@ export default function Page() {
     const handleCreateTemplateClick = async (template?: Submodel) => {
         setIsCreatingTemplate(true);
         try {
-            const newId = await templateClientWithAuth.createCustomSubmodel(template || EmptyDefaultTemplate);
+            const newId = await createCustomSubmodel(template || EmptyDefaultTemplate);
             setIsCreatingTemplate(false);
             navigate.push(`/templates/${encodeURIComponent(newId)}`);
         } catch (e) {
