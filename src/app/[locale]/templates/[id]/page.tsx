@@ -15,7 +15,6 @@ import {
     Typography,
 } from '@mui/material';
 import { Breadcrumbs } from 'components/basics/Breadcrumbs';
-import { TemplateDeleteDialog } from '../_components/TemplateDeleteDialog';
 import { TemplateEditTree } from '../_components/template-edit/TemplateEditTree';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { messages } from 'lib/i18n/localization';
@@ -33,12 +32,13 @@ import { useAuth } from 'lib/hooks/UseAuth';
 import { LoadingButton } from '@mui/lab';
 import cloneDeep from 'lodash/cloneDeep';
 import { Qualifier, Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
-import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { useEnv } from 'app/env/provider';
 import { useParams, useRouter } from 'next/navigation';
 import { SubmodelViewObject } from 'lib/types/SubmodelViewObject';
 import { updateCustomSubmodel } from 'lib/services/templateApiWithAuthActions';
+import { deleteCustomById, getCustom, getDefaults } from 'lib/services/templatesApiActions';
+import { TemplateDeleteDialog } from 'app/[locale]/templates/_components/TemplateDeleteDialog';
 
 export default function Page() {
     const { id } = useParams<{ id: string }>();
@@ -60,15 +60,14 @@ export default function Page() {
     const [deletedItems, setDeletedItems] = useState<string[]>([]);
     const [defaultTemplates, setDefaultTemplates] = useState<Submodel[]>();
     const env = useEnv();
-    const { templatesClient } = useApis();
     const fetchCustom = async () => {
         if (!id) return;
-        const custom = await templatesClient.getCustom(bearerToken, id);
+        const custom = await getCustom(bearerToken, id);
         setLocalFrontendTemplate(generateSubmodelViewObject(custom));
     };
 
     const fetchDefaultTemplates = async () => {
-        const defaultTemplates = await templatesClient.getDefaults(bearerToken);
+        const defaultTemplates = await getDefaults(bearerToken);
         setDefaultTemplates(defaultTemplates);
     };
 
@@ -135,7 +134,7 @@ export default function Page() {
     const deleteTemplate = async () => {
         if (!id) return;
         try {
-            await templatesClient.deleteCustomById(bearerToken, id);
+            await deleteCustomById(bearerToken, id);
             notificationSpawner.spawn({
                 message: intl.formatMessage(messages.mnestix.templateDeletedSuccessfully),
                 severity: 'success',

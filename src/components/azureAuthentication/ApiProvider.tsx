@@ -4,7 +4,6 @@ import React, { PropsWithChildren } from 'react';
 import { mnestixFetch } from 'lib/api/infrastructure';
 import { useEnv } from 'app/env/provider';
 import { AssetAdministrationShellRepositoryApi, SubmodelRepositoryApi } from 'lib/api/basyx-v3/api';
-import { TemplateShellApi } from 'lib/api/template-shell-api/templateShellApi';
 import { DiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApi';
 import { SubmodelRegistryServiceApi } from 'lib/api/submodel-registry-service/submodelRegistryServiceApi';
 
@@ -12,11 +11,6 @@ const ApiContext = React.createContext<Apis | null>(null);
 export const ApiProvider = (props: PropsWithChildren) => {
     const env = useEnv();
     const apis = {
-        templatesClient: new TemplateShellApi(
-            env.MNESTIX_BACKEND_API_URL ? env.MNESTIX_BACKEND_API_URL : '',
-            env.AUTHENTICATION_FEATURE_FLAG,
-            mnestixFetch(),
-        ),
         repositoryClient: AssetAdministrationShellRepositoryApi.create({
             basePath: env.AAS_REPO_API_URL,
             fetch: mnestixFetch(),
@@ -42,7 +36,6 @@ export function useApis(): Apis {
 
 export type Apis = {
     repositoryClient: AssetAdministrationShellRepositoryApi;
-    templatesClient: TemplateShellApi;
     submodelClient: SubmodelRepositoryApi;
     discoveryServiceClient: DiscoveryServiceApi;
     submodelRegistryServiceClient: SubmodelRegistryServiceApi;
