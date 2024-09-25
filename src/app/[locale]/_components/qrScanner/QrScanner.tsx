@@ -1,9 +1,8 @@
 'use client';
 
-import { useCallback, useState } from 'react';
 import ScannerLogo from 'assets/ScannerLogo.svg';
 import { Box, CircularProgress, IconButton, useTheme } from '@mui/material';
-import { QrStream } from 'app/[locale]/_components/QrStream';
+import { QrStream } from 'app/[locale]/_components/qrScanner/QrStream';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { messages } from 'lib/i18n/localization';
@@ -12,34 +11,31 @@ import { LocalizedError } from 'lib/util/LocalizedError';
 import { keyframes, styled } from '@mui/system';
 import { ThemeProvider } from '@mui/material/styles';
 import CircleIcon from '@mui/icons-material/Circle';
-
-enum State {
-    Stopped,
-    LoadScanner,
-    ShowVideo,
-    HandleQr,
-}
+import { QrScannerStateMachine } from 'app/[locale]/_components/qrScanner/QrScannerStateMachine';
 
 export function QrScanner(props: { onScan: (scanResult: string) => Promise<void>; size?: number | undefined }) {
-    const [state, setState] = useState<State>(State.Stopped);
+    const state = new QrScannerStateMachine(
+        props.onScan,
+        (error) => {
+            const msg =
+                error instanceof LocalizedError ? error.descriptor : messages.mnestix.qrScanner.defaultCallbackErrorMsg;
+            notificationSpawner.spawn({
+                message: intl.formatMessage(msg),
+                severity: 'error',
+            });
+        },
+        () =>
+            notificationSpawner.spawn({
+                message: intl.formatMessage(messages.mnestix.qrScanner.errorOnQrScannerOpen),
+                severity: 'error',
+            }),
+    );
 
     const notificationSpawner = useNotificationSpawner();
     const intl = useIntl();
 
     const theme = useTheme();
     const size = props.size || 250;
-
-    const switchToVideoStream = useCallback((loadingSuccessful: boolean) => {
-        if (loadingSuccessful) {
-            setState(State.ShowVideo);
-        } else {
-            notificationSpawner.spawn({
-                message: intl.formatMessage(messages.mnestix.qrScanner.errorOnQrScannerOpen),
-                severity: 'error',
-            });
-            setState(State.Stopped);
-        }
-    }, []);
 
     const expandFromCenter = keyframes`
         0% {
@@ -80,35 +76,16 @@ export function QrScanner(props: { onScan: (scanResult: string) => Promise<void>
         },
     }));
 
-    const handleScan = useCallback(
-        async (result: string) => {
-            setState(State.HandleQr);
-            try {
-                await props.onScan(result);
-                setState(State.Stopped);
-            } catch (e) {
-                const msg =
-                    e instanceof LocalizedError ? e.descriptor : messages.mnestix.qrScanner.defaultCallbackErrorMsg;
-                notificationSpawner.spawn({
-                    message: intl.formatMessage(msg),
-                    severity: 'error',
-                });
-                setState(State.LoadScanner);
-            }
-        },
-        [props.onScan],
-    );
-
     // This will allow cypress to call the callback manually and circumvent a webcam mock
     if (typeof window !== 'undefined' && typeof window.Cypress !== 'undefined') {
-        window.Cypress.scannerCallback = handleScan;
+        window.Cypress.scannerCallback = state.handleScan;
     }
 
     return (
         <Box position="relative" margin="auto" height={size} width={size} style={{ cursor: 'pointer' }}>
-            {state === State.Stopped && (
+            {state.IsStopped && (
                 <Box
-                    onClick={() => setState(State.LoadScanner)}
+                    onClick={() => state.startScanner()}
                     padding="50px"
                     position="absolute"
                     height={size}
@@ -118,11 +95,11 @@ export function QrScanner(props: { onScan: (scanResult: string) => Promise<void>
                     <ScannerLogo style={{ color: theme.palette.primary.main }} alt="Scanner Logo" />
                 </Box>
             )}
-            {state === State.ShowVideo && (
+            {state.IsVideoShown && (
                 <IconButton
                     data-testid="scanner-close-button"
                     aria-label="close scanner"
-                    onClick={() => setState(State.Stopped)}
+                    onClick={() => state.stopScanner()}
                     style={{
                         position: 'absolute',
                         zIndex: 995,
@@ -133,7 +110,7 @@ export function QrScanner(props: { onScan: (scanResult: string) => Promise<void>
                     <CancelIcon fontSize="large" color="primary" style={{ zIndex: 994 }} />
                 </IconButton>
             )}
-            {(state === State.LoadScanner || state === State.HandleQr) && (
+            {state.IsLoading && (
                 <Box padding="50px" position="absolute" height={size} width={size}>
                     <CircularProgress
                         style={{ margin: 'auto', position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }}
@@ -141,10 +118,10 @@ export function QrScanner(props: { onScan: (scanResult: string) => Promise<void>
                     <ScannerLogo style={{ color: theme.palette.primary.main, opacity: 0.4 }} alt="Scanner Logo" />
                 </Box>
             )}
-            {(state === State.LoadScanner || state === State.ShowVideo) && (
+            {state.IsActive && (
                 <ThemeProvider theme={theme}>
-                    <VideoContainer theme={theme} focused={state === State.ShowVideo} tabIndex={0}>
-                        <QrStream onScan={handleScan} onLoadingFinished={switchToVideoStream} />
+                    <VideoContainer theme={theme} focused={state.IsVideoShown} tabIndex={0}>
+                        <QrStream onScan={state.handleScan} onLoadingFinished={state.switchToVideoStream} />
                     </VideoContainer>
                 </ThemeProvider>
             )}
