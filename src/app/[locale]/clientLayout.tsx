@@ -1,7 +1,6 @@
 'use client';
 
 import { Box } from '@mui/material';
-import { ApiProvider } from 'components/azureAuthentication/ApiProvider';
 import { CurrentAasContextProvider } from 'components/contexts/CurrentAasContext';
 import { NotificationContextProvider } from 'components/contexts/NotificationContext';
 import { LayoutRoot } from 'layout/LayoutRoot';
@@ -19,21 +18,19 @@ export const ClientLayout = ({ children }: Readonly<ClientLayoutProps>) => {
     return (
         <EnvProvider>
             <SessionProvider>
-                <ApiProvider>
-                    <Internationalization>
-                        <CustomThemeProvider>
-                            <CurrentAasContextProvider>
-                                <NotificationContextProvider>
-                                    <LayoutRoot>
-                                        <Box flexGrow={1} data-testid="notifications">
-                                            {children}
-                                        </Box>
-                                    </LayoutRoot>
-                                </NotificationContextProvider>
-                            </CurrentAasContextProvider>
-                        </CustomThemeProvider>
-                    </Internationalization>
-                </ApiProvider>
+                <Internationalization>
+                    <CustomThemeProvider>
+                        <CurrentAasContextProvider>
+                            <NotificationContextProvider>
+                                <LayoutRoot>
+                                    <Box flexGrow={1} data-testid="notifications">
+                                        {children}
+                                    </Box>
+                                </LayoutRoot>
+                            </NotificationContextProvider>
+                        </CurrentAasContextProvider>
+                    </CustomThemeProvider>
+                </Internationalization>
             </SessionProvider>
         </EnvProvider>
     );

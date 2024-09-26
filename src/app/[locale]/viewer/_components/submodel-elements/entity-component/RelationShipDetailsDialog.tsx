@@ -7,10 +7,10 @@ import { useEffect, useState } from 'react';
 import { showError } from 'lib/util/ErrorHandlerUtil';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { useParams } from 'next/navigation';
-import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useEnv } from 'app/env/provider';
 import { getSubmodelDescriptorsById } from 'lib/services/submodelRegistryApiActions';
 import { getSubmodelById } from 'lib/services/submodelRepositoryApiActions';
+import { getSubmodelReferencesFromShell } from 'lib/services/multiple-repository-access/MultipleRepositorySearchActions';
 
 type RelationShipDetailsModalProps = {
     readonly relationship: RelationshipElement;
@@ -27,15 +27,12 @@ export function RelationShipDetailsDialog(props: RelationShipDetailsModalProps) 
     const submodelId = relationship.second.keys[0]?.value;
 
     const [subIdShort, setSubIdShort] = useState<string>();
-    const { repositoryClient } = useApis();
     const env = useEnv();
 
     useEffect(() => {
         async function _fetchSubmodels() {
             try {
-                const submodelRefs = (await repositoryClient.getSubmodelReferencesFromShell(
-                    base64AasId as string,
-                )) as Reference[];
+                const submodelRefs = (await getSubmodelReferencesFromShell(base64AasId as string)) as Reference[];
                 const submodels = [] as Submodel[];
 
                 for (const reference of submodelRefs) {

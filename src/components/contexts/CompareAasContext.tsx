@@ -3,11 +3,11 @@ import { createContext, PropsWithChildren, useContext, useEffect, useState } fro
 import { SubmodelCompareData } from 'lib/types/SubmodelCompareData';
 import { generateSubmodelCompareData, isCompareData, isCompareDataRecord } from 'lib/util/CompareAasUtil';
 import { encodeBase64 } from 'lib/util/Base64Util';
-import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { getSubmodelFromSubmodelDescriptor, performRegistryAasSearch } from 'lib/services/search-actions/searchActions';
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 import { getSubmodelDescriptorsById } from 'lib/services/submodelRegistryApiActions';
 import { getSubmodelById } from 'lib/services/submodelRepositoryApiActions';
+import { getAssetAdministrationShellById } from 'lib/services/multiple-repository-access/MultipleRepositorySearchActions';
 
 type CompareAasContextType = {
     compareAas: AssetAdministrationShell[];
@@ -25,7 +25,6 @@ const CompareAasContext = createContext<CompareAasContextType | undefined>(undef
 export const useCompareAasContext = () => useContext(CompareAasContext) as CompareAasContextType;
 
 export const CompareAasContextProvider = (props: PropsWithChildren) => {
-    const { repositoryClient } = useApis();
     const [compareAas, setCompareAas] = useState<AssetAdministrationShell[]>(() => {
         const storedList = localStorage.getItem(aasCompareStorage);
         return storedList ? JSON.parse(storedList) : [];
@@ -79,7 +78,7 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
             if (registrySearchResult != null) {
                 shell = registrySearchResult.aas as AssetAdministrationShell;
             } else {
-                shell = await repositoryClient.getAssetAdministrationShellById(encodeBase64(aasId));
+                shell = await getAssetAdministrationShellById(encodeBase64(aasId));
             }
             // Get AAS
             aasList.push(shell);

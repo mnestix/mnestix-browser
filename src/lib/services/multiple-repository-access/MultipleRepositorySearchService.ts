@@ -6,6 +6,7 @@ import { AssetAdministrationShell, Submodel } from '@aas-core-works/aas-core3.0-
 import { INullableAasRepositoryEntries } from 'lib/api/basyx-v3/apiInMemory';
 import { PrismaConnector } from 'lib/services/multiple-repository-access/PrismaConnector';
 import { IPrismaConnector } from 'lib/services/multiple-repository-access/PrismaConnectorInterface';
+import { Reference } from '@aas-core-works/aas-core3.0-typescript/types';
 
 export type RepoSearchResult = {
     aas: AssetAdministrationShell;
@@ -54,6 +55,14 @@ export class MultipleRepositorySearchService {
         );
     }
 
+    async getAasFromDefaultRepository(aasId: string): Promise<AssetAdministrationShell> {
+        try {
+            return await this.repositoryClient.getAssetAdministrationShellById(aasId);
+        } catch (e) {
+            throw new Error('AAS not found');
+        }
+    }
+
     async getAasFromRepo(aasId: string, repoUrl: string): Promise<AssetAdministrationShell> {
         try {
             return await this.repositoryClient.getAssetAdministrationShellById(aasId, undefined, repoUrl);
@@ -84,14 +93,6 @@ export class MultipleRepositorySearchService {
         }
     }
 
-    async getAasFromDefaultRepository(aasId: string): Promise<AssetAdministrationShell> {
-        try {
-            return await this.repositoryClient.getAssetAdministrationShellById(aasId);
-        } catch (e) {
-            throw new Error('AAS not found');
-        }
-    }
-
     async getSubmodelFromAllRepos(submodelId: string) {
         const basePathUrls = await this.prismaConnector.getConnectionDataByTypeAction({
             id: '2',
@@ -105,6 +106,22 @@ export class MultipleRepositorySearchService {
             return await Promise.any(promises);
         } catch (error) {
             throw new Error('Submodel not found');
+        }
+    }
+
+    async getSubmodelReferencesFromShell(aasId: string): Promise<Reference[]> {
+        try {
+            return await this.repositoryClient.getSubmodelReferencesFromShell(aasId);
+        } catch (e) {
+            throw new Error('Submodel Reference not found');
+        }
+    }
+
+    async getThumbnailFromShell(aasId: string): Promise<Blob> {
+        try {
+            return await this.repositoryClient.getThumbnailFromShell(aasId);
+        } catch (e) {
+            throw new Error('Thumbnail not found');
         }
     }
 
