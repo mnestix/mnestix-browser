@@ -12,14 +12,13 @@ import { SubmodelElementRenderer } from '../SubmodelElementRenderer';
 import { EntityDetailsDialog } from './EntityDetailsDialog';
 import { RelationShipDetailsDialog } from './RelationShipDetailsDialog';
 import { GetKeyType } from 'lib/util/KeyTypeUtil';
-import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { CustomTreeItemContentProps, CustomTreeItemProps, ExpandableTreeitem, getTreeItemStyle } from '../TreeItem';
+import { performDiscoveryAasSearch } from 'lib/services/search-actions/searchActions';
 
 const CustomContent = React.forwardRef(function CustomContent(props: CustomTreeItemContentProps, ref) {
     const navigate = useRouter();
     const { classes, className, label, itemId, icon: iconProp, data, ...other } = props;
     const { disabled, expanded, selected, focused, handleExpansion } = useTreeItemState(itemId);
-    const { discoveryServiceClient } = useApis();
     const isEntity = GetKeyType(data as ISubmodelElement) === KeyTypes.Entity;
     const dataIcon = isEntity ? (
         <AssetIcon fontSize="small" color="primary" />
@@ -43,8 +42,10 @@ const CustomContent = React.forwardRef(function CustomContent(props: CustomTreeI
             // Check if the Asset Id exists in the same repository as the "parent AAS",
             // if so, then navigate to the asset-redirect page of this Mnestix instance,
             // if not, just navigate to the specified URL which might lead anywhere.
-            const aasIds = (await discoveryServiceClient.getAasIdsByAssetId(assetId)).result;
-            if (aasIds.length === 0) {
+
+            //const aasIds = (await discoveryServiceClient.getAasIdsByAssetId(assetId)).result;
+            const aasIds = await performDiscoveryAasSearch(assetId);
+            if (aasIds && aasIds.length === 0) {
                 window.open(assetId, '_blank');
             } else {
                 navigate.push('/asset?assetId=' + encodeURIComponent(assetId));
