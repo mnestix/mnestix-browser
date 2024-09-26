@@ -16,6 +16,7 @@ import { useEnv } from 'app/env/provider';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { showError } from 'lib/util/ErrorHandlerUtil';
 import { performSearchSubmodelFromAllRepos } from 'lib/services/multiple-repository-access/MultipleRepositorySearchActions';
+import { getSubmodelDescriptorsById } from 'lib/services/submodelRegistryApiActions';
 
 export type SubmodelsOverviewCardProps = { readonly smReferences: Reference[] };
 
@@ -25,7 +26,6 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const { submodelClient } = useApis();
     const [registryAasData] = useRegistryAasState();
-    const { submodelRegistryServiceClient } = useApis();
     const notificationSpawner = useNotificationSpawner();
 
     SubmodelSorting(selectedSubmodel);
@@ -88,8 +88,9 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                 (props.smReferences as Reference[]).map(async (reference): Promise<TabSelectorItem | null> => {
                     let tabSelectorItem: TabSelectorItem | null = null;
                     try {
+                        // TODO: TEST!
                         const submodelDescriptor = env.SUBMODEL_REGISTRY_API_URL
-                            ? await submodelRegistryServiceClient.getSubmodelDescriptorsById(reference.keys[0].value)
+                            ? await getSubmodelDescriptorsById(reference.keys[0].value)
                             : null;
                         const endpoint = submodelDescriptor?.endpoints[0].protocolInformation.href;
 

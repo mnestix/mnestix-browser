@@ -4,7 +4,6 @@ import React, { PropsWithChildren } from 'react';
 import { mnestixFetch } from 'lib/api/infrastructure';
 import { useEnv } from 'app/env/provider';
 import { AssetAdministrationShellRepositoryApi, SubmodelRepositoryApi } from 'lib/api/basyx-v3/api';
-import { SubmodelRegistryServiceApi } from 'lib/api/submodel-registry-service/submodelRegistryServiceApi';
 
 const ApiContext = React.createContext<Apis | null>(null);
 
@@ -19,7 +18,6 @@ export const ApiProvider = (props: PropsWithChildren) => {
             basePath: env.SUBMODEL_REPO_API_URL ?? env.AAS_REPO_API_URL,
             fetch: mnestixFetch(),
         }),
-        submodelRegistryServiceClient: new SubmodelRegistryServiceApi(env.SUBMODEL_REGISTRY_API_URL, mnestixFetch()),
     };
 
     return <ApiContext.Provider value={apis}>{props.children}</ApiContext.Provider>;
@@ -36,5 +34,4 @@ export function useApis(): Apis {
 export type Apis = {
     repositoryClient: AssetAdministrationShellRepositoryApi;
     submodelClient: SubmodelRepositoryApi;
-    submodelRegistryServiceClient: SubmodelRegistryServiceApi;
 };

@@ -9,6 +9,7 @@ import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { useParams } from 'next/navigation';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useEnv } from 'app/env/provider';
+import { getSubmodelDescriptorsById } from 'lib/services/submodelRegistryApiActions';
 
 type RelationShipDetailsModalProps = {
     readonly relationship: RelationshipElement;
@@ -25,7 +26,7 @@ export function RelationShipDetailsDialog(props: RelationShipDetailsModalProps) 
     const submodelId = relationship.second.keys[0]?.value;
 
     const [subIdShort, setSubIdShort] = useState<string>();
-    const { repositoryClient, submodelClient, submodelRegistryServiceClient } = useApis();
+    const { repositoryClient, submodelClient } = useApis();
     const env = useEnv();
 
     useEffect(() => {
@@ -39,8 +40,9 @@ export function RelationShipDetailsDialog(props: RelationShipDetailsModalProps) 
                 for (const reference of submodelRefs) {
                     const id = reference.keys[0].value;
                     try {
+                        // TODO: Test
                         const submodelFromRegistry = env.SUBMODEL_REGISTRY_API_URL
-                            ? await submodelRegistryServiceClient.getSubmodelDescriptorsById(reference.keys[0].value)
+                            ? await getSubmodelDescriptorsById(reference.keys[0].value)
                             : null;
                         submodels.push(submodelFromRegistry);
                     } catch (e) {

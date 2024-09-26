@@ -6,6 +6,7 @@ import { encodeBase64 } from 'lib/util/Base64Util';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { getSubmodelFromSubmodelDescriptor, performRegistryAasSearch } from 'lib/services/search-actions/searchActions';
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
+import { getSubmodelDescriptorsById } from 'lib/services/submodelRegistryApiActions';
 
 type CompareAasContextType = {
     compareAas: AssetAdministrationShell[];
@@ -23,7 +24,7 @@ const CompareAasContext = createContext<CompareAasContextType | undefined>(undef
 export const useCompareAasContext = () => useContext(CompareAasContext) as CompareAasContextType;
 
 export const CompareAasContextProvider = (props: PropsWithChildren) => {
-    const { repositoryClient, submodelClient, submodelRegistryServiceClient } = useApis();
+    const { repositoryClient, submodelClient } = useApis();
     const [compareAas, setCompareAas] = useState<AssetAdministrationShell[]>(() => {
         const storedList = localStorage.getItem(aasCompareStorage);
         return storedList ? JSON.parse(storedList) : [];
@@ -153,9 +154,8 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
             for (const reference of input as Reference[]) {
                 let submodelAdded = false;
                 try {
-                    const submodelDescriptor = await submodelRegistryServiceClient.getSubmodelDescriptorsById(
-                        reference.keys[0].value,
-                    );
+                    //TODO: Test
+                    const submodelDescriptor = await getSubmodelDescriptorsById(reference.keys[0].value);
                     const submodelData = await getSubmodelFromSubmodelDescriptor(
                         submodelDescriptor.endpoints[0].protocolInformation.href,
                     );
