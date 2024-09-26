@@ -1,11 +1,11 @@
 import { InfoOutlined, InsertDriveFileOutlined, OpenInNew } from '@mui/icons-material';
 import { Box, Button, IconButton, Link, styled, Typography } from '@mui/material';
 import {
+    File,
+    ISubmodelElement,
     MultiLanguageProperty,
     Property,
-    ISubmodelElement,
     SubmodelElementCollection,
-    File,
 } from '@aas-core-works/aas-core3.0-typescript/types';
 import { DataRow } from 'components/basics/DataRow';
 import { PdfDocumentIcon } from 'components/custom-icons/PdfDocumentIcon';
@@ -17,9 +17,8 @@ import { DocumentDetailsDialog } from './DocumentDetailsDialog';
 import { isValidUrl } from 'lib/util/UrlUtil';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
-import { useApis } from 'components/azureAuthentication/ApiProvider';
 import Image from 'next/image';
-import { SubmodelRepositoryApi } from 'lib/api/basyx-v3/api';
+import { getAttachmentFromSubmodelElement } from 'lib/services/submodelRepositoryApiActions';
 
 enum DocumentSpecificSemanticId {
     DocumentVersion = 'https://admin-shell.io/vdi/2770/1/0/DocumentVersion',
@@ -83,10 +82,9 @@ export function DocumentComponent(props: MarkingsComponentProps) {
     const intl = useIntl();
     const [fileViewObject, setFileViewObject] = useState<FileViewObject>();
     const [detailsModalOpen, setDetailsModalOpen] = useState(false);
-    const { submodelClient } = useApis();
 
     useAsyncEffect(async () => {
-        setFileViewObject(await getFileViewObject(submodelClient));
+        setFileViewObject(await getFileViewObject());
     }, [props.submodelElement]);
 
     const handleDetailsClick = () => {
@@ -150,11 +148,7 @@ export function DocumentComponent(props: MarkingsComponentProps) {
         );
     }
 
-    async function getDigitalFile(
-        versionSubmodelEl: ISubmodelElement,
-        submodelElement: ISubmodelElement,
-        submodelClient: SubmodelRepositoryApi,
-    ) {
+    async function getDigitalFile(versionSubmodelEl: ISubmodelElement, submodelElement: ISubmodelElement) {
         const digitalFile = {
             digitalFileUrl: '',
             mimeType: '',
@@ -179,10 +173,7 @@ export function DocumentComponent(props: MarkingsComponentProps) {
             digitalFile.mimeType = (versionSubmodelEl as File).contentType;
 
             try {
-                const image = await submodelClient.getAttachmentFromSubmodelElement(
-                    props.submodelId,
-                    submodelElementPath,
-                );
+                const image = await getAttachmentFromSubmodelElement(props.submodelId, submodelElementPath);
                 digitalFile.digitalFileUrl = URL.createObjectURL(image);
                 digitalFile.mimeType = (versionSubmodelEl as File).contentType;
             } catch (e) {
@@ -193,11 +184,7 @@ export function DocumentComponent(props: MarkingsComponentProps) {
         return digitalFile;
     }
 
-    async function getPreviewImageUrl(
-        versionSubmodelEl: ISubmodelElement,
-        submodelElement: ISubmodelElement,
-        submodelClient: SubmodelRepositoryApi,
-    ) {
+    async function getPreviewImageUrl(versionSubmodelEl: ISubmodelElement, submodelElement: ISubmodelElement) {
         let previewImgUrl;
 
         if (isValidUrl((versionSubmodelEl as File).value)) {
@@ -209,7 +196,7 @@ export function DocumentComponent(props: MarkingsComponentProps) {
                 submodelElement.idShort +
                 '.' +
                 findIdShortForLatestPreviewImage(submodelElement as SubmodelElementCollection);
-            
+
             previewImgUrl =
                 '/submodels/' +
                 encodeBase64(props.submodelId) +
@@ -218,20 +205,17 @@ export function DocumentComponent(props: MarkingsComponentProps) {
                 '/attachment';
 
             try {
-                const image = await submodelClient.getAttachmentFromSubmodelElement(
-                    props.submodelId,
-                    submodelElementPath,
-                );
+                const image = await getAttachmentFromSubmodelElement(props.submodelId, submodelElementPath);
                 previewImgUrl = URL.createObjectURL(image);
             } catch (e) {
                 console.error('Image not found', e);
             }
         }
-        
+
         return previewImgUrl ?? '';
     }
 
-    async function getFileViewObject(submodelClient: SubmodelRepositoryApi): Promise<FileViewObject> {
+    async function getFileViewObject(): Promise<FileViewObject> {
         let fileViewObject: FileViewObject = {
             mimeType: '',
             title: props.submodelElement?.idShort ?? '',
@@ -286,7 +270,7 @@ export function DocumentComponent(props: MarkingsComponentProps) {
                 ) {
                     fileViewObject = {
                         ...fileViewObject,
-                        ...(await getDigitalFile(versionSubmodelEl, submodelElement, submodelClient)),
+                        ...(await getDigitalFile(versionSubmodelEl, submodelElement)),
                     };
                 }
                 // preview
@@ -298,11 +282,7 @@ export function DocumentComponent(props: MarkingsComponentProps) {
                         DocumentSpecificSemanticIdIrdiV2.PreviewFile,
                     )
                 ) {
-                    fileViewObject.previewImgUrl = await getPreviewImageUrl(
-                        versionSubmodelEl,
-                        submodelElement,
-                        submodelClient,
-                    );
+                    fileViewObject.previewImgUrl = await getPreviewImageUrl(versionSubmodelEl, submodelElement);
                 }
                 // organization name
                 if (

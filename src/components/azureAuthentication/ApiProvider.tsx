@@ -3,7 +3,7 @@
 import React, { PropsWithChildren } from 'react';
 import { mnestixFetch } from 'lib/api/infrastructure';
 import { useEnv } from 'app/env/provider';
-import { AssetAdministrationShellRepositoryApi, SubmodelRepositoryApi } from 'lib/api/basyx-v3/api';
+import { AssetAdministrationShellRepositoryApi } from 'lib/api/basyx-v3/api';
 
 const ApiContext = React.createContext<Apis | null>(null);
 
@@ -12,10 +12,6 @@ export const ApiProvider = (props: PropsWithChildren) => {
     const apis = {
         repositoryClient: AssetAdministrationShellRepositoryApi.create({
             basePath: env.AAS_REPO_API_URL,
-            fetch: mnestixFetch(),
-        }),
-        submodelClient: SubmodelRepositoryApi.create({
-            basePath: env.SUBMODEL_REPO_API_URL ?? env.AAS_REPO_API_URL,
             fetch: mnestixFetch(),
         }),
     };
@@ -33,5 +29,4 @@ export function useApis(): Apis {
 
 export type Apis = {
     repositoryClient: AssetAdministrationShellRepositoryApi;
-    submodelClient: SubmodelRepositoryApi;
 };

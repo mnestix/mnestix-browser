@@ -18,7 +18,8 @@ import EspressoDouble from 'assets/CoffeeConsumptionIcons/grey/grey_espresso_dou
 
 import TakeHomeMessage from 'assets/automaticaTakeHomeMessage.svg';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
-import { AssetAdministrationShellRepositoryApi, SubmodelRepositoryApi } from 'lib/api/basyx-v3/api';
+import { AssetAdministrationShellRepositoryApi } from 'lib/api/basyx-v3/api';
+import { getSubmodelById } from 'lib/services/submodelRepositoryApiActions';
 
 type Element = {
     address: string;
@@ -53,12 +54,11 @@ const getBOMOfCoffee = async (
     elementName: string,
     coffeeAASId: string,
     repositoryClient: AssetAdministrationShellRepositoryApi,
-    submodelClient: SubmodelRepositoryApi,
 ) => {
     const submodelRefs = (await repositoryClient.getSubmodelReferencesFromShell(
         encodeBase64(coffeeAASId),
     )) as Reference[];
-    const submodels = await Promise.all(submodelRefs.map((ref) => submodelClient.getSubmodelById(ref.keys[0].value)));
+    const submodels = await Promise.all(submodelRefs.map((ref) => getSubmodelById(ref.keys[0].value)));
 
     const bomModel = submodels.find((sm) => sm.idShort == 'BillOfMaterial');
 
@@ -114,7 +114,7 @@ export function CoffeeConsumptionVisualizations(props: { submodel: Submodel }) {
 
     const intl = useIntl();
     const { value } = (props.submodel.submodelElements?.at(0) as any) ?? [];
-    const { repositoryClient, submodelClient } = useApis();
+    const { repositoryClient } = useApis();
 
     useEffect(() => {
         Promise.all(
@@ -149,7 +149,7 @@ export function CoffeeConsumptionVisualizations(props: { submodel: Submodel }) {
 
                     const elementName = elementAASid.split('/aas/')[1];
 
-                    const bomValues = await getBOMOfCoffee(elementName, elementAASid, repositoryClient, submodelClient);
+                    const bomValues = await getBOMOfCoffee(elementName, elementAASid, repositoryClient);
 
                     return {
                         address: elementAASid.replace('/aas', ''),

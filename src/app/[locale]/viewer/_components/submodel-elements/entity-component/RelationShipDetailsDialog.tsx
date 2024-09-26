@@ -10,6 +10,7 @@ import { useParams } from 'next/navigation';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useEnv } from 'app/env/provider';
 import { getSubmodelDescriptorsById } from 'lib/services/submodelRegistryApiActions';
+import { getSubmodelById } from 'lib/services/submodelRepositoryApiActions';
 
 type RelationShipDetailsModalProps = {
     readonly relationship: RelationshipElement;
@@ -26,7 +27,7 @@ export function RelationShipDetailsDialog(props: RelationShipDetailsModalProps) 
     const submodelId = relationship.second.keys[0]?.value;
 
     const [subIdShort, setSubIdShort] = useState<string>();
-    const { repositoryClient, submodelClient } = useApis();
+    const { repositoryClient } = useApis();
     const env = useEnv();
 
     useEffect(() => {
@@ -48,7 +49,7 @@ export function RelationShipDetailsDialog(props: RelationShipDetailsModalProps) 
                     } catch (e) {
                         // Submodel registry is not available or submodel not found there -> search in repo
                         if (e instanceof TypeError || (e instanceof Response && e.status === 404)) {
-                            submodels.push(await submodelClient.getSubmodelById(id));
+                            submodels.push(await getSubmodelById(id));
                         } else {
                             console.error(e);
                         }
