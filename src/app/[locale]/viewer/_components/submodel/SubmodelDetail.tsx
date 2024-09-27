@@ -14,6 +14,7 @@ export function SubmodelDetail(props: SubmodelDetailProps) {
 
     const semanticId = props.submodel.semanticId?.keys?.[0]?.value;
 
+    // We have to use the idEquals function here to correctly handle IRDIs
     const key =
         (Object.keys(submodelVisualizationsMap) as Array<string>).find((key) => idEquals(semanticId, key)) ?? '';
 

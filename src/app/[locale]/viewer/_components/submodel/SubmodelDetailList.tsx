@@ -18,10 +18,13 @@ export function SubmodelDetailList(props: SubmodelDetailListProps) {
     return (
         <>
             {submodelElements.map((el, index) => {
-                const id = el.semanticId?.keys?.[0]?.value;
+                const semanticId = el.semanticId?.keys?.[0]?.value;
+
+                // We have to use the idEquals function here to correctly handle IRDIs
                 const visualizationMapKey =
-                    (Object.keys(submodelElementVisualizationsMap) as Array<string>).find((key) => idEquals(id, key)) ??
-                    '';
+                    (Object.keys(submodelElementVisualizationsMap) as Array<string>).find((key) =>
+                        idEquals(semanticId, key),
+                    ) ?? '';
                 const SelectedComponent = submodelElementVisualizationsMap[visualizationMapKey];
 
                 return (
