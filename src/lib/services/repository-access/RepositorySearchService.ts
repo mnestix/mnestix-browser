@@ -4,8 +4,8 @@ import { AssetAdministrationShellRepositoryApi, SubmodelRepositoryApi } from 'li
 import { mnestixFetch } from 'lib/api/infrastructure';
 import { AssetAdministrationShell, Submodel } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
 import { INullableAasRepositoryEntries } from 'lib/api/basyx-v3/apiInMemory';
-import { PrismaConnector } from 'lib/services/multiple-repository-access/PrismaConnector';
-import { IPrismaConnector } from 'lib/services/multiple-repository-access/PrismaConnectorInterface';
+import { PrismaConnector } from 'lib/services/repository-access/PrismaConnector';
+import { IPrismaConnector } from 'lib/services/repository-access/PrismaConnectorInterface';
 import { Reference } from '@aas-core-works/aas-core3.0-typescript/types';
 
 export type RepoSearchResult = {
@@ -19,7 +19,7 @@ export interface NullableMultipleDataSourceSetupParameters {
     log?: Log | null;
 }
 
-export class MultipleRepositorySearchService {
+export class RepositorySearchService {
     private constructor(
         protected readonly repositoryClient: IAssetAdministrationShellRepositoryApi,
         protected readonly submodelRepositoryClient: ISubmodelRepositoryApi,
@@ -27,7 +27,7 @@ export class MultipleRepositorySearchService {
         protected readonly log: Log,
     ) {}
 
-    static create(): MultipleRepositorySearchService {
+    static create(): RepositorySearchService {
         const repositoryClient = AssetAdministrationShellRepositoryApi.create({
             basePath: process.env.AAS_REPO_API_URL,
             fetch: mnestixFetch(),
@@ -38,16 +38,16 @@ export class MultipleRepositorySearchService {
         });
         const log = Log.create();
         const prismaConnector = PrismaConnector.create();
-        return new MultipleRepositorySearchService(repositoryClient, submodelRepositoryClient, prismaConnector, log);
+        return new RepositorySearchService(repositoryClient, submodelRepositoryClient, prismaConnector, log);
     }
 
     static createNull({
         shellsSavedInTheRepositories = [],
         submodelsSavedInTheRepository = [],
         log = null,
-    }: NullableMultipleDataSourceSetupParameters = {}): MultipleRepositorySearchService {
+    }: NullableMultipleDataSourceSetupParameters = {}): RepositorySearchService {
         const aasUrls = [...new Set(shellsSavedInTheRepositories?.map((entry) => entry.repositoryUrl))];
-        return new MultipleRepositorySearchService(
+        return new RepositorySearchService(
             AssetAdministrationShellRepositoryApi.createNull({ shellsSavedInTheRepositories }),
             SubmodelRepositoryApi.createNull({ submodelsSavedInTheRepository }),
             PrismaConnector.createNull({ aasUrls }),

@@ -9,7 +9,7 @@ import { getSubmodelDescriptorsById } from 'lib/services/submodelRegistryApiActi
 import {
     getAssetAdministrationShellById,
     getSubmodelById,
-} from 'lib/services/multiple-repository-access/MultipleRepositorySearchActions';
+} from 'lib/services/repository-access/RepositorySearchActions';
 
 type CompareAasContextType = {
     compareAas: AssetAdministrationShell[];

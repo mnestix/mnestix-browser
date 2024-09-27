@@ -7,10 +7,10 @@ import { RegistryServiceApi } from 'lib/api/registry-service-api/registryService
 import { DiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApi';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import {
-    MultipleRepositorySearchService,
     NullableMultipleDataSourceSetupParameters,
     RepoSearchResult,
-} from 'lib/services/multiple-repository-access/MultipleRepositorySearchService';
+    RepositorySearchService,
+} from 'lib/services/repository-access/RepositorySearchService';
 import { INullableAasRepositoryEntries } from 'lib/api/basyx-v3/apiInMemory';
 import { mnestixFetch } from 'lib/api/infrastructure';
 
@@ -44,12 +44,12 @@ export class AasSearcher {
     private constructor(
         protected readonly discoveryServiceClient: IDiscoveryServiceApi,
         protected readonly registryService: IRegistryServiceApi,
-        protected readonly multipleDataSource: MultipleRepositorySearchService,
+        protected readonly multipleDataSource: RepositorySearchService,
         protected readonly log: Log,
     ) {}
 
     static create(): AasSearcher {
-        const multipleDataSource = MultipleRepositorySearchService.create();
+        const multipleDataSource = RepositorySearchService.create();
         const registryServiceClient = RegistryServiceApi.create(process.env.REGISTRY_API_URL, mnestixFetch());
         const discoveryServiceClient = DiscoveryServiceApi.create(process.env.DISCOVERY_API_URL, mnestixFetch());
         const log = Log.create();
@@ -70,7 +70,7 @@ export class AasSearcher {
                 registryShellDescriptorEntries: registryShellDescriptorEntries,
                 shellsAvailableOnEndpoints: shellsAvailableOnRegistryEndpoints,
             }),
-            MultipleRepositorySearchService.createNull({
+            RepositorySearchService.createNull({
                 shellsSavedInTheRepositories: shellsSavedInTheRepositories,
                 submodelsSavedInTheRepository,
             }),

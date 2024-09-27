@@ -27,7 +27,7 @@ import { ImageWithFallback } from 'app/[locale]/list/_components/StyledImageWith
 import {
     getThumbnailFromShell,
     performGetAasThumbnailFromAllRepos,
-} from 'lib/services/multiple-repository-access/MultipleRepositorySearchActions';
+} from 'lib/services/repository-access/RepositorySearchActions';
 
 type AASOverviewCardProps = {
     readonly aas: AssetAdministrationShell | null;

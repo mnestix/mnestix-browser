@@ -12,7 +12,7 @@ import { getSubmodelDescriptorsById } from 'lib/services/submodelRegistryApiActi
 import {
     getSubmodelById,
     getSubmodelReferencesFromShell,
-} from 'lib/services/multiple-repository-access/MultipleRepositorySearchActions';
+} from 'lib/services/repository-access/RepositorySearchActions';
 
 type RelationShipDetailsModalProps = {
     readonly relationship: RelationshipElement;

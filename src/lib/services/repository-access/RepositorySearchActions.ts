@@ -1,13 +1,10 @@
 'use server';
 
 import { AssetAdministrationShell, Submodel } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
-import {
-    MultipleRepositorySearchService,
-    RepoSearchResult,
-} from 'lib/services/multiple-repository-access/MultipleRepositorySearchService';
+import { RepoSearchResult, RepositorySearchService } from 'lib/services/repository-access/RepositorySearchService';
 import { Reference } from '@aas-core-works/aas-core3.0-typescript/types';
 
-const searcher = MultipleRepositorySearchService.create();
+const searcher = RepositorySearchService.create();
 
 export async function performSearchAasFromAllRepositories(searchInput: string): Promise<RepoSearchResult[]> {
     return searcher.getAasFromAllRepos(searchInput);

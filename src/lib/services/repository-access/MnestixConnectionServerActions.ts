@@ -1,7 +1,7 @@
 'use server';
 
 import { ConnectionType } from '@prisma/client';
-import { DataSourceFormData, PrismaConnector } from 'lib/services/multiple-repository-access/PrismaConnector';
+import { DataSourceFormData, PrismaConnector } from 'lib/services/repository-access/PrismaConnector';
 
 export async function getConnectionDataAction() {
     const prismaConnector = PrismaConnector.create();

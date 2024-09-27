@@ -1,5 +1,5 @@
-import { IPrismaConnector } from 'lib/services/multiple-repository-access/PrismaConnectorInterface';
-import { DataSourceFormData } from 'lib/services/multiple-repository-access/PrismaConnector';
+import { IPrismaConnector } from 'lib/services/repository-access/PrismaConnectorInterface';
+import { DataSourceFormData } from 'lib/services/repository-access/PrismaConnector';
 
 export class PrismaConnectorInMemory implements IPrismaConnector {
     constructor(protected connectionData: string[]) {}
