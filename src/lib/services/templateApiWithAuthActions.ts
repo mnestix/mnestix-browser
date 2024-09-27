@@ -7,10 +7,10 @@ import EmptyDefaultTemplate from 'assets/submodels/defaultEmptySubmodel.json';
 
 const templateApiClientWithAuth = TemplateClient.create(process.env.MNESTIX_BACKEND_API_URL, mnestixFetch());
 
-export async function createCustomSubmodel(template: Submodel | typeof EmptyDefaultTemplate): Promise<string> {
+export async function createCustomSubmodelTemplate(template: Submodel | typeof EmptyDefaultTemplate): Promise<string> {
     return templateApiClientWithAuth.createCustomSubmodel(template);
 }
 
-export async function updateCustomSubmodel(submodel: Submodel, submodelId: string): Promise<void> {
+export async function updateCustomSubmodelTemplate(submodel: Submodel, submodelId: string): Promise<void> {
     return templateApiClientWithAuth.updateCustomSubmodel(submodel, submodelId);
 }

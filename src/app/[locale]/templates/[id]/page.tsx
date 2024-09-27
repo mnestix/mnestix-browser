@@ -36,8 +36,8 @@ import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { useEnv } from 'app/env/provider';
 import { useParams, useRouter } from 'next/navigation';
 import { SubmodelViewObject } from 'lib/types/SubmodelViewObject';
-import { updateCustomSubmodel } from 'lib/services/templateApiWithAuthActions';
-import { deleteCustomById, getCustom, getDefaults } from 'lib/services/templatesApiActions';
+import { updateCustomSubmodelTemplate } from 'lib/services/templateApiWithAuthActions';
+import { deleteCustomTemplateById, getCustomTemplateById, getDefaultTemplate } from 'lib/services/templatesApiActions';
 import { TemplateDeleteDialog } from 'app/[locale]/templates/_components/TemplateDeleteDialog';
 
 export default function Page() {
@@ -62,12 +62,12 @@ export default function Page() {
     const env = useEnv();
     const fetchCustom = async () => {
         if (!id) return;
-        const custom = await getCustom(bearerToken, id);
+        const custom = await getCustomTemplateById(bearerToken, id);
         setLocalFrontendTemplate(generateSubmodelViewObject(custom));
     };
 
     const fetchDefaultTemplates = async () => {
-        const defaultTemplates = await getDefaults(bearerToken);
+        const defaultTemplates = await getDefaultTemplate(bearerToken);
         setDefaultTemplates(defaultTemplates);
     };
 
@@ -134,7 +134,7 @@ export default function Page() {
     const deleteTemplate = async () => {
         if (!id) return;
         try {
-            await deleteCustomById(bearerToken, id);
+            await deleteCustomTemplateById(bearerToken, id);
             notificationSpawner.spawn({
                 message: intl.formatMessage(messages.mnestix.templateDeletedSuccessfully),
                 severity: 'success',
@@ -187,7 +187,7 @@ export default function Page() {
             try {
                 setIsSaving(true);
                 const submodel = generateSubmodel(updatedTemplate);
-                await updateCustomSubmodel(submodel, submodel.id);
+                await updateCustomSubmodelTemplate(submodel, submodel.id);
                 handleSuccessfulSave();
                 setLocalFrontendTemplate(updatedTemplate);
             } catch (e) {

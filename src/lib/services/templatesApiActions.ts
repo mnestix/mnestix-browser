@@ -10,18 +10,18 @@ const templateApiClient = TemplateShellApi.create(
     mnestixFetch(),
 );
 
-export async function getDefaults(bearerToken: string): Promise<Submodel[]> {
+export async function getDefaultTemplate(bearerToken: string): Promise<Submodel[]> {
     return templateApiClient.getDefaults(bearerToken);
 }
 
-export async function getCustoms(bearerToken: string): Promise<Submodel[]> {
+export async function getCustomTemplates(bearerToken: string): Promise<Submodel[]> {
     return templateApiClient.getCustoms(bearerToken);
 }
 
-export async function getCustom(bearerToken: string, id: string): Promise<Submodel> {
+export async function getCustomTemplateById(bearerToken: string, id: string): Promise<Submodel> {
     return templateApiClient.getCustom(bearerToken, id);
 }
 
-export async function deleteCustomById(bearerToken: string, id: string): Promise<string | number> {
+export async function deleteCustomTemplateById(bearerToken: string, id: string): Promise<string | number> {
     return templateApiClient.deleteCustomById(bearerToken, id);
 }
