@@ -449,7 +449,11 @@
                             "value": "true"
                         },
                         {
-                            "name": "ReverseProxy__Clusters__repoCluster__Destinations__destination1__Address",
+                            "name": "ReverseProxy__Clusters__aasRepoCluster__Destinations__destination1__Address",
+                            "value": "[variables('repoAppServiceUrl')]"
+                        },
+                        {
+                            "name": "ReverseProxy__Clusters__submodelRepoCluster__Destinations__destination1__Address",
                             "value": "[variables('repoAppServiceUrl')]"
                         },
                         {
@@ -523,7 +527,7 @@
                     "appSettings": [
                         {
                             "name": "AAS_LIST_FEATURE_FLAG",
-                            "value": "true"
+                            "value": "false"
                         },
                         {
                             "name": "COMPARISON_FEATURE_FLAG",
