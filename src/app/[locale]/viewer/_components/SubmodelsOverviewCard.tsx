@@ -11,11 +11,11 @@ import { TabSelectorItem, VerticalTabSelector } from 'components/basics/Vertical
 import { MobileModal } from 'components/basics/MobileModal';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useRegistryAasState } from 'components/contexts/CurrentAasContext';
-import { getSubmodelFromSubmodelDescriptor } from 'lib/searchUtilActions/searchServer';
+import { getSubmodelFromSubmodelDescriptor } from 'lib/services/searchUtilActions/searchActions';
 import { useEnv } from 'app/env/provider';
-import { getSubmodelFromAllSubmodelRepos } from 'lib/searchUtilActions/SearchRepositoryHelper';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { showError } from 'lib/util/ErrorHandlerUtil';
+import { performSearchSubmodelFromAllRepos } from 'lib/services/MultipleRepositorySearch/MultipleRepositorySearchActions';
 
 export type SubmodelsOverviewCardProps = {
     readonly smReferences?: Reference[];
@@ -46,7 +46,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
             try {
                 fetchedSubmodelData = await submodelClient.getSubmodelById(id);
             } catch (e) {
-                fetchedSubmodelData = await getSubmodelFromAllSubmodelRepos(id, submodelClient);
+                fetchedSubmodelData = await performSearchSubmodelFromAllRepos(id);
             }
             return fetchedSubmodelData;
         } catch (e) {

@@ -1,4 +1,5 @@
 import testAas from '../fixtures/testAAS.json';
+
 const testAasId = testAas.aasId;
 const testAssetId = testAas.assetId;
 
@@ -7,9 +8,7 @@ describe('Test the DNS Redirect', function () {
         cy.postTestAas();
     });
     it('Visits the "/asset/URLEncodedAssetID" page and gets redirected to the corresponding viewer page', function () {
-        cy.intercept({ method: 'GET', url: `${Cypress.env('AAS_DISCOVERY_API_URL')}/lookup/shells*` }).as(
-            'redirectedViewer',
-        );
+        cy.intercept({ method: 'POST', url: `/en/viewer/*` }).as('redirectedViewer');
         let encodedUrl = encodeURIComponent(testAssetId);
 
         cy.visit('/asset?assetId=' + encodedUrl);
