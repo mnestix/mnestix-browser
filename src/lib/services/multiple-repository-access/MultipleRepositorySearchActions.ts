@@ -32,3 +32,11 @@ export async function getThumbnailFromShell(searchInput: string): Promise<Blob> 
 export async function getSubmodelReferencesFromShell(searchInput: string): Promise<Reference[]> {
     return searcher.getSubmodelReferencesFromShell(searchInput);
 }
+
+export async function getSubmodelById(id: string): Promise<Submodel> {
+    return searcher.getSubmodelById(id);
+}
+
+export async function getAttachmentFromSubmodelElement(submodelId: string, submodelElementPath: string): Promise<Blob> {
+    return searcher.getAttachmentFromSubmodelElement(submodelId, submodelElementPath);
+}

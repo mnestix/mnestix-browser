@@ -14,9 +14,11 @@ import { getSubmodelFromSubmodelDescriptor } from 'lib/services/search-actions/s
 import { useEnv } from 'app/env/provider';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { showError } from 'lib/util/ErrorHandlerUtil';
-import { performSearchSubmodelFromAllRepos } from 'lib/services/multiple-repository-access/MultipleRepositorySearchActions';
+import {
+    getSubmodelById,
+    performSearchSubmodelFromAllRepos,
+} from 'lib/services/multiple-repository-access/MultipleRepositorySearchActions';
 import { getSubmodelDescriptorsById } from 'lib/services/submodelRegistryApiActions';
-import { getSubmodelById } from 'lib/services/submodelRepositoryApiActions';
 
 export type SubmodelsOverviewCardProps = { readonly smReferences: Reference[] };
 

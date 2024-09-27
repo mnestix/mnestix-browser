@@ -17,8 +17,8 @@ import Espresso from 'assets/CoffeeConsumptionIcons/grey/grey_espresso.svg';
 import EspressoDouble from 'assets/CoffeeConsumptionIcons/grey/grey_espresso_double.svg';
 
 import TakeHomeMessage from 'assets/automaticaTakeHomeMessage.svg';
-import { getSubmodelById } from 'lib/services/submodelRepositoryApiActions';
 import {
+    getSubmodelById,
     getSubmodelReferencesFromShell
 } from 'lib/services/multiple-repository-access/MultipleRepositorySearchActions';
 

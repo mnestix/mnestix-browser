@@ -6,8 +6,10 @@ import { encodeBase64 } from 'lib/util/Base64Util';
 import { getSubmodelFromSubmodelDescriptor, performRegistryAasSearch } from 'lib/services/search-actions/searchActions';
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 import { getSubmodelDescriptorsById } from 'lib/services/submodelRegistryApiActions';
-import { getSubmodelById } from 'lib/services/submodelRepositoryApiActions';
-import { getAssetAdministrationShellById } from 'lib/services/multiple-repository-access/MultipleRepositorySearchActions';
+import {
+    getAssetAdministrationShellById,
+    getSubmodelById,
+} from 'lib/services/multiple-repository-access/MultipleRepositorySearchActions';
 
 type CompareAasContextType = {
     compareAas: AssetAdministrationShell[];

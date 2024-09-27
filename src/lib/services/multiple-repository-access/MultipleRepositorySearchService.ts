@@ -93,6 +93,14 @@ export class MultipleRepositorySearchService {
         }
     }
 
+    async getSubmodelById(id: string): Promise<Submodel> {
+        return this.submodelRepositoryClient.getSubmodelById(id);
+    }
+
+    async getAttachmentFromSubmodelElement(submodelId: string, submodelElementPath: string): Promise<Blob> {
+        return this.submodelRepositoryClient.getAttachmentFromSubmodelElement(submodelId, submodelElementPath);
+    }
+
     async getSubmodelFromAllRepos(submodelId: string) {
         const basePathUrls = await this.prismaConnector.getConnectionDataByTypeAction({
             id: '2',

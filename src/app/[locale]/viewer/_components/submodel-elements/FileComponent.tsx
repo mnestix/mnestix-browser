@@ -6,7 +6,7 @@ import { FormattedMessage } from 'react-intl';
 import { getSanitizedHref } from 'lib/util/HrefUtil';
 import { isValidUrl } from 'lib/util/UrlUtil';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
-import { getAttachmentFromSubmodelElement } from 'lib/services/submodelRepositoryApiActions';
+import { getAttachmentFromSubmodelElement } from 'lib/services/multiple-repository-access/MultipleRepositorySearchActions';
 
 const StyledFileImg = styled('img')(() => ({
     objectFit: 'contain',

@@ -9,8 +9,10 @@ import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { useParams } from 'next/navigation';
 import { useEnv } from 'app/env/provider';
 import { getSubmodelDescriptorsById } from 'lib/services/submodelRegistryApiActions';
-import { getSubmodelById } from 'lib/services/submodelRepositoryApiActions';
-import { getSubmodelReferencesFromShell } from 'lib/services/multiple-repository-access/MultipleRepositorySearchActions';
+import {
+    getSubmodelById,
+    getSubmodelReferencesFromShell,
+} from 'lib/services/multiple-repository-access/MultipleRepositorySearchActions';
 
 type RelationShipDetailsModalProps = {
     readonly relationship: RelationshipElement;
