@@ -21,7 +21,7 @@ import { sortWithNullableValues } from 'lib/util/SortingUtil';
 import { useEnv } from 'app/env/provider';
 import { useRouter } from 'next/navigation';
 import { createCustomSubmodelTemplate } from 'lib/services/templateApiWithAuthActions';
-import { deleteCustomTemplateById, getCustomTemplates, getDefaultTemplate } from 'lib/services/templatesApiActions';
+import { deleteCustomTemplateById, getCustomTemplates, getDefaultTemplates } from 'lib/services/templatesApiActions';
 
 enum SpecialDefaultTabIds {
     All = 'all',
@@ -49,7 +49,7 @@ export default function Page() {
     const bearerToken = auth.getBearerToken();
     const fetchAll = async () => {
         // fetching defaults first
-        const _defaults = await getDefaultTemplate(bearerToken);
+        const _defaults = await getDefaultTemplates(bearerToken);
         _defaults.sort((a: Submodel, b: Submodel) => sortWithNullableValues(a.idShort, b.idShort));
         setDefaults(_defaults);
         const _defaultItems: TabSelectorItem[] = [

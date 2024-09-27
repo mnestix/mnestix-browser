@@ -10,7 +10,7 @@ const templateApiClient = TemplateShellApi.create(
     mnestixFetch(),
 );
 
-export async function getDefaultTemplate(bearerToken: string): Promise<Submodel[]> {
+export async function getDefaultTemplates(bearerToken: string): Promise<Submodel[]> {
     return templateApiClient.getDefaults(bearerToken);
 }
 

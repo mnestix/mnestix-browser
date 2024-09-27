@@ -37,7 +37,7 @@ import { useEnv } from 'app/env/provider';
 import { useParams, useRouter } from 'next/navigation';
 import { SubmodelViewObject } from 'lib/types/SubmodelViewObject';
 import { updateCustomSubmodelTemplate } from 'lib/services/templateApiWithAuthActions';
-import { deleteCustomTemplateById, getCustomTemplateById, getDefaultTemplate } from 'lib/services/templatesApiActions';
+import { deleteCustomTemplateById, getCustomTemplateById, getDefaultTemplates } from 'lib/services/templatesApiActions';
 import { TemplateDeleteDialog } from 'app/[locale]/templates/_components/TemplateDeleteDialog';
 
 export default function Page() {
@@ -67,7 +67,7 @@ export default function Page() {
     };
 
     const fetchDefaultTemplates = async () => {
-        const defaultTemplates = await getDefaultTemplate(bearerToken);
+        const defaultTemplates = await getDefaultTemplates(bearerToken);
         setDefaultTemplates(defaultTemplates);
     };
 
