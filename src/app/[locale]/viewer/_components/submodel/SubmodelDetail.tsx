@@ -14,14 +14,15 @@ export function SubmodelDetail(props: SubmodelDetailProps) {
 
     const semanticId = props.submodel.semanticId?.keys?.[0]?.value;
 
-    const key = (Object.keys(submodelVisualizationsMap) as Array<string>).find(key => idEquals(semanticId, key)) ?? '';
+    const key =
+        (Object.keys(submodelVisualizationsMap) as Array<string>).find((key) => idEquals(semanticId, key)) ?? '';
 
     const SelectedComponent = submodelVisualizationsMap[key];
 
     return (
         <Box width="100%">
             {SelectedComponent ? (
-                <SelectedComponent {...props} />
+                <SelectedComponent submodel={props.submodel} />
             ) : (
                 <SubmodelDetailList submodel={props.submodel} />
             )}
