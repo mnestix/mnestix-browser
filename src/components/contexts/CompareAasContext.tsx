@@ -156,7 +156,6 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
             for (const reference of input as Reference[]) {
                 let submodelAdded = false;
                 try {
-                    //TODO: Test
                     const submodelDescriptor = await getSubmodelDescriptorsById(reference.keys[0].value);
                     const submodelData = await getSubmodelFromSubmodelDescriptor(
                         submodelDescriptor.endpoints[0].protocolInformation.href,

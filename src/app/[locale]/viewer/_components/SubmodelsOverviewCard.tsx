@@ -89,7 +89,6 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                 (props.smReferences as Reference[]).map(async (reference): Promise<TabSelectorItem | null> => {
                     let tabSelectorItem: TabSelectorItem | null = null;
                     try {
-                        // TODO: TEST!
                         const submodelDescriptor = env.SUBMODEL_REGISTRY_API_URL
                             ? await getSubmodelDescriptorsById(reference.keys[0].value)
                             : null;

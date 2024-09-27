@@ -40,7 +40,6 @@ export function RelationShipDetailsDialog(props: RelationShipDetailsModalProps) 
                 for (const reference of submodelRefs) {
                     const id = reference.keys[0].value;
                     try {
-                        // TODO: Test
                         const submodelFromRegistry = env.SUBMODEL_REGISTRY_API_URL
                             ? await getSubmodelDescriptorsById(reference.keys[0].value)
                             : null;
