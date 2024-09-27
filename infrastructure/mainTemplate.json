@@ -11,19 +11,24 @@
             "defaultValue": "[take(guid(resourceGroup().id), 8)]"
         },
         "apiKey": {
-            "type": "securestring"
+            "type": "securestring",
+            "defaultValue": "verySecureApiKey"
         },
         "tenantId": {
-            "type": "securestring"
+            "type": "securestring",
+            "defaultValue": "-"
         },
         "frontendClientId": {
-            "type": "securestring"
+            "type": "securestring",
+            "defaultValue": "-"
         },
         "applicationIdUri": {
-            "type": "securestring"
+            "type": "securestring",
+            "defaultValue": "-"
         },
         "backendClientId": {
-            "type": "securestring"
+            "type": "securestring",
+            "defaultValue": "-"
         },
         "assetAdministrationShellDatabaseName": {
             // This parameter exists only for validation purposes and should not be passed explicitly
