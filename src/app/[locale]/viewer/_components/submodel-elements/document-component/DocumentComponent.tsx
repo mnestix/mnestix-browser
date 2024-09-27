@@ -325,7 +325,7 @@ export function DocumentComponent(props: MarkingsComponentProps) {
             {fileViewObject && (
                 <Box display="flex" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
                     <Box display="flex">
-                        <Link href={fileViewObject!.digitalFileUrl} target="_blank">
+                        <Link href={fileViewObject.digitalFileUrl} target="_blank">
                             <StyledImageWrapper>
                                 {fileViewObject.previewImgUrl ? (
                                     <img src={fileViewObject.previewImgUrl} height={90} width={90} alt="Document" />
@@ -337,17 +337,17 @@ export function DocumentComponent(props: MarkingsComponentProps) {
                             </StyledImageWrapper>
                         </Link>
                         <Box>
-                            <Typography>{fileViewObject!.title}</Typography>
-                            {fileViewObject!.organizationName && (
+                            <Typography>{fileViewObject.title}</Typography>
+                            {fileViewObject.organizationName && (
                                 <Typography variant="body2" color="text.secondary">
-                                    {fileViewObject!.organizationName}
+                                    {fileViewObject.organizationName}
                                 </Typography>
                             )}
                             <Button
                                 variant="outlined"
                                 startIcon={<OpenInNew />}
                                 sx={{ mt: 1 }}
-                                href={fileViewObject!.digitalFileUrl}
+                                href={fileViewObject.digitalFileUrl}
                                 target="_blank"
                             >
                                 <FormattedMessage {...messages.mnestix.open} />
