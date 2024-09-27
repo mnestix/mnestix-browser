@@ -17,13 +17,13 @@ import ProductJourneyIcons from './ProductJourneyIcon';
 import { ProductJourneyAddressList } from './ProductJourneyAddressList';
 
 export type Address = {
-    Street?: string;
-    HouseNumber?: string;
-    ZipCode?: string;
-    CityTown?: string;
-    Country?: string;
-    Latitude?: number;
-    Longitude?: number;
+    street?: string;
+    houseNumber?: string;
+    zipCode?: string;
+    cityTown?: string;
+    country?: string;
+    latitude?: number;
+    longitude?: number;
 };
 
 export type AddressPerLifeCyclePhase = {
@@ -31,19 +31,14 @@ export type AddressPerLifeCyclePhase = {
     address: Address;
 };
 
-/**
- * Renders a map with markers at given coordinates and lines between coordinates and their predecessors/successors.
- * @param coordinates Coordinates at which a marker should be added.
- * @returns Box containing map with markers and lines
- */
 export function ProductJourney(props: { addressesPerLifeCyclePhase: AddressPerLifeCyclePhase[] }) {
     const theme = useTheme();
     const mapElement = useRef<HTMLElement>();
     const mapRef = useRef<Map>();
 
     const coordinates: Coordinate[] = props.addressesPerLifeCyclePhase
-        .filter((v) => v.address.Latitude && v.address.Longitude)
-        .map((c) => [c.address.Longitude as number, c.address.Latitude as number]);
+        .filter((v) => v.address.latitude && v.address.longitude)
+        .map((c) => [c.address.longitude as number, c.address.latitude as number]);
 
     useEffect(() => {
         if (mapElement.current && !mapRef.current) {
@@ -112,9 +107,9 @@ export function ProductJourney(props: { addressesPerLifeCyclePhase: AddressPerLi
 
 function getMarkerLayers(coordinatesPerLifeCyclePhase: AddressPerLifeCyclePhase[]) {
     return coordinatesPerLifeCyclePhase
-        .filter((v) => v.address.Latitude && v.address.Longitude)
+        .filter((v) => v.address.latitude && v.address.longitude)
         .map((phase) => {
-            const coordinate: Coordinate = [phase.address.Longitude as number, phase.address.Latitude as number];
+            const coordinate: Coordinate = [phase.address.longitude as number, phase.address.latitude as number];
             const markerSource = new VectorSource({
                 features: [
                     new Feature({
