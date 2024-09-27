@@ -43,7 +43,6 @@ const CustomContent = React.forwardRef(function CustomContent(props: CustomTreeI
             // if so, then navigate to the asset-redirect page of this Mnestix instance,
             // if not, just navigate to the specified URL which might lead anywhere.
 
-            //const aasIds = (await discoveryServiceClient.getAasIdsByAssetId(assetId)).result;
             const aasIds = await performDiscoveryAasSearch(assetId);
             if (aasIds && aasIds.length === 0) {
                 window.open(assetId, '_blank');
