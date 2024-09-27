@@ -1,11 +1,11 @@
 import { InfoOutlined, InsertDriveFileOutlined, OpenInNew } from '@mui/icons-material';
 import { Box, Button, IconButton, Link, styled, Typography } from '@mui/material';
 import {
+    File,
+    ISubmodelElement,
     MultiLanguageProperty,
     Property,
-    ISubmodelElement,
     SubmodelElementCollection,
-    File,
 } from '@aas-core-works/aas-core3.0-typescript/types';
 import { DataRow } from 'components/basics/DataRow';
 import { PdfDocumentIcon } from 'components/custom-icons/PdfDocumentIcon';
@@ -18,7 +18,6 @@ import { isValidUrl } from 'lib/util/UrlUtil';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
-import Image from 'next/image';
 import { SubmodelRepositoryApi } from 'lib/api/basyx-v3/api';
 
 enum DocumentSpecificSemanticId {
@@ -328,9 +327,9 @@ export function DocumentComponent(props: MarkingsComponentProps) {
                     <Box display="flex">
                         <Link href={fileViewObject!.digitalFileUrl} target="_blank">
                             <StyledImageWrapper>
-                                {fileViewObject!.previewImgUrl ? (
-                                    <Image src={fileViewObject!.previewImgUrl} height={90} width={90} alt="Document" />
-                                ) : fileViewObject!.mimeType === 'application/pdf' ? (
+                                {fileViewObject.previewImgUrl ? (
+                                    <img src={fileViewObject.previewImgUrl} height={90} width={90} alt="Document" />
+                                ) : fileViewObject.mimeType === 'application/pdf' ? (
                                     <PdfDocumentIcon color="primary" />
                                 ) : (
                                     <InsertDriveFileOutlined color="primary" />
