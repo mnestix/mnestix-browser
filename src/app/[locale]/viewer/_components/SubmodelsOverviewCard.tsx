@@ -17,11 +17,14 @@ import { getSubmodelFromAllSubmodelRepos } from 'lib/searchUtilActions/SearchRep
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { showError } from 'lib/util/ErrorHandlerUtil';
 
-export type SubmodelsOverviewCardProps = { readonly smReferences?: Reference[]; readonly isLoading?: boolean };
+export type SubmodelsOverviewCardProps = {
+    readonly smReferences?: Reference[];
+};
 
 export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
     const [selectedItem, setSelectedItem] = useState<TabSelectorItem>();
     const [selectedSubmodel, setSelectedSubmodel] = useState<Submodel>();
+    const [isLoading, setIsLoading] = useState<boolean>(true);
     const { submodelClient } = useApis();
     const [registryAasData] = useRegistryAasState();
     const { submodelRegistryServiceClient } = useApis();
@@ -66,7 +69,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
 
         if (registryAasData && registryAasData.submodelDescriptors) {
             // Fetch submodel from provided endpoint
-             submodelsPromise = Promise.all(
+            submodelsPromise = Promise.all(
                 registryAasData.submodelDescriptors.map(async (submodelDescriptor): Promise<TabSelectorItem | null> => {
                     const endpoint = submodelDescriptor?.endpoints[0].protocolInformation.href;
 
@@ -79,7 +82,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                         };
                     }
                     return null;
-                })
+                }),
             );
         } else {
             // Search in default registry
@@ -97,7 +100,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                             tabSelectorItem = {
                                 id: submodelDescriptor.id,
                                 label: submodelDescriptor.idShort ?? '',
-                                submodelData: submodelData
+                                submodelData: submodelData,
                             };
                         }
                     } catch (e) {
@@ -120,12 +123,12 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                     }
 
                     return tabSelectorItem;
-                })
+                }),
             );
         }
 
-        const submodels = await submodelsPromise as TabSelectorItem[];
-        setSubmodelSelectorItems(submodels.filter(item => !!item));
+        const submodels = (await submodelsPromise) as TabSelectorItem[];
+        setSubmodelSelectorItems(submodels.filter((item) => !!item));
     }
 
     useAsyncEffect(async () => {
@@ -133,6 +136,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
 
         await fetchSubmodels();
         sortSubmodelSelectorTabs();
+        setIsLoading(false);
     }, [props.smReferences, registryAasData]);
 
     useEffect(() => {
@@ -163,7 +167,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                     <FormattedMessage {...messages.mnestix.submodels} />
                 </Typography>
                 <Box display="grid" gridTemplateColumns={isMobile ? '1fr' : '1fr 2fr'} gap="40px">
-                    {props.isLoading && !props.smReferences ? (
+                    {isLoading ? (
                         <>
                             <Box>
                                 {[0, 1, 2].map((i) => {

@@ -28,7 +28,6 @@ export default function Page() {
     const [submodelReferences, setSubmodelReferences] = useState<Reference[]>();
     const [productImage, setProductImage] = useState<string>();
     const [isLoadingAas, setIsLoadingAas] = useState(false);
-    const [isLoadingSubmodels] = useState(false);
     const [hasImage, setHasImage] = useState(true);
     const notificationSpawner = useNotificationSpawner();
     const isMobile = useIsMobile();
@@ -125,7 +124,7 @@ export default function Page() {
 
     return (
         <Box sx={pageStyles}>
-            {aas || isLoadingAas || isLoadingSubmodels ? (
+            {aas || isLoadingAas ? (
                 <Box sx={viewerStyles}>
                     <Box display="flex" flexDirection="row" alignContent="flex-end">
                         <Typography
@@ -161,7 +160,7 @@ export default function Page() {
                         hasImage={hasImage}
                         isAccordion={isMobile}
                     />
-                    <SubmodelsOverviewCard smReferences={submodelReferences} isLoading={isLoadingSubmodels} />
+                    <SubmodelsOverviewCard smReferences={submodelReferences} />
                 </Box>
             ) : (
                 <>
