@@ -40,6 +40,7 @@ export const ImageWithFallback = (props: StyledImageWithFallBackProps) => {
                 }
             }}
             style={{ cursor: onClickHandler ? 'pointer' : 'auto' }}
+            data-testid='image-with-fallback'
         />
     );
 
