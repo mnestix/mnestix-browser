@@ -1,5 +1,5 @@
 ﻿import { Skeleton, styled } from '@mui/material';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import DefaultThumbnail from 'assets/AasDefaultThumbnail.svg';
 
 interface StyledImageProps {
