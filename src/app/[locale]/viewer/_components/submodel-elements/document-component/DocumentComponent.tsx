@@ -18,7 +18,7 @@ import { isValidUrl } from 'lib/util/UrlUtil';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import Image from 'next/image';
-import { getAttachmentFromSubmodelElement } from 'lib/services/repository-access/RepositorySearchActions';
+import { getAttachmentFromSubmodelElement } from 'lib/services/repository-access/repositorySearchActions';
 
 enum DocumentSpecificSemanticId {
     DocumentVersion = 'https://admin-shell.io/vdi/2770/1/0/DocumentVersion',

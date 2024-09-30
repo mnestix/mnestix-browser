@@ -15,7 +15,7 @@ import { useEnv } from 'app/env/provider';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import ListHeader from 'components/basics/ListHeader';
 import { performDiscoveryAasSearch, performRegistryAasSearch } from 'lib/services/search-actions/searchActions';
-import { performSearchAasFromAllRepositories } from 'lib/services/repository-access/RepositorySearchActions';
+import { performSearchAasFromAllRepositories } from 'lib/services/repository-access/repositorySearchActions';
 import { RepoSearchResult } from 'lib/services/repository-access/RepositorySearchService';
 
 export const DiscoveryListView = () => {

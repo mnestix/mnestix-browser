@@ -20,7 +20,7 @@ import TakeHomeMessage from 'assets/automaticaTakeHomeMessage.svg';
 import {
     getSubmodelById,
     getSubmodelReferencesFromShell
-} from 'lib/services/repository-access/RepositorySearchActions';
+} from 'lib/services/repository-access/repositorySearchActions';
 
 type Element = {
     address: string;

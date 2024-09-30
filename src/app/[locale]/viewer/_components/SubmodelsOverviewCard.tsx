@@ -17,7 +17,7 @@ import { showError } from 'lib/util/ErrorHandlerUtil';
 import {
     getSubmodelById,
     performSearchSubmodelFromAllRepos,
-} from 'lib/services/repository-access/RepositorySearchActions';
+} from 'lib/services/repository-access/repositorySearchActions';
 import { getSubmodelDescriptorsById } from 'lib/services/submodelRegistryApiActions';
 
 export type SubmodelsOverviewCardProps = { readonly smReferences: Reference[] };

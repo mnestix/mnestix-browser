@@ -3,7 +3,7 @@ import { File, Property } from '@aas-core-works/aas-core3.0-typescript/types';
 import { useState } from 'react';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { isValidUrl } from 'lib/util/UrlUtil';
-import { getAttachmentFromSubmodelElement } from 'lib/services/repository-access/RepositorySearchActions';
+import { getAttachmentFromSubmodelElement } from 'lib/services/repository-access/repositorySearchActions';
 
 type SingleMarkingsComponentProps = {
     readonly file?: File;
