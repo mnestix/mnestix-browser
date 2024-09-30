@@ -28,8 +28,6 @@ export default function Page() {
     const [submodelReferences, setSubmodelReferences] = useState<Reference[]>();
     const [productImage, setProductImage] = useState<string>();
     const [isLoadingAas, setIsLoadingAas] = useState(false);
-    const [isLoadingSubmodels, setIsLoadingSubmodels] = useState(false);
-    const [hasImage, setHasImage] = useState(true);
     const notificationSpawner = useNotificationSpawner();
     const isMobile = useIsMobile();
     const intl = useIntl();
