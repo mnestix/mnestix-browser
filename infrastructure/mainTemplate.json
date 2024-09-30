@@ -447,7 +447,7 @@
                         },
                         {
                             "name": "Features__AllowRetrievingAllShellsAndSubmodels",
-                            "value": "false"
+                            "value": "true"
                         },
                         {
                             "name": "Features__UseAuthentication",
