@@ -12,10 +12,10 @@ import { hasSemanticId } from 'lib/util/SubmodelResolverUtil';
 import { ProductLifecycleStage } from 'lib/enums/ProductLifecycleStage.enum';
 import { StyledDataRow } from 'components/basics/StyledDataRow';
 import {
+    ISubmodelElement,
     Property,
     Submodel,
     SubmodelElementCollection,
-    ISubmodelElement,
 } from '@aas-core-works/aas-core3.0-typescript/types';
 
 export function CarbonFootprintVisualizations(props: { submodel: Submodel }) {
@@ -119,10 +119,10 @@ function extractTotalCO2Equivalents(pcfSubmodelElements: SubmodelElementCollecti
     return pcfSubmodelElements.reduce(
         (prev, curr) =>
             prev +
-                Number.parseFloat(
-                    (curr.value?.find((v) => hasSemanticId(v, SubmodelElementSemanticId.PCFCO2eq)) as Property)
-                        ?.value ?? '',
-                ) ?? 0,
+            (Number.parseFloat(
+                (curr.value?.find((v) => hasSemanticId(v, SubmodelElementSemanticId.PCFCO2eq)) as Property)?.value ??
+                    '',
+            ) ?? 0),
         0,
     );
 }
@@ -134,62 +134,62 @@ function extractAddressPerLifeCyclePhaseFromPCFSubmodel(el: SubmodelElementColle
         ?.substring(0, 2)
         .trim() as ProductLifecycleStage;
 
-    const PCFGoodsAddressHandover = (
+    const pcfGoodsAddressHandover = (
         el.value?.find((v) =>
             hasSemanticId(v, SubmodelElementSemanticId.PCFGoodsAddressHandover),
         ) as SubmodelElementCollection
     )?.value;
 
-    const Latitude = (
-        PCFGoodsAddressHandover?.find((v: ISubmodelElement) =>
+    const latitude = (
+        pcfGoodsAddressHandover?.find((v: ISubmodelElement) =>
             hasSemanticId(v, SubmodelElementSemanticId.PCFAddressLatitude),
         ) as Property
     )?.value;
 
-    const Longitude = (
-        PCFGoodsAddressHandover?.find((v: ISubmodelElement) =>
+    const longitude = (
+        pcfGoodsAddressHandover?.find((v: ISubmodelElement) =>
             hasSemanticId(v, SubmodelElementSemanticId.PCFAddressLongitude),
         ) as Property
     )?.value;
 
-    const Street = (
-        PCFGoodsAddressHandover?.find((v: ISubmodelElement) =>
+    const street = (
+        pcfGoodsAddressHandover?.find((v: ISubmodelElement) =>
             hasSemanticId(v, SubmodelElementSemanticId.PCFAddressStreet),
         ) as Property
     )?.value;
 
-    const HouseNumber = (
-        PCFGoodsAddressHandover?.find((v: ISubmodelElement) =>
+    const houseNumber = (
+        pcfGoodsAddressHandover?.find((v: ISubmodelElement) =>
             hasSemanticId(v, SubmodelElementSemanticId.PCFAddressHouseNumber),
         ) as Property
     )?.value;
 
-    const ZipCode = (
-        PCFGoodsAddressHandover?.find((v: ISubmodelElement) =>
+    const zipCode = (
+        pcfGoodsAddressHandover?.find((v: ISubmodelElement) =>
             hasSemanticId(v, SubmodelElementSemanticId.PCFAddressZipCode),
         ) as Property
     )?.value;
 
-    const CityTown = (
-        PCFGoodsAddressHandover?.find((v: ISubmodelElement) =>
+    const cityTown = (
+        pcfGoodsAddressHandover?.find((v: ISubmodelElement) =>
             hasSemanticId(v, SubmodelElementSemanticId.PCFAddressCityTown),
         ) as Property
     )?.value;
 
-    const Country = (
-        PCFGoodsAddressHandover?.find((v: ISubmodelElement) =>
+    const country = (
+        pcfGoodsAddressHandover?.find((v: ISubmodelElement) =>
             hasSemanticId(v, SubmodelElementSemanticId.PCFAddressCountry),
         ) as Property
     )?.value;
 
     const address: Address = {
-        Latitude: Latitude ? Number.parseFloat(Latitude) : undefined,
-        Longitude: Longitude ? Number.parseFloat(Longitude) : undefined,
-        Street: Street ?? undefined,
-        HouseNumber: HouseNumber ?? undefined,
-        ZipCode: ZipCode ?? undefined,
-        CityTown: CityTown ?? undefined,
-        Country: Country ?? undefined,
+        latitude: latitude ? Number.parseFloat(latitude) : undefined,
+        longitude: longitude ? Number.parseFloat(longitude) : undefined,
+        street: street ?? undefined,
+        houseNumber: houseNumber ?? undefined,
+        zipCode: zipCode ?? undefined,
+        cityTown: cityTown ?? undefined,
+        country: country ?? undefined,
     };
 
     return {
