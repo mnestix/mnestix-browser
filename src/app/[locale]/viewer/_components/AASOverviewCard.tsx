@@ -22,7 +22,7 @@ import { encodeBase64 } from 'lib/util/Base64Util';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { useRouter } from 'next/navigation';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
-import { useRegistryAasState } from 'components/contexts/CurrentAasContext';
+import { useAasState, useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { AssetAdministrationShellRepositoryApi } from 'lib/api/basyx-v3/api';
 import { ImageWithFallback } from 'app/[locale]/list/_components/StyledImageWithFallBack';
 import { performgetAasThumbnailFromAllRepos } from 'lib/services/MultipleRepositorySearch/MultipleRepositorySearchActions';
@@ -64,6 +64,7 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
     const [productImageUrl, setProductImageUrl] = useState<string | undefined>('');
     const { repositoryClient } = useApis();
     const [registryAasData] = useRegistryAasState();
+    const [, setAasState] = useAasState();
 
     async function createAndSetUrlForImageFile() {
         if (!props.aas) return;
@@ -120,7 +121,11 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
     };
 
     const navigateToAas = () => {
-        if (props.imageLinksToDetail && props.aas) navigate.push(`/viewer/${encodeBase64(props.aas.id)}`);
+        if (props.imageLinksToDetail && props.aas) {
+            setAasState(props.aas)
+            const url = `/viewer/${encodeBase64(props.aas.id)}`;
+            navigate.push(url);
+        }
     };
 
     const aasInfo = (
