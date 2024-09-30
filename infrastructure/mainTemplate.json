@@ -442,7 +442,7 @@
                         },
                         {
                             "name": "Features__AllowRetrievingAllShellsAndSubmodels",
-                            "value": "false"
+                            "value": "true"
                         },
                         {
                             "name": "Features__UseAuthentication",
@@ -527,7 +527,7 @@
                     "appSettings": [
                         {
                             "name": "AAS_LIST_FEATURE_FLAG",
-                            "value": "false"
+                            "value": "true"
                         },
                         {
                             "name": "COMPARISON_FEATURE_FLAG",
