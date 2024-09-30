@@ -19,7 +19,7 @@ export interface ConfigurationShellApiInterface {
         bearerToken: string,
         value: string,
         settingsType: string,
-    ): Promise<void | Response>;
+    ): Promise<Response>;
 
-    processputSingleSettingValue(response: Response): Promise<void | Response>;
+    processputSingleSettingValue(response: Response): Promise<Response>;
 }

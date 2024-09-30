@@ -80,7 +80,7 @@ export class ConfigurationShellApi implements ConfigurationShellApiInterface {
         bearerToken: string,
         value: string,
         settingsType: string,
-    ): Promise<void | Response> {
+    ): Promise<Response> {
         let url_ = `${this.basePath}/configuration/${settingsType}/submodel-elements/${path}/$value`;
         url_ = url_.replace(/[?&]$/, '');
 
@@ -99,7 +99,7 @@ export class ConfigurationShellApi implements ConfigurationShellApiInterface {
         });
     }
 
-    async processputSingleSettingValue(response: Response): Promise<void | Response> {
+    async processputSingleSettingValue(response: Response): Promise<Response> {
         const status = response.status;
         const _headers = {};
         if (response.headers && response.headers.forEach) {

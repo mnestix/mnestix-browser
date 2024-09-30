@@ -4,9 +4,10 @@ import { AssetAdministrationShellRepositoryApi, SubmodelRepositoryApi } from 'li
 import { mnestixFetch } from 'lib/api/infrastructure';
 import { AssetAdministrationShell, Submodel } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
 import { INullableAasRepositoryEntries } from 'lib/api/basyx-v3/apiInMemory';
-import { PrismaConnector } from 'lib/services/repository-access/PrismaConnector';
-import { IPrismaConnector } from 'lib/services/repository-access/PrismaConnectorInterface';
+import { PrismaConnector } from 'lib/services/connection-access/PrismaConnector';
+import { IPrismaConnector } from 'lib/services/connection-access/PrismaConnectorInterface';
 import { Reference } from '@aas-core-works/aas-core3.0-typescript/types';
+import { NotFoundError } from 'lib/errors/NotFoundError';
 
 export type RepoSearchResult = {
     aas: AssetAdministrationShell;
@@ -89,16 +90,24 @@ export class RepositorySearchService {
             // @ts-expect-error
             return fulfilledResults.map((result) => (result as unknown).value);
         } else {
-            throw new Error('AAS not found');
+            throw new NotFoundError();
         }
     }
 
     async getSubmodelById(id: string): Promise<Submodel> {
-        return this.submodelRepositoryClient.getSubmodelById(id);
+        try {
+            return this.submodelRepositoryClient.getSubmodelById(id);
+        } catch (error) {
+            throw new Error(`Submodel with id ${id} not found`);
+        }
     }
 
     async getAttachmentFromSubmodelElement(submodelId: string, submodelElementPath: string): Promise<Blob> {
-        return this.submodelRepositoryClient.getAttachmentFromSubmodelElement(submodelId, submodelElementPath);
+        try {
+            return this.submodelRepositoryClient.getAttachmentFromSubmodelElement(submodelId, submodelElementPath);
+        } catch (error) {
+            throw new Error(`Attachment for Submode with id ${submodelId} at path ${submodelElementPath} not found`);
+        }
     }
 
     async getSubmodelFromAllRepos(submodelId: string) {
