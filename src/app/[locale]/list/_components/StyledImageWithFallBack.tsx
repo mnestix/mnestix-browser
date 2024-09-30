@@ -25,32 +25,34 @@ export const ImageWithFallback = (props: StyledImageWithFallBackProps) => {
     const [hasError, setHasError] = useState(false);
     const [isLoading, setLoading] = useState(true);
 
-    const setErrorOccurred = () => {
-        console.log("error ")
-        setHasError(true);
-    }
-
-    const setLoadingFinished = () => {
-        console.log(" loaded")
-        setLoading(false);
-    }
-
     const ImageContent = (
         <StyledImage
             src={src}
-            onError={() => {setErrorOccurred()}}
-            onLoad={() => setLoadingFinished}
+            onError={() => {
+                setHasError(true);
+            }}
+            onLoad={() => {
+                setLoading(false);
+            }}
             alt={alt}
             size={size}
             onClick={() => onClickHandler?.call(this)}
-            style={{ cursor: onClickHandler ? 'pointer' : 'auto' }}
+            style={{
+                cursor: onClickHandler ? 'pointer' : 'auto',
+                position: 'absolute',
+                top: '0px',
+                left: '0px',
+                height: size,
+                width: size,
+            }}
         />
     );
 
     const LoadingContent = (
         <Skeleton
             variant="rectangular"
-            sx={{ position: 'absolute', bottom: '0', right: '0', height: size, maxWidth: size }}
+            sx={{ position: 'absolute', top: '0px', left: '0px', height: size, width: size }}
+            onClick={() => onClickHandler?.call(this)}
         />
     );
 
@@ -67,16 +69,15 @@ export const ImageWithFallback = (props: StyledImageWithFallBackProps) => {
         />
     );
 
-    console.log("prrgrtzrhtrhops.src:  " + props.src + " err: " + hasError)
     return (
         <>
-            {!hasError && (props.src !== undefined) ? (
-                <div style={{ position: 'relative', height: size, maxWidth: size, }}>
-                    { ImageContent }
-                    {isLoading ?? <>{ LoadingContent }</>}
+            {(!hasError && src) ? (
+                <div style={{ position: 'relative', height: size, width: '100%', maxWidth: size }}>
+                    {isLoading ? <>{LoadingContent}</> : <></>}
+                    {ImageContent}
                 </div>
             ) : (
-                { FallbackContent }
+                FallbackContent
             )}
         </>
     );
