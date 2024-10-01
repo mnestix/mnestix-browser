@@ -1,4 +1,4 @@
-﻿import { Skeleton, styled } from '@mui/material';
+﻿import { Box, Skeleton, styled } from '@mui/material';
 import { useState } from 'react';
 import DefaultThumbnail from 'assets/AasDefaultThumbnail.svg';
 
@@ -20,8 +20,7 @@ type StyledImageWithFallBackProps = {
     onClickHandler?: () => void;
 };
 
-export const ImageWithFallback = (props: StyledImageWithFallBackProps) => {
-    const { src, alt, size, onClickHandler } = props;
+export const ImageWithFallback = ({ src, alt, size, onClickHandler }: StyledImageWithFallBackProps) => {
     const [hasError, setHasError] = useState(false);
     const [isLoading, setLoading] = useState(true);
 
@@ -71,11 +70,11 @@ export const ImageWithFallback = (props: StyledImageWithFallBackProps) => {
 
     return (
         <>
-            {(!hasError && src) ? (
-                <div style={{ position: 'relative', height: size, width: '100%', maxWidth: size }}>
+            {!hasError && src ? (
+                <Box style={{ position: 'relative', height: size, width: '100%', maxWidth: size }}>
                     {isLoading ? <>{LoadingContent}</> : <></>}
                     {ImageContent}
-                </div>
+                </Box>
             ) : (
                 FallbackContent
             )}
