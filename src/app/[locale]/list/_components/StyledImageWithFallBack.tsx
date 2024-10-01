@@ -44,6 +44,7 @@ export const ImageWithFallback = ({ src, alt, size, onClickHandler }: StyledImag
                 height: size,
                 width: size,
             }}
+            data-testid='image-with-fallback'
         />
     );
 
