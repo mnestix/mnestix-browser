@@ -60,7 +60,7 @@ export class RepositorySearchService {
         try {
             return await this.repositoryClient.getAssetAdministrationShellById(aasId);
         } catch (e) {
-            throw new Error('AAS not found');
+            throw new NotFoundError('AAS not found');
         }
     }
 
@@ -68,7 +68,7 @@ export class RepositorySearchService {
         try {
             return await this.repositoryClient.getAssetAdministrationShellById(aasId, undefined, repoUrl);
         } catch (e) {
-            throw new Error(`AAS '${aasId}' not found in repository '${repoUrl}'`);
+            throw new NotFoundError(`AAS '${aasId}' not found in repository '${repoUrl}'`);
         }
     }
 
@@ -90,7 +90,7 @@ export class RepositorySearchService {
             // @ts-expect-error
             return fulfilledResults.map((result) => (result as unknown).value);
         } else {
-            throw new Error(`Could not find AAS ${aasId} in any Repository`);
+            throw new NotFoundError(`Could not find AAS ${aasId} in any Repository`);
         }
     }
 
@@ -98,7 +98,7 @@ export class RepositorySearchService {
         try {
             return this.submodelRepositoryClient.getSubmodelById(id);
         } catch (error) {
-            throw new Error(`Submodel with id ${id} not found`);
+            throw new NotFoundError(`Submodel with id ${id} not found`);
         }
     }
 
@@ -106,7 +106,7 @@ export class RepositorySearchService {
         try {
             return this.submodelRepositoryClient.getAttachmentFromSubmodelElement(submodelId, submodelElementPath);
         } catch (error) {
-            throw new Error(`Attachment for Submodel with id ${submodelId} at path ${submodelElementPath} not found`);
+            throw new NotFoundError(`Attachment for Submodel with id ${submodelId} at path ${submodelElementPath} not found`);
         }
     }
 
@@ -122,7 +122,7 @@ export class RepositorySearchService {
         try {
             return await Promise.any(promises);
         } catch (error) {
-            throw new Error('Submodel not found');
+            throw new NotFoundError('Submodel not found');
         }
     }
 
@@ -130,7 +130,7 @@ export class RepositorySearchService {
         try {
             return await this.repositoryClient.getSubmodelReferencesFromShell(aasId);
         } catch (e) {
-            throw new Error('Submodel Reference not found');
+            throw new NotFoundError('Submodel Reference not found');
         }
     }
 
@@ -138,7 +138,7 @@ export class RepositorySearchService {
         try {
             return await this.repositoryClient.getThumbnailFromShell(aasId);
         } catch (e) {
-            throw new Error('Thumbnail not found');
+            throw new NotFoundError('Thumbnail not found');
         }
     }
 
@@ -160,7 +160,7 @@ export class RepositorySearchService {
         try {
             return await Promise.any(promises);
         } catch {
-            throw new Error('Image not found');
+            throw new NotFoundError('Image not found');
         }
     }
 }
