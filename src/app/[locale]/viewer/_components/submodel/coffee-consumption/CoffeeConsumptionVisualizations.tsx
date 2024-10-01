@@ -17,8 +17,10 @@ import Espresso from 'assets/CoffeeConsumptionIcons/grey/grey_espresso.svg';
 import EspressoDouble from 'assets/CoffeeConsumptionIcons/grey/grey_espresso_double.svg';
 
 import TakeHomeMessage from 'assets/automaticaTakeHomeMessage.svg';
-import { useApis } from 'components/azureAuthentication/ApiProvider';
-import { AssetAdministrationShellRepositoryApi, SubmodelRepositoryApi } from 'lib/api/basyx-v3/api';
+import {
+    getSubmodelById,
+    getSubmodelReferencesFromShell
+} from 'lib/services/repository-access/repositorySearchActions';
 
 type Element = {
     address: string;
@@ -49,16 +51,9 @@ const getWellFormattedIngredient = (element: SubmodelElementWithValue) => {
     return { ingredientName: ingredient, quantity: quant?.concat(unit ?? '') };
 };
 
-const getBOMOfCoffee = async (
-    elementName: string,
-    coffeeAASId: string,
-    repositoryClient: AssetAdministrationShellRepositoryApi,
-    submodelClient: SubmodelRepositoryApi,
-) => {
-    const submodelRefs = (await repositoryClient.getSubmodelReferencesFromShell(
-        encodeBase64(coffeeAASId),
-    )) as Reference[];
-    const submodels = await Promise.all(submodelRefs.map((ref) => submodelClient.getSubmodelById(ref.keys[0].value)));
+const getBOMOfCoffee = async (elementName: string, coffeeAASId: string) => {
+    const submodelRefs = (await getSubmodelReferencesFromShell(encodeBase64(coffeeAASId))) as Reference[];
+    const submodels = await Promise.all(submodelRefs.map((ref) => getSubmodelById(ref.keys[0].value)));
 
     const bomModel = submodels.find((sm) => sm.idShort == 'BillOfMaterial');
 
@@ -114,7 +109,6 @@ export function CoffeeConsumptionVisualizations(props: { submodel: Submodel }) {
 
     const intl = useIntl();
     const { value } = (props.submodel.submodelElements?.at(0) as any) ?? [];
-    const { repositoryClient, submodelClient } = useApis();
 
     useEffect(() => {
         Promise.all(
@@ -149,7 +143,7 @@ export function CoffeeConsumptionVisualizations(props: { submodel: Submodel }) {
 
                     const elementName = elementAASid.split('/aas/')[1];
 
-                    const bomValues = await getBOMOfCoffee(elementName, elementAASid, repositoryClient, submodelClient);
+                    const bomValues = await getBOMOfCoffee(elementName, elementAASid);
 
                     return {
                         address: elementAASid.replace('/aas', ''),

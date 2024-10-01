@@ -1,5 +1,4 @@
 'use client';
-import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
@@ -8,19 +7,19 @@ import { showError } from 'lib/util/ErrorHandlerUtil';
 import { NotFoundError } from 'lib/errors/NotFoundError';
 import { useState } from 'react';
 import { CenteredLoadingSpinner } from 'components/basics/CenteredLoadingSpinner';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import AssetNotFound from 'components/basics/AssetNotFound';
 import { useAasState } from 'components/contexts/CurrentAasContext';
+import { performDiscoveryAasSearch } from 'lib/services/search-actions/searchActions';
 
 export const RedirectToViewer = () => {
-    const { discoveryServiceClient } = useApis();
     const navigate = useRouter();
     const searchParams = useSearchParams();
     const assetIdParam = searchParams.get('assetId')?.toString();
     const notificationSpawner = useNotificationSpawner();
     const [isLoading, setIsLoading] = useState(false);
     const [isError, setIsError] = useState(false);
-    const [ ,setAas] = useAasState();
+    const [, setAas] = useAasState();
 
     useAsyncEffect(async () => {
         try {
@@ -45,7 +44,8 @@ export const RedirectToViewer = () => {
         if (!assetId) {
             throw new NotFoundError();
         }
-        return (await discoveryServiceClient.getAasIdsByAssetId(assetId)).result;
+        const discoverySearchResult = await performDiscoveryAasSearch(assetId);
+        return discoverySearchResult ?? [];
     }
 
     function assertAnAasIdExists(aasIds: string[]) {

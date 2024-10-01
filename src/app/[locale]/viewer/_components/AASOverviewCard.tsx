@@ -21,12 +21,13 @@ import { isValidUrl } from 'lib/util/UrlUtil';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { useRouter } from 'next/navigation';
-import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { AssetAdministrationShellRepositoryApi } from 'lib/api/basyx-v3/api';
 import { ImageWithFallback } from 'app/[locale]/list/_components/StyledImageWithFallBack';
-import { performGetAasThumbnailFromAllRepos } from 'lib/services/MultipleRepositorySearch/MultipleRepositorySearchActions';
-
+import {
+    getThumbnailFromShell,
+    performGetAasThumbnailFromAllRepos,
+} from 'lib/services/repository-access/repositorySearchActions';
 
 type AASOverviewCardProps = {
     readonly aas: AssetAdministrationShell | null;
@@ -62,7 +63,6 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
     const specificAssetIds = props.aas?.assetInformation?.specificAssetIds as SpecificAssetId[];
     const navigate = useRouter();
     const [productImageUrl, setProductImageUrl] = useState<string | undefined>('');
-    const { repositoryClient } = useApis();
     const [registryAasData] = useRegistryAasState();
 
     async function createAndSetUrlForImageFile() {
@@ -78,7 +78,7 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
                 setProductImageUrl(URL.createObjectURL(image));
             } else {
                 try {
-                    image = await repositoryClient.getThumbnailFromShell(props.aas.id);
+                    image = await getThumbnailFromShell(props.aas.id);
                 } catch (e) {
                     image = await performGetAasThumbnailFromAllRepos(props.aas.id);
                 }

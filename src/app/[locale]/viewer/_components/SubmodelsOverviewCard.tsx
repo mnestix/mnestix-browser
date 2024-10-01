@@ -9,13 +9,16 @@ import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { SubmodelSorting } from 'app/[locale]/viewer/_components/submodel/sorting/SubmodelSorting';
 import { TabSelectorItem, VerticalTabSelector } from 'components/basics/VerticalTabSelector';
 import { MobileModal } from 'components/basics/MobileModal';
-import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useRegistryAasState } from 'components/contexts/CurrentAasContext';
-import { getSubmodelFromSubmodelDescriptor } from 'lib/services/searchUtilActions/searchActions';
+import { getSubmodelFromSubmodelDescriptor } from 'lib/services/search-actions/searchActions';
 import { useEnv } from 'app/env/provider';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { showError } from 'lib/util/ErrorHandlerUtil';
-import { performSearchSubmodelFromAllRepos } from 'lib/services/MultipleRepositorySearch/MultipleRepositorySearchActions';
+import {
+    getSubmodelById,
+    performSearchSubmodelFromAllRepos,
+} from 'lib/services/repository-access/repositorySearchActions';
+import { getSubmodelDescriptorsById } from 'lib/services/submodelRegistryApiActions';
 
 export type SubmodelsOverviewCardProps = { readonly smReferences: Reference[] };
 
@@ -23,9 +26,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
     const [selectedItem, setSelectedItem] = useState<TabSelectorItem>();
     const [selectedSubmodel, setSelectedSubmodel] = useState<Submodel>();
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const { submodelClient } = useApis();
     const [registryAasData] = useRegistryAasState();
-    const { submodelRegistryServiceClient } = useApis();
     const notificationSpawner = useNotificationSpawner();
 
     SubmodelSorting(selectedSubmodel);
@@ -42,7 +43,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
         try {
             let fetchedSubmodelData: Submodel;
             try {
-                fetchedSubmodelData = await submodelClient.getSubmodelById(id);
+                fetchedSubmodelData = await getSubmodelById(id);
             } catch (e) {
                 fetchedSubmodelData = await performSearchSubmodelFromAllRepos(id);
             }
@@ -89,7 +90,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                     let tabSelectorItem: TabSelectorItem | null = null;
                     try {
                         const submodelDescriptor = env.SUBMODEL_REGISTRY_API_URL
-                            ? await submodelRegistryServiceClient.getSubmodelDescriptorsById(reference.keys[0].value)
+                            ? await getSubmodelDescriptorsById(reference.keys[0].value)
                             : null;
                         const endpoint = submodelDescriptor?.endpoints[0].protocolInformation.href;
 

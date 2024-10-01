@@ -3,12 +3,13 @@ import { createContext, PropsWithChildren, useContext, useEffect, useState } fro
 import { SubmodelCompareData } from 'lib/types/SubmodelCompareData';
 import { generateSubmodelCompareData, isCompareData, isCompareDataRecord } from 'lib/util/CompareAasUtil';
 import { encodeBase64 } from 'lib/util/Base64Util';
-import { useApis } from 'components/azureAuthentication/ApiProvider';
-import {
-    getSubmodelFromSubmodelDescriptor,
-    performRegistryAasSearch,
-} from 'lib/services/searchUtilActions/searchActions';
+import { getSubmodelFromSubmodelDescriptor, performRegistryAasSearch } from 'lib/services/search-actions/searchActions';
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
+import { getSubmodelDescriptorsById } from 'lib/services/submodelRegistryApiActions';
+import {
+    getAssetAdministrationShellById,
+    getSubmodelById,
+} from 'lib/services/repository-access/repositorySearchActions';
 
 type CompareAasContextType = {
     compareAas: AssetAdministrationShell[];
@@ -26,7 +27,6 @@ const CompareAasContext = createContext<CompareAasContextType | undefined>(undef
 export const useCompareAasContext = () => useContext(CompareAasContext) as CompareAasContextType;
 
 export const CompareAasContextProvider = (props: PropsWithChildren) => {
-    const { repositoryClient, submodelClient, submodelRegistryServiceClient } = useApis();
     const [compareAas, setCompareAas] = useState<AssetAdministrationShell[]>(() => {
         const storedList = localStorage.getItem(aasCompareStorage);
         return storedList ? JSON.parse(storedList) : [];
@@ -80,7 +80,7 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
             if (registrySearchResult != null) {
                 shell = registrySearchResult.aas as AssetAdministrationShell;
             } else {
-                shell = await repositoryClient.getAssetAdministrationShellById(encodeBase64(aasId));
+                shell = await getAssetAdministrationShellById(encodeBase64(aasId));
             }
             // Get AAS
             aasList.push(shell);
@@ -156,9 +156,7 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
             for (const reference of input as Reference[]) {
                 let submodelAdded = false;
                 try {
-                    const submodelDescriptor = await submodelRegistryServiceClient.getSubmodelDescriptorsById(
-                        reference.keys[0].value,
-                    );
+                    const submodelDescriptor = await getSubmodelDescriptorsById(reference.keys[0].value);
                     const submodelData = await getSubmodelFromSubmodelDescriptor(
                         submodelDescriptor.endpoints[0].protocolInformation.href,
                     );
@@ -172,7 +170,7 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
                 }
                 // Submodel registry is not available or submodel not found there -> search in repo
                 if (!submodelAdded) {
-                    const submodelData = await submodelClient.getSubmodelById(reference.keys[0].value);
+                    const submodelData = await getSubmodelById(reference.keys[0].value);
                     const dataRecord = generateSubmodelCompareData(submodelData);
                     newCompareData.push(dataRecord);
                 }

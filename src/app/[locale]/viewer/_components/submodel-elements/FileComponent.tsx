@@ -6,7 +6,7 @@ import { FormattedMessage } from 'react-intl';
 import { getSanitizedHref } from 'lib/util/HrefUtil';
 import { isValidUrl } from 'lib/util/UrlUtil';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
-import { useApis } from 'components/azureAuthentication/ApiProvider';
+import { getAttachmentFromSubmodelElement } from 'lib/services/repository-access/repositorySearchActions';
 
 const StyledFileImg = styled('img')(() => ({
     objectFit: 'contain',
@@ -24,7 +24,6 @@ type FileComponentProps = {
 export function FileComponent(props: FileComponentProps) {
     const [image, setImage] = useState<string | null>(null);
     const { file } = props;
-    const { submodelClient } = useApis();
 
     async function getImage() {
         if (file.contentType?.startsWith('image')) {
@@ -32,10 +31,7 @@ export function FileComponent(props: FileComponentProps) {
                 setImage(file.value);
             } else if (props.submodelId && props.submodelElementPath) {
                 try {
-                    const image = await submodelClient.getAttachmentFromSubmodelElement(
-                        props.submodelId,
-                        props.submodelElementPath,
-                    );
+                    const image = await getAttachmentFromSubmodelElement(props.submodelId, props.submodelElementPath);
                     const imageObjectURL = URL.createObjectURL(image);
                     setImage(imageObjectURL);
                 } catch (e) {

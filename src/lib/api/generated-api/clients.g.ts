@@ -6,6 +6,7 @@
 
 /* tslint:disable */
 /* eslint-disable */
+
 // ReSharper disable InconsistentNaming
 
 export class AasCreatorClient {
@@ -20,7 +21,7 @@ export class AasCreatorClient {
 
     /**
      * Creates a new AAS for a given assetIdShort.
-    Response contains id of the newly generated AAS Base64UrlEncoded.
+     Response contains id of the newly generated AAS Base64UrlEncoded.
      * @param assetIdShort The assetIdShort to be used for creating the AAS.
      * @return CreateAasResponse
      */
@@ -75,12 +76,21 @@ export class AasCreatorClient {
 
 export class AasListClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
-    private baseUrl: string;
+    private readonly baseUrl: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
-    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+    private constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : (window as any);
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : '';
+    }
+
+    static create(
+        _baseUrl: string = '',
+        http?: {
+            fetch(url: RequestInfo, init?: RequestInit): Promise<Response>;
+        },
+    ): AasListClient {
+        return new AasListClient(_baseUrl, http ?? window);
     }
 
     /**
@@ -115,7 +125,7 @@ export class AasListClient {
                 let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
                 if (Array.isArray(resultData200)) {
                     result200 = [] as any;
-                    for (let item of resultData200) result200!.push(AasListEntry.fromJS(item));
+                    for (let item of resultData200) result200!.push(item);
                 } else {
                     result200 = <any>null;
                 }
@@ -211,7 +221,7 @@ export class CustomTemplatesClient {
     /**
      * Returns all submodel templates from the custom templates AAS.
 
-    This endpoint uses the template transformer to ensure the returned submodels are standard conform.
+     This endpoint uses the template transformer to ensure the returned submodels are standard conform.
      * @return Json which contains all custom submodels.
      */
     getAllCustomSubmodels(signal?: AbortSignal | undefined): Promise<void> {
@@ -314,10 +324,10 @@ export class DataIngestClient {
 
     /**
      * Takes the submodel templates with given customTemplateIds and maps the data from the given data json into them.
-    After that, it will store the submodels into the shell with given aasId with its submodel short id.
+     After that, it will store the submodels into the shell with given aasId with its submodel short id.
      * @param base64EncodedAasId The base64UrlEncoded aasId of the shell where the submodel will be stored in.
      * @param requestBody The language (e.g.: 'de' or 'en'), a list of submodel template ids and a json with the data for the new submodels.
-                If you do not have any mapping info defined in the referenced submodel, use {} as data json.
+     If you do not have any mapping info defined in the referenced submodel, use {} as data json.
      * @return a list of results for each given template ids
      */
     addDataToAas(
@@ -389,7 +399,7 @@ export class DefaultTemplatesClient {
 
     /**
      * Creates a new custom template in the custom templates AAS.
-    Submodel Id needs to be unique and present in JSON body.
+     Submodel Id needs to be unique and present in JSON body.
      * @param defaultSubmodelTemplate The submodel template to add as json.
      */
     addDefaultSubmodelTemplate(defaultSubmodelTemplate: any, signal?: AbortSignal | undefined): Promise<FileResponse> {
@@ -455,11 +465,11 @@ export class IdGeneratorClient {
 
     /**
      * Generates a set of ids which is used to create a new AAS.
-    Response contains:
-    - AasId
-    - AasIdShort
-    - AssetId
-    - AssetIdShort
+     Response contains:
+     - AasId
+     - AasIdShort
+     - AssetId
+     - AssetIdShort
      * @param assetIdShort The assetIdShort which must be used for generating ids.
      * @return AasIds
      */
@@ -506,11 +516,11 @@ export class IdGeneratorClient {
 
     /**
      * Generates a set of ids which is used to create a new AAS.
-    Response contains:
-    - AasId
-    - AasIdShort
-    - AssetId
-    - AssetIdShort
+     Response contains:
+     - AasId
+     - AasIdShort
+     - AssetId
+     - AssetIdShort
      * @return AasIds
      */
     generateIds2(signal?: AbortSignal | undefined): Promise<AasIds> {
@@ -612,9 +622,18 @@ export class TemplateClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : '';
     }
 
+    static create(
+        _baseUrl: string = '',
+        http?: {
+            fetch(url: RequestInfo, init?: RequestInit): Promise<Response>;
+        },
+    ): TemplateClient {
+        return new TemplateClient(_baseUrl, http ?? window);
+    }
+
     /**
      * ONLY FOR INTERNAL USAGE. BearerToken needed.
-    Creates a new custom template in the custom templates AAS of the given submodel semantic id.
+     Creates a new custom template in the custom templates AAS of the given submodel semantic id.
      * @param defaultSubmodel The default submodel as json string
      * @return The identifier of the new created submodel in the custom templates AAS.
      */
@@ -670,7 +689,7 @@ export class TemplateClient {
 
     /**
      * ONLY FOR INTERNAL USAGE. BearerToken needed.
-    Updates a custom template in the custom templates AAS.
+     Updates a custom template in the custom templates AAS.
      * @param customSubmodel The submodel to update as json string
      * @param submodelId The id of the submodel
      */
@@ -724,7 +743,7 @@ export class TemplateClient {
 
     /**
      * ONLY FOR INTERNAL USAGE. BearerToken needed.
-    Creates a new custom template in the custom templates AAS.
+     Creates a new custom template in the custom templates AAS.
      * @return The identifier of the new created submodel in the custom templates AAS.
      */
     addDefaultSubmodel(defaultSubmodel: any, signal?: AbortSignal | undefined): Promise<string> {
@@ -779,9 +798,9 @@ export class TemplateClient {
 
     /**
      * ONLY FOR INTERNAL USAGE. BearerToken needed.
-    Returns all submodel templates from the custom templates AAS.
+     Returns all submodel templates from the custom templates AAS.
 
-    This endpoint uses the template transformer to ensure the returned submodels are standard conform.
+     This endpoint uses the template transformer to ensure the returned submodels are standard conform.
      * @return Json which contains all custom submodels.
      */
     getAllCustomSubmodels(signal?: AbortSignal | undefined): Promise<void> {
@@ -826,9 +845,9 @@ export class TemplateClient {
 
     /**
      * ONLY FOR INTERNAL USAGE. BearerToken needed.
-    Returns one submodel templates from the custom templates AAS.
+     Returns one submodel templates from the custom templates AAS.
 
-    This endpoint uses the template transformer to ensure the returned submodels are standard conform.
+     This endpoint uses the template transformer to ensure the returned submodels are standard conform.
      * @return Json which contains all custom submodels.
      */
     getCustomSubmodel(submodelIdShort: string, signal?: AbortSignal | undefined): Promise<void> {
@@ -876,9 +895,9 @@ export class TemplateClient {
 
     /**
      * ONLY FOR INTERNAL USAGE. BearerToken needed.
-    Returns all default submodel templates from the default templates AAS.
+     Returns all default submodel templates from the default templates AAS.
 
-    This endpoint uses the template transformer to ensure the returned submodels are standard conform.
+     This endpoint uses the template transformer to ensure the returned submodels are standard conform.
      * @return Json which contains all default submodels.
      */
     getAllDefaultSubmodels(signal?: AbortSignal | undefined): Promise<void> {

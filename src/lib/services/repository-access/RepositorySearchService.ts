@@ -4,8 +4,10 @@ import { AssetAdministrationShellRepositoryApi, SubmodelRepositoryApi } from 'li
 import { mnestixFetch } from 'lib/api/infrastructure';
 import { AssetAdministrationShell, Submodel } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
 import { INullableAasRepositoryEntries } from 'lib/api/basyx-v3/apiInMemory';
-import { PrismaConnector } from 'lib/services/MultipleRepositorySearch/PrismaConnector';
-import { IPrismaConnector } from 'lib/services/MultipleRepositorySearch/PrismaConnectorInterface';
+import { PrismaConnector } from 'lib/services/prisma/PrismaConnector';
+import { IPrismaConnector } from 'lib/services/prisma/PrismaConnectorInterface';
+import { Reference } from '@aas-core-works/aas-core3.0-typescript/types';
+import { NotFoundError } from 'lib/errors/NotFoundError';
 
 export type RepoSearchResult = {
     aas: AssetAdministrationShell;
@@ -18,7 +20,7 @@ export interface NullableMultipleDataSourceSetupParameters {
     log?: Log | null;
 }
 
-export class MultipleRepositorySearchService {
+export class RepositorySearchService {
     private constructor(
         protected readonly repositoryClient: IAssetAdministrationShellRepositoryApi,
         protected readonly submodelRepositoryClient: ISubmodelRepositoryApi,
@@ -26,7 +28,7 @@ export class MultipleRepositorySearchService {
         protected readonly log: Log,
     ) {}
 
-    static create(): MultipleRepositorySearchService {
+    static create(): RepositorySearchService {
         const repositoryClient = AssetAdministrationShellRepositoryApi.create({
             basePath: process.env.AAS_REPO_API_URL,
             fetch: mnestixFetch(),
@@ -37,16 +39,16 @@ export class MultipleRepositorySearchService {
         });
         const log = Log.create();
         const prismaConnector = PrismaConnector.create();
-        return new MultipleRepositorySearchService(repositoryClient, submodelRepositoryClient, prismaConnector, log);
+        return new RepositorySearchService(repositoryClient, submodelRepositoryClient, prismaConnector, log);
     }
 
     static createNull({
         shellsSavedInTheRepositories = [],
         submodelsSavedInTheRepository = [],
         log = null,
-    }: NullableMultipleDataSourceSetupParameters = {}): MultipleRepositorySearchService {
+    }: NullableMultipleDataSourceSetupParameters = {}): RepositorySearchService {
         const aasUrls = [...new Set(shellsSavedInTheRepositories?.map((entry) => entry.repositoryUrl))];
-        return new MultipleRepositorySearchService(
+        return new RepositorySearchService(
             AssetAdministrationShellRepositoryApi.createNull({ shellsSavedInTheRepositories }),
             SubmodelRepositoryApi.createNull({ submodelsSavedInTheRepository }),
             PrismaConnector.createNull({ aasUrls }),
@@ -54,11 +56,19 @@ export class MultipleRepositorySearchService {
         );
     }
 
+    async getAasFromDefaultRepository(aasId: string): Promise<AssetAdministrationShell> {
+        try {
+            return await this.repositoryClient.getAssetAdministrationShellById(aasId);
+        } catch (e) {
+            throw new NotFoundError('AAS not found');
+        }
+    }
+
     async getAasFromRepo(aasId: string, repoUrl: string): Promise<AssetAdministrationShell> {
         try {
             return await this.repositoryClient.getAssetAdministrationShellById(aasId, undefined, repoUrl);
         } catch (e) {
-            throw new Error(`AAS '${aasId}' not found in repository '${repoUrl}'`);
+            throw new NotFoundError(`AAS '${aasId}' not found in repository '${repoUrl}'`);
         }
     }
 
@@ -80,15 +90,23 @@ export class MultipleRepositorySearchService {
             // @ts-expect-error
             return fulfilledResults.map((result) => (result as unknown).value);
         } else {
-            throw new Error('AAS not found');
+            throw new NotFoundError(`Could not find AAS ${aasId} in any Repository`);
         }
     }
 
-    async getAasFromDefaultRepository(aasId: string): Promise<AssetAdministrationShell> {
+    async getSubmodelById(id: string): Promise<Submodel> {
         try {
-            return await this.repositoryClient.getAssetAdministrationShellById(aasId);
-        } catch (e) {
-            throw new Error('AAS not found');
+            return this.submodelRepositoryClient.getSubmodelById(id);
+        } catch (error) {
+            throw new NotFoundError(`Submodel with id ${id} not found`);
+        }
+    }
+
+    async getAttachmentFromSubmodelElement(submodelId: string, submodelElementPath: string): Promise<Blob> {
+        try {
+            return this.submodelRepositoryClient.getAttachmentFromSubmodelElement(submodelId, submodelElementPath);
+        } catch (error) {
+            throw new NotFoundError(`Attachment for Submodel with id ${submodelId} at path ${submodelElementPath} not found`);
         }
     }
 
@@ -104,7 +122,23 @@ export class MultipleRepositorySearchService {
         try {
             return await Promise.any(promises);
         } catch (error) {
-            throw new Error('Submodel not found');
+            throw new NotFoundError('Submodel not found');
+        }
+    }
+
+    async getSubmodelReferencesFromShell(aasId: string): Promise<Reference[]> {
+        try {
+            return await this.repositoryClient.getSubmodelReferencesFromShell(aasId);
+        } catch (e) {
+            throw new NotFoundError('Submodel Reference not found');
+        }
+    }
+
+    async getThumbnailFromShell(aasId: string): Promise<Blob> {
+        try {
+            return await this.repositoryClient.getThumbnailFromShell(aasId);
+        } catch (e) {
+            throw new NotFoundError('Thumbnail not found');
         }
     }
 
@@ -126,7 +160,7 @@ export class MultipleRepositorySearchService {
         try {
             return await Promise.any(promises);
         } catch {
-            throw new Error('Image not found');
+            throw new NotFoundError('Image not found');
         }
     }
 }

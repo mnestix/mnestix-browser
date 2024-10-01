@@ -3,7 +3,7 @@ import { File, Property } from '@aas-core-works/aas-core3.0-typescript/types';
 import { useState } from 'react';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { isValidUrl } from 'lib/util/UrlUtil';
-import { useApis } from 'components/azureAuthentication/ApiProvider';
+import { getAttachmentFromSubmodelElement } from 'lib/services/repository-access/repositorySearchActions';
 
 type SingleMarkingsComponentProps = {
     readonly file?: File;
@@ -34,13 +34,12 @@ const StyledMarkingWrapper = styled(Box)(() => ({
 export function SingleMarkingsComponent(props: SingleMarkingsComponentProps) {
     const { file, name, additionalText, submodelId, idShortPath } = props;
     const [markingImage, setMarkingImage] = useState<string>();
-    const { submodelClient } = useApis();
 
     useAsyncEffect(async () => {
         if (!isValidUrl(file!.value)) {
             try {
                 const fileIdShort = idShortPath + '.' + file?.idShort;
-                const image = await submodelClient.getAttachmentFromSubmodelElement(submodelId!, fileIdShort);
+                const image = await getAttachmentFromSubmodelElement(submodelId!, fileIdShort);
                 setMarkingImage(URL.createObjectURL(image));
             } catch (e) {
                 console.error('Image not found', e);
