@@ -4,8 +4,8 @@ import { AssetAdministrationShellRepositoryApi, SubmodelRepositoryApi } from 'li
 import { mnestixFetch } from 'lib/api/infrastructure';
 import { AssetAdministrationShell, Submodel } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
 import { INullableAasRepositoryEntries } from 'lib/api/basyx-v3/apiInMemory';
-import { PrismaConnector } from 'lib/services/connection-access/PrismaConnector';
-import { IPrismaConnector } from 'lib/services/connection-access/PrismaConnectorInterface';
+import { PrismaConnector } from 'lib/services/prisma/PrismaConnector';
+import { IPrismaConnector } from 'lib/services/prisma/PrismaConnectorInterface';
 import { Reference } from '@aas-core-works/aas-core3.0-typescript/types';
 import { NotFoundError } from 'lib/errors/NotFoundError';
 
@@ -90,7 +90,7 @@ export class RepositorySearchService {
             // @ts-expect-error
             return fulfilledResults.map((result) => (result as unknown).value);
         } else {
-            throw new NotFoundError();
+            throw new Error(`Could not find AAS ${aasId} in any Repository`);
         }
     }
 
@@ -106,7 +106,7 @@ export class RepositorySearchService {
         try {
             return this.submodelRepositoryClient.getAttachmentFromSubmodelElement(submodelId, submodelElementPath);
         } catch (error) {
-            throw new Error(`Attachment for Submode with id ${submodelId} at path ${submodelElementPath} not found`);
+            throw new Error(`Attachment for Submodel with id ${submodelId} at path ${submodelElementPath} not found`);
         }
     }
 

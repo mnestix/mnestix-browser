@@ -100,7 +100,7 @@ export class AasSearcher {
             return this.createAasResult(defaultResult);
         }
 
-        const potentiallyMultipleAas = await this.shellsFromAllRepositories(aasIdEncoded);
+        const potentiallyMultipleAas = await this.getAasFromAllRepositories(aasIdEncoded);
         if (potentiallyMultipleAas) {
             if (potentiallyMultipleAas.length === 1) {
                 return this.createAasResult(potentiallyMultipleAas[0].aas);
@@ -199,7 +199,7 @@ export class AasSearcher {
         }
     }
 
-    private async shellsFromAllRepositories(aasId: string): Promise<RepoSearchResult[] | null> {
+    private async getAasFromAllRepositories(aasId: string): Promise<RepoSearchResult[] | null> {
         try {
             return await this.multipleDataSource.getAasFromAllRepos(aasId);
         } catch (e) {
