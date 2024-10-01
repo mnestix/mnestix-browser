@@ -5,4 +5,5 @@ export type SubmodelElementVisualizationProps = {
     submodelElement: ISubmodelElement,
     submodelId: string
     hasDivider: boolean
+    key: number
 }

@@ -1,7 +1,7 @@
 import { Entity, Submodel, SubmodelElementCollection } from '@aas-core-works/aas-core3.0-typescript/types';
 import { GenericSubmodelElementComponent } from 'app/[locale]/viewer/_components/submodel-elements/GenericSubmodelElementComponent';
 import { idEquals } from 'lib/util/IdValidationUtil';
-import { submodelElementCustomVisualizationMapping } from 'app/[locale]/viewer/_components/submodel-elements/SubmodelElementCustomVisualizationMapping';
+import { submodelElementCustomVisualizationMap } from 'app/[locale]/viewer/_components/submodel-elements/SubmodelElementCustomVisualizationMap';
 import { Fragment } from 'react';
 
 type SubmodelDetailListProps = {
@@ -22,10 +22,10 @@ export function GenericSubmodelComponent(props: SubmodelDetailListProps) {
 
                 // We have to use the idEquals function here to correctly handle IRDIs
                 const visualizationMapKey =
-                    (Object.keys(submodelElementCustomVisualizationMapping) as Array<string>).find((key) =>
+                    (Object.keys(submodelElementCustomVisualizationMap) as Array<string>).find((key) =>
                         idEquals(semanticId, key),
                     ) ?? '';
-                const CustomSubmodelElementComponent = submodelElementCustomVisualizationMapping[visualizationMapKey];
+                const CustomSubmodelElementComponent = submodelElementCustomVisualizationMap[visualizationMapKey];
 
                 return (
                     <Fragment key={index}>
