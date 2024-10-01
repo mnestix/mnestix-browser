@@ -8,12 +8,12 @@ import { ArrowForward, ArticleOutlined, InfoOutlined, PinDropOutlined } from '@m
 import { FormattedMessage } from 'react-intl';
 import { messages } from 'lib/i18n/localization';
 import { useRouter } from 'next/navigation';
-import { SubmodelElementRenderer } from '../SubmodelElementRenderer';
-import { EntityDetailsDialog } from './EntityDetailsDialog';
-import { RelationShipDetailsDialog } from './RelationShipDetailsDialog';
+import { GenericSubmodelElementComponent } from 'app/[locale]/viewer/_components/submodel-elements/GenericSubmodelElementComponent';
+import { EntityDetailsDialog } from 'app/[locale]/viewer/_components/submodel-elements/generic-elements/entity-components/EntityDetailsDialog';
+import { RelationShipDetailsDialog } from 'app/[locale]/viewer/_components/submodel-elements/generic-elements/entity-components/RelationShipDetailsDialog';
 import { getKeyType } from 'lib/util/KeyTypeUtil';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
-import { CustomTreeItemContentProps, CustomTreeItemProps, ExpandableTreeitem, getTreeItemStyle } from '../TreeItem';
+import { CustomTreeItemContentProps, CustomTreeItemProps, ExpandableTreeitem, getTreeItemStyle } from 'app/[locale]/viewer/_components/submodel-elements/generic-elements/entity-components/TreeItem';
 
 const CustomContent = React.forwardRef(function CustomContent(props: CustomTreeItemContentProps, ref) {
     const navigate = useRouter();
@@ -98,7 +98,7 @@ const CustomContent = React.forwardRef(function CustomContent(props: CustomTreeI
                             </Button>
                         </>
                     )}
-                    {showDataDirectly && <SubmodelElementRenderer submodelElement={data} wrapInDataRow={false} />}
+                    {showDataDirectly && <GenericSubmodelElementComponent submodelElement={data} wrapInDataRow={false} />}
                 </Box>
                 {isRelationShip && (
                     <Box sx={{ ml: '2px', pl: 1, display: 'flex' }}>

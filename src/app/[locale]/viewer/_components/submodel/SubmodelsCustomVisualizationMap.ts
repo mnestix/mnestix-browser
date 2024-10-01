@@ -5,8 +5,7 @@ import { BillOfApplicationsDetail } from 'app/[locale]/viewer/_components/submod
 import { ReferenceCounterDetail } from 'app/[locale]/viewer/_components/submodel/reference-counter/ReferenceCounterDetail';
 import { HierarchicalStructuresDetail } from 'app/[locale]/viewer/_components/submodel/hierarchical-structures/HierarchicalStructuresDetail';
 import { TimeSeriesDetail } from 'app/[locale]/viewer/_components/submodel/time-series/TimeSeriesDetail';
-
-export const submodelVisualizationsMap = {
+export const submodelsCustomVisualizationMap = {
     [SubmodelSemanticId.CoffeeConsumptionContainer]: CoffeeConsumptionDetail,
     [SubmodelSemanticId.CarbonFootprint]: CarbonFootprintDetail,
     [SubmodelSemanticId.CarbonFootprintIRDI]: CarbonFootprintDetail,

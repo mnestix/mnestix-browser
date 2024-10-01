@@ -12,7 +12,7 @@ import {
     ISubmodelElement,
     SubmodelElementCollection,
 } from '@aas-core-works/aas-core3.0-typescript/types';
-import { SubmodelElementRenderer } from '../SubmodelElementRenderer';
+import { GenericSubmodelElementComponent } from 'app/[locale]/viewer/_components/submodel-elements/GenericSubmodelElementComponent';
 import { SubModelElementCollectionContactInfo } from 'lib/util/ApiExtensions/ExtendISubmodelElement';
 
 type ContactInformationComponentProps = {
@@ -114,7 +114,7 @@ export function ContactInformationComponent(props: ContactInformationComponentPr
                 <Typography color="text.secondary" sx={{ minWidth: '190px', mr: '5px' }}>
                     {el.idShort}
                 </Typography>
-                <SubmodelElementRenderer submodelElement={el} wrapInDataRow={false} />
+                <GenericSubmodelElementComponent submodelElement={el} wrapInDataRow={false} />
             </Box>
         );
     });
@@ -125,7 +125,7 @@ export function ContactInformationComponent(props: ContactInformationComponentPr
                 <Typography color="text.secondary" sx={{ minWidth: '190px', mr: '5px' }}>
                     {el.idShort}
                 </Typography>
-                <SubmodelElementRenderer submodelElement={el} wrapInDataRow={false} />
+                <GenericSubmodelElementComponent submodelElement={el} wrapInDataRow={false} />
             </Box>
         );
     });
@@ -218,7 +218,7 @@ export function ContactInformationComponent(props: ContactInformationComponentPr
                 <Typography color="text.secondary" sx={{ minWidth: '190px', mr: '5px' }}>
                     {el.idShort}
                 </Typography>
-                <SubmodelElementRenderer submodelElement={el} wrapInDataRow={false} />
+                <GenericSubmodelElementComponent submodelElement={el} wrapInDataRow={false} />
             </Box>
         );
     });

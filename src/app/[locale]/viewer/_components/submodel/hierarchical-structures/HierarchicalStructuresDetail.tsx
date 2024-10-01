@@ -7,13 +7,13 @@ import {
     RelationshipElement,
     Submodel,
 } from '@aas-core-works/aas-core3.0-typescript/types';
-import { EntityComponent } from '../../submodel-elements/entity-component/EntityComponent';
+import { EntityComponent } from 'app/[locale]/viewer/_components/submodel-elements/generic-elements/entity-components/EntityComponent';
 import { cloneDeep } from 'lodash';
 import { SubmodelElementSemanticId } from 'lib/enums/SubmodelElementSemanticId.enum';
 import { getKeyType } from 'lib/util/KeyTypeUtil';
 import { GetEntityType } from 'lib/util/EntityTypeUtil';
 import { Box, IconButton } from '@mui/material';
-import { SubmodelElementRenderer } from '../../submodel-elements/SubmodelElementRenderer';
+import { GenericSubmodelElementComponent } from 'app/[locale]/viewer/_components/submodel-elements/GenericSubmodelElementComponent';
 import { InfoOutlined } from '@mui/icons-material';
 import React from 'react';
 import { ArchetypeDetailsDialog } from './ArchetypeDetailsDialog';
@@ -71,7 +71,7 @@ export function HierarchicalStructuresDetail(props: HierarchicalStructuresDetail
             {archeTypePropertylElement && (
                 <>
                     <Box sx={{ mt: 2, display: 'flex' }}>
-                        <SubmodelElementRenderer
+                        <GenericSubmodelElementComponent
                             key={archeTypePropertylElement.idShort}
                             submodelId={props.submodel.id}
                             submodelElement={archeTypePropertylElement}

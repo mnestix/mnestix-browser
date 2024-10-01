@@ -2,7 +2,7 @@ import { Dialog, DialogContent, Typography } from '@mui/material';
 import { ISubmodelElement, SubmodelElementCollection } from '@aas-core-works/aas-core3.0-typescript/types';
 import { messages } from 'lib/i18n/localization';
 import { FormattedMessage } from 'react-intl';
-import { SubmodelElementRenderer } from '../SubmodelElementRenderer';
+import { GenericSubmodelElementComponent } from 'app/[locale]/viewer/_components/submodel-elements/GenericSubmodelElementComponent';
 
 type DocumentDetailsModalProps = {
     readonly document: SubmodelElementCollection;
@@ -24,7 +24,7 @@ export function DocumentDetailsDialog(props: DocumentDetailsModalProps) {
                     <FormattedMessage {...messages.mnestix.documentDetails} />
                 </Typography>
                 {document.value.map((el, i) => (
-                    <SubmodelElementRenderer submodelElement={el as ISubmodelElement} key={i} hasDivider={i !== 0} />
+                    <GenericSubmodelElementComponent submodelElement={el as ISubmodelElement} key={i} hasDivider={i !== 0} />
                 ))}
             </DialogContent>
         </Dialog>

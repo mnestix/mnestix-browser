@@ -11,10 +11,10 @@ import {
     SubmodelElementCollection,
 } from '@aas-core-works/aas-core3.0-typescript/types';
 import { getKeyType } from 'lib/util/KeyTypeUtil';
-import { PropertyComponent } from 'app/[locale]/viewer/_components/submodel-elements/PropertyComponent';
-import { EntityComponent } from 'app/[locale]/viewer/_components/submodel-elements/entity-component/EntityComponent';
-import { MultiLanguagePropertyComponent } from 'app/[locale]/viewer/_components/submodel-elements/MultiLanguagePropertyComponent';
-import { FileComponent } from 'app/[locale]/viewer/_components/submodel-elements/FileComponent';
+import { PropertyComponent } from 'app/[locale]/viewer/_components/submodel-elements/generic-elements/PropertyComponent';
+import { EntityComponent } from 'app/[locale]/viewer/_components/submodel-elements/generic-elements/entity-components/EntityComponent';
+import { MultiLanguagePropertyComponent } from 'app/[locale]/viewer/_components/submodel-elements/generic-elements/MultiLanguagePropertyComponent';
+import { FileComponent } from 'app/[locale]/viewer/_components/submodel-elements/generic-elements/FileComponent';
 import { SubmodelElementCollectionComponent } from 'app/[locale]/viewer/_components/submodel-elements/SubmodelElementCollectionComponent';
 import { DifferenceSymbol } from 'components/basics/DifferenceSymbol';
 
