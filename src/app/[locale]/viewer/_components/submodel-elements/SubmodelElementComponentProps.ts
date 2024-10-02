@@ -5,5 +5,5 @@ export type SubmodelElementComponentProps = {
     submodelElement?: ISubmodelElement,
     submodelId?: string
     hasDivider?: boolean
-    key?: number
+    key?: string | number | null
 }
