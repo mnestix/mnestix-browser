@@ -92,7 +92,7 @@ export class AasSearcher {
         const aasIdEncoded = encodeBase64(aasId);
 
         const aasRegistryResult = await this.performRegistrySearch(aasId);
-        if (aasRegistryResult) {
+        if (aasRegistryResult.isSuccess()) {
             return new ApiResponseWrapper<AasSearchResult>(aasRegistryResult.result);
         }
 

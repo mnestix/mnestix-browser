@@ -1,7 +1,7 @@
 export class ApiResponseWrapper<T> {
     result: T
-    errorCode: number
-    unknownError = false
+    private errorCode: number
+    private unknownError = false
 
     constructor(result: T | null, errorCode?: number) {
         if (result === null) {
