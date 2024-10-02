@@ -1,4 +1,4 @@
-﻿import { styled } from '@mui/material';
+﻿import { Box, Skeleton, styled } from '@mui/material';
 import { useState } from 'react';
 import DefaultThumbnail from 'assets/AasDefaultThumbnail.svg';
 
@@ -20,27 +20,39 @@ type StyledImageWithFallBackProps = {
     onClickHandler?: () => void;
 };
 
-export const ImageWithFallback = (props: StyledImageWithFallBackProps) => {
-    const { src, alt, size, onClickHandler } = props;
+export const ImageWithFallback = ({ src, alt, size, onClickHandler }: StyledImageWithFallBackProps) => {
     const [hasError, setHasError] = useState(false);
-
-    const handleError = () => {
-        setHasError(true);
-    };
+    const [isLoading, setLoading] = useState(true);
 
     const ImageContent = (
         <StyledImage
             src={src}
-            onError={handleError}
+            onError={() => {
+                setHasError(true);
+            }}
+            onLoad={() => {
+                setLoading(false);
+            }}
             alt={alt}
             size={size}
-            onClick={() => {
-                if (onClickHandler) {
-                    onClickHandler();
-                }
+            onClick={() => onClickHandler?.call(this)}
+            style={{
+                cursor: onClickHandler ? 'pointer' : 'auto',
+                position: 'absolute',
+                top: '0px',
+                left: '0px',
+                height: size,
+                width: size,
             }}
-            style={{ cursor: onClickHandler ? 'pointer' : 'auto' }}
             data-testid='image-with-fallback'
+        />
+    );
+
+    const LoadingContent = (
+        <Skeleton
+            variant="rectangular"
+            sx={{ position: 'absolute', top: '0px', left: '0px', height: size, width: size }}
+            onClick={() => onClickHandler?.call(this)}
         />
     );
 
@@ -50,21 +62,20 @@ export const ImageWithFallback = (props: StyledImageWithFallBackProps) => {
                 maxHeight: size,
                 maxWidth: size,
                 width: '100%',
-                cursor: onClickHandler ? 'pointer' : 'auto'
+                cursor: onClickHandler ? 'pointer' : 'auto',
             }}
             alt={alt}
-            onClick={() => {
-                if (onClickHandler) {
-                    onClickHandler();
-                }
-            }}
+            onClick={() => onClickHandler?.call(this)}
         />
     );
 
     return (
         <>
-            {(!hasError && props.src) ? (
-                ImageContent
+            {!hasError && src ? (
+                <Box style={{ position: 'relative', height: size, width: '100%', maxWidth: size }}>
+                    {isLoading ? <>{LoadingContent}</> : <></>}
+                    {ImageContent}
+                </Box>
             ) : (
                 FallbackContent
             )}
