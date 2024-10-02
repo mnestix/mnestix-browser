@@ -21,12 +21,12 @@ import {
     SubmodelElementComponentProps
 } from '../SubmodelElementComponentProps';
 
-type SubmodelElementRendererProps = SubmodelElementComponentProps & {
+type GenericSubmodelElementComponentProps = SubmodelElementComponentProps & {
     readonly submodelElementPath?: string | null;
     readonly wrapInDataRow?: boolean;
 };
 
-export function GenericSubmodelElementComponent(props: SubmodelElementRendererProps) {
+export function GenericSubmodelElementComponent(props: GenericSubmodelElementComponentProps) {
     function getRenderElement() {
         if (!props.submodelElement) {
             return;
