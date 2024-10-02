@@ -1,6 +1,6 @@
 import { Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
 import { submodelCustomVisualizationMap } from './SubmodelCustomVisualizationMap';
-import { GenericSubmodelComponent } from './generic-submodel/GenericSubmodelComponent';
+import { GenericSubmodelDetailComponent } from './generic-submodel/GenericSubmodelDetailComponent';
 import { Box } from '@mui/material';
 import { idEquals } from 'lib/util/IdValidationUtil';
 
@@ -25,7 +25,7 @@ export function SubmodelDetail(props: SubmodelDetailProps) {
             {CustomSubmodelComponent ? (
                 <CustomSubmodelComponent submodel={props.submodel} />
             ) : (
-                <GenericSubmodelComponent submodel={props.submodel} />
+                <GenericSubmodelDetailComponent submodel={props.submodel} />
             )}
         </Box>
     );

@@ -9,7 +9,6 @@ import { MultiLanguagePropertyComponent } from './MultiLanguagePropertyComponent
 import {
     Entity,
     File,
-    ISubmodelElement,
     KeyTypes,
     MultiLanguageProperty,
     Property,
@@ -18,12 +17,12 @@ import {
 import { EntityComponent } from './entity-components/EntityComponent';
 import { getKeyType } from 'lib/util/KeyTypeUtil';
 import { buildSubmodelElementPath } from 'lib/util/SubmodelResolverUtil';
+import {
+    SubmodelElementComponentProps
+} from '../SubmodelElementComponentProps';
 
-type SubmodelElementRendererProps = {
-    readonly submodelId?: string;
-    readonly submodelElement?: ISubmodelElement;
+type SubmodelElementRendererProps = SubmodelElementComponentProps & {
     readonly submodelElementPath?: string | null;
-    readonly hasDivider?: boolean;
     readonly wrapInDataRow?: boolean;
 };
 

@@ -1,16 +1,13 @@
-import { Entity, Submodel, SubmodelElementCollection } from '@aas-core-works/aas-core3.0-typescript/types';
+import { Entity, SubmodelElementCollection } from '@aas-core-works/aas-core3.0-typescript/types';
 import { idEquals } from 'lib/util/IdValidationUtil';
 import { submodelElementCustomVisualizationMap } from '../../submodel-elements/SubmodelElementCustomVisualizationMap';
 import { Fragment } from 'react';
 import {
     GenericSubmodelElementComponent
 } from '../../submodel-elements/generic-elements/GenericSubmodelElementComponent';
+import { SubmodelDetailComponentProps } from 'app/[locale]/viewer/_components/submodel/SubmodelDetailComponentProps';
 
-type SubmodelDetailListProps = {
-    readonly submodel: Submodel;
-};
-
-export function GenericSubmodelComponent(props: SubmodelDetailListProps) {
+export function GenericSubmodelDetailComponent(props: SubmodelDetailComponentProps) {
     const submodelElements = props.submodel.submodelElements ?? [];
 
     // Entity element always has a line at the bottom, so we don't need an extra line on the following element
