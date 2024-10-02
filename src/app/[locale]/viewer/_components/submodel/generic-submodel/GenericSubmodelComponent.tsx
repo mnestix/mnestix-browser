@@ -1,8 +1,10 @@
 import { Entity, Submodel, SubmodelElementCollection } from '@aas-core-works/aas-core3.0-typescript/types';
-import { GenericSubmodelElementComponent } from 'app/[locale]/viewer/_components/submodel-elements/GenericSubmodelElementComponent';
 import { idEquals } from 'lib/util/IdValidationUtil';
-import { submodelElementCustomVisualizationMap } from 'app/[locale]/viewer/_components/submodel-elements/SubmodelElementCustomVisualizationMap';
+import { submodelElementCustomVisualizationMap } from '../../submodel-elements/SubmodelElementCustomVisualizationMap';
 import { Fragment } from 'react';
+import {
+    GenericSubmodelElementComponent
+} from '../../submodel-elements/generic-elements/GenericSubmodelElementComponent';
 
 type SubmodelDetailListProps = {
     readonly submodel: Submodel;

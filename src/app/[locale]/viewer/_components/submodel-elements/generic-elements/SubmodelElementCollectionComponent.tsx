@@ -5,7 +5,7 @@ import { NestedContentWrapper } from 'components/basics/NestedContentWrapper';
 import { messages } from 'lib/i18n/localization';
 import { ReactNode, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { GenericSubmodelElementComponent } from 'app/[locale]/viewer/_components/submodel-elements/GenericSubmodelElementComponent';
+import { GenericSubmodelElementComponent } from './GenericSubmodelElementComponent';
 
 enum ExpandButtonText {
     show = 'show',

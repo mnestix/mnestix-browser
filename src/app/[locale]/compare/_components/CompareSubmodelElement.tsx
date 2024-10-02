@@ -15,7 +15,7 @@ import { PropertyComponent } from 'app/[locale]/viewer/_components/submodel-elem
 import { EntityComponent } from 'app/[locale]/viewer/_components/submodel-elements/generic-elements/entity-components/EntityComponent';
 import { MultiLanguagePropertyComponent } from 'app/[locale]/viewer/_components/submodel-elements/generic-elements/MultiLanguagePropertyComponent';
 import { FileComponent } from 'app/[locale]/viewer/_components/submodel-elements/generic-elements/FileComponent';
-import { SubmodelElementCollectionComponent } from 'app/[locale]/viewer/_components/submodel-elements/SubmodelElementCollectionComponent';
+import { SubmodelElementCollectionComponent } from 'app/[locale]/viewer/_components/submodel-elements/generic-elements/SubmodelElementCollectionComponent';
 import { DifferenceSymbol } from 'components/basics/DifferenceSymbol';
 
 type CompareSubmodelElementProps = {

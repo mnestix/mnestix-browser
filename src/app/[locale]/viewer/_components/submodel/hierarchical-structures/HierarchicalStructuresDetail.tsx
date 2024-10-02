@@ -7,13 +7,13 @@ import {
     RelationshipElement,
     Submodel,
 } from '@aas-core-works/aas-core3.0-typescript/types';
-import { EntityComponent } from 'app/[locale]/viewer/_components/submodel-elements/generic-elements/entity-components/EntityComponent';
+import { EntityComponent } from '../../submodel-elements/generic-elements/entity-components/EntityComponent';
 import { cloneDeep } from 'lodash';
 import { SubmodelElementSemanticId } from 'lib/enums/SubmodelElementSemanticId.enum';
 import { getKeyType } from 'lib/util/KeyTypeUtil';
 import { GetEntityType } from 'lib/util/EntityTypeUtil';
 import { Box, IconButton } from '@mui/material';
-import { GenericSubmodelElementComponent } from 'app/[locale]/viewer/_components/submodel-elements/GenericSubmodelElementComponent';
+import { GenericSubmodelElementComponent } from '../../submodel-elements/generic-elements/GenericSubmodelElementComponent';
 import { InfoOutlined } from '@mui/icons-material';
 import React from 'react';
 import { ArchetypeDetailsDialog } from './ArchetypeDetailsDialog';

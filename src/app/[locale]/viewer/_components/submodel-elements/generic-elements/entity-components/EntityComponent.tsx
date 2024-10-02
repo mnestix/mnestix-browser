@@ -3,7 +3,7 @@ import { ChevronRight, ExpandMore } from '@mui/icons-material';
 import { SubmodelViewObject } from 'lib/types/SubmodelViewObject';
 import { generateSubmodelViewObjectFromSubmodelElement } from 'lib/util/SubmodelViewObjectUtil';
 import { SimpleTreeView } from '@mui/x-tree-view';
-import { EntityTreeItem } from 'app/[locale]/viewer/_components/submodel-elements/generic-elements/entity-components/EntityTreeItem';
+import { EntityTreeItem } from './EntityTreeItem';
 import { SyntheticEvent, useState } from 'react';
 
 type EntityComponentProps = {

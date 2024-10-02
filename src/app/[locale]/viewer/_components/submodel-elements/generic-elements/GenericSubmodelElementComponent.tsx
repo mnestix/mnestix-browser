@@ -1,11 +1,11 @@
 import { Typography } from '@mui/material';
-import { PropertyComponent } from 'app/[locale]/viewer/_components/submodel-elements/generic-elements/PropertyComponent';
-import { SubmodelElementCollectionComponent } from 'app/[locale]/viewer/_components/submodel-elements/SubmodelElementCollectionComponent';
+import { PropertyComponent } from './PropertyComponent';
+import { SubmodelElementCollectionComponent } from './SubmodelElementCollectionComponent';
 import { DataRow } from 'components/basics/DataRow';
 import { FormattedMessage } from 'react-intl';
 import { messages } from 'lib/i18n/localization';
-import { FileComponent } from 'app/[locale]/viewer/_components/submodel-elements/generic-elements/FileComponent';
-import { MultiLanguagePropertyComponent } from 'app/[locale]/viewer/_components/submodel-elements/generic-elements/MultiLanguagePropertyComponent';
+import { FileComponent } from './FileComponent';
+import { MultiLanguagePropertyComponent } from './MultiLanguagePropertyComponent';
 import {
     Entity,
     File,
@@ -15,7 +15,7 @@ import {
     Property,
     SubmodelElementCollection,
 } from '@aas-core-works/aas-core3.0-typescript/types';
-import { EntityComponent } from 'app/[locale]/viewer/_components/submodel-elements/generic-elements/entity-components/EntityComponent';
+import { EntityComponent } from './entity-components/EntityComponent';
 import { getKeyType } from 'lib/util/KeyTypeUtil';
 import { buildSubmodelElementPath } from 'lib/util/SubmodelResolverUtil';
 

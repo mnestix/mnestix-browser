@@ -28,6 +28,5 @@ export enum SubmodelElementSemanticId {
     TimeSeriesLinkedSegmentQuery = 'https://admin-shell.io/idta/TimeSeries/Query/1/1',
     EntryNode = 'https://admin-shell.io/idta/HierarchicalStructures/EntryNode/1/0',
     BulkCount = 'https://admin-shell.io/idta/HierarchicalStructures/BulkCount/1/0',
-    ArcheType = 'https://admin-shell.io/idta/HierarchicalStructures/ArcheType/1/0',
-    SerialNumber = '0173-1#02-AAM556#002',
+    ArcheType = 'https://admin-shell.io/idta/HierarchicalStructures/ArcheType/1/0'
 }

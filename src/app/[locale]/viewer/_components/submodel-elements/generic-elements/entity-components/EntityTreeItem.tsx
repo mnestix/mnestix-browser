@@ -8,9 +8,9 @@ import { ArrowForward, ArticleOutlined, InfoOutlined, PinDropOutlined } from '@m
 import { FormattedMessage } from 'react-intl';
 import { messages } from 'lib/i18n/localization';
 import { useRouter } from 'next/navigation';
-import { GenericSubmodelElementComponent } from 'app/[locale]/viewer/_components/submodel-elements/GenericSubmodelElementComponent';
-import { EntityDetailsDialog } from 'app/[locale]/viewer/_components/submodel-elements/generic-elements/entity-components/EntityDetailsDialog';
-import { RelationShipDetailsDialog } from 'app/[locale]/viewer/_components/submodel-elements/generic-elements/entity-components/RelationShipDetailsDialog';
+import { GenericSubmodelElementComponent } from '../GenericSubmodelElementComponent';
+import { EntityDetailsDialog } from './EntityDetailsDialog';
+import { RelationShipDetailsDialog } from './RelationShipDetailsDialog';
 import { getKeyType } from 'lib/util/KeyTypeUtil';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { CustomTreeItemContentProps, CustomTreeItemProps, ExpandableTreeitem, getTreeItemStyle } from 'app/[locale]/viewer/_components/submodel-elements/generic-elements/entity-components/TreeItem';

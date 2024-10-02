@@ -1,6 +1,6 @@
 import { Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
-import { submodelsCustomVisualizationMap } from 'app/[locale]/viewer/_components/submodel/SubmodelsCustomVisualizationMap';
-import { GenericSubmodelComponent } from 'app/[locale]/viewer/_components/submodel/GenericSubmodelComponent';
+import { submodelCustomVisualizationMap } from './SubmodelCustomVisualizationMap';
+import { GenericSubmodelComponent } from './generic-submodel/GenericSubmodelComponent';
 import { Box } from '@mui/material';
 import { idEquals } from 'lib/util/IdValidationUtil';
 
@@ -16,9 +16,9 @@ export function SubmodelDetail(props: SubmodelDetailProps) {
 
     // We have to use the idEquals function here to correctly handle IRDIs
     const key =
-        (Object.keys(submodelsCustomVisualizationMap) as Array<string>).find((key) => idEquals(semanticId, key)) ?? '';
+        (Object.keys(submodelCustomVisualizationMap) as Array<string>).find((key) => idEquals(semanticId, key)) ?? '';
 
-    const CustomSubmodelComponent = submodelsCustomVisualizationMap[key];
+    const CustomSubmodelComponent = submodelCustomVisualizationMap[key];
 
     return (
         <Box width="100%">

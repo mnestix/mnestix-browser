@@ -2,7 +2,7 @@ import { Dialog, DialogContent, Typography } from '@mui/material';
 import { ISubmodelElement, SubmodelElementCollection } from '@aas-core-works/aas-core3.0-typescript/types';
 import { messages } from 'lib/i18n/localization';
 import { FormattedMessage } from 'react-intl';
-import { GenericSubmodelElementComponent } from 'app/[locale]/viewer/_components/submodel-elements/GenericSubmodelElementComponent';
+import { GenericSubmodelElementComponent } from 'app/[locale]/viewer/_components/submodel-elements/generic-elements/GenericSubmodelElementComponent';
 
 type DocumentDetailsModalProps = {
     readonly document: SubmodelElementCollection;
