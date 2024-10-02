@@ -50,12 +50,12 @@ export default function Page() {
         }
 
         const result = await performFullAasSearch(aasIdDecoded);
-        if (!result) {
+        if (!result.isSuccess()) {
             showError(new LocalizedError(messages.mnestix.aasUrlNotFound), notificationSpawner);
-        } else if (result.aas) {
-            setAas(result.aas);
+        } else if (result.result.aas) {
+            setAas(result.result.aas);
         } else {
-            navigate.push(result.redirectUrl);
+            navigate.push(result.result.redirectUrl);
         }
     }
 
