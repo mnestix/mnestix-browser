@@ -6,7 +6,7 @@ import { messages } from 'lib/i18n/localization';
 import { useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
-import { SubmodelDetailList } from 'app/[locale]/viewer/_components/submodel/SubmodelDetailList';
+import { GenericSubmodelDetailComponent } from 'app/[locale]/viewer/_components/submodel/generic-submodel/GenericSubmodelDetailComponent';
 
 export function ExpandableDefaultSubmodelDisplay(props: { submodel: Submodel }) {
     const [isExpanded, setIsExpanded] = useState(false);
@@ -27,7 +27,7 @@ export function ExpandableDefaultSubmodelDisplay(props: { submodel: Submodel }) 
                 </Button>
                 {isExpanded && (
                     <NestedContentWrapper>
-                        <SubmodelDetailList submodel={props.submodel} />
+                        <GenericSubmodelDetailComponent submodel={props.submodel} />
                     </NestedContentWrapper>
                 )}
             </Box>
