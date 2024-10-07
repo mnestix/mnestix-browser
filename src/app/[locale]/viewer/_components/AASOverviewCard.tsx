@@ -6,7 +6,6 @@ import {
     Card,
     CardContent,
     Skeleton,
-    styled,
     Typography,
 } from '@mui/material';
 import React, { useState } from 'react';
@@ -23,15 +22,16 @@ import { encodeBase64 } from 'lib/util/Base64Util';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { useRouter } from 'next/navigation';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
-import { useRegistryAasState } from 'components/contexts/CurrentAasContext';
+import { useAasState, useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { AssetAdministrationShellRepositoryApi } from 'lib/api/basyx-v3/api';
-import { getAasThumbnailFromAllAasRepos } from 'lib/searchUtilActions/SearchRepositoryHelper';
+import { ImageWithFallback } from 'app/[locale]/list/_components/StyledImageWithFallBack';
+import { performgetAasThumbnailFromAllRepos } from 'lib/services/MultipleRepositorySearch/MultipleRepositorySearchActions';
+
 
 type AASOverviewCardProps = {
     readonly aas: AssetAdministrationShell | null;
     readonly productImage?: string;
     readonly isLoading?: boolean;
-    readonly hasImage?: boolean;
     readonly isAccordion: boolean;
     readonly imageLinksToDetail?: boolean;
 };
@@ -41,13 +41,6 @@ type MobileAccordionProps = {
     readonly title: string;
     readonly icon: React.ReactNode;
 };
-
-const StyledImage = styled('img')(() => ({
-    maxWidth: '300px',
-    height: '300px',
-    width: '100%',
-    objectFit: 'scale-down',
-}));
 
 function MobileAccordion(props: MobileAccordionProps) {
     return (
@@ -71,6 +64,7 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
     const [productImageUrl, setProductImageUrl] = useState<string | undefined>('');
     const { repositoryClient } = useApis();
     const [registryAasData] = useRegistryAasState();
+    const [, setAasState] = useAasState();
 
     async function createAndSetUrlForImageFile() {
         if (!props.aas) return;
@@ -78,7 +72,7 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
         try {
             let image: Blob;
             if (registryAasData) {
-                const registryRepository = new AssetAdministrationShellRepositoryApi({
+                const registryRepository = AssetAdministrationShellRepositoryApi.create({
                     basePath: registryAasData.aasRegistryRepositoryOrigin,
                 });
                 image = await registryRepository.getThumbnailFromShell(props.aas.id);
@@ -87,7 +81,7 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
                 try {
                     image = await repositoryClient.getThumbnailFromShell(props.aas.id);
                 } catch (e) {
-                    image = await getAasThumbnailFromAllAasRepos(props.aas.id, repositoryClient);
+                    image = await performgetAasThumbnailFromAllRepos(props.aas.id);
                 }
 
                 setProductImageUrl(URL.createObjectURL(image));
@@ -105,11 +99,7 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
         } else {
             setProductImageUrl(props.productImage);
         }
-
-        return () => {
-            setProductImageUrl('');
-        };
-    }, [props]);
+    }, [props.productImage]);
 
     const infoBoxStyle = {
         display: 'flex',
@@ -131,7 +121,11 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
     };
 
     const navigateToAas = () => {
-        if (props.imageLinksToDetail && props.aas) navigate.push(`/viewer/${encodeBase64(props.aas.id)}`);
+        if (props.imageLinksToDetail && props.aas) {
+            setAasState(props.aas)
+            const url = `/viewer/${encodeBase64(props.aas.id)}`;
+            navigate.push(url);
+        }
     };
 
     const aasInfo = (
@@ -212,25 +206,18 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
                     </>
                 ) : (
                     <>
-                        {!!props.productImage &&
-                            (props.imageLinksToDetail ? (
-                                <StyledImage
-                                    onClick={navigateToAas}
-                                    src={productImageUrl}
-                                    sx={{
-                                        '&:hover': {
-                                            cursor: 'pointer',
-                                        },
-                                    }}
-                                />
-                            ) : (
-                                <StyledImage src={productImageUrl} />
-                            ))}
-                        {props.hasImage && !props.productImage && (
+                        {props.isLoading ? (
                             <Skeleton
                                 variant="rectangular"
                                 sx={{ height: '300px', maxWidth: '300px', width: '100%' }}
                             ></Skeleton>
+                        ) : (
+                            <ImageWithFallback
+                                src={productImageUrl}
+                                alt={'Thumbnail'}
+                                onClickHandler={props.imageLinksToDetail ? navigateToAas : undefined}
+                                size={300}
+                            />
                         )}
                         {isAccordion ? (
                             <>

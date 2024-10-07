@@ -8,28 +8,28 @@ import { ArrowForward, ArticleOutlined, InfoOutlined, PinDropOutlined } from '@m
 import { FormattedMessage } from 'react-intl';
 import { messages } from 'lib/i18n/localization';
 import { useRouter } from 'next/navigation';
-import { SubmodelElementRenderer } from '../SubmodelElementRenderer';
+import { GenericSubmodelElementComponent } from '../GenericSubmodelElementComponent';
 import { EntityDetailsDialog } from './EntityDetailsDialog';
 import { RelationShipDetailsDialog } from './RelationShipDetailsDialog';
-import { GetKeyType } from 'lib/util/KeyTypeUtil';
+import { getKeyType } from 'lib/util/KeyTypeUtil';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
-import { CustomTreeItemContentProps, CustomTreeItemProps, ExpandableTreeitem, getTreeItemStyle } from '../TreeItem';
+import { CustomTreeItemContentProps, CustomTreeItemProps, ExpandableTreeitem, getTreeItemStyle } from 'app/[locale]/viewer/_components/submodel-elements/generic-elements/entity-components/TreeItem';
 
 const CustomContent = React.forwardRef(function CustomContent(props: CustomTreeItemContentProps, ref) {
     const navigate = useRouter();
     const { classes, className, label, itemId, icon: iconProp, data, ...other } = props;
     const { disabled, expanded, selected, focused, handleExpansion } = useTreeItemState(itemId);
     const { discoveryServiceClient } = useApis();
-    const isEntity = GetKeyType(data as ISubmodelElement) === KeyTypes.Entity;
+    const isEntity = getKeyType(data as ISubmodelElement) === KeyTypes.Entity;
     const dataIcon = isEntity ? (
         <AssetIcon fontSize="small" color="primary" />
     ) : (
         <ArticleOutlined fontSize="small" color="primary" />
     );
-    const isRelationShip = GetKeyType(data as ISubmodelElement) === KeyTypes.RelationshipElement;
+    const isRelationShip = getKeyType(data as ISubmodelElement) === KeyTypes.RelationshipElement;
     const assetId = isEntity ? (data as Entity).globalAssetId : undefined;
     const showDataDirectly = [KeyTypes.Property, KeyTypes.MultiLanguageProperty].find(
-        (mt) => mt === GetKeyType(data as ISubmodelElement),
+        (mt) => mt === getKeyType(data as ISubmodelElement),
     );
     const [detailsModalOpen, setDetailsModalOpen] = React.useState(false);
 
@@ -98,7 +98,7 @@ const CustomContent = React.forwardRef(function CustomContent(props: CustomTreeI
                             </Button>
                         </>
                     )}
-                    {showDataDirectly && <SubmodelElementRenderer submodelElement={data} wrapInDataRow={false} />}
+                    {showDataDirectly && <GenericSubmodelElementComponent submodelElement={data} wrapInDataRow={false} />}
                 </Box>
                 {isRelationShip && (
                     <Box sx={{ ml: '2px', pl: 1, display: 'flex' }}>

@@ -18,14 +18,15 @@ describe('Test compare feature view', function () {
 
         it('In the viewer detail page clicking Compare redirects to compare feature and loads first data to compare', function () {
             cy.getByTestId('detail-compare-button').click();
-            cy.getByTestId('compare-Data-0').click();
             cy.url().should('contain', '/compare');
             cy.getByTestId('compare-aas-0').should('be.visible');
+            cy.getByTestId('compare-Data-0').click();
             cy.getByTestId('compare-Record').eq(0).should('be.visible');
         });
 
         it('In the compare view clicks on the add another AAS and adds correct data to compare', function () {
             cy.getByTestId('detail-compare-button').click();
+            cy.getByTestId('compare-aas-0').should('be.visible');
             // open popup dialog and insert second aas to compare
             cy.getByTestId('add-aas-to-compare-button').click();
             cy.getByTestId('compare-aas-aad-dialog').should('be.visible');
@@ -49,6 +50,7 @@ describe('Test compare feature view', function () {
 
         it('In the compare view three aas are added with correct data and no possibility to add more aas', function () {
             cy.getByTestId('detail-compare-button').click();
+            cy.getByTestId('compare-aas-0').should('be.visible');
             // open popup dialog and insert second aas to compare
             cy.getByTestId('add-aas-to-compare-button').click();
             cy.get('@IDInput').click().type(compareAAS[1].assetInformation.globalAssetId);
@@ -74,6 +76,7 @@ describe('Test compare feature view', function () {
 
         it('In the compare view check if different values are being marked when different', function () {
             cy.getByTestId('detail-compare-button').click();
+            cy.getByTestId('compare-aas-0').should('be.visible');
             // open popup dialog and insert second aas to compare
             cy.getByTestId('add-aas-to-compare-button').click();
             cy.get('@IDInput').click().type(compareAAS[1].assetInformation.globalAssetId);
@@ -104,11 +107,13 @@ describe('Test compare feature view', function () {
             cy.get('@IDInput').click().type(compareAAS[0].id);
             cy.getByTestId('aasId-submit-button').click();
             cy.getByTestId('detail-compare-button').click();
+            cy.getByTestId('compare-aas-0').should('be.visible');
             // //insert mock data
             for (let i = 1; i < 3; i++) {
                 cy.getByTestId('add-aas-to-compare-button').click();
                 cy.get('@IDInput').click().type(compareAAS[i].assetInformation.globalAssetId);
                 cy.getByTestId('aasId-submit-button').click();
+                cy.getByTestId(`compare-aas-${i}`).should('be.visible');
             }
         });
 
@@ -155,6 +160,31 @@ describe('Test compare feature view', function () {
             cy.getByTestId('compare-value').should('not.exist');
         });
     });
+
+    it('Clicking the image of an AAS in compare view redirects to the detail page', function () {
+        cy.setResolution(resolutions[0]);
+        
+        // go to compare view with all three test data
+        const url = `/compare?aasId=${compareAAS[0].id}&aasId=${compareAAS[1].id}&aasId=${compareAAS[2].id}`;
+        cy.visit(url);
+        cy.getByTestId('compare-aas-2').should('be.visible');
+        
+        // click second image
+        cy.getByTestId('compare-aas-1')
+            .findByTestId('image-with-fallback')
+            .click();
+        
+        // check if url is correct
+        const b64Url = btoa(compareAAS[1].id)
+            .replace(/=*$/, '');
+        cy.url().should('contain', `/viewer/${b64Url}`);
+            
+        // check if loaded aas id is correct
+        cy.getByTestId('aas-data')
+            .findByTestId('data-row-value')
+            .should('contain', compareAAS[1].id);
+    });
+    
     after(function () {
         cy.deleteCompareMockData();
     });

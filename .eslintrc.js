@@ -22,6 +22,12 @@ module.exports = {
         'object-curly-spacing': [1, 'always'],
         'formatjs/no-id': 1,
         'react-hooks/exhaustive-deps': 'off',
+        '@typescript-eslint/no-unused-vars': [
+            'error',
+            {
+                argsIgnorePattern: '^_',
+            },
+        ],
     },
     settings: {
         react: {

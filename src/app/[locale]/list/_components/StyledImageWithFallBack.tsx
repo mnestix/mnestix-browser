@@ -1,33 +1,83 @@
-﻿import { styled } from '@mui/material';
+﻿import { Box, Skeleton, styled } from '@mui/material';
 import { useState } from 'react';
-import { ShellIcon } from 'components/custom-icons/ShellIcon';
+import DefaultThumbnail from 'assets/AasDefaultThumbnail.svg';
 
-const StyledImage = styled('img')(() => ({
-    maxHeight: '88px',
-    maxWidth: '88px',
+interface StyledImageProps {
+    size: number;
+}
+
+const StyledImage = styled('img')<StyledImageProps>(({ size }) => ({
+    height: size,
+    maxWidth: size,
     width: '100%',
     objectFit: 'scale-down',
 }));
 
 type StyledImageWithFallBackProps = {
-    src: string;
+    src: string | undefined;
     alt: string;
+    size: number;
+    onClickHandler?: () => void;
 };
 
-export const ImageWithFallback = (props: StyledImageWithFallBackProps) => {
-    const { src, alt } = props;
+export const ImageWithFallback = ({ src, alt, size, onClickHandler }: StyledImageWithFallBackProps) => {
     const [hasError, setHasError] = useState(false);
+    const [isLoading, setLoading] = useState(true);
 
-    const handleError = () => {
-        setHasError(true);
-    };
+    const ImageContent = (
+        <StyledImage
+            src={src}
+            onError={() => {
+                setHasError(true);
+            }}
+            onLoad={() => {
+                setLoading(false);
+            }}
+            alt={alt}
+            size={size}
+            onClick={() => onClickHandler?.call(this)}
+            style={{
+                cursor: onClickHandler ? 'pointer' : 'auto',
+                position: 'absolute',
+                top: '0px',
+                left: '0px',
+                height: size,
+                width: size,
+            }}
+            data-testid='image-with-fallback'
+        />
+    );
+
+    const LoadingContent = (
+        <Skeleton
+            variant="rectangular"
+            sx={{ position: 'absolute', top: '0px', left: '0px', height: size, width: size }}
+            onClick={() => onClickHandler?.call(this)}
+        />
+    );
+
+    const FallbackContent = (
+        <DefaultThumbnail
+            style={{
+                maxHeight: size,
+                maxWidth: size,
+                width: '100%',
+                cursor: onClickHandler ? 'pointer' : 'auto',
+            }}
+            alt={alt}
+            onClick={() => onClickHandler?.call(this)}
+        />
+    );
 
     return (
         <>
-            {!hasError ? (
-                <StyledImage src={src} onErrorCapture={handleError} alt={alt} />
+            {!hasError && src ? (
+                <Box style={{ position: 'relative', height: size, width: '100%', maxWidth: size }}>
+                    {isLoading ? <>{LoadingContent}</> : <></>}
+                    {ImageContent}
+                </Box>
             ) : (
-                <ShellIcon fontSize="large" color="primary" />
+                FallbackContent
             )}
         </>
     );

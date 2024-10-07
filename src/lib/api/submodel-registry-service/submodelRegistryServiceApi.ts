@@ -3,9 +3,18 @@ import { encodeBase64 } from 'lib/util/Base64Util';
 
 export class SubmodelRegistryServiceApi {
     baseUrl: string;
+    private http: { fetch(url: RequestInfo, init?: RequestInit | undefined): Promise<Response> };
 
-    constructor(protected _baseUrl: string = '') {
+    constructor(
+        _baseUrl: string = '',
+        http:
+            | {
+                  fetch(url: RequestInfo, init?: RequestInit | undefined): Promise<Response>;
+              }
+            | undefined,
+    ) {
         this.baseUrl = _baseUrl;
+        this.http = http ?? window;
     }
 
     public async getSubmodelDescriptorsById(submodelId: string) {
@@ -17,7 +26,7 @@ export class SubmodelRegistryServiceApi {
 
         const url = new URL(`${this.baseUrl}/submodel-descriptors/${b64_submodelId}`);
 
-        const response = await fetch(url, {
+        const response = await this.http.fetch(url.toString(), {
             method: 'GET',
             headers,
         });
@@ -39,7 +48,7 @@ export class SubmodelRegistryServiceApi {
 
         const url = new URL(`${this.baseUrl}/submodel-descriptors/${b64_submodelId}`);
 
-        const response = await fetch(url, {
+        const response = await this.http.fetch(url.toString(), {
             method: 'PUT',
             headers,
             body: JSON.stringify(submodelDescriptor),
@@ -57,7 +66,7 @@ export class SubmodelRegistryServiceApi {
 
         const url = new URL(`${this.baseUrl}/submodel-descriptors/${b64_submodelId}`);
 
-        const response = await fetch(url, {
+        const response = await this.http.fetch(url.toString(), {
             method: 'DELETE',
         });
 
@@ -75,7 +84,7 @@ export class SubmodelRegistryServiceApi {
 
         const url = new URL(`${this.baseUrl}/submodel-descriptors`);
 
-        const response = await fetch(url, {
+        const response = await this.http.fetch(url.toString(), {
             method: 'GET',
             headers,
         });
@@ -95,7 +104,7 @@ export class SubmodelRegistryServiceApi {
 
         const url = new URL(`${this.baseUrl}/submodel-descriptors`);
 
-        const response = await fetch(url, {
+        const response = await this.http.fetch(url.toString(), {
             method: 'POST',
             headers,
             body: JSON.stringify(submodelDescriptor),
@@ -111,7 +120,7 @@ export class SubmodelRegistryServiceApi {
     public async deleteAllSubmodelDescriptors() {
         const url = new URL(`${this.baseUrl}/submodel-descriptors`);
 
-        const response = await fetch(url, {
+        const response = await this.http.fetch(url.toString(), {
             method: 'DELETE',
         });
 
