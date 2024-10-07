@@ -132,6 +132,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
     }
 
     useAsyncEffect(async () => {
+        setIsLoading(true);
         if (props.smReferences) {
             await fetchSubmodels();
             sortSubmodelSelectorTabs();
