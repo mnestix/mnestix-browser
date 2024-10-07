@@ -132,10 +132,10 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
     }
 
     useAsyncEffect(async () => {
-        if (!props.smReferences) return;
-
-        await fetchSubmodels();
-        sortSubmodelSelectorTabs();
+        if (props.smReferences) {
+            await fetchSubmodels();
+            sortSubmodelSelectorTabs();
+        }
         setIsLoading(false);
     }, [props.smReferences, registryAasData]);
 
