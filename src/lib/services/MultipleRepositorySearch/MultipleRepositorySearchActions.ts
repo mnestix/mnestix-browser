@@ -1,3 +1,5 @@
+'use server';
+
 import { Submodel } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
 import {
     MultipleRepositorySearchService,
