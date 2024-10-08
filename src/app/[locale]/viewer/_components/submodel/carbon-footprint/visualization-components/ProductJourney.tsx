@@ -121,6 +121,12 @@ function getMarkerLayers(coordinatesPerLifeCyclePhase: AddressPerLifeCyclePhase[
             const markerIconName = `MarkerIcon${phase.lifeCyclePhase}`;
 
             const productJourneyIconName = ProductJourneyIcons[markerIconName];
+            
+            if (!(productJourneyIconName && productJourneyIconName.src)) {
+                return new VectorLayer({
+                    source: markerSource
+                })
+            }
 
             return new VectorLayer({
                 source: markerSource,

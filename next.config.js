@@ -7,6 +7,16 @@ const withNextIntl = createNextIntlPlugin();
 const nextConfig = {
     output: 'standalone', // Outputs a Single-Page Application (SPA).
     distDir: './dist', // Changes the build output directory to `./dist/`.
+    experimental: {
+        turbo: {
+            rules: {
+                '*.svg': {
+                    loaders: ['@svgr/webpack'],
+                    as: '*.js',
+                },
+            }
+        }
+    },
     webpack(config) {
         // Grab the existing rule that handles SVG imports
         const fileLoaderRule = config.module.rules.find((rule) => rule.test?.test?.('.svg'));
@@ -21,7 +31,7 @@ const nextConfig = {
             {
                 test: /\.svg$/i,
                 issuer: fileLoaderRule.issuer,
-                resourceQuery: { not: [...fileLoaderRule.resourceQuery.not, /url/] }, // exclude if *.svg?url
+                resourceQuery: {not: [...fileLoaderRule.resourceQuery.not, /url/]}, // exclude if *.svg?url
                 use: ['@svgr/webpack'],
             },
         );
@@ -30,7 +40,7 @@ const nextConfig = {
         fileLoaderRule.exclude = /\.svg$/i;
 
         return config;
-    },
+    }
 };
 
 module.exports = withNextIntl(nextConfig);
