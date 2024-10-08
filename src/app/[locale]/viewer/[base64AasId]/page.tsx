@@ -20,6 +20,7 @@ import { useEnv } from 'app/env/provider';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { performRegistryAasSearch } from 'lib/services/searchUtilActions/searchActions';
 import { performSearchAasFromAllRepositories } from 'lib/services/MultipleRepositorySearch/MultipleRepositorySearchActions';
+import { transferAasWithSubmodels } from 'lib/services/transfer-service/transferActions';
 
 export default function Page() {
     const navigate = useRouter();
@@ -100,6 +101,16 @@ export default function Page() {
         navigate.push(`/compare?aasId=${encodeURIComponent(aas?.id ?? '')}`);
     };
 
+    // TODO: This should navigate to pop-up and configure transfer data before invoking this action
+    const handleTransferAas = async (sourceRepositoryUrl: string, targetRepositoryUrl: string) => {
+        await transferAasWithSubmodels({
+            sourceRepositoryBaseUrl: sourceRepositoryUrl,
+            targetRepositoryBaseUrl: targetRepositoryUrl,
+            aas: aas,
+            submodelRefrences: submodelReferences,
+        });
+    };
+
     const pageStyles = {
         display: 'flex',
         flexDirection: 'column',
@@ -149,6 +160,14 @@ export default function Page() {
                                 <FormattedMessage {...messages.mnestix.compareButton} />
                             </Button>
                         )}
+                        <Button
+                            sx={{ ml: 2 }}
+                            onClick={() => handleTransferAas('source', 'test')}
+                            variant="contained"
+                            data-testid="transfer"
+                        >
+                            Transfer
+                        </Button>
                     </Box>
                     <AASOverviewCard
                         aas={aas}
