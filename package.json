@@ -4,7 +4,6 @@
     "private": true,
     "license": "MIT",
     "devDependencies": {
-        "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
         "@eslint/js": "^9.2.0",
         "@next/eslint-plugin-next": "^14.2.3",
         "@swc/core": "^1.7.23",
@@ -87,6 +86,7 @@
     },
     "scripts": {
         "dev": "yarn prisma migrate deploy && yarn prisma generate && next dev",
+        "turbo": "yarn prisma migrate deploy && yarn prisma generate && next dev --turbo",
         "build": "next build",
         "start": "yarn prisma migrate deploy && yarn prisma generate && next start",
         "prettier": "prettier --check ./",
