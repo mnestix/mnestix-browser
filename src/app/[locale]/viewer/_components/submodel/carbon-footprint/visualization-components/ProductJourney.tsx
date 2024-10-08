@@ -13,7 +13,6 @@ import { Coordinate } from 'ol/coordinate';
 import Fill from 'ol/style/Fill';
 import Stroke from 'ol/style/Stroke';
 import { ProductLifecycleStage } from 'lib/enums/ProductLifecycleStage.enum';
-import ProductJourneyIcons from './ProductJourneyIcon';
 import { ProductJourneyAddressList } from './ProductJourneyAddressList';
 
 export type Address = {
@@ -118,25 +117,18 @@ function getMarkerLayers(coordinatesPerLifeCyclePhase: AddressPerLifeCyclePhase[
                 ],
             });
 
-            const markerIconName = `MarkerIcon${phase.lifeCyclePhase}`;
-
-            const productJourneyIconName = ProductJourneyIcons[markerIconName];
+            const markerIconName = `LocationMarker_${phase.lifeCyclePhase}`;
             
-            if (!(productJourneyIconName && productJourneyIconName.src)) {
-                return new VectorLayer({
-                    source: markerSource
-                })
-            }
-
             return new VectorLayer({
                 source: markerSource,
                 style: new Style({
                     image: new Icon({
                         anchor: [0.5, 1],
-                        src: productJourneyIconName ? productJourneyIconName.src : '',
+                        src: `/LocationMarkers/${markerIconName}.svg`,
                     }),
                 }),
             });
+
         });
 }
 
