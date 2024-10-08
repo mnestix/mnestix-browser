@@ -1,11 +1,11 @@
 'use server';
 
-import { mnestixFetch } from 'lib/api/infrastructure';
+import { mnestixFetchLegacy } from 'lib/api/infrastructure';
 import { TemplateClient } from 'lib/api/generated-api/clients.g';
 import { Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
 import EmptyDefaultTemplate from 'assets/submodels/defaultEmptySubmodel.json';
 
-const templateApiClientWithAuth = TemplateClient.create(process.env.MNESTIX_BACKEND_API_URL, mnestixFetch());
+const templateApiClientWithAuth = TemplateClient.create(process.env.MNESTIX_BACKEND_API_URL, mnestixFetchLegacy());
 
 export async function createCustomSubmodelTemplate(template: Submodel | typeof EmptyDefaultTemplate): Promise<string> {
     return templateApiClientWithAuth.createCustomSubmodel(template);

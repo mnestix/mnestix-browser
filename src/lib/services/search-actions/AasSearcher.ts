@@ -12,7 +12,7 @@ import {
     RepositorySearchService,
 } from 'lib/services/repository-access/RepositorySearchService';
 import { INullableAasRepositoryEntries } from 'lib/api/basyx-v3/apiInMemory';
-import { mnestixFetch } from 'lib/api/infrastructure';
+import { mnestixFetch, mnestixFetchLegacy } from 'lib/api/infrastructure';
 import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
 
 interface NullableSearchSetupParameters {
@@ -52,7 +52,7 @@ export class AasSearcher {
     static create(): AasSearcher {
         const multipleDataSource = RepositorySearchService.create();
         const registryServiceClient = RegistryServiceApi.create(process.env.REGISTRY_API_URL, mnestixFetch());
-        const discoveryServiceClient = DiscoveryServiceApi.create(process.env.DISCOVERY_API_URL, mnestixFetch());
+        const discoveryServiceClient = DiscoveryServiceApi.create(process.env.DISCOVERY_API_URL, mnestixFetchLegacy());
         const log = Log.create();
         return new AasSearcher(discoveryServiceClient, registryServiceClient, multipleDataSource, log);
     }
@@ -184,7 +184,7 @@ export class AasSearcher {
 
     private async getAasFromEndpoint(endpoint: URL): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
         try {
-            const result = await this.registryService.getAssetAdministrationShellFromEndpoint(endpoint)
+            const result = await this.registryService.getAssetAdministrationShellFromEndpoint(endpoint);
             return new ApiResponseWrapper<AssetAdministrationShell>(result);
         } catch (e) {
             this.log.warn(`Could not find an AAS at the endpoint '${endpoint}'`);

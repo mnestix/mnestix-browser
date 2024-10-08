@@ -103,10 +103,10 @@ export class AssetAdministrationShellRepositoryApi extends BaseAPI implements IA
      * @memberof AssetAdministrationShellRepositoryApi
      */
     getAssetAdministrationShellById(aasId: string, options?: any, basePath?: string) {
-        return AssetAdministrationShellRepositoryApiFp(this.configuration).getAssetAdministrationShellById(
-            aasId,
-            options,
-        )(this.fetch, basePath ?? this.basePath);
+        const assetAdministrationShellById = AssetAdministrationShellRepositoryApiFp(
+            this.configuration,
+        ).getAssetAdministrationShellById(aasId, options);
+        return assetAdministrationShellById(this.fetch, basePath ?? this.basePath);
     }
 
     /**
@@ -160,15 +160,7 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
                 configuration,
             ).getAssetAdministrationShellById(aasId, options);
             return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                const response = await requestHandler.fetch(
-                    basePath + localVarFetchArgs.url,
-                    localVarFetchArgs.options,
-                );
-                if (response.status >= 200 && response.status < 300) {
-                    return response.json();
-                } else {
-                    throw response;
-                }
+                return (await requestHandler.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options)).json();
             };
         },
         /**
