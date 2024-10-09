@@ -26,7 +26,7 @@ describe('Full Aas Search happy paths', () => {
         const search = await searcher.performFullSearch(searchString);
 
         expect(search.isSuccess()).toBeTruthy()
-        expect(search.result.redirectUrl).toBe('/viewer/discovery?assetId=' + searchString);
+        expect(search.result!.redirectUrl).toBe('/viewer/discovery?assetId=' + searchString);
         expect(tracker.getData()).toHaveLength(0);
     });
 
@@ -43,8 +43,8 @@ describe('Full Aas Search happy paths', () => {
         const search = await searcher.performFullSearch(searchString);
 
         expect(search.isSuccess()).toBeTruthy()
-        expect(search.result.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
-        expect(search.result.aas?.id).toEqual(aas.id);
+        expect(search.result!.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
+        expect(search.result!.aas?.id).toEqual(aas.id);
     });
 
     it('returns details of aas when exactly one aasId for a given assetId and it is not registered in the registry but saved in default repository', async () => {

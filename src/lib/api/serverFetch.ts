@@ -20,5 +20,5 @@ export async function performServerFetch(
     init?: RequestInit | undefined,
 ): Promise<ApiResponseWrapper<string>> {
     const result = await fetch(input, init);
-    return new ApiResponseWrapper<string>(await result.text(), result.status, result.statusText);
+    return ApiResponseWrapper.fromResponse(result);
 }

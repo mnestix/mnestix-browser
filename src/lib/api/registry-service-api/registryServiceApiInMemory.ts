@@ -22,17 +22,20 @@ export class RegistryServiceApiInMemory implements IRegistryServiceApi {
         this.shellsAvailableOnEndpoints = options.shellsAvailableOnEndpoints;
     }
 
-    getAssetAdministrationShellDescriptorById(
+    async getAssetAdministrationShellDescriptorById(
         aasId: string,
     ): Promise<ApiResponseWrapper<AssetAdministrationShellDescriptor>> {
         if (!this.registryShellDescriptorEntries) return Promise.reject(new Error('no registry configuration'));
         let shellDescriptor: AssetAdministrationShellDescriptor;
         for (shellDescriptor of this.registryShellDescriptorEntries) {
-            if (shellDescriptor.id === aasId) return Promise.resolve(new ApiResponseWrapper(shellDescriptor, 200, ''));
+            if (shellDescriptor.id === aasId) {
+                const response = new Response(JSON.stringify(shellDescriptor));
+                const value = await ApiResponseWrapper.fromResponse(response);
+                return Promise.resolve(value.transformResult<AssetAdministrationShellDescriptor>(JSON.parse));
+            }
         }
         return Promise.resolve(
-            new ApiResponseWrapper<AssetAdministrationShellDescriptor>(
-                null,
+            ApiResponseWrapper.fromHttpError(
                 404,
                 'no shell descriptor for aasId:' + aasId,
             ),
@@ -46,10 +49,13 @@ export class RegistryServiceApiInMemory implements IRegistryServiceApi {
         let registryEndpoint: INullableAasRegistryEndpointEntries;
         for (registryEndpoint of this.shellsAvailableOnEndpoints) {
             if (registryEndpoint.endpoint.toString() === endpoint.toString())
-                return Promise.resolve(new ApiResponseWrapper(registryEndpoint.aas, 200, ''));
+            {
+                const value = await ApiResponseWrapper.fromResponse(new Response(JSON.stringify(registryEndpoint.aas)));
+                return Promise.resolve(value.transformResult<AssetAdministrationShell>(JSON.parse));
+            }
         }
         return Promise.resolve(
-            new ApiResponseWrapper<AssetAdministrationShell>(null, 404, 'no shell for url:' + endpoint),
+            ApiResponseWrapper.fromHttpError(404, 'no shell for url:' + endpoint),
         );
     }
 

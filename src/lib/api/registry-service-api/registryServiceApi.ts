@@ -46,22 +46,22 @@ export class RegistryServiceApi implements IRegistryServiceApi {
 
         const url = new URL(`${this.baseUrl}/shell-descriptors/${b64_aasId}`);
 
-        return this.http.fetch(url, {
+        const result = await this.http.fetch(url, {
             method: 'GET',
             headers,
         });
+
+        return result.transformResult<AssetAdministrationShellDescriptor>(JSON.parse)
     }
 
-    async getAssetAdministrationShellFromEndpoint(endpoint: URL): Promise<AssetAdministrationShell> {
+    async getAssetAdministrationShellFromEndpoint(
+        endpoint: URL,
+    ): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
         const response = await this.http.fetch(endpoint.toString(), {
             method: 'GET',
         });
 
-        if (response.ok) {
-            return response.json();
-        } else {
-            throw response;
-        }
+        return response.transformResult<AssetAdministrationShell>(JSON.parse)
     }
 
     async putAssetAdministrationShellDescriptorById(
@@ -83,10 +83,6 @@ export class RegistryServiceApi implements IRegistryServiceApi {
             body: JSON.stringify(shellDescriptor),
         });
 
-        if (response.ok) {
-            return response.json();
-        } else {
-            throw response;
-        }
+        return response.transformResult<JSON>(JSON.parse)
     }
 }

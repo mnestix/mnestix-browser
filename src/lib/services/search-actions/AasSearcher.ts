@@ -13,7 +13,7 @@ import {
 } from 'lib/services/repository-access/RepositorySearchService';
 import { INullableAasRepositoryEntries } from 'lib/api/basyx-v3/apiInMemory';
 import { mnestixFetch, mnestixFetchLegacy } from 'lib/api/infrastructure';
-import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
+import { ApiResponseWrapper, ApiResultMapper } from 'lib/services/apiResponseWrapper';
 
 interface NullableSearchSetupParameters {
     discoveryEntries?: { assetId: string; aasIds: string[] }[];
@@ -85,7 +85,7 @@ export class AasSearcher {
         const foundOneDiscoveryResult = aasIds && aasIds.length === 1;
 
         if (foundMultipleDiscoveryResults) {
-            return new ApiResponseWrapper<AasSearchResult>(this.createDiscoveryRedirectResult(searchInput));
+            return ApiResponseWrapper.fromSuccess(this.createDiscoveryRedirectResult(searchInput));
         }
 
         const aasId = foundOneDiscoveryResult ? aasIds[0] : searchInput;
@@ -93,43 +93,43 @@ export class AasSearcher {
 
         const aasRegistryResult = await this.performRegistrySearch(aasId);
         if (aasRegistryResult.isSuccess()) {
-            return new ApiResponseWrapper<AasSearchResult>(aasRegistryResult.result);
+            return ApiResponseWrapper.fromSuccess(aasRegistryResult.result).castResult<AasSearchResult>();
         }
 
         const defaultResult = await this.getAasFromDefaultRepository(aasIdEncoded);
         if (defaultResult) {
-            return new ApiResponseWrapper<AasSearchResult>(this.createAasResult(defaultResult));
+            return ApiResponseWrapper.fromSuccess(this.createAasResult(defaultResult));
         }
 
         const potentiallyMultipleAas = await this.getAasFromAllRepositories(aasIdEncoded);
         if (potentiallyMultipleAas) {
             if (potentiallyMultipleAas.length === 1) {
-                return new ApiResponseWrapper<AasSearchResult>(this.createAasResult(potentiallyMultipleAas[0].aas));
+                return ApiResponseWrapper.fromSuccess(this.createAasResult(potentiallyMultipleAas[0].aas));
             }
             if (potentiallyMultipleAas.length > 1) {
-                return new ApiResponseWrapper<AasSearchResult>(this.createDiscoveryRedirectResult(searchInput));
+                return ApiResponseWrapper.fromSuccess(this.createDiscoveryRedirectResult(searchInput));
             }
         }
-        return new ApiResponseWrapper<AasSearchResult>(null); // No AAS found for the given ID
+        return ApiResponseWrapper.fromErrorCode(ApiResultMapper.NOT_FOUND, 'No AAS found for the given ID');
     }
 
     // TODO: handle multiple endpoints as result
     public async performRegistrySearch(searchAasId: string): Promise<ApiResponseWrapper<AasSearchResult>> {
         const registrySearchResult = await this.performAasRegistrySearch(searchAasId);
         if (!registrySearchResult.isSuccess()) {
-            return new ApiResponseWrapper<AasSearchResult>(null, registrySearchResult.errorCode);
+            return registrySearchResult.castResult<AasSearchResult>();
         }
-        const endpoint = registrySearchResult.result.endpoints[0];
+        const endpoint = registrySearchResult.result!.endpoints[0];
 
         const aas = await this.getAasFromEndpoint(endpoint);
         if (!aas.isSuccess()) {
-            return new ApiResponseWrapper<AasSearchResult>(null, aas.errorCode);
+            return aas.castResult<AasSearchResult>();
         }
         const data = {
-            submodelDescriptors: registrySearchResult.result.submodelDescriptors,
+            submodelDescriptors: registrySearchResult.result!.submodelDescriptors,
             aasRegistryRepositoryOrigin: endpoint.origin,
         };
-        return new ApiResponseWrapper<AasSearchResult>(this.createAasResult(aas.result, data));
+        return ApiResponseWrapper.fromSuccess(this.createAasResult(aas.result!, data));
     }
 
     public async performAasDiscoverySearch(searchAssetId: string): Promise<string[] | null> {
@@ -169,27 +169,24 @@ export class AasSearcher {
     private async performAasRegistrySearch(searchAasId: string): Promise<ApiResponseWrapper<RegistrySearchResult>> {
         try {
             const shellDescription = await this.registryService.getAssetAdministrationShellDescriptorById(searchAasId);
-            const endpoints = shellDescription.endpoints as Endpoint[];
-            const submodelDescriptors = shellDescription.submodelDescriptors as SubmodelDescriptor[];
+            if (!shellDescription.isSuccess()) {
+                throw new Error()
+            }
+            const endpoints = shellDescription.result!.endpoints as Endpoint[];
+            const submodelDescriptors = shellDescription.result!.submodelDescriptors as SubmodelDescriptor[];
             const endpointUrls = endpoints.map((endpoint) => new URL(endpoint.protocolInformation.href));
-            return new ApiResponseWrapper<RegistrySearchResult>({
+            return ApiResponseWrapper.fromSuccess<RegistrySearchResult>({
                 endpoints: endpointUrls,
                 submodelDescriptors: submodelDescriptors,
             });
         } catch (e) {
             this.log.warn(`Could not find the AAS '${searchAasId}' in the registry service`);
-            return new ApiResponseWrapper<RegistrySearchResult>(null, e.errorCode);
+            return ApiResponseWrapper.fromErrorCode(ApiResultMapper.NOT_FOUND, e.errorCode);
         }
     }
 
     private async getAasFromEndpoint(endpoint: URL): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
-        try {
-            const result = await this.registryService.getAssetAdministrationShellFromEndpoint(endpoint);
-            return new ApiResponseWrapper<AssetAdministrationShell>(result);
-        } catch (e) {
-            this.log.warn(`Could not find an AAS at the endpoint '${endpoint}'`);
-            return new ApiResponseWrapper<AssetAdministrationShell>(null, e.errorCode);
-        }
+        return await this.registryService.getAssetAdministrationShellFromEndpoint(endpoint);
     }
 
     private async getAasFromDefaultRepository(aasId: string): Promise<AssetAdministrationShell | null> {
