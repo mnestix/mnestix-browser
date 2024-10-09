@@ -1,7 +1,7 @@
 import { IAssetAdministrationShellRepositoryApi, ISubmodelRepositoryApi } from 'lib/api/basyx-v3/apiInterface';
 import { Log } from 'lib/util/Log';
 import { AssetAdministrationShellRepositoryApi, SubmodelRepositoryApi } from 'lib/api/basyx-v3/api';
-import { mnestixFetchLegacy } from 'lib/api/infrastructure';
+import { mnestixFetch, mnestixFetchLegacy } from 'lib/api/infrastructure';
 import { AssetAdministrationShell, Submodel } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
 import { INullableAasRepositoryEntries } from 'lib/api/basyx-v3/apiInMemory';
 import { PrismaConnector } from 'lib/services/prisma/PrismaConnector';
@@ -29,14 +29,16 @@ export class RepositorySearchService {
     ) {}
 
     static create(): RepositorySearchService {
-        const repositoryClient = AssetAdministrationShellRepositoryApi.create({
-            basePath: process.env.AAS_REPO_API_URL,
-            fetch: mnestixFetchLegacy(),
-        });
-        const submodelRepositoryClient = SubmodelRepositoryApi.create({
-            basePath: process.env.SUBMODEL_REPO_API_URL ?? process.env.AAS_REPO_API_URL,
-            fetch: mnestixFetchLegacy(),
-        });
+        const repositoryClient = AssetAdministrationShellRepositoryApi.create(
+            mnestixFetch(),
+            undefined,
+            process.env.AAS_REPO_API_URL,
+        );
+        const submodelRepositoryClient = SubmodelRepositoryApi.create(
+            mnestixFetch(),
+            undefined,
+            process.env.SUBMODEL_REPO_API_URL ?? process.env.AAS_REPO_API_URL,
+        );
         const log = Log.create();
         const prismaConnector = PrismaConnector.create();
         return new RepositorySearchService(repositoryClient, submodelRepositoryClient, prismaConnector, log);

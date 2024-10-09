@@ -66,10 +66,6 @@ export class SubmodelRepositoryApiInMemory implements ISubmodelRepositoryApi {
         this.submodelsSavedInTheRepository = options.submodelsSavedInTheRepository;
     }
 
-    getSubmodelMetaDataById(_submodelId: string, _options?: object | undefined): Promise<Submodel> {
-        throw new Error('Method not implemented.');
-    }
-
     getSubmodelById(
         submodelId: string,
         _options?: object | undefined,

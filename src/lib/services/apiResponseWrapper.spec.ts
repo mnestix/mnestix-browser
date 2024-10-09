@@ -28,8 +28,7 @@ describe('', () => {
             '}';
         const stringApiWrapper = new ApiResponseWrapper(data, ApiResultMapper.SUCCESS, 'nonono');
 
-
-        const result = stringApiWrapper.castResult<AssetAdministrationShell>();
+        expect(() => stringApiWrapper.castResult<AssetAdministrationShell>()).not.toThrow();
     });
 
     it('throws error when attempting to interpret transform junk as junk', async () => {

@@ -8,8 +8,9 @@ import { IAssetAdministrationShellRepositoryApi, ISubmodelRepositoryApi } from '
 import {
     AssetAdministrationShellRepositoryApiInMemory,
     INullableAasRepositoryEntries,
-    SubmodelRepositoryApiInMemory
+    SubmodelRepositoryApiInMemory,
 } from 'lib/api/basyx-v3/apiInMemory';
+import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
 
 const BASE_PATH = '/'.replace(/\/+$/, '');
 
@@ -19,7 +20,7 @@ const BASE_PATH = '/'.replace(/\/+$/, '');
  * @interface FetchAPI
  */
 export type FetchAPI = {
-    fetch: (url: RequestInfo, init?: RequestInit) => Promise<Response>;
+    fetch: (url: RequestInfo, init?: RequestInit) => Promise<ApiResponseWrapper<string>>;
 };
 
 /**
@@ -75,17 +76,23 @@ export class RequiredError extends Error {
  * @class AssetAdministrationShellRepositoryApi
  * @extends {BaseAPI}
  */
-export class AssetAdministrationShellRepositoryApi extends BaseAPI implements IAssetAdministrationShellRepositoryApi {
-    private constructor(configuration?: Configuration | undefined, basePath?: string, fetch?: FetchAPI) {
-        super(configuration, basePath, fetch);
-    }
+export class AssetAdministrationShellRepositoryApi implements IAssetAdministrationShellRepositoryApi {
+    private constructor(
+        private http: {
+            fetch(url: RequestInfo | URL, init?: RequestInit): Promise<ApiResponseWrapper<string>>;
+        },
+        private configuration?: Configuration | undefined,
+        private basePath?: string,
+    ) {}
 
     static create(
+        http: {
+            fetch(url: RequestInfo | URL, init?: RequestInit): Promise<ApiResponseWrapper<string>>;
+        },
         configuration?: Configuration | undefined,
         basePath?: string,
-        fetch?: FetchAPI,
     ): AssetAdministrationShellRepositoryApi {
-        return new AssetAdministrationShellRepositoryApi(configuration, basePath, fetch);
+        return new AssetAdministrationShellRepositoryApi(http, configuration, basePath);
     }
 
     static createNull(options: {
@@ -106,7 +113,7 @@ export class AssetAdministrationShellRepositoryApi extends BaseAPI implements IA
         const assetAdministrationShellById = AssetAdministrationShellRepositoryApiFp(
             this.configuration,
         ).getAssetAdministrationShellById(aasId, options);
-        return assetAdministrationShellById(this.fetch, basePath ?? this.basePath);
+        return assetAdministrationShellById(this.http, basePath ?? this.basePath);
     }
 
     /**
@@ -121,7 +128,7 @@ export class AssetAdministrationShellRepositoryApi extends BaseAPI implements IA
         return AssetAdministrationShellRepositoryApiFp(this.configuration).getSubmodelReferencesFromShell(
             aasId,
             options,
-        )(this.fetch, this.basePath);
+        )(this.http, this.basePath);
     }
 
     /**
@@ -135,7 +142,7 @@ export class AssetAdministrationShellRepositoryApi extends BaseAPI implements IA
         return AssetAdministrationShellRepositoryApiFp(this.configuration).getThumbnailFromAssetInformation(
             aasId,
             options,
-        )(this.fetch, basePath ?? this.basePath);
+        )(this.http, basePath ?? this.basePath);
     }
 }
 
@@ -154,13 +161,15 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
         getAssetAdministrationShellById(
             aasId: string,
             options?: any,
-        ): (fetch?: FetchAPI, basePath?: string) => Promise<AssetAdministrationShell> {
+        ): (fetch?: FetchAPI, basePath?: string) => Promise<ApiResponseWrapper<AssetAdministrationShell>> {
             // HINT: AssetAdministrationShell is taken from aas_core_meta
             const localVarFetchArgs = AssetAdministrationShellRepositoryApiFetchParamCreator(
                 configuration,
             ).getAssetAdministrationShellById(aasId, options);
             return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                return (await requestHandler.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options)).json();
+                return (
+                    await requestHandler.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options)
+                ).transformResult<AssetAdministrationShell>(JSON.parse);
             };
         },
         /**
@@ -173,7 +182,7 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
         getSubmodelReferencesFromShell(
             aasId: string,
             options?: any,
-        ): (fetch?: FetchAPI, basePath?: string) => Promise<Reference[]> {
+        ): (fetch?: FetchAPI, basePath?: string) => Promise<ApiResponseWrapper<Reference[]>> {
             const localVarFetchArgs = AssetAdministrationShellRepositoryApiFetchParamCreator(
                 configuration,
             ).getSubmodelReferencesFromShell(aasId, options);
@@ -182,13 +191,7 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
                     basePath + localVarFetchArgs.url,
                     localVarFetchArgs.options,
                 );
-                if (response.status >= 200 && response.status < 300) {
-                    return response.json().then((resp) => {
-                        return resp.result as Reference[];
-                    });
-                } else {
-                    throw response;
-                }
+                return response.transformResult<Reference[]>(JSON.parse);
             };
         },
 
@@ -201,7 +204,7 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
         getThumbnailFromAssetInformation(
             aasId: string,
             options?: any,
-        ): (fetch?: FetchAPI, basePath?: string) => Promise<Blob> {
+        ): (fetch?: FetchAPI, basePath?: string) => Promise<ApiResponseWrapper<Blob>> {
             const localVarFetchArgs = AssetAdministrationShellRepositoryApiFetchParamCreator(
                 configuration,
             ).getThumbnailFromAssetInformation(aasId, options);
@@ -210,11 +213,7 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
                     basePath + localVarFetchArgs.url,
                     localVarFetchArgs.options,
                 );
-                if (response.status >= 200 && response.status < 300) {
-                    return response.blob();
-                } else {
-                    throw response;
-                }
+                return response.transformResult<Blob>((a) => new Blob([a], { type: 'text/plain' }));
             };
         },
     };
@@ -328,35 +327,25 @@ export const AssetAdministrationShellRepositoryApiFetchParamCreator = function (
  * @class SubmodelRepositoryApi
  * @extends {BaseAPI}
  */
-export class SubmodelRepositoryApi extends BaseAPI implements ISubmodelRepositoryApi {
-    private constructor(configuration?: Configuration | undefined, basePath?: string, fetch?: FetchAPI) {
-        super(configuration, basePath, fetch);
-    }
+export class SubmodelRepositoryApi implements ISubmodelRepositoryApi {
+    private constructor(
+        private fetch?: FetchAPI,
+        private configuration?: Configuration | undefined,
+        private basePath?: string,
+    ) {}
 
     static create(
+        http: {
+            fetch(url: RequestInfo | URL, init?: RequestInit): Promise<ApiResponseWrapper<string>>;
+        },
         configuration?: Configuration | undefined,
         basePath?: string,
-        fetch?: FetchAPI,
     ): SubmodelRepositoryApi {
-        return new SubmodelRepositoryApi(configuration, basePath, fetch);
+        return new SubmodelRepositoryApi(http, configuration, basePath);
     }
 
     static createNull(options: { submodelsSavedInTheRepository: Submodel[] | null }): SubmodelRepositoryApiInMemory {
         return new SubmodelRepositoryApiInMemory(options);
-    }
-
-    /**
-     * @summary Retrieves the meta data of a submodel
-     * @param {string} submodelId The Asset Administration Shell&#x27;s unique id
-     * @param {*} [options] Override http request option
-     * @throws {RequiredError}
-     * @memberof SubmodelRepositoryApi
-     */
-    getSubmodelMetaDataById(submodelId: string, options?: any): Promise<Submodel> {
-        return SubmodelRepositoryApiFp(this.configuration).getSubmodelMetaDataById(submodelId, options)(
-            this.fetch,
-            this.basePath,
-        );
     }
 
     /**
