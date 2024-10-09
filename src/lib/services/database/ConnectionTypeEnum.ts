@@ -1,0 +1,4 @@
+export enum ConnectionTypeEnum {
+    AAS_REPOSITORY = 'AAS_REPOSITORY',
+    SUBMODEL_REPOSITORY = 'SUBMODEL_REPOSITORY',
+}
