@@ -1,35 +1,27 @@
-import { AssetAdministrationShellRepositoryApi } from 'lib/api/basyx-v3/api';
+import { AssetAdministrationShellRepositoryApi, SubmodelRepositoryApi } from 'lib/api/basyx-v3/api';
 import { mnestixFetch } from 'lib/api/infrastructure';
-import { AssetAdministrationShell, Reference } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
+import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
 import { IAssetAdministrationShellRepositoryApi } from 'lib/api/basyx-v3/apiInterface';
-
-export type TransferData = {
-    sourceRepositoryBaseUrl: string;
-    targetRepositoryBaseUrl: string;
-    aas: AssetAdministrationShell | null;
-    submodelRefrences?: Reference[];
-};
+import { Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
 
 export class TransferService {
     private constructor(
-        protected readonly sourceRepositoryClient: IAssetAdministrationShellRepositoryApi,
-        protected readonly targetRepositoryClient: IAssetAdministrationShellRepositoryApi,
+        protected readonly targetAasRepositoryClient: IAssetAdministrationShellRepositoryApi,
+        protected readonly targetSubmodelRepositoryClient: SubmodelRepositoryApi,
     ) {}
 
-    static create(sourceRepositoryUrl: string, targetRepositoryUrl: string): TransferService {
-        const sourceRepositoryClient = AssetAdministrationShellRepositoryApi.create({
-            basePath: sourceRepositoryUrl,
+    static create(targetAasRepositoryBaseUrl: string, targetSubmodelRepositoryBaseUrl: string): TransferService {
+        const targetAasRepositoryClient = AssetAdministrationShellRepositoryApi.create({
+            basePath: targetAasRepositoryBaseUrl,
             fetch: mnestixFetch(),
         });
-        const targetRepositoryClient = AssetAdministrationShellRepositoryApi.create({
-            basePath: targetRepositoryUrl,
+        const targetSubmodelRepositoryClient = SubmodelRepositoryApi.create({
+            basePath: targetSubmodelRepositoryBaseUrl,
             fetch: mnestixFetch(),
         });
-        return new TransferService(sourceRepositoryClient, targetRepositoryClient);
+        return new TransferService(targetAasRepositoryClient, targetSubmodelRepositoryClient);
     }
 
-    async transferAasWithSubmodels(aas: AssetAdministrationShell, submodelRefrences?: Reference[]) {
-        console.log(aas);
-        console.log(submodelRefrences);
-    }
+    // TODO Update parameters
+    async transferAasWithSubmodels(aas: AssetAdministrationShell | null, submodelRefrences?: Submodel[]) {}
 }

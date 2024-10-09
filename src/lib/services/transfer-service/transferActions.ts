@@ -1,6 +1,18 @@
-import { TransferData, TransferService } from 'lib/services/transfer-service/TransferService';
+import { TransferService } from 'lib/services/transfer-service/TransferService';
+import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
+import { Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
 
-export async function transferAasWithSubmodels(transferData: TransferData): Promise<void> {
-    const transfer = TransferService.create(transferData.targetRepositoryBaseUrl, transferData.targetRepositoryBaseUrl);
-    return transfer.transferAasWithSubmodels(transferData.aas, transferData.submodelRefrences);
+export type TransferDto = {
+    targetAasRepositoryBaseUrl: string;
+    targetSubmodelRepositoryBaseUrl: string;
+    aas: AssetAdministrationShell;
+    submodels: Submodel[];
+};
+
+export async function transferAasWithSubmodels(transferDto: TransferDto): Promise<void> {
+    const transfer = TransferService.create(
+        transferDto.targetAasRepositoryBaseUrl,
+        transferDto.targetSubmodelRepositoryBaseUrl,
+    );
+    return transfer.transferAasWithSubmodels(transferDto.aas, transferDto.submodels);
 }

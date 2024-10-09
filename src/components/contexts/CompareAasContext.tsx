@@ -4,11 +4,9 @@ import { SubmodelCompareData } from 'lib/types/SubmodelCompareData';
 import { generateSubmodelCompareData, isCompareData, isCompareDataRecord } from 'lib/util/CompareAasUtil';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { useApis } from 'components/azureAuthentication/ApiProvider';
-import {
-    getSubmodelFromSubmodelDescriptor,
-    performRegistryAasSearch,
-} from 'lib/services/searchUtilActions/searchActions';
+import { performRegistryAasSearch } from 'lib/services/searchUtilActions/searchActions';
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
+import { getSubmodelFromEndpoint } from 'lib/api/serverFetch';
 
 type CompareAasContextType = {
     compareAas: AssetAdministrationShell[];
@@ -146,7 +144,7 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
         const newCompareData: SubmodelCompareData[] = [];
         if (submodelDescriptors && submodelDescriptors.length > 0) {
             for (const submodelDescriptor of submodelDescriptors) {
-                const submodelData = await getSubmodelFromSubmodelDescriptor(
+                const submodelData = await getSubmodelFromEndpoint(
                     submodelDescriptor.endpoints[0].protocolInformation.href,
                 );
                 const dataRecord = generateSubmodelCompareData(submodelData);
@@ -156,10 +154,10 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
             for (const reference of input as Reference[]) {
                 let submodelAdded = false;
                 try {
-                    const submodelDescriptor = await submodelRegistryServiceClient.getSubmodelDescriptorsById(
+                    const submodelDescriptor = await submodelRegistryServiceClient.getSubmodelDescriptorById(
                         reference.keys[0].value,
                     );
-                    const submodelData = await getSubmodelFromSubmodelDescriptor(
+                    const submodelData = await getSubmodelFromEndpoint(
                         submodelDescriptor.endpoints[0].protocolInformation.href,
                     );
                     const dataRecord = generateSubmodelCompareData(submodelData);
