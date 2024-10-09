@@ -204,6 +204,16 @@ export const deMnestix = {
         show: '{idShort}',
         hide: 'Verbergen',
     },
+    transfer: {
+        title: 'Export',
+        subtitle: 'Füllen sie die folgenden Schritte aus, um eine Verwaltungsschale in ein anderes Repository zu exportieren',
+        chooseRepository: 'AAS Repository auswählen',
+        repositoryLabel: 'Liste der AAS Repositories',
+        chooseSubmodelRepository: 'Submodel Repository auswählen',
+        submodelRepositoryLabel: 'Liste der Submodel Repositories',
+        saveAndGoToNew: 'Speichern & Gehe zu neuer AAS',
+        saveAndGoToPrev: 'Speichern & Gehe zu bisherigen AAS'
+    },
     aasList: {
         header: 'AAS List',
         subtitle:

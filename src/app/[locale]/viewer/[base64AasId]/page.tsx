@@ -20,6 +20,7 @@ import { useEnv } from 'app/env/provider';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { performRegistryAasSearch } from 'lib/services/searchUtilActions/searchActions';
 import { performSearchAasFromAllRepositories } from 'lib/services/MultipleRepositorySearch/MultipleRepositorySearchActions';
+import { TransferButton } from 'app/[locale]/viewer/_components/transfer/TransferButton';
 
 export default function Page() {
     const navigate = useRouter();
@@ -145,10 +146,11 @@ export default function Page() {
                             )}
                         </Typography>
                         {env.COMPARISON_FEATURE_FLAG && !isMobile && (
-                            <Button variant="contained" onClick={startComparison} data-testid="detail-compare-button">
+                            <Button sx={{ mr: 2 }} variant="contained" onClick={startComparison} data-testid="detail-compare-button">
                                 <FormattedMessage {...messages.mnestix.compareButton} />
                             </Button>
                         )}
+                        <TransferButton/>
                     </Box>
                     <AASOverviewCard
                         aas={aas}

@@ -201,6 +201,16 @@ export const enMnestix = {
         show: '{idShort}',
         hide: 'Hide',
     },
+    transfer: {
+        title: 'Export',
+        subtitle: 'To export this AAS to another repository, fill out the following steps.',
+        chooseRepository: 'Choose Repository',
+        repositoryLabel: 'Liste of Repositories',
+        chooseSubmodelRepository: 'Choose Submodel Repository',
+        submodelRepositoryLabel: 'Liste of Submodel Repositories',
+        saveAndGoToNew: 'Save & Go to new AAS',
+        saveAndGoToPrev: 'Save & Go to previous AAS'
+    },
     aasList: {
         header: 'AAS List',
         subtitle: 'Select up to 3 AASs to compare and narrow down the list by using the product class filter.',
