@@ -9,15 +9,37 @@ import {
     Typography
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { TargetRespositories } from 'app/[locale]/viewer/_components/transfer/TargetRespositories';
+import {
+    TargetRepositoryFormData,
+    TargetRespositories
+} from 'app/[locale]/viewer/_components/transfer/TargetRespositories';
 import { FormattedMessage } from 'react-intl';
 import { messages } from 'lib/i18n/localization';
+import { AssetAdministrationShell, Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
+import { useState } from 'react';
 
 interface TransferDialogProps extends DialogProps {
     onTransfer: () => void;
 }
 
+export type TransferDto = {
+    targetAasRepositoryBaseUrl: string;
+    targetSubmodelRepositoryBaseUrl?: string;
+    aas?: AssetAdministrationShell;
+    submodels?: Submodel[];
+};
+
 export function TransferDialog(props: TransferDialogProps) {
+    const [ transferDto, setTransferDto ] = useState<TransferDto>();
+    
+    const handleSubmitRepositoryStep = (values: TargetRepositoryFormData) => {
+        if (!values.repository) {
+            return;
+        }
+        const transferDtoTemp = { ...transferDto, targetAasRepositoryBaseUrl: values.repository, targetSubmodelRepositoryBaseUrl: values.submodelRepository }
+        setTransferDto(transferDtoTemp)
+    }
+    
     return (
         <Dialog open={props.open} onClose={props.onClose} maxWidth="md" fullWidth>
             <DialogTitle sx={{ m: 2 }}>
@@ -34,16 +56,12 @@ export function TransferDialog(props: TransferDialogProps) {
                     color: theme.palette.grey[500],
                 })}
             >
-            <CloseIcon />
-        </IconButton>
-            <DialogContent sx={{ m: 2 }}>
-                <TargetRespositories/>
+                <CloseIcon/>
+            </IconButton>
+            <DialogContent sx={{ mr: 2, ml: 2 }}>
+                <TargetRespositories onSubmitStep={ (values) => handleSubmitRepositoryStep(values) }/>
             </DialogContent>
             <Divider/>
-            <DialogActions sx={{ m: 4 }}>
-                <Button variant="outlined">Save & Back to Previous Aas</Button>
-                <Button variant="contained">Save & Go to new Aas</Button>
-            </DialogActions>
         </Dialog>
     );
 }
