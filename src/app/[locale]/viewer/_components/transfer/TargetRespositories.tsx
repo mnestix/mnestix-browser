@@ -1,13 +1,14 @@
-import { Box, Button, DialogActions, Divider, Skeleton, TextField, Typography } from '@mui/material';
+import { Box, Button, DialogActions, Divider, FormControl, Skeleton, TextField, Typography } from '@mui/material';
 import { messages } from 'lib/i18n/localization';
 import { FormattedMessage } from 'react-intl';
 import {
     getConnectionDataByTypeAction
 } from 'lib/services/database/MnestixConnectionServerActions';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useState } from 'react';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { ConnectionTypeEnum } from 'lib/services/database/ConnectionTypeEnum';
+import { Controller, useForm } from 'react-hook-form';
 
 export type TargetRepositoryFormData = {
     repository?: string;
@@ -23,9 +24,6 @@ export function TargetRespositories(props: TargetRepositoryProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [aasRepositories, setAasRepositories] = useState<string[]>([]);
     const [submodelRepositories, setSubmodelRepositories] = useState<string[]>([]);
-    
-    const [selectedRepository, setSelectedRepository] = useState<string>();
-    const [selectedSubmodelRepository, setSelectedSubmodelRepository] = useState<string>();
 
     useAsyncEffect(async () => {
         try {
@@ -45,39 +43,65 @@ export function TargetRespositories(props: TargetRepositoryProps) {
         return;
     }, []);
 
+    const { handleSubmit, control } = useForm();
+    
+    const onSubmit = (data: TargetRepositoryFormData) => {
+        props.onSubmitStep((data))
+    }
+
     return(
         <>
-            { isLoading ?
-            [0, 1].map((i) => {
-                return (
-                    <Fragment key={i}>
-                        <Skeleton variant="text" width="50%" height={26} sx={{ m: 2 }} />
-                    </Fragment>
-                );
-            }) : 
-            <Box display="flex" flexDirection="column">
-                <form>
-                    <Box display="flex" flexDirection="row" alignItems="center">
-                        <Typography variant="h4" sx={{ minWidth:'200px' }}><FormattedMessage {...messages.mnestix.transfer.chooseRepository} /></Typography>
-                        <TextField fullWidth select required onChange={(e) =>setSelectedRepository(e.target.value)}>{ aasRepositories.map((repo, index) => {
-                           return <option key={index} value={repo}>{repo}</option>
-                        })}
-                        </TextField>
-                    </Box>
-                    <Box display="flex" flexDirection="row" mt={2} alignItems="center">
-                        <Typography variant="h4" sx={{ minWidth:'200px' }}><FormattedMessage {...messages.mnestix.transfer.chooseSubmodelRepository} /></Typography>
-                        <TextField fullWidth select onChange={(e) => setSelectedSubmodelRepository(e.target.value)}>{ submodelRepositories.map((repo, index) => {
-                            return <option key={index} value={repo}>{repo}</option>
-                        })}
-                        </TextField>
+            {isLoading ?
+                [0, 1].map((i) => {
+                    return (
+                        <Fragment key={i}>
+                            <Skeleton variant="text" width="50%" height={26} sx={{ m: 2 }}/>
+                        </Fragment>
+                    );
+                }) :
+                <form onSubmit={handleSubmit(onSubmit)}>
+                    <Box display="flex" flexDirection="column">
+                        <Box display="flex" flexDirection="row" alignItems="center">
+                            <Typography variant="h4"
+                                        sx={{ minWidth: '200px' }}><FormattedMessage {...messages.mnestix.transfer.chooseRepository} /></Typography>
+                            <FormControl fullWidth>
+                                <Controller
+                                    name="repository"
+                                    control={control}
+                                    defaultValue=""
+                                    render={({ field }) => (
+                                        <TextField fullWidth select
+                                                   required {...field}>{aasRepositories.map((repo, index) => {
+                                            return <option key={index} value={repo}>{repo}</option>
+                                        })}
+                                        </TextField>)}
+                                />
+                            </FormControl>
+                        </Box>
+                        <Box display="flex" flexDirection="row" mt={2} alignItems="center">
+                            <Typography variant="h4"
+                                        sx={{ minWidth: '200px' }}><FormattedMessage {...messages.mnestix.transfer.chooseSubmodelRepository} /></Typography>
+                            <FormControl fullWidth>
+                                <Controller
+                                    name="submodelRepository"
+                                    control={control}
+                                    defaultValue=""
+                                    render={({ field }) => (
+                                        <TextField fullWidth select
+                                                   {...field}>{submodelRepositories.map((repo, index) => {
+                                            return <option key={index} value={repo}>{repo}</option>
+                                        })}
+                                        </TextField>)}
+                                />
+                            </FormControl>
+                        </Box>
+                        <Divider sx={{ mt: 4, mb: 2 }}/>
+                        <DialogActions>
+                            <Button variant="outlined" type="submit">Save & Back to Previous Aas</Button>
+                            <Button variant="contained" type="submit">Save & Go to new Aas</Button>
+                        </DialogActions>
                     </Box>
                 </form>
-                <Divider sx={{ mt: 4, mb: 2 }}/>
-                <DialogActions>
-                    <Button variant="outlined" onClick={() => props.onSubmitStep({ repository: selectedRepository, submodelRepository: selectedSubmodelRepository })}>Save & Back to Previous Aas</Button>
-                    <Button variant="contained" onClick={() => props.onSubmitStep({ repository: selectedRepository, submodelRepository: selectedSubmodelRepository })}>Save & Go to new Aas</Button>
-                </DialogActions>
-            </Box> 
             }
         </>
     )
