@@ -33,9 +33,8 @@ export class SubmodelSearcher {
         const submodelId = submodelReference.keys[0].value;
 
         const descriptor =
-            submodelDescriptor || process.env.SUBMODEL_REGISTRY_API_URL
-                ? await this.getSubmodelDescriptorById(submodelId)
-                : null;
+            submodelDescriptor ||
+            (process.env.SUBMODEL_REGISTRY_API_URL ? await this.getSubmodelDescriptorById(submodelId) : null);
         const endpoint = descriptor?.endpoints[0].protocolInformation.href;
 
         if (endpoint) {
