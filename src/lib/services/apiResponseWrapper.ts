@@ -37,7 +37,6 @@ export class ApiResponseWrapper<T> {
     }
 
     public transformResult<U>(transformer: (input: T) => U) {
-        console.log('inside transformer' + this.result)
         if (this.isSuccess()) {
             return new ApiResponseWrapper<U>(transformer(this.result!), this.errorCode, this.message);
         }
