@@ -7,11 +7,11 @@ import { SubmodelDetail } from './submodel/SubmodelDetail';
 import { SubmodelSorting } from 'app/[locale]/viewer/_components/submodel/sorting/SubmodelSorting';
 import { TabSelectorItem, VerticalTabSelector } from 'components/basics/VerticalTabSelector';
 import { MobileModal } from 'components/basics/MobileModal';
-import { SubmodelOrIdReference } from 'app/[locale]/viewer/[base64AasId]/page';
 import ErrorIcon from '@mui/icons-material/Error';
+import { SubmodelOrIdReference } from 'components/contexts/CurrentAasContext';
 
 export type SubmodelsOverviewCardProps = {
-    readonly submodelIds?: SubmodelOrIdReference[];
+    readonly submodelIds: SubmodelOrIdReference[] | undefined;
     readonly submodelsLoading?: boolean;
 };
 

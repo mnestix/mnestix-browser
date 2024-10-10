@@ -2,7 +2,12 @@
 
 import { useState } from 'react';
 import { Box, Button, Skeleton, Typography } from '@mui/material';
-import { useAasState, useRegistryAasState } from 'components/contexts/CurrentAasContext';
+import {
+    SubmodelOrIdReference,
+    useAasState,
+    useRegistryAasState,
+    useSubmodelState
+} from 'components/contexts/CurrentAasContext';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { messages } from 'lib/i18n/localization';
@@ -13,7 +18,6 @@ import {
     AssetAdministrationShell,
     LangStringNameType,
     Reference,
-    Submodel,
 } from '@aas-core-works/aas-core3.0-typescript/types';
 import { useIsMobile } from 'lib/hooks/UseBreakpoints';
 import { getTranslationText } from 'lib/util/SubmodelResolverUtil';
@@ -25,21 +29,14 @@ import { useEnv } from 'app/env/provider';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { performRegistryAasSearch, performSubmodelFullSearch } from 'lib/services/searchUtilActions/searchActions';
 import { performSearchAasFromAllRepositories } from 'lib/services/MultipleRepositorySearch/MultipleRepositorySearchActions';
-import { transferAasWithSubmodels } from 'lib/services/transfer-service/transferActions';
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 import { TransferButton } from 'app/[locale]/viewer/_components/transfer/TransferButton';
-
-export type SubmodelOrIdReference = {
-    id: string;
-    submodel?: Submodel;
-    error?: string | Error;
-};
 
 export default function Page() {
     const navigate = useRouter();
     const searchParams = useParams<{ base64AasId: string }>();
     const base64AasId = searchParams.base64AasId;
-    const [submodels, setSubmodels] = useState<SubmodelOrIdReference[]>([]);
+    const [submodels, setSubmodels] = useSubmodelState();
     const [productImage, setProductImage] = useState<string>();
     const [isLoadingAas, setIsLoadingAas] = useState(false);
     const [isSubmodelsLoading, setIsSubmodelsLoading] = useState(true);
@@ -150,17 +147,6 @@ export default function Page() {
 
     const startComparison = () => {
         navigate.push(`/compare?aasId=${encodeURIComponent(aas?.id ?? '')}`);
-    };
-
-    // TODO: This should navigate to pop-up and configure transfer data before invoking this action
-    const handleTransferAas = async (targetAasRepositoryUrl: string, targetSubmodelRepositoryUrl: string) => {
-        if (!aas) return;
-        await transferAasWithSubmodels({
-            targetAasRepositoryBaseUrl: targetAasRepositoryUrl,
-            targetSubmodelRepositoryBaseUrl: targetSubmodelRepositoryUrl,
-            aas: aas,
-            submodels: submodels.filter((sub) => sub.submodel).map((sub) => sub.submodel!),
-        });
     };
 
     const pageStyles = {

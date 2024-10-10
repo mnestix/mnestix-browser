@@ -1,7 +1,5 @@
 import {
-    Button,
     Dialog,
-    DialogActions,
     DialogContent,
     DialogProps,
     DialogTitle, Divider,
@@ -15,29 +13,51 @@ import {
 } from 'app/[locale]/viewer/_components/transfer/TargetRespositories';
 import { FormattedMessage } from 'react-intl';
 import { messages } from 'lib/i18n/localization';
-import { AssetAdministrationShell, Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
-import { useState } from 'react';
+import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/types';
+import { useEffect, useState } from 'react';
+import { SubmodelOrIdReference, useAasState, useSubmodelState } from 'components/contexts/CurrentAasContext';
+import { transferAasWithSubmodels, TransferDto } from 'lib/services/transfer-service/transferActions';
 
 interface TransferDialogProps extends DialogProps {
     onTransfer: () => void;
 }
 
-export type TransferDto = {
-    targetAasRepositoryBaseUrl: string;
+export type TransferFormModel = {
+    targetAasRepositoryBaseUrl?: string;
     targetSubmodelRepositoryBaseUrl?: string;
-    aas?: AssetAdministrationShell;
-    submodels?: Submodel[];
+    aas?: AssetAdministrationShell | null;
+    submodels?: SubmodelOrIdReference[];
 };
 
 export function TransferDialog(props: TransferDialogProps) {
-    const [ transferDto, setTransferDto ] = useState<TransferDto>();
+    const [ transferDto, setTransferDto ] = useState<TransferFormModel>();
+    const [submodelsFromContext, ] = useSubmodelState();
+    const [aasFromContext, ] = useAasState();
+
+
+    useEffect(() => {
+        const transferDtoTemp = { ...transferDto, aas: aasFromContext, submodels: submodelsFromContext }
+
+        setTransferDto(transferDtoTemp)
+    }, [])
     
-    const handleSubmitRepositoryStep = (values: TargetRepositoryFormData) => {
-        if (!values.repository) {
+    const handleSubmitRepositoryStep = async (values: TargetRepositoryFormData) => {
+        if (!values.repository ||!aasFromContext || !values.repository) {
             return;
         }
+        
+        // This state can be used later to hold the data of multiple steps
         const transferDtoTemp = { ...transferDto, targetAasRepositoryBaseUrl: values.repository, targetSubmodelRepositoryBaseUrl: values.submodelRepository }
         setTransferDto(transferDtoTemp)
+        
+        const dtoToSubmit: TransferDto = {
+            submodels: submodelsFromContext.filter((sub) => sub.submodel).map((sub) => sub.submodel!),
+            aas: aasFromContext,
+            targetAasRepositoryBaseUrl: values.repository,
+            targetSubmodelRepositoryBaseUrl: values.submodelRepository ?? ''
+        }
+
+        await transferAasWithSubmodels(dtoToSubmit);
     }
     
     return (
