@@ -2,7 +2,7 @@
 import { NameplateSorting } from './NameplateSorting';
 import { ISubmodelElement, Submodel, SubmodelElementCollection } from '@aas-core-works/aas-core3.0-typescript/types';
 
-export function SubmodelSorting(submodel: Submodel | SubmodelElementCollection | undefined) {
+export function SortNameplateElements(submodel: Submodel | SubmodelElementCollection | undefined) {
     if (!submodel) {
         return;
     }
@@ -28,7 +28,7 @@ export function SubmodelSorting(submodel: Submodel | SubmodelElementCollection |
     // Recursive
     submodels.forEach((submodel) => {
         if (submodel instanceof SubmodelElementCollection) {
-            SubmodelSorting(submodel as SubmodelElementCollection);
+            SortNameplateElements(submodel as SubmodelElementCollection);
         }
     });
 }

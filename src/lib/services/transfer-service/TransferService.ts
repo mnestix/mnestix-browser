@@ -23,5 +23,5 @@ export class TransferService {
     }
 
     // TODO Update parameters
-    async transferAasWithSubmodels(aas: AssetAdministrationShell | null, submodelRefrences?: Submodel[]) {}
+    async transferAasWithSubmodels(aas: AssetAdministrationShell | null, submodels?: Submodel[]) {}
 }

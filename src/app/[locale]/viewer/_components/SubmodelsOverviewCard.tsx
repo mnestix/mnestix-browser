@@ -4,11 +4,11 @@ import { useIsMobile } from 'lib/hooks/UseBreakpoints';
 import { messages } from 'lib/i18n/localization';
 import { FormattedMessage } from 'react-intl';
 import { SubmodelDetail } from './submodel/SubmodelDetail';
-import { SubmodelSorting } from 'app/[locale]/viewer/_components/submodel/sorting/SubmodelSorting';
 import { TabSelectorItem, VerticalTabSelector } from 'components/basics/VerticalTabSelector';
 import { MobileModal } from 'components/basics/MobileModal';
 import { SubmodelOrIdReference } from 'app/[locale]/viewer/[base64AasId]/page';
 import ErrorIcon from '@mui/icons-material/Error';
+import { SortNameplateElements } from 'app/[locale]/viewer/_components/submodel/sorting/SortNameplateElements';
 
 export type SubmodelsOverviewCardProps = {
     readonly submodelIds?: SubmodelOrIdReference[];
@@ -19,7 +19,7 @@ export function SubmodelsOverviewCard({ submodelIds, submodelsLoading }: Submode
     const [submodelSelectorItems, setSubmodelSelectorItems] = useState<TabSelectorItem[]>([]);
     const [selectedItem, setSelectedItem] = useState<TabSelectorItem>();
 
-    SubmodelSorting(selectedItem?.submodelData); // TODO what is this
+    SortNameplateElements(selectedItem?.submodelData); // TODO what is this
 
     const [open, setOpen] = useState<boolean>(false);
     const isMobile = useIsMobile();
