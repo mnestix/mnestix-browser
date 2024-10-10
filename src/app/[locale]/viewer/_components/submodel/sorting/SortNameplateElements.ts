@@ -22,7 +22,7 @@ export function SortNameplateElements(submodel: Submodel | SubmodelElementCollec
 
     // Sorting
     if (key === SubmodelSemanticId.Nameplate) {
-        SortSubmodels(submodels, NameplateSorting);
+        SortSubmodelElements(submodels, NameplateSorting);
     }
 
     // Recursive
@@ -33,7 +33,7 @@ export function SortNameplateElements(submodel: Submodel | SubmodelElementCollec
     });
 }
 
-function SortSubmodels(submodels: ISubmodelElement[], idShortOrder: string[]) {
+function SortSubmodelElements(submodels: ISubmodelElement[], idShortOrder: string[]) {
     submodels.sort((a, b) => {
         const aIndex = idShortOrder.indexOf(a.idShort as string);
         const bIndex = idShortOrder.indexOf(b.idShort as string);
