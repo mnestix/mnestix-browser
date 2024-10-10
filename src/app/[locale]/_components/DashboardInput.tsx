@@ -8,21 +8,23 @@ import { useRouter } from 'next/navigation';
 import { useAasState, useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { LocalizedError } from 'lib/util/LocalizedError';
 import { performFullAasSearch } from 'lib/services/search-actions/searchActions';
+import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
+import { AasSearchResult } from 'lib/services/search-actions/AasSearcher';
 
 export const DashboardInput = () => {
     const [, setAas] = useAasState();
     const [, setRegistryAasData] = useRegistryAasState();
     const navigate = useRouter();
 
-    const browseAasUrl = async (val: string) => {
-        const aasSearch = await performFullAasSearch(val);
-        if (!aasSearch) throw new LocalizedError(messages.mnestix.aasUrlNotFound);
+    const browseAasUrl = async (searchString: string) => {
+        const aasSearch: ApiResponseWrapper<AasSearchResult> = ApiResponseWrapper.fromPlainObject(await performFullAasSearch(searchString.trim()));
+        if (!aasSearch.isSuccess()) throw new LocalizedError(messages.mnestix.aasUrlNotFound);
 
-        if (aasSearch.aas) {
-            setAas(aasSearch.aas);
-            setRegistryAasData(aasSearch.aasData);
+        if (aasSearch.result!.aas) {
+            setAas(aasSearch.result!.aas);
+            setRegistryAasData(aasSearch.result!.aasData);
         }
-        navigate.push(aasSearch.redirectUrl);
+        navigate.push(aasSearch.result!.redirectUrl);
     };
 
     return (

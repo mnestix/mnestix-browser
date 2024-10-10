@@ -45,7 +45,11 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
             try {
                 fetchedSubmodelData = await getSubmodelById(id);
             } catch (e) {
-                fetchedSubmodelData = await performSearchSubmodelFromAllRepos(id);
+                const response = await performSearchSubmodelFromAllRepos(id);
+                if (!response.isSuccess()) {
+                    throw new Error(response.message)
+                }
+                fetchedSubmodelData = response.result!;
             }
             return fetchedSubmodelData;
         } catch (e) {

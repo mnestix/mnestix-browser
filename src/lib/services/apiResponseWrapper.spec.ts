@@ -51,4 +51,11 @@ describe('', () => {
         expect(successfulResponseWrapper.errorCode).toBe(ApiResultMapper.SUCCESS)
     });
 
+    it('correctly serializes into string and back', async () => {
+        const successfulResponseWrapper = ApiResponseWrapper.fromSuccess('dummy content string');
+        const serializedWrapper = successfulResponseWrapper.toJSON()
+        const deserializedWrapper = ApiResponseWrapper.fromPlainObject<string>(serializedWrapper)
+        expect(deserializedWrapper.errorCode).toBe(ApiResultMapper.SUCCESS)
+    });
+
 });

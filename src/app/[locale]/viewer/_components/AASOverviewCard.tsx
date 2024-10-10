@@ -28,6 +28,7 @@ import {
     getThumbnailFromShell,
     performGetAasThumbnailFromAllRepos,
 } from 'lib/services/repository-access/repositorySearchActions';
+import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
 
 type AASOverviewCardProps = {
     readonly aas: AssetAdministrationShell | null;
@@ -74,8 +75,11 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
                 const registryRepository = AssetAdministrationShellRepositoryApi.create({
                     basePath: registryAasData.aasRegistryRepositoryOrigin,
                 });
-                image = await registryRepository.getThumbnailFromShell(props.aas.id);
-                setProductImageUrl(URL.createObjectURL(image));
+                const result = ApiResponseWrapper.fromPlainObject(await registryRepository.getThumbnailFromShell(props.aas.id));
+                if (result.isSuccess()) {
+                    image = result.result
+                    setProductImageUrl(URL.createObjectURL(image));
+                }
             } else {
                 try {
                     image = await getThumbnailFromShell(props.aas.id);

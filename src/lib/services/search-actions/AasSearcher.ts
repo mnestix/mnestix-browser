@@ -97,16 +97,16 @@ export class AasSearcher {
         }
 
         const defaultResult = await this.getAasFromDefaultRepository(aasIdEncoded);
-        if (defaultResult) {
-            return ApiResponseWrapper.fromSuccess(this.createAasResult(defaultResult));
+        if (defaultResult.isSuccess()) {
+            return ApiResponseWrapper.fromSuccess(this.createAasResult(defaultResult.result!));
         }
 
         const potentiallyMultipleAas = await this.getAasFromAllRepositories(aasIdEncoded);
-        if (potentiallyMultipleAas) {
-            if (potentiallyMultipleAas.length === 1) {
-                return ApiResponseWrapper.fromSuccess(this.createAasResult(potentiallyMultipleAas[0].aas));
+        if (potentiallyMultipleAas.isSuccess()) {
+            if (potentiallyMultipleAas.result!.length === 1) {
+                return ApiResponseWrapper.fromSuccess(this.createAasResult(potentiallyMultipleAas.result![0].aas));
             }
-            if (potentiallyMultipleAas.length > 1) {
+            if (potentiallyMultipleAas.result!.length > 1) {
                 return ApiResponseWrapper.fromSuccess(this.createDiscoveryRedirectResult(searchInput));
             }
         }
@@ -142,12 +142,10 @@ export class AasSearcher {
     }
 
     public async getAasFromRepository(aasId: string, repoUrl: string): Promise<AssetAdministrationShell | null> {
-        try {
-            return await this.multipleDataSource.getAasFromRepo(aasId, repoUrl);
-        } catch (e) {
-            this.log.warn(`Could not find an AAS '${aasId}' in the repository '${repoUrl}'`);
-            return null;
-        }
+        const response = await this.multipleDataSource.getAasFromRepo(aasId, repoUrl);
+        if (response.isSuccess()) return response.result!
+        this.log.warn(`Could not find an AAS '${aasId}' in the repository '${repoUrl}'`);
+        return null;
     }
 
     private createAasResult(aas: AssetAdministrationShell, data?: AasData): AasSearchResult {
@@ -189,21 +187,19 @@ export class AasSearcher {
         return await this.registryService.getAssetAdministrationShellFromEndpoint(endpoint);
     }
 
-    private async getAasFromDefaultRepository(aasId: string): Promise<AssetAdministrationShell | null> {
-        try {
-            return await this.multipleDataSource.getAasFromDefaultRepository(aasId);
-        } catch (e) {
-            this.log.warn(`Could not find the AAS '${aasId}' in the default repository`);
-            return null;
-        }
+    private async getAasFromDefaultRepository(aasId: string): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
+        const response = await this.multipleDataSource.getAasFromDefaultRepository(aasId);
+        if (response.isSuccess()) return response;
+        const message = `Could not find the AAS '${aasId}' in the default repository`;
+        this.log.warn(message);
+        return ApiResponseWrapper.fromErrorCode(ApiResultMapper.NOT_FOUND, message)
     }
 
-    private async getAasFromAllRepositories(aasId: string): Promise<RepoSearchResult[] | null> {
-        try {
-            return await this.multipleDataSource.getAasFromAllRepos(aasId);
-        } catch (e) {
-            this.log.warn(`Could not find the AAS '${aasId}' in any configured repository`);
-            return null;
-        }
+    private async getAasFromAllRepositories(aasId: string): Promise<ApiResponseWrapper<RepoSearchResult[]>> {
+        const result = await this.multipleDataSource.getAasFromAllRepos(aasId);
+        if (result.isSuccess()) return result;
+        const message = `Could not find the AAS '${aasId}' in any configured repository`;
+        this.log.warn(message);
+        return ApiResponseWrapper.fromErrorCode(ApiResultMapper.NOT_FOUND, message)
     }
 }

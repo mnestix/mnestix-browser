@@ -64,8 +64,8 @@ describe('Full Aas Search happy paths', () => {
         const search = await searcher.performFullSearch(searchString);
 
         expect(search.isSuccess()).toBeTruthy()
-        expect(search.result.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
-        expect(search.result.aas?.id).toEqual(aas.id);
+        expect(search.result!.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
+        expect(search.result!.aas?.id).toEqual(aas.id);
     });
 
     it('returns details of aas when discovery returns nothing and the aas is registered in the registry', async () => {
@@ -80,8 +80,8 @@ describe('Full Aas Search happy paths', () => {
         const search = await searcher.performFullSearch(searchString);
 
         expect(search.isSuccess()).toBeTruthy()
-        expect(search.result.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
-        expect(search.result.aas?.id).toEqual(aas.id);
+        expect(search.result!.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
+        expect(search.result!.aas?.id).toEqual(aas.id);
     });
 
     it('returns aas for given aasId from default repository', async () => {
@@ -100,8 +100,8 @@ describe('Full Aas Search happy paths', () => {
         const search = await searcher.performFullSearch(searchString);
 
         expect(search.isSuccess()).toBeTruthy()
-        expect(search.result.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
-        expect(search.result.aas?.id).toEqual(aas.id);
+        expect(search.result!.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
+        expect(search.result!.aas?.id).toEqual(aas.id);
     });
 
     it('returns aas for given aasId from foreign repository if only one found', async () => {
@@ -120,8 +120,8 @@ describe('Full Aas Search happy paths', () => {
         const search = await searcher.performFullSearch(searchString);
 
         expect(search.isSuccess()).toBeTruthy()
-        expect(search.result.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
-        expect(search.result.aas?.id).toEqual(aas.id);
+        expect(search.result!.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
+        expect(search.result!.aas?.id).toEqual(aas.id);
     });
 
     it('returns aas for given aasId from foreign repository if two are found', async () => {
@@ -145,7 +145,7 @@ describe('Full Aas Search happy paths', () => {
         const search = await searcher.performFullSearch(searchString);
 
         expect(search.isSuccess()).toBeTruthy()
-        expect(search.result.redirectUrl).toBe('/viewer/discovery?assetId=' + searchString);
+        expect(search.result!.redirectUrl).toBe('/viewer/discovery?assetId=' + searchString);
     });
 });
 

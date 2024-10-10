@@ -10,6 +10,7 @@ import {
     getAssetAdministrationShellById,
     getSubmodelById,
 } from 'lib/services/repository-access/repositorySearchActions';
+import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
 
 type CompareAasContextType = {
     compareAas: AssetAdministrationShell[];
@@ -75,24 +76,32 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
         const aasList: AssetAdministrationShell[] = [];
         let compareDataTemp: SubmodelCompareData[] = [];
         for (const aasId of input as string[]) {
-            let shell;
-            const registrySearchResult = await performRegistryAasSearch(aasId);
-            if (registrySearchResult != null) {
-                shell = registrySearchResult.aas as AssetAdministrationShell;
-            } else {
-                shell = await getAssetAdministrationShellById(encodeBase64(aasId));
-            }
-            // Get AAS
-            aasList.push(shell);
 
-            // Get Submodels
-            if (shell.submodels) {
-                compareDataTemp = await loadSubmodelDataIntoState(
-                    compareDataTemp,
-                    shell.submodels,
-                    aasList.length - 1,
-                    registrySearchResult?.aasData?.submodelDescriptors,
-                );
+            let shell : AssetAdministrationShell | null = null;
+
+            const registrySearchResult = ApiResponseWrapper.fromPlainObject(await performRegistryAasSearch(aasId));
+            if (registrySearchResult.isSuccess()) {
+                shell = registrySearchResult.result!.aas;
+            } else {
+                const response = ApiResponseWrapper.fromPlainObject(await getAssetAdministrationShellById(encodeBase64(aasId)));
+                if (response.isSuccess()) shell = response.result!;
+            }
+
+            if (shell) {
+
+                // Get AAS
+                aasList.push(shell!);
+
+                // Get Submodels
+                if (shell!.submodels) {
+                    compareDataTemp = await loadSubmodelDataIntoState(
+                        compareDataTemp,
+                        shell.submodels,
+                        aasList.length - 1,
+                        registrySearchResult?.result!.aasData?.submodelDescriptors,
+                    );
+                }
+
             }
         }
 

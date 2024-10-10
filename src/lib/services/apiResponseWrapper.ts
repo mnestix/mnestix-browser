@@ -1,10 +1,12 @@
-export enum ApiResultMapper {
-    SUCCESS,
-    NOT_FOUND,
-    UNAUTHORIZED,
-    UNKNOWN_ERROR,
-    INTERNAL_SERVER_ERROR,
-}
+export const ApiResultMapper = {
+    SUCCESS: 'SUCCESS',
+    NOT_FOUND: 'NOT_FOUND',
+    UNAUTHORIZED: 'UNAUTHORIZED',
+    UNKNOWN_ERROR: 'UNKNOWN_ERROR',
+    INTERNAL_SERVER_ERROR: 'INTERNAL_SERVER_ERROR',
+} as const;
+
+export type ApiResultMapper = typeof ApiResultMapper[keyof typeof ApiResultMapper];
 
 const httpStatusMessage: Record<number, ApiResultMapper> = {
     200: ApiResultMapper.SUCCESS,
@@ -14,18 +16,14 @@ const httpStatusMessage: Record<number, ApiResultMapper> = {
 };
 
 const getStatus = (statusCode: number): ApiResultMapper => {
-    return (statusCode in httpStatusMessage) ? httpStatusMessage[statusCode] : ApiResultMapper.UNKNOWN_ERROR;
+    return statusCode in httpStatusMessage ? httpStatusMessage[statusCode] : ApiResultMapper.UNKNOWN_ERROR;
 };
 
 export class ApiResponseWrapper<T> {
     errorCode: ApiResultMapper;
     message: string;
 
-    constructor(
-        public result: T | null,
-        errorCode: ApiResultMapper,
-        message: string,
-    ) {
+    constructor(public result: T | null, errorCode: ApiResultMapper, message: string) {
         this.errorCode = errorCode;
         this.message = message;
     }
@@ -34,15 +32,16 @@ export class ApiResponseWrapper<T> {
         return this.errorCode === ApiResultMapper.SUCCESS;
     }
 
-    public castResult<T>() : ApiResponseWrapper<T> {
-        return new ApiResponseWrapper(this.result as T, this.errorCode, this.message)
+    public castResult<U>(): ApiResponseWrapper<U> {
+        return new ApiResponseWrapper(this.result as unknown as U, this.errorCode, this.message);
     }
 
-    public transformResult<G>(transformer: (input: T) => G){
-        if (this.result !== null) {
-            return new ApiResponseWrapper<G>(transformer(this.result as T), this.errorCode, this.message)
+    public transformResult<U>(transformer: (input: T) => U) {
+        console.log('inside transformer' + this.result)
+        if (this.isSuccess()) {
+            return new ApiResponseWrapper<U>(transformer(this.result!), this.errorCode, this.message);
         }
-        return this.castResult<G>();
+        return this.castResult<U>();
     }
 
     static fromErrorCode<T>(error: ApiResultMapper, message: string) {
@@ -58,7 +57,19 @@ export class ApiResponseWrapper<T> {
     }
 
     static fromSuccess<T>(result: T): ApiResponseWrapper<T> {
-        return new ApiResponseWrapper<T>(result, ApiResultMapper.SUCCESS, '')
+        return new ApiResponseWrapper<T>(result, ApiResultMapper.SUCCESS, '');
+    }
+
+    // Method for converting to JSON (Serializable)
+    toJSON() {
+        return JSON.parse(JSON.stringify({
+            result: this.result,
+            errorCode: this.errorCode,
+            message: this.message,
+        }))
+    }
+
+    static fromPlainObject<T>(plainObject: {result: T | null, errorCode: ApiResultMapper, message: string}) : ApiResponseWrapper<T> {
+        return new ApiResponseWrapper<T>(plainObject.result, plainObject.errorCode, plainObject.message);
     }
 }
-

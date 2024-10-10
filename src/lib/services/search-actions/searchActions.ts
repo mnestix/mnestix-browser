@@ -7,7 +7,7 @@ import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
 
 export async function performFullAasSearch(searchInput: string): Promise<ApiResponseWrapper<AasSearchResult>> {
     const searcher = AasSearcher.create();
-    return searcher.performFullSearch(searchInput);
+    return (await searcher.performFullSearch(searchInput)).toJSON();
 }
 
 export async function getAasFromRepository(
@@ -22,7 +22,7 @@ export async function performRegistryAasSearch(searchInput: string): Promise<Api
     const searcher = AasSearcher.create();
     const result = searcher.performRegistrySearch(searchInput);
     if (!result) throw new NotFoundError(searchInput);
-    return result;
+    return (await result).toJSON();
 }
 
 export async function performDiscoveryAasSearch(searchInput: string): Promise<string[] | null> {

@@ -356,7 +356,7 @@ export class SubmodelRepositoryApi implements ISubmodelRepositoryApi {
      * @throws {RequiredError}
      * @memberof SubmodelRepositoryApi
      */
-    getSubmodelById(submodelId: string, options?: any, basePath?: string): Promise<Submodel> {
+    getSubmodelById(submodelId: string, options?: any, basePath?: string): Promise<ApiResponseWrapper<Submodel>> {
         return SubmodelRepositoryApiFp(this.configuration).getSubmodelById(submodelId, options)(
             this.fetch,
             basePath ?? this.basePath,
@@ -370,7 +370,7 @@ export class SubmodelRepositoryApi implements ISubmodelRepositoryApi {
      * @param {*} [options] Override http request option
      * @memberof SubmodelRepositoryApi
      */
-    getAttachmentFromSubmodelElement(submodelId: string, submodelElementPath: string, options?: any): Promise<Blob> {
+    getAttachmentFromSubmodelElement(submodelId: string, submodelElementPath: string, options?: any): Promise<ApiResponseWrapper<Blob>> {
         return SubmodelRepositoryApiFp(this.configuration).getAttachmentFromSubmodelElement(
             submodelId,
             submodelElementPath,
@@ -393,7 +393,7 @@ export const SubmodelRepositoryApiFp = function (configuration?: Configuration) 
         getSubmodelMetaDataById(
             submodelId: string,
             options?: any,
-        ): (fetch?: FetchAPI, basePath?: string) => Promise<Submodel> {
+        ): (requestHandler?: FetchAPI, basePath?: string) => Promise<ApiResponseWrapper<Submodel>> {
             // HINT: Submodel is taken from aas_core_meta
             const localVarFetchArgs = SubmodelRepositoryApiFetchParamCreator(configuration).getSubmodelMetaDataById(
                 encodeBase64(submodelId),
@@ -404,11 +404,7 @@ export const SubmodelRepositoryApiFp = function (configuration?: Configuration) 
                     basePath + localVarFetchArgs.url,
                     localVarFetchArgs.options,
                 );
-                if (response.status >= 200 && response.status < 300) {
-                    return response.json();
-                } else {
-                    throw response;
-                }
+                return response.transformResult<Submodel>(JSON.parse);
             };
         },
         /**
@@ -417,7 +413,7 @@ export const SubmodelRepositoryApiFp = function (configuration?: Configuration) 
          * @param {*} [options] Override http request option
          * @throws {RequiredError}
          */
-        getSubmodelById(submodelId: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Submodel> {
+        getSubmodelById(submodelId: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ApiResponseWrapper<Submodel>> {
             const localVarFetchArgs = SubmodelRepositoryApiFetchParamCreator(configuration).getSubmodelById(
                 encodeBase64(submodelId),
                 options,
@@ -427,16 +423,12 @@ export const SubmodelRepositoryApiFp = function (configuration?: Configuration) 
                     basePath + localVarFetchArgs.url,
                     localVarFetchArgs.options,
                 );
-                if (response.status >= 200 && response.status < 300) {
-                    return response.json();
-                } else {
-                    throw response;
-                }
+                return response.transformResult<Submodel>(JSON.parse);
             };
         },
         /**
          * @summary Retrieves the attachment from a submodel element
-         * @param submodelId The id of the submodel the submodel element is part of
+         * @param submodelId The id of the submodel, the submodel element is part of
          * @param submodelElementPath The path to the submodel element
          * @param {*} [options] Override http request option
          */
@@ -444,7 +436,7 @@ export const SubmodelRepositoryApiFp = function (configuration?: Configuration) 
             submodelId: string,
             submodelElementPath: string,
             options?: any,
-        ): (fetch?: FetchAPI, basePath?: string) => Promise<Blob> {
+        ): (requestHandler?: FetchAPI, basePath?: string) => Promise<ApiResponseWrapper<Blob>> {
             const localVarFetchArgs = SubmodelRepositoryApiFetchParamCreator(
                 configuration,
             ).getAttachmentFromSubmodelElement(submodelId, submodelElementPath, options);
@@ -453,11 +445,7 @@ export const SubmodelRepositoryApiFp = function (configuration?: Configuration) 
                     basePath + localVarFetchArgs.url,
                     localVarFetchArgs.options,
                 );
-                if (response.status >= 200 && response.status < 300) {
-                    return response.blob();
-                } else {
-                    throw response;
-                }
+                return response.transformResult<Blob>((a) => new Blob([a], { type: 'text/plain' }));
             };
         },
     };
