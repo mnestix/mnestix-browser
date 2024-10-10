@@ -97,13 +97,14 @@ export function SubmodelsOverviewCard({ submodelIds, submodelsLoading }: Submode
                     <FormattedMessage {...messages.mnestix.submodels} />
                 </Typography>
                 <Box display="grid" gridTemplateColumns={isMobile ? '1fr' : '1fr 2fr'} gap="40px">
-                    <VerticalTabSelector
-                        items={submodelSelectorItems}
-                        selected={selectedItem}
-                        setSelected={setSelectedItem}
-                    />
-                    {/*TODO put it below the already fetched submodels*/}
-                    {submodelsLoading && <Skeleton variant="rectangular" height={50} sx={{ mb: 2 }} />}
+                    <Box>
+                        <VerticalTabSelector
+                            items={submodelSelectorItems}
+                            selected={selectedItem}
+                            setSelected={setSelectedItem}
+                        />
+                        {submodelsLoading && <Skeleton height={70} sx={{ mb: 2 }} />}
+                    </Box>
                     {isMobile ? (
                         <MobileModal
                             title={submodelSelectorItems.find((i) => i.id === selectedItem?.id)?.label}

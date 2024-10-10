@@ -112,7 +112,11 @@ export default function Page() {
             await Promise.all(
                 aas.submodels.map(async (smRef, i) => {
                     const newSm = await fetchSingleSubmodel(smRef, registryAasData?.submodelDescriptors?.[i]);
-                    setSubmodels([...submodels, newSm]); // TODO check if this works or if any data is overwritten
+                    setSubmodels((submodels) => {
+                        const exists = submodels.some((sm) => sm.id === newSm.id);
+                        if (exists) return submodels;
+                        return [...submodels, newSm];
+                    });
                 }),
             );
         }
