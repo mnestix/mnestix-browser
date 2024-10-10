@@ -1,5 +1,5 @@
 ﻿import { SubmodelSemanticId } from 'lib/enums/SubmodelSemanticId.enum';
-import { NameplateSorting } from './NameplateSorting';
+import { NameplateSorting } from 'app/[locale]/viewer/_components/submodel/sorting/NameplateSorting';
 import { ISubmodelElement, Submodel, SubmodelElementCollection } from '@aas-core-works/aas-core3.0-typescript/types';
 
 export function SortNameplateElements(submodel: Submodel | SubmodelElementCollection | undefined) {

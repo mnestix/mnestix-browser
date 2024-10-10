@@ -19,7 +19,7 @@ export function SubmodelsOverviewCard({ submodelIds, submodelsLoading }: Submode
     const [submodelSelectorItems, setSubmodelSelectorItems] = useState<TabSelectorItem[]>([]);
     const [selectedItem, setSelectedItem] = useState<TabSelectorItem>();
 
-    SortNameplateElements(selectedItem?.submodelData); // TODO what is this
+    SortNameplateElements(selectedItem?.submodelData);
 
     const [open, setOpen] = useState<boolean>(false);
     const isMobile = useIsMobile();
@@ -32,7 +32,7 @@ export function SubmodelsOverviewCard({ submodelIds, submodelsLoading }: Submode
             .map(getAsTabSelectorItem)
             .filter((item) => !!item)
             .sort(function (x, y) {
-                return x.label == firstSubmodelIdShort ? -1 : y.label == firstSubmodelIdShort ? 1 : 0; // TODO better ordering of other submodels
+                return x.label == firstSubmodelIdShort ? -1 : y.label == firstSubmodelIdShort ? 1 : 0;
             });
     }
 
