@@ -1,6 +1,10 @@
 'use server';
 
 import { AasSearcher, AasSearchResult, RegistrySearchResult } from 'lib/services/searchUtilActions/AasSearcher';
+import { SubmodelSearcher } from 'lib/services/searchUtilActions/SubmodelSearcher';
+import { Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
+import { Reference } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
+import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 
 export async function performFullAasSearch(searchInput: string): Promise<AasSearchResult> {
     const searcher = AasSearcher.create();
@@ -17,9 +21,10 @@ export async function performDiscoveryAasSearch(searchInput: string): Promise<st
     return searcher.performAasDiscoverySearch(searchInput);
 }
 
-export async function getSubmodelFromSubmodelDescriptor(url: string) {
-    const response = await fetch(url, {
-        method: 'GET',
-    });
-    return response.json();
+export async function performSubmodelFullSearch(
+    submodelReference: Reference,
+    submodelDescriptor?: SubmodelDescriptor,
+): Promise<Submodel | null> {
+    const searcher = SubmodelSearcher.create();
+    return searcher.performSubmodelFullSearch(submodelReference, submodelDescriptor);
 }

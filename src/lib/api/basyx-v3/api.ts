@@ -137,6 +137,13 @@ export class AssetAdministrationShellRepositoryApi extends BaseAPI implements IA
             options,
         )(this.fetch, basePath ?? this.basePath);
     }
+
+    createAssetAdministrationShell(aasId: string, options?: any, basePath?: string) {
+        return AssetAdministrationShellRepositoryApiFp(this.configuration).getThumbnailFromAssetInformation(
+            aasId,
+            options,
+        )(this.fetch, basePath ?? this.basePath);
+    }
 }
 
 /**

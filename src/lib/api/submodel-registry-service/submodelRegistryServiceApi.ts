@@ -1,9 +1,10 @@
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 import { encodeBase64 } from 'lib/util/Base64Util';
+import { ISubmodelRegistryServiceApiInterface } from 'lib/api/submodel-registry-service/ISubmodelRegistryServiceApiInterface';
 
-export class SubmodelRegistryServiceApi {
+export class SubmodelRegistryServiceApi implements ISubmodelRegistryServiceApiInterface {
     baseUrl: string;
-    private http: { fetch(url: RequestInfo, init?: RequestInit | undefined): Promise<Response> };
+    http: { fetch(url: RequestInfo, init?: RequestInit | undefined): Promise<Response> };
 
     constructor(
         _baseUrl: string = '',
@@ -17,7 +18,18 @@ export class SubmodelRegistryServiceApi {
         this.http = http ?? window;
     }
 
-    public async getSubmodelDescriptorsById(submodelId: string) {
+    static create(
+        _baseUrl: string | undefined,
+        mnestixFetch:
+            | {
+                  fetch(url: RequestInfo, init?: RequestInit | undefined): Promise<Response>;
+              }
+            | undefined,
+    ) {
+        return new SubmodelRegistryServiceApi(_baseUrl, mnestixFetch ?? window);
+    }
+
+    async getSubmodelDescriptorById(submodelId: string) {
         const b64_submodelId = encodeBase64(submodelId);
 
         const headers = {
@@ -38,7 +50,7 @@ export class SubmodelRegistryServiceApi {
         }
     }
 
-    public async putSubmodelDescriptorsById(submodelId: string, submodelDescriptor: SubmodelDescriptor) {
+    async putSubmodelDescriptorById(submodelId: string, submodelDescriptor: SubmodelDescriptor) {
         const b64_submodelId = encodeBase64(submodelId);
 
         const headers = {
@@ -61,7 +73,7 @@ export class SubmodelRegistryServiceApi {
         }
     }
 
-    public async deleteSubmodelDescriptorsById(submodelId: string) {
+    async deleteSubmodelDescriptorById(submodelId: string) {
         const b64_submodelId = encodeBase64(submodelId);
 
         const url = new URL(`${this.baseUrl}/submodel-descriptors/${b64_submodelId}`);
@@ -71,13 +83,13 @@ export class SubmodelRegistryServiceApi {
         });
 
         if (response.ok) {
-            return response;
+            return response.json();
         } else {
             throw response;
         }
     }
 
-    public async getAllSubmodelDescriptors() {
+    async getAllSubmodelDescriptors() {
         const headers = {
             Accept: 'application/json',
         };
@@ -96,7 +108,7 @@ export class SubmodelRegistryServiceApi {
         }
     }
 
-    public async postSubmodelDescriptor(submodelDescriptor: SubmodelDescriptor) {
+    async postSubmodelDescriptor(submodelDescriptor: SubmodelDescriptor) {
         const headers = {
             Accept: 'application/json',
             'Content-Type': 'application/json',
@@ -117,7 +129,7 @@ export class SubmodelRegistryServiceApi {
         }
     }
 
-    public async deleteAllSubmodelDescriptors() {
+    async deleteAllSubmodelDescriptors() {
         const url = new URL(`${this.baseUrl}/submodel-descriptors`);
 
         const response = await this.http.fetch(url.toString(), {
@@ -125,7 +137,7 @@ export class SubmodelRegistryServiceApi {
         });
 
         if (response.ok) {
-            return response;
+            return response.json();
         } else {
             throw response;
         }

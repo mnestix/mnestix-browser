@@ -9,7 +9,12 @@ import { messages } from 'lib/i18n/localization';
 import { decodeBase64, safeBase64Decode } from 'lib/util/Base64Util';
 import { ArrowForward } from '@mui/icons-material';
 import { showError } from 'lib/util/ErrorHandlerUtil';
-import { AssetAdministrationShell, LangStringNameType, Reference } from '@aas-core-works/aas-core3.0-typescript/types';
+import {
+    AssetAdministrationShell,
+    LangStringNameType,
+    Reference,
+    Submodel,
+} from '@aas-core-works/aas-core3.0-typescript/types';
 import { useIsMobile } from 'lib/hooks/UseBreakpoints';
 import { getTranslationText } from 'lib/util/SubmodelResolverUtil';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
@@ -18,30 +23,43 @@ import { AASOverviewCard } from 'app/[locale]/viewer/_components/AASOverviewCard
 import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useEnv } from 'app/env/provider';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
-import { performRegistryAasSearch } from 'lib/services/searchUtilActions/searchActions';
+import { performRegistryAasSearch, performSubmodelFullSearch } from 'lib/services/searchUtilActions/searchActions';
 import { performSearchAasFromAllRepositories } from 'lib/services/MultipleRepositorySearch/MultipleRepositorySearchActions';
+import { transferAasWithSubmodels } from 'lib/services/transfer-service/transferActions';
+import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 import { TransferButton } from 'app/[locale]/viewer/_components/transfer/TransferButton';
+
+export type SubmodelOrIdReference = {
+    id: string;
+    submodel?: Submodel;
+    error?: string | Error;
+};
 
 export default function Page() {
     const navigate = useRouter();
     const searchParams = useParams<{ base64AasId: string }>();
     const base64AasId = searchParams.base64AasId;
-    const [submodelReferences, setSubmodelReferences] = useState<Reference[]>();
+    const [submodels, setSubmodels] = useState<SubmodelOrIdReference[]>([]);
     const [productImage, setProductImage] = useState<string>();
     const [isLoadingAas, setIsLoadingAas] = useState(false);
+    const [isSubmodelsLoading, setIsSubmodelsLoading] = useState(true);
     const notificationSpawner = useNotificationSpawner();
     const isMobile = useIsMobile();
     const intl = useIntl();
     const env = useEnv();
     const { repositoryClient } = useApis();
     const [aas, setAas] = useAasState();
-    const [, setRegistryAasData] = useRegistryAasState();
+    const [registryAasData, setRegistryAasData] = useRegistryAasState();
     const encodedRepoUrl = useSearchParams().get('repoUrl');
     const repoUrl = encodedRepoUrl ? decodeURI(encodedRepoUrl) : undefined;
 
     useAsyncEffect(async () => {
         await fetchAas();
     }, [base64AasId, env]);
+
+    useAsyncEffect(async () => {
+        await fetchSubmodels();
+    }, [aas]);
 
     async function fetchAas() {
         setIsLoadingAas(true);
@@ -89,16 +107,60 @@ export default function Page() {
         setIsLoadingAas(false);
     }
 
+    async function fetchSubmodels() {
+        setIsSubmodelsLoading(true);
+        if (aas?.submodels) {
+            await Promise.all(
+                aas.submodels.map(async (smRef, i) => {
+                    const newSm = await fetchSingleSubmodel(smRef, registryAasData?.submodelDescriptors?.[i]);
+                    setSubmodels((submodels) => {
+                        const exists = submodels.some((sm) => sm.id === newSm.id);
+                        if (exists) return submodels;
+                        return [...submodels, newSm];
+                    });
+                }),
+            );
+        }
+        setIsSubmodelsLoading(false);
+    }
+
+    async function fetchSingleSubmodel(
+        reference: Reference,
+        smDescriptor?: SubmodelDescriptor,
+    ): Promise<SubmodelOrIdReference> {
+        const sm = await performSubmodelFullSearch(reference, smDescriptor);
+        if (!sm)
+            return {
+                id: reference.keys[0].value,
+                error: 'Submodel failed to load', // TODO error localization
+            };
+
+        return {
+            id: sm.id,
+            submodel: sm,
+        };
+    }
+
     const setAasData = (shell: AssetAdministrationShell) => {
         const productImageString = shell.assetInformation?.defaultThumbnail?.path;
         if (productImageString) {
             setProductImage(productImageString);
         }
-        setSubmodelReferences(shell.submodels ?? undefined);
     };
 
     const startComparison = () => {
         navigate.push(`/compare?aasId=${encodeURIComponent(aas?.id ?? '')}`);
+    };
+
+    // TODO: This should navigate to pop-up and configure transfer data before invoking this action
+    const handleTransferAas = async (targetAasRepositoryUrl: string, targetSubmodelRepositoryUrl: string) => {
+        if (!aas) return;
+        await transferAasWithSubmodels({
+            targetAasRepositoryBaseUrl: targetAasRepositoryUrl,
+            targetSubmodelRepositoryBaseUrl: targetSubmodelRepositoryUrl,
+            aas: aas,
+            submodels: submodels.filter((sub) => sub.submodel).map((sub) => sub.submodel!),
+        });
     };
 
     const pageStyles = {
@@ -158,7 +220,7 @@ export default function Page() {
                         isLoading={isLoadingAas}
                         isAccordion={isMobile}
                     />
-                    <SubmodelsOverviewCard smReferences={submodelReferences} />
+                    <SubmodelsOverviewCard submodelIds={submodels} submodelsLoading={isSubmodelsLoading} />
                 </Box>
             ) : (
                 <>
