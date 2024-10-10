@@ -33,11 +33,11 @@ export class TransferService {
         const targetAasRegistryClient = RegistryServiceApi.create(process.env.REGISTRY_API_URL, mnestixFetch());
 
         const targetSubmodelRepositoryClient = SubmodelRepositoryApi.create({
-            basePath: process.env.SUBMODEL_REGISTRY_API_URL,
+            basePath: targetSubmodelRepositoryBaseUrl,
             fetch: mnestixFetch(),
         });
         const targetSubmodelRegistryClient = SubmodelRegistryServiceApi.create(
-            targetSubmodelRepositoryBaseUrl,
+            process.env.SUBMODEL_REGISTRY_API_URL,
             mnestixFetch(),
         );
 
@@ -55,8 +55,7 @@ export class TransferService {
     }
 
     // TODO Update parameters
-    async transferAasWithSubmodels({ aas, apikey, targetAasRepositoryBaseUrl }: TransferDto) {
-        aas.id = aas.id + '_12_test';
+    async transferAasWithSubmodels({ aas, apikey, targetAasRepositoryBaseUrl, submodels }: TransferDto) {
         //1 post aas to repository
         await this.targetAasRepositoryClient.postAssetAdministrationShell(aas, {
             headers: {
@@ -84,6 +83,16 @@ export class TransferService {
 
         // for each submodel
         //#    post submodel to submodel repository (for now all into the same repository)
+
+        await Promise.all(
+            submodels.map(async (submodel) => {
+                await this.targetSubmodelRepositoryClient.postSubmodel(submodel, {
+                    headers: {
+                        Apikey: apikey,
+                    },
+                });
+            }),
+        );
         //#    register submodel in the submodel registry
     }
 

@@ -34,7 +34,7 @@ export interface IAssetAdministrationShellRepositoryApi {
      * @returns The thumbnail retrieved from the Asset Administration Shell.
      */
     getThumbnailFromShell(aasId: string, options?: object, basePath?: string): Promise<Blob>;
-    
+
     postAssetAdministrationShell(aas: AssetAdministrationShell, options?: object): Promise<AssetAdministrationShell>;
 }
 
@@ -66,4 +66,6 @@ export interface ISubmodelRepositoryApi {
      * @memberof SubmodelRepositoryApi
      */
     getAttachmentFromSubmodelElement(submodelId: string, submodelElementPath: string, options?: object): Promise<Blob>;
+
+    postSubmodel(submodel: Submodel, options?: object): Promise<Submodel>;
 }
