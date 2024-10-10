@@ -1,5 +1,6 @@
 import {
     AdministrativeInformation,
+    AssetKind,
     Extension,
     LangStringNameType,
     LangStringTextType,
@@ -23,7 +24,7 @@ export interface AssetAdministrationShellDescriptor {
      */
     extensions?: Extension[];
     administration?: AdministrativeInformation;
-    assetKind?: 'Instance' | 'NotApplicable' | 'Type';
+    assetKind?: AssetKind;
     /**
      * @minLength 1
      * @maxLength 2000

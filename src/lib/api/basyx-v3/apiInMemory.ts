@@ -14,6 +14,13 @@ export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdmi
         this.shellsSavedInTheRepositories = options.shellsSavedInTheRepositories;
     }
 
+    postAssetAdministrationShell(
+        aas: AssetAdministrationShell,
+        options?: object | undefined,
+    ): Promise<AssetAdministrationShell> {
+        throw new Error('Method not implemented.');
+    }
+
     static getDefaultRepositoryUrl(): string {
         return 'www.aas.default.com/repository';
     }

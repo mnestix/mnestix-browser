@@ -157,6 +157,8 @@ export default function Page() {
         await transferAasWithSubmodels({
             targetAasRepositoryBaseUrl: targetAasRepositoryUrl,
             targetSubmodelRepositoryBaseUrl: targetSubmodelRepositoryUrl,
+            targetAasDiscoveryBaseUrl: env.DISCOVERY_API_URL,
+            apikey: '-', //how to pass ApiKey securely ??
             aas: aas,
             submodels: submodels.filter((sub) => sub.submodel).map((sub) => sub.submodel!),
         });
@@ -214,7 +216,7 @@ export default function Page() {
                         <Button
                             sx={{ ml: 2 }}
                             onClick={() =>
-                                handleTransferAas('http://localhost:5064/repo', 'http://localhost:5064/repo')
+                                handleTransferAas('http://localhost:5065/repo', 'http://localhost:5065/repo')
                             }
                             variant="contained"
                             data-testid="transfer"

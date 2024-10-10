@@ -35,7 +35,7 @@ export class RegistryServiceApi implements IRegistryServiceApi {
             Accept: 'application/json',
         };
 
-        const url = new URL(`${this.baseUrl}/shell-descriptors`);
+        const url = new URL(`/shell-descriptors`, this.baseUrl);
 
         const response = await this.http.fetch(url.toString(), {
             method: 'GET',
@@ -57,7 +57,7 @@ export class RegistryServiceApi implements IRegistryServiceApi {
             'Content-Type': 'application/json',
         };
 
-        const url = new URL(`${this.baseUrl}/shell-descriptors/${b64_aasId}`);
+        const url = new URL(`/shell-descriptors/${b64_aasId}`, this.baseUrl);
 
         const response = await this.http.fetch(url.toString(), {
             method: 'GET',
@@ -77,7 +77,7 @@ export class RegistryServiceApi implements IRegistryServiceApi {
             'Content-Type': 'application/json',
         };
 
-        const url = new URL(`${this.baseUrl}/shell-descriptors`);
+        const url = new URL('/shell-descriptors', this.baseUrl);
 
         const response = await this.http.fetch(url.toString(), {
             method: 'POST',
@@ -103,7 +103,7 @@ export class RegistryServiceApi implements IRegistryServiceApi {
             'Content-Type': 'application/json',
         };
 
-        const url = new URL(`${this.baseUrl}/shell-descriptors/${b64_aasId}`);
+        const url = new URL(`/shell-descriptors/${b64_aasId}`, this.baseUrl);
 
         const response = await this.http.fetch(url.toString(), {
             method: 'PUT',
@@ -121,7 +121,7 @@ export class RegistryServiceApi implements IRegistryServiceApi {
     async deleteAssetAdministrationShellDescriptorById(aasId: string) {
         const b64_aasId = encodeBase64(aasId);
 
-        const url = new URL(`${this.baseUrl}/shell-descriptors/${b64_aasId}`);
+        const url = new URL(`/shell-descriptors/${b64_aasId}`, this.baseUrl);
 
         const response = await this.http.fetch(url.toString(), {
             method: 'DELETE',
