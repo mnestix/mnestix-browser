@@ -7,7 +7,9 @@ import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
 
 const searcher = RepositorySearchService.create();
 
-export async function performSearchAasFromAllRepositories(searchInput: string): Promise<ApiResponseWrapper<RepoSearchResult[]>> {
+export async function performSearchAasFromAllRepositories(
+    searchInput: string,
+): Promise<ApiResponseWrapper<RepoSearchResult[]>> {
     return (await searcher.getAasFromAllRepos(searchInput)).toJSON();
 }
 
@@ -15,26 +17,31 @@ export async function performSearchSubmodelFromAllRepos(searchInput: string): Pr
     return (await searcher.getSubmodelFromAllRepos(searchInput)).toJSON();
 }
 
-export async function performGetAasThumbnailFromAllRepos(searchInput: string): Promise<void> {
-    return searcher.getAasThumbnailFromAllRepos(searchInput);
+export async function performGetAasThumbnailFromAllRepos(searchInput: string): Promise<ApiResponseWrapper<Blob>> {
+    return (await searcher.getAasThumbnailFromAllRepos(searchInput)).toJSON();
 }
 
-export async function getAssetAdministrationShellById(searchInput: string): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
+export async function getAssetAdministrationShellById(
+    searchInput: string,
+): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
     return (await searcher.getAasFromDefaultRepository(searchInput)).toJSON();
 }
 
-export async function getThumbnailFromShell(searchInput: string): Promise<Blob> {
-    return searcher.getThumbnailFromShell(searchInput);
+export async function getThumbnailFromShell(searchInput: string): Promise<ApiResponseWrapper<Blob>> {
+    return (await searcher.getThumbnailFromShell(searchInput)).toJSON();
 }
 
-export async function getSubmodelReferencesFromShell(searchInput: string): Promise<Reference[]> {
-    return searcher.getSubmodelReferencesFromShell(searchInput);
+export async function getSubmodelReferencesFromShell(searchInput: string): Promise<ApiResponseWrapper<Reference[]>> {
+    return (await searcher.getSubmodelReferencesFromShell(searchInput)).toJSON();
 }
 
-export async function getSubmodelById(id: string): Promise<Submodel> {
-    return searcher.getSubmodelById(id);
+export async function getSubmodelById(id: string): Promise<ApiResponseWrapper<Submodel>> {
+    return (await searcher.getSubmodelById(id)).toJSON();
 }
 
-export async function getAttachmentFromSubmodelElement(submodelId: string, submodelElementPath: string): Promise<Blob> {
-    return searcher.getAttachmentFromSubmodelElement(submodelId, submodelElementPath);
+export async function getAttachmentFromSubmodelElement(
+    submodelId: string,
+    submodelElementPath: string,
+): Promise<ApiResponseWrapper<Blob>> {
+    return (await searcher.getAttachmentFromSubmodelElement(submodelId, submodelElementPath)).toJSON();
 }

@@ -3,6 +3,7 @@ import { File, Property } from '@aas-core-works/aas-core3.0-typescript/types';
 import { useState } from 'react';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { isValidUrl } from 'lib/util/UrlUtil';
+import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
 import { getAttachmentFromSubmodelElement } from 'lib/services/repository-access/repositorySearchActions';
 
 type SingleMarkingsComponentProps = {
@@ -37,12 +38,16 @@ export function SingleMarkingsComponent(props: SingleMarkingsComponentProps) {
 
     useAsyncEffect(async () => {
         if (!isValidUrl(file!.value)) {
-            try {
-                const fileIdShort = idShortPath + '.' + file?.idShort;
-                const image = await getAttachmentFromSubmodelElement(submodelId!, fileIdShort);
+            const fileIdShort = idShortPath + '.' + file?.idShort;
+            const response = ApiResponseWrapper.fromPlainObject(
+                await getAttachmentFromSubmodelElement(submodelId!, fileIdShort),
+            );
+            let image: Blob;
+            if (response.isSuccess()) {
+                image = response.result!;
                 setMarkingImage(URL.createObjectURL(image));
-            } catch (e) {
-                console.error('Image not found', e);
+            } else {
+                console.error('Image not found');
             }
         } else {
             if (file?.value) setMarkingImage(file.value);

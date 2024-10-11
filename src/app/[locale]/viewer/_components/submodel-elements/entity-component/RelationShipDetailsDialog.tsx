@@ -35,25 +35,34 @@ export function RelationShipDetailsDialog(props: RelationShipDetailsModalProps) 
     useEffect(() => {
         async function _fetchSubmodels() {
             try {
-                const submodelRefs = (await getSubmodelReferencesFromShell(base64AasId as string)) as Reference[];
+                const response = ApiResponseWrapper.fromPlainObject(
+                    await getSubmodelReferencesFromShell(base64AasId as string),
+                );
+                let submodelRefs: Reference[];
+                if (response.isSuccess()) submodelRefs = response.result!;
+                else throw Error(response.message);
                 const submodels = [] as Submodel[];
-
                 for (const reference of submodelRefs) {
                     const id = reference.keys[0].value;
                     try {
                         if (env.SUBMODEL_REGISTRY_API_URL) {
-                            const submodelDescriptors = ApiResponseWrapper.fromPlainObject(await getSubmodelDescriptorsById(reference.keys[0].value));
+                            const submodelDescriptors = ApiResponseWrapper.fromPlainObject(
+                                await getSubmodelDescriptorsById(reference.keys[0].value),
+                            );
                             if (submodelDescriptors.isSuccess()) {
-                                if (submodelDescriptors.result!.id){
-                                    submodels.push(await getSubmodelById(submodelDescriptors.result!.id))
+                                if (submodelDescriptors.result!.id) {
+                                    const submodelResult = ApiResponseWrapper.fromPlainObject(
+                                        await getSubmodelById(submodelDescriptors.result!.id),
+                                    );
+                                    if (submodelResult.isSuccess()) submodels.push(submodelResult.result!);
                                 }
                             }
                         }
-
                     } catch (e) {
                         // Submodel registry is not available or submodel not found there -> search in repo
                         if (e instanceof TypeError || (e instanceof Response && e.status === 404)) {
-                            submodels.push(await getSubmodelById(id));
+                            const submodelResult = ApiResponseWrapper.fromPlainObject(await getSubmodelById(id));
+                            if (submodelResult.isSuccess()) submodels.push(submodelResult.result!);
                         } else {
                             console.error(e);
                         }

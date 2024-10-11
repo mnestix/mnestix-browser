@@ -5,7 +5,6 @@ import { SubmodelSemanticId } from 'lib/enums/SubmodelSemanticId.enum';
 import { HierarchicalStructuresDetail } from './hierarchical-structures/HierarchicalStructuresDetail';
 import { CarbonFootprintDetail } from './carbon-footprint/CarbonFootprintDetail';
 import { TimeSeriesDetail } from './time-series/TimeSeriesDetail';
-import { CoffeeConsumptionDetail } from './coffee-consumption/CoffeeConsumptionDetail';
 import { ReferenceCounterDetail } from './reference-counter/ReferenceCounterDetail';
 import { BillOfApplicationsDetail } from './bill-of-applications/BillOfApplicationsDetail';
 import { irdiPathEquals } from 'lib/util/IdValidationUtil';
@@ -19,14 +18,7 @@ export function SubmodelDetail(props: SubmodelDetailProps) {
     if (!props.submodel || !submodelElements) return <></>;
 
     const semanticId = props.submodel.semanticId?.keys?.[0]?.value;
-
-    if (semanticId === SubmodelSemanticId.CoffeeConsumptionContainer) {
-        return (
-            <Box width="100%">
-                <CoffeeConsumptionDetail submodel={props.submodel} />
-            </Box>
-        );
-    } else if (semanticId === SubmodelSemanticId.ReferenceCounterContainer) {
+    if (semanticId === SubmodelSemanticId.ReferenceCounterContainer) {
         return (
             <Box width="100%">
                 <ReferenceCounterDetail submodel={props.submodel} />

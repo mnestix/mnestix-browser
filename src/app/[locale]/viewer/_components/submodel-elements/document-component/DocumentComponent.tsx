@@ -19,6 +19,7 @@ import { encodeBase64 } from 'lib/util/Base64Util';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import Image from 'next/image';
 import { getAttachmentFromSubmodelElement } from 'lib/services/repository-access/repositorySearchActions';
+import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
 
 enum DocumentSpecificSemanticId {
     DocumentVersion = 'https://admin-shell.io/vdi/2770/1/0/DocumentVersion',
@@ -172,12 +173,14 @@ export function DocumentComponent(props: MarkingsComponentProps) {
                 '/attachment';
             digitalFile.mimeType = (versionSubmodelEl as File).contentType;
 
-            try {
-                const image = await getAttachmentFromSubmodelElement(props.submodelId, submodelElementPath);
-                digitalFile.digitalFileUrl = URL.createObjectURL(image);
+            const imageRespone = ApiResponseWrapper.fromPlainObject(
+                await getAttachmentFromSubmodelElement(props.submodelId, submodelElementPath),
+            );
+            if (imageRespone.isSuccess()) {
+                digitalFile.digitalFileUrl = URL.createObjectURL(imageRespone.result!);
                 digitalFile.mimeType = (versionSubmodelEl as File).contentType;
-            } catch (e) {
-                console.error('Image not found', e);
+            } else {
+                console.error('Image not found' + imageRespone.message);
             }
         }
 
@@ -204,11 +207,13 @@ export function DocumentComponent(props: MarkingsComponentProps) {
                 submodelElementPath +
                 '/attachment';
 
-            try {
-                const image = await getAttachmentFromSubmodelElement(props.submodelId, submodelElementPath);
-                previewImgUrl = URL.createObjectURL(image);
-            } catch (e) {
-                console.error('Image not found', e);
+            const imageResponse = ApiResponseWrapper.fromPlainObject(
+                await getAttachmentFromSubmodelElement(props.submodelId, submodelElementPath),
+            );
+            if (imageResponse.isSuccess()) {
+                previewImgUrl = URL.createObjectURL(imageResponse.result!);
+            } else {
+                console.error('Image not found' + imageResponse.message);
             }
         }
 

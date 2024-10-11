@@ -7,7 +7,6 @@ import { INullableAasRepositoryEntries } from 'lib/api/basyx-v3/apiInMemory';
 import { PrismaConnector } from 'lib/services/prisma/PrismaConnector';
 import { IPrismaConnector } from 'lib/services/prisma/PrismaConnectorInterface';
 import { Reference } from '@aas-core-works/aas-core3.0-typescript/types';
-import { NotFoundError } from 'lib/errors/NotFoundError';
 import { ApiResponseWrapper, ApiResultStatus } from 'lib/services/apiResponseWrapper';
 
 export type RepoSearchResult = {
@@ -137,20 +136,18 @@ export class RepositorySearchService {
             id: '2',
             typeName: 'SUBMODEL_REPOSITORY',
         });
-        const promises = basePathUrls.map(async (url) =>
-            {
-                const response = await this.submodelRepositoryClient.getSubmodelById(submodelId, undefined, url);
-                if(response.isSuccess()) {
-                    return response;
-                }
-                return Promise.reject();
+        const promises = basePathUrls.map(async (url) => {
+            const response = await this.submodelRepositoryClient.getSubmodelById(submodelId, undefined, url);
+            if (response.isSuccess()) {
+                return response;
             }
-        );
+            return Promise.reject();
+        });
 
         try {
             return await Promise.any(promises);
         } catch (e) {
-            return ApiResponseWrapper.fromErrorCode(ApiResultStatus.NOT_FOUND, 'Submodel not found')
+            return ApiResponseWrapper.fromErrorCode(ApiResultStatus.NOT_FOUND, 'Submodel not found');
         }
     }
 
@@ -167,25 +164,25 @@ export class RepositorySearchService {
         return ApiResponseWrapper.fromErrorCode(ApiResultStatus.NOT_FOUND, 'Thumbnail not found');
     }
 
-    async getAasThumbnailFromAllRepos(aasId: string): Promise<void> {
+    async getAasThumbnailFromAllRepos(aasId: string): Promise<ApiResponseWrapper<Blob>> {
         const basePathUrls = await this.prismaConnector.getConnectionDataByTypeAction({
             id: '0',
             typeName: 'AAS_REPOSITORY',
         });
 
         const promises = basePathUrls.map((url) => {
-            this.repositoryClient.getThumbnailFromShell(aasId, undefined, url).then((response) => {
+            return this.repositoryClient.getThumbnailFromShell(aasId, undefined, url).then((response) => {
                 if (response.isSuccess() && response.result!.size === 0) {
-                    throw new Error('Empty image');
+                    return Promise.reject('Empty image');
                 }
-                return response.result!;
+                return response;
             });
         });
 
         try {
             return await Promise.any(promises);
         } catch {
-            throw new NotFoundError('Image not found');
+            return ApiResponseWrapper.fromErrorCode(ApiResultStatus.NOT_FOUND, 'Image not found');
         }
     }
 }

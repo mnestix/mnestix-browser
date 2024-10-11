@@ -26,7 +26,7 @@ const getBearerToken = async () => {
  */
 export const mnestixFetchLegacy = ():
     | {
-          fetch(url: RequestInfo, init?: RequestInit | undefined): Promise<Response>;
+          fetch(url: RequestInfo | URL, init?: RequestInit | undefined): Promise<Response>;
       }
     | undefined => {
     return {
@@ -41,7 +41,7 @@ export const mnestixFetchLegacy = ():
 };
 
 export const mnestixFetch = (): {
-    fetch(url: RequestInfo, init?: RequestInit | undefined): Promise<ApiResponseWrapper<string>>;
+    fetch(url: RequestInfo | URL, init?: RequestInit | undefined): Promise<ApiResponseWrapper<string>>;
 } => {
     return {
         fetch: async (url: RequestInfo, init?: RequestInit) => {

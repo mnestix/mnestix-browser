@@ -43,17 +43,16 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
         const id = reference.keys[0].value;
 
         try {
-            let fetchedSubmodelData: Submodel;
-            try {
-                fetchedSubmodelData = await getSubmodelById(id);
-            } catch (e) {
-                const response = await performSearchSubmodelFromAllRepos(id);
+            const submodelResponse = ApiResponseWrapper.fromPlainObject(await getSubmodelById(id));
+            if (submodelResponse.isSuccess()) {
+                return submodelResponse.result!;
+            } else {
+                const response = ApiResponseWrapper.fromPlainObject(await performSearchSubmodelFromAllRepos(id));
                 if (!response.isSuccess()) {
                     throw new Error(response.message);
                 }
-                fetchedSubmodelData = response.result!;
+                return response.result!;
             }
-            return fetchedSubmodelData;
         } catch (e) {
             console.error(e);
             showError(e, notificationSpawner);
