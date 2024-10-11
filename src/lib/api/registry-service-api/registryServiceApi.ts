@@ -35,7 +35,7 @@ export class RegistryServiceApi implements IRegistryServiceApi {
             Accept: 'application/json',
         };
 
-        const url = new URL(`/shell-descriptors`, this.baseUrl);
+        const url = new URL('/shell-descriptors', this.baseUrl);
 
         const response = await this.http.fetch(url.toString(), {
             method: 'GET',
