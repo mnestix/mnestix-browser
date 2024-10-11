@@ -44,7 +44,7 @@ export function TransferDialog(props: TransferDialogProps) {
         setTransferDto(transferDtoTemp)
     }, [])
 
-    const handleSubmitRepositoryStep = async (values: TargetRepositoryFormData) => {
+    const handleSubmitRepositoryStep = async (values: TargetRepositoryFormData, redirectToNew: boolean) => {
         if (!values.repository || !aasFromContext || !values.repository) {
             return;
         }
@@ -72,6 +72,9 @@ export function TransferDialog(props: TransferDialogProps) {
                 severity: 'error',
             });
         } finally {
+            if (redirectToNew) {
+                // TODO Redirect to new AAS 
+            }
             notificationSpawner.spawn({
                 message: 'Transfer of AAS successful',
                 severity: 'success',
@@ -100,7 +103,7 @@ export function TransferDialog(props: TransferDialogProps) {
                 <CloseIcon/>
             </IconButton>
             <DialogContent sx={{ mr: 1, ml: 1 }}>
-                <TargetRespositories onSubmitStep={(values) => handleSubmitRepositoryStep(values)}/>
+                <TargetRespositories onSubmitStep={(values, redirectToNew) => handleSubmitRepositoryStep(values, redirectToNew)}/>
             </DialogContent>
             <Divider/>
         </Dialog>

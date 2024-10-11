@@ -26,7 +26,7 @@ export type TargetRepositoryFormData = {
 }
 
 type TargetRepositoryProps = {
-    onSubmitStep: (values: TargetRepositoryFormData) => void;
+    onSubmitStep: (values: TargetRepositoryFormData, redirectToNew: boolean) => void;
 }
 
 export function TargetRespositories(props: TargetRepositoryProps) {
@@ -57,7 +57,11 @@ export function TargetRespositories(props: TargetRepositoryProps) {
     const { handleSubmit, control } = useForm();
     
     const onSubmit = (data: TargetRepositoryFormData) => {
-        props.onSubmitStep((data))
+        props.onSubmitStep(data, false);
+    }
+
+    const onSubmitRedirect = (data: TargetRepositoryFormData) => {
+        props.onSubmitStep(data, true);
     }
 
     return(
@@ -70,7 +74,7 @@ export function TargetRespositories(props: TargetRepositoryProps) {
                         </Fragment>
                     );
                 }) :
-                <form onSubmit={handleSubmit(onSubmit)}>
+                <form>
                     <Box display="flex" flexDirection="column">
                         <Box display="flex" flexDirection="row" alignItems="center">
                             <Typography variant="h4"
@@ -114,8 +118,8 @@ export function TargetRespositories(props: TargetRepositoryProps) {
                         </Box>
                         <Divider sx={{ mt: 6, mb: 4 }}/>
                         <DialogActions>
-                            <Button sx={{ mr: 1 }} variant="outlined" type="submit">Save & Back to Previous Aas</Button>
-                            <Button variant="contained" type="submit">Save & Go to new Aas</Button>
+                            <Button sx={{ mr: 1 }} variant="outlined" onClick={handleSubmit(onSubmit)}>Save & Back to Previous Aas</Button>
+                            <Button variant="contained" type="submit" onClick={handleSubmit(onSubmitRedirect)}>Save & Go to new Aas</Button>
                         </DialogActions>
                     </Box>
                 </form>
