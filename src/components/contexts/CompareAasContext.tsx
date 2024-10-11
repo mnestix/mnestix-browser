@@ -98,7 +98,7 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
                         compareDataTemp,
                         shell.submodels,
                         aasList.length - 1,
-                        registrySearchResult?.result!.aasData?.submodelDescriptors,
+                        registrySearchResult?.result?.aasData?.submodelDescriptors,
                     );
                 }
 
@@ -165,13 +165,18 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
             for (const reference of input as Reference[]) {
                 let submodelAdded = false;
                 try {
-                    const submodelDescriptor = await getSubmodelDescriptorsById(reference.keys[0].value);
-                    const submodelData = await getSubmodelFromSubmodelDescriptor(
-                        submodelDescriptor.endpoints[0].protocolInformation.href,
-                    );
-                    const dataRecord = generateSubmodelCompareData(submodelData);
-                    newCompareData.push(dataRecord);
-                    submodelAdded = true;
+                    const response = ApiResponseWrapper.fromPlainObject(await getSubmodelDescriptorsById(reference.keys[0].value));
+                    if (response.isSuccess()){
+                        const submodelDescriptor = response.result!;
+                        const submodelData = await getSubmodelFromSubmodelDescriptor(
+                            submodelDescriptor.endpoints[0].protocolInformation.href,
+                        );
+                        const dataRecord = generateSubmodelCompareData(submodelData);
+                        newCompareData.push(dataRecord);
+                        submodelAdded = true;
+                    } else {
+                        throw new Error(response.message)
+                    }
                 } catch (e) {
                     console.warn(
                         `Could not be found in Submodel Registry, will continue to look in the repository. ${e}`,

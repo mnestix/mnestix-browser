@@ -13,6 +13,7 @@ import {
     getSubmodelById,
     getSubmodelReferencesFromShell,
 } from 'lib/services/repository-access/repositorySearchActions';
+import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
 
 type RelationShipDetailsModalProps = {
     readonly relationship: RelationshipElement;
@@ -40,10 +41,15 @@ export function RelationShipDetailsDialog(props: RelationShipDetailsModalProps) 
                 for (const reference of submodelRefs) {
                     const id = reference.keys[0].value;
                     try {
-                        const submodelFromRegistry = env.SUBMODEL_REGISTRY_API_URL
-                            ? await getSubmodelDescriptorsById(reference.keys[0].value)
-                            : null;
-                        submodels.push(submodelFromRegistry);
+                        if (env.SUBMODEL_REGISTRY_API_URL) {
+                            const submodelDescriptors = ApiResponseWrapper.fromPlainObject(await getSubmodelDescriptorsById(reference.keys[0].value));
+                            if (submodelDescriptors.isSuccess()) {
+                                if (submodelDescriptors.result!.id){
+                                    submodels.push(await getSubmodelById(submodelDescriptors.result!.id))
+                                }
+                            }
+                        }
+
                     } catch (e) {
                         // Submodel registry is not available or submodel not found there -> search in repo
                         if (e instanceof TypeError || (e instanceof Response && e.status === 404)) {

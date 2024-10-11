@@ -13,6 +13,7 @@ import { useSearchParams } from 'next/navigation';
 import { showError } from 'lib/util/ErrorHandlerUtil';
 import { LocalizedError } from 'lib/util/LocalizedError';
 import { performFullAasSearch } from 'lib/services/search-actions/searchActions';
+import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
 
 export function CompareView() {
     const { compareAas, addSeveralAas, deleteAas, addAas } = useCompareAasContext();
@@ -56,11 +57,12 @@ export function CompareView() {
     };
 
     const handleAddAas = async (aasId: string) => {
-        const aasSearch = await performFullAasSearch(aasId);
-        if (!aasSearch) {
+        const response = ApiResponseWrapper.fromPlainObject(await performFullAasSearch(aasId));
+        if (!response.isSuccess()) {
             throw new LocalizedError(messages.mnestix.aasUrlNotFound);
         }
 
+        const aasSearch = response.result!;
         if (!aasSearch.aas) {
             throw new LocalizedError(messages.mnestix.compare.moreAasFound);
         }

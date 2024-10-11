@@ -19,6 +19,8 @@ import {
     performSearchSubmodelFromAllRepos,
 } from 'lib/services/repository-access/repositorySearchActions';
 import { getSubmodelDescriptorsById } from 'lib/services/submodelRegistryApiActions';
+import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
+import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 
 export type SubmodelsOverviewCardProps = { readonly smReferences: Reference[] };
 
@@ -47,7 +49,7 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
             } catch (e) {
                 const response = await performSearchSubmodelFromAllRepos(id);
                 if (!response.isSuccess()) {
-                    throw new Error(response.message)
+                    throw new Error(response.message);
                 }
                 fetchedSubmodelData = response.result!;
             }
@@ -93,16 +95,21 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                 (props.smReferences as Reference[]).map(async (reference): Promise<TabSelectorItem | null> => {
                     let tabSelectorItem: TabSelectorItem | null = null;
                     try {
-                        const submodelDescriptor = env.SUBMODEL_REGISTRY_API_URL
-                            ? await getSubmodelDescriptorsById(reference.keys[0].value)
-                            : null;
+                        let submodelDescriptor: SubmodelDescriptor | null = null;
+                        if (env.SUBMODEL_REGISTRY_API_URL) {
+                            const submodelDescriptorRequest = ApiResponseWrapper.fromPlainObject(
+                                await getSubmodelDescriptorsById(reference.keys[0].value),
+                            );
+                            if (submodelDescriptorRequest.isSuccess())
+                                submodelDescriptor = submodelDescriptorRequest.result;
+                        }
                         const endpoint = submodelDescriptor?.endpoints[0].protocolInformation.href;
 
                         if (endpoint) {
                             const submodelData = await getSubmodelFromSubmodelDescriptor(endpoint);
                             tabSelectorItem = {
-                                id: submodelDescriptor.id,
-                                label: submodelDescriptor.idShort ?? '',
+                                id: submodelDescriptor!.id,
+                                label: submodelDescriptor!.idShort ?? '',
                                 submodelData: submodelData,
                             };
                         }
