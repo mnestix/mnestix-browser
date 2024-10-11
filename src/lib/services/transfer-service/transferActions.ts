@@ -15,6 +15,13 @@ export type TransferDto = {
     submodels: Submodel[];
 };
 
+export type TransferResult = {
+    operationKind: 'AasRepository' | 'Discovery' | 'AasRegistry' | 'SubmodelRepository' | 'SubmodelRegistry';
+    success: boolean;
+    resourceId: string;
+    error: string;
+};
+
 export async function transferAasWithSubmodels(transferDto: TransferDto): Promise<TransferResult[]> {
     const transfer = TransferService.create(
         transferDto.targetAasRepositoryBaseUrl,
