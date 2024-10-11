@@ -151,17 +151,20 @@ export default function Page() {
         navigate.push(`/compare?aasId=${encodeURIComponent(aas?.id ?? '')}`);
     };
 
-    // TODO: This should navigate to pop-up and configure transfer data before invoking this action
+    // TODO WIP: This should navigate to pop-up and configure transfer data before invoking this action
     const handleTransferAas = async (targetAasRepositoryUrl: string, targetSubmodelRepositoryUrl: string) => {
         if (!aas) return;
-        await transferAasWithSubmodels({
+        const nice = await transferAasWithSubmodels({
             targetAasRepositoryBaseUrl: targetAasRepositoryUrl,
             targetSubmodelRepositoryBaseUrl: targetSubmodelRepositoryUrl,
-            targetAasDiscoveryBaseUrl: env.DISCOVERY_API_URL,
+            targetDiscoveryBaseUrl: env.DISCOVERY_API_URL,
+            targetAasRegistryBaseUrl: env.REGISTRY_API_URL,
+            targetSubmodelRegistryBaseUrl: env.SUBMODEL_REGISTRY_API_URL,
             apikey: '-', //how to pass ApiKey securely ??
             aas: aas,
             submodels: submodels.filter((sub) => sub.submodel).map((sub) => sub.submodel!),
         });
+        console.log(nice);
     };
 
     const pageStyles = {

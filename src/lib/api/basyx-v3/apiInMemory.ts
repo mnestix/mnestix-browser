@@ -15,8 +15,8 @@ export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdmi
     }
 
     postAssetAdministrationShell(
-        aas: AssetAdministrationShell,
-        options?: object | undefined,
+        _aas: AssetAdministrationShell,
+        _options?: object | undefined,
     ): Promise<AssetAdministrationShell> {
         throw new Error('Method not implemented.');
     }
@@ -73,7 +73,7 @@ export class SubmodelRepositoryApiInMemory implements ISubmodelRepositoryApi {
         this.submodelsSavedInTheRepository = options.submodelsSavedInTheRepository;
     }
 
-    postSubmodel(submodel: Submodel, options?: object | undefined): Promise<Submodel> {
+    postSubmodel(_submodel: Submodel, _options?: object | undefined): Promise<Submodel> {
         throw new Error('Method not implemented.');
     }
 

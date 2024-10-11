@@ -1,6 +1,5 @@
 import { AssetAdministrationShellRepositoryApi, SubmodelRepositoryApi } from 'lib/api/basyx-v3/api';
 import { mnestixFetch } from 'lib/api/infrastructure';
-import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
 import { IAssetAdministrationShellRepositoryApi, ISubmodelRepositoryApi } from 'lib/api/basyx-v3/apiInterface';
 import { ISubmodelRegistryServiceApiInterface } from 'lib/api/submodel-registry-service/ISubmodelRegistryServiceApiInterface';
 import { IRegistryServiceApi } from 'lib/api/registry-service-api/registryServiceApiInterface';
@@ -8,99 +7,174 @@ import { IDiscoveryServiceApi } from 'lib/api/discovery-service-api/discoverySer
 import { RegistryServiceApi } from 'lib/api/registry-service-api/registryServiceApi';
 import { DiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApi';
 import { SubmodelRegistryServiceApi } from 'lib/api/submodel-registry-service/submodelRegistryServiceApi';
-import { AssetAdministrationShellDescriptor, Endpoint } from 'lib/types/registryServiceTypes';
-import { TransferDto } from 'lib/services/transfer-service/transferActions';
+import { AssetAdministrationShellDescriptor, Endpoint, SubmodelDescriptor } from 'lib/types/registryServiceTypes';
+import { TransferDto, TransferResult } from 'lib/services/transfer-service/transferActions';
 import { encodeBase64 } from 'lib/util/Base64Util';
+import { AssetAdministrationShell, Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
 
 export class TransferService {
     private constructor(
         protected readonly targetAasRepositoryClient: IAssetAdministrationShellRepositoryApi,
-        protected readonly targetAasRegistryClient: IRegistryServiceApi,
         protected readonly targetSubmodelRepositoryClient: ISubmodelRepositoryApi,
-        protected readonly targetSubmodelRegistryClient: ISubmodelRegistryServiceApiInterface,
         protected readonly targetAasDiscoveryClient?: IDiscoveryServiceApi,
+        protected readonly targetAasRegistryClient?: IRegistryServiceApi,
+        protected readonly targetSubmodelRegistryClient?: ISubmodelRegistryServiceApiInterface,
     ) {}
 
     static create(
         targetAasRepositoryBaseUrl: string,
         targetSubmodelRepositoryBaseUrl: string,
         targetAasDiscoveryBaseUrl?: string,
+        targetAasRegistryBaseUrl?: string,
+        targetSubmodelRegistryBaseUrl?: string,
     ): TransferService {
         const targetAasRepositoryClient = AssetAdministrationShellRepositoryApi.create({
             basePath: targetAasRepositoryBaseUrl,
             fetch: mnestixFetch(),
         });
-        const targetAasRegistryClient = RegistryServiceApi.create(process.env.REGISTRY_API_URL, mnestixFetch());
 
         const targetSubmodelRepositoryClient = SubmodelRepositoryApi.create({
             basePath: targetSubmodelRepositoryBaseUrl,
             fetch: mnestixFetch(),
         });
-        const targetSubmodelRegistryClient = SubmodelRegistryServiceApi.create(
-            process.env.SUBMODEL_REGISTRY_API_URL,
-            mnestixFetch(),
-        );
 
         const targetAasDiscoveryClient = targetAasDiscoveryBaseUrl
             ? DiscoveryServiceApi.create(targetAasDiscoveryBaseUrl, mnestixFetch())
             : undefined;
 
+        const targetAasRegistryClient = targetAasRegistryBaseUrl
+            ? RegistryServiceApi.create(targetAasRegistryBaseUrl, mnestixFetch())
+            : undefined;
+
+        const targetSubmodelRegistryClient = targetSubmodelRegistryBaseUrl
+            ? SubmodelRegistryServiceApi.create(targetSubmodelRegistryBaseUrl, mnestixFetch())
+            : undefined;
+
         return new TransferService(
             targetAasRepositoryClient,
-            targetAasRegistryClient,
             targetSubmodelRepositoryClient,
-            targetSubmodelRegistryClient,
             targetAasDiscoveryClient,
+            targetAasRegistryClient,
+            targetSubmodelRegistryClient,
         );
     }
 
-    // TODO Update parameters
-    async transferAasWithSubmodels({ aas, apikey, targetAasRepositoryBaseUrl, submodels }: TransferDto) {
-        //1 post aas to repository
-        await this.targetAasRepositoryClient.postAssetAdministrationShell(aas, {
-            headers: {
-                Apikey: apikey,
-            },
+    async transferAasWithSubmodels({
+        aas,
+        submodels,
+        apikey,
+        targetAasRepositoryBaseUrl,
+        targetSubmodelRepositoryBaseUrl,
+    }: TransferDto): Promise<TransferResult[]> {
+        const submodelDescriptors = submodels.map((submodel) =>
+            this.createSubmodelDescriptorFromSubmodel(submodel, targetSubmodelRepositoryBaseUrl),
+        );
+        const shellDescriptor = this.createShellDescriptorFromAas(aas, targetAasRepositoryBaseUrl, submodelDescriptors);
+
+        const promises = [];
+
+        promises.push(this.postAasToRepository(aas, apikey));
+
+        if (this.targetAasDiscoveryClient && aas.assetInformation.globalAssetId) {
+            promises.push(this.registerAasAtDiscovery(aas));
+        }
+
+        if (this.targetAasRegistryClient) {
+            promises.push(this.registerAasAtRegistry(shellDescriptor));
+        }
+
+        submodels.forEach((submodel) => {
+            promises.push(this.postSubmodelToRepository(submodel, apikey));
         });
 
-        //2 register aas to discovery service
-        if (this.targetAasDiscoveryClient && aas.assetInformation.globalAssetId) {
-            await this.targetAasDiscoveryClient.postAllAssetLinksById(aas.id, [
+        if (this.targetSubmodelRegistryClient) {
+            submodelDescriptors.forEach((descriptor) => {
+                promises.push(this.registerSubmodelAtRegistry(descriptor));
+            });
+        }
+
+        return await Promise.all(promises);
+    }
+
+    private async postAasToRepository(aas: AssetAdministrationShell, apikey?: string): Promise<TransferResult> {
+        try {
+            await this.targetAasRepositoryClient.postAssetAdministrationShell(aas, {
+                headers: {
+                    Apikey: apikey,
+                },
+            });
+            return { success: true, operationKind: 'AasRepository', resourceId: aas.id, error: '' };
+        } catch (e) {
+            return { success: false, operationKind: 'AasRepository', resourceId: aas.id, error: e.toString() };
+        }
+    }
+
+    private async registerAasAtDiscovery(aas: AssetAdministrationShell): Promise<TransferResult> {
+        try {
+            await this.targetAasDiscoveryClient!.postAllAssetLinksById(aas.id, [
                 {
                     name: 'globalAssetId',
-                    value: aas.assetInformation.globalAssetId,
+                    value: aas.assetInformation.globalAssetId!,
                 },
             ]);
+            return { success: true, operationKind: 'Discovery', resourceId: aas.id, error: '' };
+        } catch (e) {
+            return { success: false, operationKind: 'Discovery', resourceId: aas.id, error: e.toString() };
         }
+    }
 
-        //3 register in AAS registry
-        if (this.targetAasRegistryClient) {
-            const aasEndpointUrl = this.getEndpointUrl(aas, targetAasRepositoryBaseUrl);
-            const shellDescriptor = this.createShellDescriptorFromAas(aas, aasEndpointUrl);
-
-            await this.targetAasRegistryClient.postAssetAdministrationShellDescriptor(shellDescriptor);
+    private async registerAasAtRegistry(shellDescriptor: AssetAdministrationShellDescriptor): Promise<TransferResult> {
+        try {
+            await this.targetAasRegistryClient!.postAssetAdministrationShellDescriptor(shellDescriptor);
+            return { success: true, operationKind: 'AasRegistry', resourceId: shellDescriptor.id, error: '' };
+        } catch (e) {
+            return {
+                success: false,
+                operationKind: 'AasRegistry',
+                resourceId: shellDescriptor.id,
+                error: e.toString(),
+            };
         }
+    }
 
-        // for each submodel
-        //#    post submodel to submodel repository (for now all into the same repository)
+    private async postSubmodelToRepository(submodel: Submodel, apikey?: string): Promise<TransferResult> {
+        try {
+            await this.targetSubmodelRepositoryClient.postSubmodel(submodel, {
+                headers: {
+                    Apikey: apikey,
+                },
+            });
+            return { success: true, operationKind: 'SubmodelRepository', resourceId: submodel.id, error: '' };
+        } catch (e) {
+            return {
+                success: false,
+                operationKind: 'SubmodelRepository',
+                resourceId: submodel.id,
+                error: e.toString(),
+            };
+        }
+    }
 
-        await Promise.all(
-            submodels.map(async (submodel) => {
-                await this.targetSubmodelRepositoryClient.postSubmodel(submodel, {
-                    headers: {
-                        Apikey: apikey,
-                    },
-                });
-            }),
-        );
-        //#    register submodel in the submodel registry
+    private async registerSubmodelAtRegistry(submodelDescriptor: SubmodelDescriptor): Promise<TransferResult> {
+        try {
+            await this.targetSubmodelRegistryClient!.postSubmodelDescriptor(submodelDescriptor);
+            return { success: true, operationKind: 'SubmodelRegistry', resourceId: submodelDescriptor.id, error: '' };
+        } catch (e) {
+            return {
+                success: false,
+                operationKind: 'SubmodelRegistry',
+                resourceId: submodelDescriptor.id,
+                error: e.toString(),
+            };
+        }
     }
 
     createShellDescriptorFromAas(
         aas: AssetAdministrationShell,
-        aasEndpointUrl: URL,
+        targetBaseUrl: string,
+        submodelDescriptors?: SubmodelDescriptor[],
     ): AssetAdministrationShellDescriptor {
-        const endpoint = this.createEndpointForShellDescriptor(aasEndpointUrl);
+        const endpoint = this.createEndpointForDescriptor(aas, targetBaseUrl);
         return {
             id: aas.id,
             idShort: aas.idShort || undefined,
@@ -113,17 +187,33 @@ export class TransferService {
             globalAssetId: aas.assetInformation.globalAssetId || undefined,
             endpoints: [endpoint],
             specificAssetIds: aas.assetInformation.specificAssetIds || undefined,
-            /*submodelDescriptors: shell.submodels ? this.createSubmodelDescriptors(shell.submodels) : undefined,*/
+            submodelDescriptors: submodelDescriptors,
         };
     }
 
-    createEndpointForShellDescriptor(aasEndpointUrl: URL): Endpoint {
+    createSubmodelDescriptorFromSubmodel(submodel: Submodel, targetBaseUrl: string): SubmodelDescriptor {
+        const endpoint = this.createEndpointForDescriptor(submodel, targetBaseUrl);
         return {
-            interface: 'AAS-3.0',
+            id: submodel.id,
+            idShort: submodel.idShort || undefined,
+            semanticId: submodel.semanticId,
+            description: submodel.description || undefined,
+            displayName: submodel.displayName || undefined,
+            extensions: submodel.extensions || undefined,
+            administration: submodel.administration || undefined,
+            endpoints: [endpoint],
+            supplementalSemanticId: submodel.supplementalSemanticIds,
+        };
+    }
+
+    createEndpointForDescriptor(target: AssetAdministrationShell | Submodel, baseUrl: string): Endpoint {
+        const targetEndpointUrl = this.getEndpointUrl(target, baseUrl);
+        return {
+            interface: this.getInterfaceString(target),
             protocolInformation: {
                 endpointProtocol: 'HTTP',
                 endpointProtocolVersion: ['1.1'],
-                href: aasEndpointUrl.toString(),
+                href: targetEndpointUrl.toString(),
                 // securityAttributes: '',
                 // subprotocol: ,
                 // subprotocolBody,
@@ -132,7 +222,12 @@ export class TransferService {
         };
     }
 
-    getEndpointUrl(aas: AssetAdministrationShell, targetAasRepositoryBaseUrl: string) {
-        return new URL(`/shells/${encodeBase64(aas.id)}`, targetAasRepositoryBaseUrl);
+    getEndpointUrl(target: AssetAdministrationShell | Submodel, targetBaseUrl: string) {
+        const subpath = target instanceof AssetAdministrationShell ? 'shells' : 'submodels';
+        return new URL(`/${subpath}/${encodeBase64(target.id)}`, targetBaseUrl);
+    }
+
+    getInterfaceString(target: AssetAdministrationShell | Submodel): string {
+        return target instanceof AssetAdministrationShell ? 'AAS-3.0' : 'SUBMODEL-3.0';
     }
 }
