@@ -1,8 +1,9 @@
 import {
+    Box,
     Dialog,
     DialogContent,
     DialogProps,
-    DialogTitle, Divider,
+    Divider,
     IconButton,
     Typography
 } from '@mui/material';
@@ -17,9 +18,11 @@ import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript
 import { useEffect, useState } from 'react';
 import { SubmodelOrIdReference, useAasState, useSubmodelState } from 'components/contexts/CurrentAasContext';
 import { transferAasWithSubmodels, TransferDto } from 'lib/services/transfer-service/transferActions';
+import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 
 interface TransferDialogProps extends DialogProps {
     onTransfer: () => void;
+    onClose: () => void;
 }
 
 export type TransferFormModel = {
@@ -33,7 +36,7 @@ export function TransferDialog(props: TransferDialogProps) {
     const [ transferDto, setTransferDto ] = useState<TransferFormModel>();
     const [submodelsFromContext, ] = useSubmodelState();
     const [aasFromContext, ] = useAasState();
-
+    const notificationSpawner = useNotificationSpawner();
 
     useEffect(() => {
         const transferDtoTemp = { ...transferDto, aas: aasFromContext, submodels: submodelsFromContext }
@@ -54,21 +57,34 @@ export function TransferDialog(props: TransferDialogProps) {
             submodels: submodelsFromContext.filter((sub) => sub.submodel).map((sub) => sub.submodel!),
             aas: aasFromContext,
             targetAasRepositoryBaseUrl: values.repository,
-            targetSubmodelRepositoryBaseUrl: values.submodelRepository ?? ''
+            targetSubmodelRepositoryBaseUrl: values.submodelRepository && values.submodelRepository !== '0' ? values.submodelRepository : ''
         }
-
-        await transferAasWithSubmodels(dtoToSubmit);
+        
+        try {
+            await transferAasWithSubmodels(dtoToSubmit);
+        } catch(error) {
+            notificationSpawner.spawn({
+                message: error,
+                severity: 'error',
+            });
+        } finally {
+            notificationSpawner.spawn({
+                message: 'Transfer of AAS successful',
+                severity: 'success',
+            });
+            props.onClose();
+        }
     }
     
     return (
         <Dialog open={props.open} onClose={props.onClose} maxWidth="md" fullWidth>
-            <DialogTitle sx={{ m: 2 }}>
-                <Typography variant="h2" color="primary">Export</Typography>
+            <Box sx={{ m: 4 }}>
+                <Typography variant="h2" color="primary"><FormattedMessage {...messages.mnestix.transfer.title}/></Typography>
                 <Typography><FormattedMessage {...messages.mnestix.transfer.subtitle}/></Typography>
-            </DialogTitle>
+            </Box>
             <IconButton
                 aria-label="close"
-                onClick={(e) => props.onClose && props.onClose(e, 'escapeKeyDown')}
+                onClick={() => props.onClose}
                 sx={(theme) => ({
                     position: 'absolute',
                     right: 8,
@@ -78,7 +94,7 @@ export function TransferDialog(props: TransferDialogProps) {
             >
                 <CloseIcon/>
             </IconButton>
-            <DialogContent sx={{ mr: 2, ml: 2 }}>
+            <DialogContent sx={{ mr: 1, ml: 1 }}>
                 <TargetRespositories onSubmitStep={ (values) => handleSubmitRepositoryStep(values) }/>
             </DialogContent>
             <Divider/>

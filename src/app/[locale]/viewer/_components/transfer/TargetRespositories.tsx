@@ -1,6 +1,16 @@
-import { Box, Button, DialogActions, Divider, FormControl, Skeleton, TextField, Typography } from '@mui/material';
+import {
+    Box,
+    Button,
+    DialogActions,
+    Divider,
+    FormControl,
+    MenuItem,
+    Skeleton,
+    TextField,
+    Typography
+} from '@mui/material';
 import { messages } from 'lib/i18n/localization';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import {
     getConnectionDataByTypeAction
 } from 'lib/services/database/MnestixConnectionServerActions';
@@ -24,13 +34,14 @@ export function TargetRespositories(props: TargetRepositoryProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [aasRepositories, setAasRepositories] = useState<string[]>([]);
     const [submodelRepositories, setSubmodelRepositories] = useState<string[]>([]);
+    const intl = useIntl();
 
     useAsyncEffect(async () => {
         try {
             setIsLoading(true);
             const aasRepositories = await getConnectionDataByTypeAction({ id: '0', typeName: ConnectionTypeEnum.AAS_REPOSITORY });
             setAasRepositories(aasRepositories);
-            const submodelRepositories = await getConnectionDataByTypeAction({ id: '1', typeName: ConnectionTypeEnum.SUBMODEL_REPOSITORY });
+            const submodelRepositories = await getConnectionDataByTypeAction({ id: '2', typeName: ConnectionTypeEnum.SUBMODEL_REPOSITORY });
             setSubmodelRepositories(submodelRepositories);
         } catch(error) {
             notificationSpawner.spawn({
@@ -63,16 +74,18 @@ export function TargetRespositories(props: TargetRepositoryProps) {
                     <Box display="flex" flexDirection="column">
                         <Box display="flex" flexDirection="row" alignItems="center">
                             <Typography variant="h4"
-                                        sx={{ minWidth: '200px' }}><FormattedMessage {...messages.mnestix.transfer.chooseRepository} /></Typography>
+                                        sx={{ minWidth: '200px', mr: 2 }}><FormattedMessage {...messages.mnestix.transfer.chooseRepository} /></Typography>
                             <FormControl fullWidth>
                                 <Controller
                                     name="repository"
                                     control={control}
                                     defaultValue=""
                                     render={({ field }) => (
-                                        <TextField fullWidth select
-                                                   required {...field}>{aasRepositories.map((repo, index) => {
-                                            return <option key={index} value={repo}>{repo}</option>
+                                        <TextField fullWidth 
+                                                   select
+                                                   label={intl.formatMessage(messages.mnestix.transfer.repositoryLabel)}
+                                                   required {...field}>{ aasRepositories.map((repo, index) => {
+                                            return <MenuItem key={index} value={repo}>{repo}</MenuItem>
                                         })}
                                         </TextField>)}
                                 />
@@ -80,24 +93,28 @@ export function TargetRespositories(props: TargetRepositoryProps) {
                         </Box>
                         <Box display="flex" flexDirection="row" mt={2} alignItems="center">
                             <Typography variant="h4"
-                                        sx={{ minWidth: '200px' }}><FormattedMessage {...messages.mnestix.transfer.chooseSubmodelRepository} /></Typography>
+                                        sx={{ minWidth: '200px', mr: 2 }}><FormattedMessage {...messages.mnestix.transfer.chooseSubmodelRepository} /></Typography>
                             <FormControl fullWidth>
                                 <Controller
                                     name="submodelRepository"
                                     control={control}
-                                    defaultValue=""
+                                    defaultValue="0"
                                     render={({ field }) => (
-                                        <TextField fullWidth select
-                                                   {...field}>{submodelRepositories.map((repo, index) => {
-                                            return <option key={index} value={repo}>{repo}</option>
-                                        })}
+                                        <TextField fullWidth 
+                                                   select
+                                                   label={intl.formatMessage(messages.mnestix.transfer.submodelRepositoryLabel)}
+                                                   {...field}>
+                                            <MenuItem key="none" value="0"><FormattedMessage {...messages.mnestix.transfer.useAasRepository} /></MenuItem>
+                                            { submodelRepositories.map((repo, index) => {
+                                                return <MenuItem key={index} value={repo}>{repo}</MenuItem>
+                                            })}
                                         </TextField>)}
                                 />
                             </FormControl>
                         </Box>
-                        <Divider sx={{ mt: 4, mb: 2 }}/>
+                        <Divider sx={{ mt: 6, mb: 4 }}/>
                         <DialogActions>
-                            <Button variant="outlined" type="submit">Save & Back to Previous Aas</Button>
+                            <Button sx={{ mr: 1 }} variant="outlined" type="submit">Save & Back to Previous Aas</Button>
                             <Button variant="contained" type="submit">Save & Go to new Aas</Button>
                         </DialogActions>
                     </Box>
