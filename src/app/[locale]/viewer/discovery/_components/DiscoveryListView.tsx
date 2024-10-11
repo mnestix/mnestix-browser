@@ -46,15 +46,13 @@ export const DiscoveryListView = () => {
             await Promise.all(
                 aasIds.map(async (aasId) => {
                     try {
-                        const registrySearchResult = await performRegistryAasSearch(aasId);
+                        const registrySearchResult = ApiResponseWrapper.fromPlainObject(await performRegistryAasSearch(aasId));
+                        let aasRepositoryUrl;
                         if (!registrySearchResult.isSuccess()) {
-                            throw new Error('replace throw by ApiResponseWrapper result');
-                        }
-                        let aasRepositoryUrl = registrySearchResult?.result!.aasData?.aasRegistryRepositoryOrigin;
-                        if (!aasRepositoryUrl) {
-                            aasRepositoryUrl = (await isAasAvailableInRepo(aasId, env.AAS_REPO_API_URL))
-                                ? env.AAS_REPO_API_URL
-                                : undefined;
+                            if (env.AAS_REPO_API_URL) aasRepositoryUrl = (await isAasAvailableInRepo(aasId, env.AAS_REPO_API_URL)) ? env.AAS_REPO_API_URL : undefined;
+                            if (!aasRepositoryUrl) throw new Error('replace throw by ApiResponseWrapper result');
+                        } else {
+                            aasRepositoryUrl = registrySearchResult?.result!.aasData?.aasRegistryRepositoryOrigin;
                         }
 
                         entryList.push({

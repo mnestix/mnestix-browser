@@ -52,7 +52,7 @@ export class AasSearcher {
     static create(): AasSearcher {
         const multipleDataSource = RepositorySearchService.create();
         const registryServiceClient = RegistryServiceApi.create(process.env.REGISTRY_API_URL, mnestixFetch());
-        const discoveryServiceClient = DiscoveryServiceApi.create(process.env.DISCOVERY_API_URL, mnestixFetchLegacy());
+        const discoveryServiceClient = DiscoveryServiceApi.create(process.env.DISCOVERY_API_URL, mnestixFetch());
         const log = Log.create();
         return new AasSearcher(discoveryServiceClient, registryServiceClient, multipleDataSource, log);
     }
@@ -132,13 +132,10 @@ export class AasSearcher {
         return ApiResponseWrapper.fromSuccess(this.createAasResult(aas.result!, data));
     }
 
-    public async performAasDiscoverySearch(searchAssetId: string): Promise<string[] | null> {
-        try {
-            return (await this.discoveryServiceClient.getAasIdsByAssetId(searchAssetId)).result;
-        } catch (e) {
-            this.log.warn(`Could not find the asset '${searchAssetId}' in the discovery service`);
-            return null;
-        }
+    public async performAasDiscoverySearch(searchAssetId: string): Promise<ApiResponseWrapper<string[]>> {
+        const response = await this.discoveryServiceClient.getAasIdsByAssetId(searchAssetId);
+        if (response.isSuccess()) return response;
+        return ApiResponseWrapper.fromErrorCode(ApiResultStatus.NOT_FOUND, `Could not find the asset '${searchAssetId}' in the discovery service`);
     }
 
     public async getAasFromRepository(aasId: string, repoUrl: string): Promise<AssetAdministrationShell | null> {
