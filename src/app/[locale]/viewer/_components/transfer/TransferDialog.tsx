@@ -20,11 +20,6 @@ import { SubmodelOrIdReference, useAasState, useSubmodelState } from 'components
 import { transferAasWithSubmodels, TransferDto } from 'lib/services/transfer-service/transferActions';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 
-interface TransferDialogProps extends DialogProps {
-    onTransfer: () => void;
-    onClose: () => void;
-}
-
 export type TransferFormModel = {
     targetAasRepositoryBaseUrl?: string;
     targetSubmodelRepositoryBaseUrl?: string;
@@ -32,7 +27,7 @@ export type TransferFormModel = {
     submodels?: SubmodelOrIdReference[];
 };
 
-export function TransferDialog(props: TransferDialogProps) {
+export function TransferDialog(props: DialogProps) {
     const [transferDto, setTransferDto] = useState<TransferFormModel>();
     const [submodelsFromContext,] = useSubmodelState();
     const [aasFromContext,] = useAasState();
@@ -79,7 +74,7 @@ export function TransferDialog(props: TransferDialogProps) {
                 message: 'Transfer of AAS successful',
                 severity: 'success',
             });
-            props.onClose();
+            props.onClose && props.onClose({}, 'escapeKeyDown');
         }
     }
 
@@ -92,7 +87,7 @@ export function TransferDialog(props: TransferDialogProps) {
             </Box>
             <IconButton
                 aria-label="close"
-                onClick={() => props.onClose}
+                onClick={(e) => props.onClose && props.onClose(e, 'escapeKeyDown')}
                 sx={(theme) => ({
                     position: 'absolute',
                     right: 8,

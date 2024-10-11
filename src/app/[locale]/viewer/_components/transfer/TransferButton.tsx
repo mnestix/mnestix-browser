@@ -14,17 +14,13 @@ export function TransferButton() {
     const closeDialog = () => {
         setTransferDialogOpen(false);
     }
-    
-    const onTransfer = () => {
-        console.log('Call transferAasWithSubmodels')
-    }
 
     return (  
         <>
             <Button variant="outlined" onClick={startTransfer} data-testid="detail-transfer-button">
                 <FormattedMessage {...messages.mnestix.transfer.title} />
             </Button>
-            <TransferDialog onTransfer={onTransfer} open={transferDialogOpen} onClose={closeDialog}/>
+            <TransferDialog open={transferDialogOpen} onClose={closeDialog}/>
         </>
     )
 }
