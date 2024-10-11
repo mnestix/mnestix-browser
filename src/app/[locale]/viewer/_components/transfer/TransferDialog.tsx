@@ -33,9 +33,9 @@ export type TransferFormModel = {
 };
 
 export function TransferDialog(props: TransferDialogProps) {
-    const [ transferDto, setTransferDto ] = useState<TransferFormModel>();
-    const [submodelsFromContext, ] = useSubmodelState();
-    const [aasFromContext, ] = useAasState();
+    const [transferDto, setTransferDto] = useState<TransferFormModel>();
+    const [submodelsFromContext,] = useSubmodelState();
+    const [aasFromContext,] = useAasState();
     const notificationSpawner = useNotificationSpawner();
 
     useEffect(() => {
@@ -43,26 +43,30 @@ export function TransferDialog(props: TransferDialogProps) {
 
         setTransferDto(transferDtoTemp)
     }, [])
-    
+
     const handleSubmitRepositoryStep = async (values: TargetRepositoryFormData) => {
-        if (!values.repository ||!aasFromContext || !values.repository) {
+        if (!values.repository || !aasFromContext || !values.repository) {
             return;
         }
-        
+
         // This state can be used later to hold the data of multiple steps
-        const transferDtoTemp = { ...transferDto, targetAasRepositoryBaseUrl: values.repository, targetSubmodelRepositoryBaseUrl: values.submodelRepository }
+        const transferDtoTemp = {
+            ...transferDto,
+            targetAasRepositoryBaseUrl: values.repository,
+            targetSubmodelRepositoryBaseUrl: values.submodelRepository
+        }
         setTransferDto(transferDtoTemp)
-        
+
         const dtoToSubmit: TransferDto = {
             submodels: submodelsFromContext.filter((sub) => sub.submodel).map((sub) => sub.submodel!),
             aas: aasFromContext,
             targetAasRepositoryBaseUrl: values.repository,
             targetSubmodelRepositoryBaseUrl: values.submodelRepository && values.submodelRepository !== '0' ? values.submodelRepository : ''
         }
-        
+
         try {
             await transferAasWithSubmodels(dtoToSubmit);
-        } catch(error) {
+        } catch (error) {
             notificationSpawner.spawn({
                 message: error,
                 severity: 'error',
@@ -75,11 +79,12 @@ export function TransferDialog(props: TransferDialogProps) {
             props.onClose();
         }
     }
-    
+
     return (
         <Dialog open={props.open} onClose={props.onClose} maxWidth="md" fullWidth>
             <Box sx={{ m: 4 }}>
-                <Typography variant="h2" color="primary"><FormattedMessage {...messages.mnestix.transfer.title}/></Typography>
+                <Typography variant="h2"
+                            color="primary"><FormattedMessage {...messages.mnestix.transfer.title}/></Typography>
                 <Typography><FormattedMessage {...messages.mnestix.transfer.subtitle}/></Typography>
             </Box>
             <IconButton
@@ -95,7 +100,7 @@ export function TransferDialog(props: TransferDialogProps) {
                 <CloseIcon/>
             </IconButton>
             <DialogContent sx={{ mr: 1, ml: 1 }}>
-                <TargetRespositories onSubmitStep={ (values) => handleSubmitRepositoryStep(values) }/>
+                <TargetRespositories onSubmitStep={(values) => handleSubmitRepositoryStep(values)}/>
             </DialogContent>
             <Divider/>
         </Dialog>
