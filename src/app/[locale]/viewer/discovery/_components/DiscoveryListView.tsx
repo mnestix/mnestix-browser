@@ -36,36 +36,39 @@ export const DiscoveryListView = () => {
         const entryList: IDiscoveryListEntry[] = [];
 
         if (assetId) {
-            const aasIds = await performDiscoveryAasSearch(assetId);
+            const response = ApiResponseWrapper.fromPlainObject(await performDiscoveryAasSearch(assetId));
 
-            if (!aasIds || aasIds.length === 0) {
+            if (response.isSuccess() || response.result!.length === 0) {
                 setIsLoadingList(false);
                 return;
             }
-
+            const aasIds = response.result!;
             await Promise.all(
                 aasIds.map(async (aasId) => {
-                    try {
-                        const registrySearchResult = ApiResponseWrapper.fromPlainObject(await performRegistryAasSearch(aasId));
-                        let aasRepositoryUrl;
-                        if (!registrySearchResult.isSuccess()) {
-                            if (env.AAS_REPO_API_URL) aasRepositoryUrl = (await isAasAvailableInRepo(aasId, env.AAS_REPO_API_URL)) ? env.AAS_REPO_API_URL : undefined;
-                            if (!aasRepositoryUrl) throw new Error('replace throw by ApiResponseWrapper result');
-                        } else {
-                            aasRepositoryUrl = registrySearchResult?.result!.aasData?.aasRegistryRepositoryOrigin;
+                    const registrySearchResult = ApiResponseWrapper.fromPlainObject(
+                        await performRegistryAasSearch(aasId),
+                    );
+                    let aasRepositoryUrl;
+                    if (!registrySearchResult.isSuccess()) {
+                        if (env.AAS_REPO_API_URL)
+                            aasRepositoryUrl = (await isAasAvailableInRepo(aasId, env.AAS_REPO_API_URL))
+                                ? env.AAS_REPO_API_URL
+                                : undefined;
+                        if (!aasRepositoryUrl) {
+                            console.warn('Did not find the URL of the AAS');
+                            entryList.push({
+                                aasId: aasId,
+                                repositoryUrl: undefined,
+                            });
                         }
-
-                        entryList.push({
-                            aasId: aasId,
-                            repositoryUrl: aasRepositoryUrl,
-                        });
-                    } catch (e) {
-                        console.warn(e);
-                        entryList.push({
-                            aasId: aasId,
-                            repositoryUrl: undefined,
-                        });
+                    } else {
+                        aasRepositoryUrl = registrySearchResult?.result!.aasData?.aasRegistryRepositoryOrigin;
                     }
+
+                    entryList.push({
+                        aasId: aasId,
+                        repositoryUrl: aasRepositoryUrl,
+                    });
                 }),
             );
         } else if (aasId) {

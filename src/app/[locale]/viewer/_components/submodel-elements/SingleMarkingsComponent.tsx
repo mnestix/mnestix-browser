@@ -47,7 +47,7 @@ export function SingleMarkingsComponent(props: SingleMarkingsComponentProps) {
                 image = response.result!;
                 setMarkingImage(URL.createObjectURL(image));
             } else {
-                console.error('Image not found');
+                console.error('Image not found for file ID: ' + fileIdShort);
             }
         } else {
             if (file?.value) setMarkingImage(file.value);

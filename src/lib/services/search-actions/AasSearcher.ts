@@ -12,7 +12,7 @@ import {
     RepositorySearchService,
 } from 'lib/services/repository-access/RepositorySearchService';
 import { INullableAasRepositoryEntries } from 'lib/api/basyx-v3/apiInMemory';
-import { mnestixFetch, mnestixFetchLegacy } from 'lib/api/infrastructure';
+import { mnestixFetch } from 'lib/api/infrastructure';
 import { ApiResponseWrapper, ApiResultStatus } from 'lib/services/apiResponseWrapper';
 
 interface NullableSearchSetupParameters {
@@ -81,14 +81,14 @@ export class AasSearcher {
 
     async performFullSearch(searchInput: string): Promise<ApiResponseWrapper<AasSearchResult>> {
         const aasIds = await this.performAasDiscoverySearch(searchInput);
-        const foundMultipleDiscoveryResults = aasIds && aasIds.length > 1;
-        const foundOneDiscoveryResult = aasIds && aasIds.length === 1;
+        const foundMultipleDiscoveryResults = aasIds.isSuccess() && aasIds.result!.length > 1;
+        const foundOneDiscoveryResult = aasIds.isSuccess() && aasIds.result!.length === 1;
 
         if (foundMultipleDiscoveryResults) {
             return ApiResponseWrapper.fromSuccess(this.createDiscoveryRedirectResult(searchInput));
         }
 
-        const aasId = foundOneDiscoveryResult ? aasIds[0] : searchInput;
+        const aasId = foundOneDiscoveryResult ? aasIds.result![0] : searchInput;
         const aasIdEncoded = encodeBase64(aasId);
 
         const aasRegistryResult = await this.performRegistrySearch(aasId);
@@ -134,13 +134,16 @@ export class AasSearcher {
 
     public async performAasDiscoverySearch(searchAssetId: string): Promise<ApiResponseWrapper<string[]>> {
         const response = await this.discoveryServiceClient.getAasIdsByAssetId(searchAssetId);
-        if (response.isSuccess()) return response;
-        return ApiResponseWrapper.fromErrorCode(ApiResultStatus.NOT_FOUND, `Could not find the asset '${searchAssetId}' in the discovery service`);
+        if (response.isSuccess()) return ApiResponseWrapper.fromSuccess(response.result!.result);
+        return ApiResponseWrapper.fromErrorCode(
+            ApiResultStatus.NOT_FOUND,
+            `Could not find the asset '${searchAssetId}' in the discovery service`,
+        );
     }
 
     public async getAasFromRepository(aasId: string, repoUrl: string): Promise<AssetAdministrationShell | null> {
         const response = await this.multipleDataSource.getAasFromRepo(aasId, repoUrl);
-        if (response.isSuccess()) return response.result!
+        if (response.isSuccess()) return response.result!;
         this.log.warn(`Could not find an AAS '${aasId}' in the repository '${repoUrl}'`);
         return null;
     }
@@ -165,7 +168,7 @@ export class AasSearcher {
         try {
             const shellDescription = await this.registryService.getAssetAdministrationShellDescriptorById(searchAasId);
             if (!shellDescription.isSuccess()) {
-                throw new Error()
+                throw new Error();
             }
             const endpoints = shellDescription.result!.endpoints as Endpoint[];
             const submodelDescriptors = shellDescription.result!.submodelDescriptors as SubmodelDescriptor[];
@@ -189,7 +192,7 @@ export class AasSearcher {
         if (response.isSuccess()) return response;
         const message = `Could not find the AAS '${aasId}' in the default repository`;
         this.log.warn(message);
-        return ApiResponseWrapper.fromErrorCode(ApiResultStatus.NOT_FOUND, message)
+        return ApiResponseWrapper.fromErrorCode(ApiResultStatus.NOT_FOUND, message);
     }
 
     private async getAasFromAllRepositories(aasId: string): Promise<ApiResponseWrapper<RepoSearchResult[]>> {
@@ -197,6 +200,6 @@ export class AasSearcher {
         if (result.isSuccess()) return result;
         const message = `Could not find the AAS '${aasId}' in any configured repository`;
         this.log.warn(message);
-        return ApiResponseWrapper.fromErrorCode(ApiResultStatus.NOT_FOUND, message)
+        return ApiResponseWrapper.fromErrorCode(ApiResultStatus.NOT_FOUND, message);
     }
 }

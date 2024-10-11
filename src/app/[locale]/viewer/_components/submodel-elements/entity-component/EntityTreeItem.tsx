@@ -14,6 +14,7 @@ import { RelationShipDetailsDialog } from './RelationShipDetailsDialog';
 import { GetKeyType } from 'lib/util/KeyTypeUtil';
 import { CustomTreeItemContentProps, CustomTreeItemProps, ExpandableTreeitem, getTreeItemStyle } from '../TreeItem';
 import { performDiscoveryAasSearch } from 'lib/services/search-actions/searchActions';
+import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
 
 const CustomContent = React.forwardRef(function CustomContent(props: CustomTreeItemContentProps, ref) {
     const navigate = useRouter();
@@ -43,8 +44,8 @@ const CustomContent = React.forwardRef(function CustomContent(props: CustomTreeI
             // if so, then navigate to the asset-redirect page of this Mnestix instance,
             // if not, just navigate to the specified URL which might lead anywhere.
 
-            const aasIds = await performDiscoveryAasSearch(assetId);
-            if (aasIds && aasIds.length === 0) {
+            const aasIds = ApiResponseWrapper.fromPlainObject(await performDiscoveryAasSearch(assetId));
+            if (aasIds.isSuccess() && aasIds.result!.length === 0) {
                 window.open(assetId, '_blank');
             } else {
                 navigate.push('/asset?assetId=' + encodeURIComponent(assetId));

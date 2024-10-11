@@ -25,7 +25,7 @@ export async function performRegistryAasSearch(searchInput: string): Promise<Api
     return (await result).toJSON();
 }
 
-export async function performDiscoveryAasSearch(searchInput: string): Promise<string[] | null> {
+export async function performDiscoveryAasSearch(searchInput: string): Promise<ApiResponseWrapper<string[]>> {
     const searcher = AasSearcher.create();
     return searcher.performAasDiscoverySearch(searchInput);
 }

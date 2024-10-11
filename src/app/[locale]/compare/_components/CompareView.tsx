@@ -58,9 +58,7 @@ export function CompareView() {
 
     const handleAddAas = async (aasId: string) => {
         const response = ApiResponseWrapper.fromPlainObject(await performFullAasSearch(aasId));
-        if (!response.isSuccess()) {
-            throw new LocalizedError(messages.mnestix.aasUrlNotFound);
-        }
+        if (!response.isSuccess()) throw new LocalizedError(messages.mnestix.aasUrlNotFound);
 
         const aasSearch = response.result!;
         if (!aasSearch.aas) {
