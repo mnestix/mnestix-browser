@@ -112,6 +112,9 @@ export default function Page() {
             await Promise.all(
                 aas.submodels.map(async (smRef, i) => {
                     const newSm = await fetchSingleSubmodel(smRef, registryAasData?.submodelDescriptors?.[i]);
+                    if (newSm.submodel?.idShort !== 'TechnicalData') {
+                        await new Promise((resolve) => setTimeout(resolve, 5000));
+                    }
                     setSubmodels((submodels) => {
                         const exists = submodels.some((sm) => sm.id === newSm.id);
                         if (exists) return submodels;
@@ -154,16 +157,19 @@ export default function Page() {
     // TODO WIP: This should navigate to pop-up and configure transfer data before invoking this action
     const handleTransferAas = async (targetAasRepositoryUrl: string, targetSubmodelRepositoryUrl: string) => {
         if (!aas) return;
+        console.time('transferAas');
         const nice = await transferAasWithSubmodels({
             targetAasRepositoryBaseUrl: targetAasRepositoryUrl,
             targetSubmodelRepositoryBaseUrl: targetSubmodelRepositoryUrl,
             targetDiscoveryBaseUrl: env.DISCOVERY_API_URL,
             targetAasRegistryBaseUrl: env.REGISTRY_API_URL,
             targetSubmodelRegistryBaseUrl: env.SUBMODEL_REGISTRY_API_URL,
-            apikey: '-', //how to pass ApiKey securely ??
+            apikey: 'veryhardapikey', //how to pass ApiKey securely ??
             aas: aas,
             submodels: submodels.filter((sub) => sub.submodel).map((sub) => sub.submodel!),
         });
+        console.timeLog('transferAas');
+        console.timeEnd('transferAas');
         console.log(nice);
     };
 

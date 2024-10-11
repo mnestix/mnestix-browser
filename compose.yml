@@ -37,7 +37,7 @@ services:
       - mnestix-database:/app/prisma/database
 
   mnestix-api:
-    image: mnestix/mnestix-api:1.2.0
+    image: mnestix/mnestix-api:latest
     container_name: mnestix-api
     profiles: [ "", "backend", "tests" ]
     ports:
@@ -103,6 +103,8 @@ services:
     profiles: [ "", "basyx", "tests" ]
     depends_on:
       - mongodb
+    ports:
+      - '8081:8081'
     environment:
       # MongoDb configuration for Basyx Repository
       BASYX__BACKEND: MongoDB
@@ -111,8 +113,8 @@ services:
       SPRING__DATA__MONGODB__authentication-database: admin
       SPRING__DATA__MONGODB__USERNAME: mongoAdmin
       SPRING__DATA__MONGODB__PASSWORD: mongoPassword
-      SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: 100000KB
-      SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: 100000KB
+      SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: 10000000KB
+      SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: 10000000KB
       # Allow mnestix frontend and backend to call basyx
       BASYX_CORS_ALLOWED-ORIGINS: '*'
       BASYX_CORS_ALLOWED-METHODS: GET,POST,PATCH,DELETE,PUT,OPTIONS,HEAD

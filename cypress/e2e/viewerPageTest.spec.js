@@ -1,5 +1,6 @@
 ﻿import testAAS from '../fixtures/testAAS.json';
 import resolutions from '../fixtures/resolutions.json';
+
 const testMobileResolution = 'iphone-6';
 
 const testData = {
@@ -47,6 +48,7 @@ describe('Test the viewer page', function () {
                         .contains(testData.dropdownContent, { matchCase: false })
                         .should('not.exist');
 
+                    cy.getByTestId('submodelOverviewLoadingSkeleton', { timeout: 50000 }).should('not.exist');
                     cy.get('@dropdown').click();
                     cy.getByTestId('submodel-dropdown-button').contains('hide', { matchCase: false }).as('dropdown');
                     cy.getByTestId('data-row-title')

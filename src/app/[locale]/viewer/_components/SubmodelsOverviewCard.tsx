@@ -16,6 +16,11 @@ export type SubmodelsOverviewCardProps = {
 };
 
 export function SubmodelsOverviewCard({ submodelIds, submodelsLoading }: SubmodelsOverviewCardProps) {
+    const [state, setState] = useState(() => {
+        console.log('SubmodelsOverviewCard init');
+        return true;
+    });
+
     const [submodelSelectorItems, setSubmodelSelectorItems] = useState<TabSelectorItem[]>([]);
     const [selectedItem, setSelectedItem] = useState<TabSelectorItem>();
 
@@ -62,7 +67,10 @@ export function SubmodelsOverviewCard({ submodelIds, submodelsLoading }: Submode
     }, [submodelIds]);
 
     useEffect(() => {
-        setSelectedItem(isMobile ? undefined : submodelSelectorItems?.[0]);
+        const nameplateTab = submodelSelectorItems.find((tab) => tab.submodelData?.idShort === firstSubmodelIdShort);
+        if (!selectedItem && !isMobile && nameplateTab) {
+            setSelectedItem(nameplateTab);
+        }
     }, [isMobile, submodelSelectorItems]);
 
     const handleClose = () => {
@@ -103,11 +111,13 @@ export function SubmodelsOverviewCard({ submodelIds, submodelsLoading }: Submode
                             selected={selectedItem}
                             setSelected={setSelectedItem}
                         />
-                        {submodelsLoading && <Skeleton height={70} sx={{ mb: 2 }} />}
+                        {submodelsLoading && (
+                            <Skeleton height={70} sx={{ mb: 2 }} data-testid="submodelOverviewLoadingSkeleton" />
+                        )}
                     </Box>
                     {isMobile ? (
                         <MobileModal
-                            title={submodelSelectorItems.find((i) => i.id === selectedItem?.id)?.label}
+                            title={selectedItem?.label}
                             open={open}
                             handleClose={handleClose}
                             content={SelectedContent()}
