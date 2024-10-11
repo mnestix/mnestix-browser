@@ -1,4 +1,4 @@
-export const ApiResultMapper = {
+export const ApiResultStatus = {
     SUCCESS: 'SUCCESS',
     NOT_FOUND: 'NOT_FOUND',
     UNAUTHORIZED: 'UNAUTHORIZED',
@@ -6,30 +6,30 @@ export const ApiResultMapper = {
     INTERNAL_SERVER_ERROR: 'INTERNAL_SERVER_ERROR',
 } as const;
 
-export type ApiResultMapper = typeof ApiResultMapper[keyof typeof ApiResultMapper];
+export type ApiResultStatus = typeof ApiResultStatus[keyof typeof ApiResultStatus];
 
-const httpStatusMessage: Record<number, ApiResultMapper> = {
-    200: ApiResultMapper.SUCCESS,
-    401: ApiResultMapper.UNAUTHORIZED,
-    404: ApiResultMapper.NOT_FOUND,
-    500: ApiResultMapper.INTERNAL_SERVER_ERROR,
+const httpStatusMessage: Record<number, ApiResultStatus> = {
+    200: ApiResultStatus.SUCCESS,
+    401: ApiResultStatus.UNAUTHORIZED,
+    404: ApiResultStatus.NOT_FOUND,
+    500: ApiResultStatus.INTERNAL_SERVER_ERROR,
 };
 
-const getStatus = (statusCode: number): ApiResultMapper => {
-    return statusCode in httpStatusMessage ? httpStatusMessage[statusCode] : ApiResultMapper.UNKNOWN_ERROR;
+const getStatus = (statusCode: number): ApiResultStatus => {
+    return statusCode in httpStatusMessage ? httpStatusMessage[statusCode] : ApiResultStatus.UNKNOWN_ERROR;
 };
 
 export class ApiResponseWrapper<T> {
-    errorCode: ApiResultMapper;
+    errorCode: ApiResultStatus;
     message: string;
 
-    constructor(public result: T | null, errorCode: ApiResultMapper, message: string) {
+    constructor(public result: T | null, errorCode: ApiResultStatus, message: string) {
         this.errorCode = errorCode;
         this.message = message;
     }
 
     public isSuccess() {
-        return this.errorCode === ApiResultMapper.SUCCESS;
+        return this.errorCode === ApiResultStatus.SUCCESS;
     }
 
     public castResult<U>(): ApiResponseWrapper<U> {
@@ -43,7 +43,7 @@ export class ApiResponseWrapper<T> {
         return this.castResult<U>();
     }
 
-    static fromErrorCode<T>(error: ApiResultMapper, message: string) {
+    static fromErrorCode<T>(error: ApiResultStatus, message: string) {
         return new ApiResponseWrapper<T>(null, error, message);
     }
 
@@ -56,7 +56,7 @@ export class ApiResponseWrapper<T> {
     }
 
     static fromSuccess<T>(result: T): ApiResponseWrapper<T> {
-        return new ApiResponseWrapper<T>(result, ApiResultMapper.SUCCESS, '');
+        return new ApiResponseWrapper<T>(result, ApiResultStatus.SUCCESS, '');
     }
 
     // Method for converting to JSON (Serializable)
@@ -68,7 +68,7 @@ export class ApiResponseWrapper<T> {
         }))
     }
 
-    static fromPlainObject<T>(plainObject: {result: T | null, errorCode: ApiResultMapper, message: string}) : ApiResponseWrapper<T> {
+    static fromPlainObject<T>(plainObject: {result: T | null, errorCode: ApiResultStatus, message: string}) : ApiResponseWrapper<T> {
         return new ApiResponseWrapper<T>(plainObject.result, plainObject.errorCode, plainObject.message);
     }
 }

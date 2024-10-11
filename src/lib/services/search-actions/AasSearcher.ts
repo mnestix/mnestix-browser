@@ -13,7 +13,7 @@ import {
 } from 'lib/services/repository-access/RepositorySearchService';
 import { INullableAasRepositoryEntries } from 'lib/api/basyx-v3/apiInMemory';
 import { mnestixFetch, mnestixFetchLegacy } from 'lib/api/infrastructure';
-import { ApiResponseWrapper, ApiResultMapper } from 'lib/services/apiResponseWrapper';
+import { ApiResponseWrapper, ApiResultStatus } from 'lib/services/apiResponseWrapper';
 
 interface NullableSearchSetupParameters {
     discoveryEntries?: { assetId: string; aasIds: string[] }[];
@@ -110,7 +110,7 @@ export class AasSearcher {
                 return ApiResponseWrapper.fromSuccess(this.createDiscoveryRedirectResult(searchInput));
             }
         }
-        return ApiResponseWrapper.fromErrorCode(ApiResultMapper.NOT_FOUND, 'No AAS found for the given ID');
+        return ApiResponseWrapper.fromErrorCode(ApiResultStatus.NOT_FOUND, 'No AAS found for the given ID');
     }
 
     // TODO: handle multiple endpoints as result
@@ -179,7 +179,7 @@ export class AasSearcher {
             });
         } catch (e) {
             this.log.warn(`Could not find the AAS '${searchAasId}' in the registry service`);
-            return ApiResponseWrapper.fromErrorCode(ApiResultMapper.NOT_FOUND, e.errorCode);
+            return ApiResponseWrapper.fromErrorCode(ApiResultStatus.NOT_FOUND, e.errorCode);
         }
     }
 
@@ -192,7 +192,7 @@ export class AasSearcher {
         if (response.isSuccess()) return response;
         const message = `Could not find the AAS '${aasId}' in the default repository`;
         this.log.warn(message);
-        return ApiResponseWrapper.fromErrorCode(ApiResultMapper.NOT_FOUND, message)
+        return ApiResponseWrapper.fromErrorCode(ApiResultStatus.NOT_FOUND, message)
     }
 
     private async getAasFromAllRepositories(aasId: string): Promise<ApiResponseWrapper<RepoSearchResult[]>> {
@@ -200,6 +200,6 @@ export class AasSearcher {
         if (result.isSuccess()) return result;
         const message = `Could not find the AAS '${aasId}' in any configured repository`;
         this.log.warn(message);
-        return ApiResponseWrapper.fromErrorCode(ApiResultMapper.NOT_FOUND, message)
+        return ApiResponseWrapper.fromErrorCode(ApiResultStatus.NOT_FOUND, message)
     }
 }

@@ -8,7 +8,7 @@ import { PrismaConnector } from 'lib/services/prisma/PrismaConnector';
 import { IPrismaConnector } from 'lib/services/prisma/PrismaConnectorInterface';
 import { Reference } from '@aas-core-works/aas-core3.0-typescript/types';
 import { NotFoundError } from 'lib/errors/NotFoundError';
-import { ApiResponseWrapper, ApiResultMapper } from 'lib/services/apiResponseWrapper';
+import { ApiResponseWrapper, ApiResultStatus } from 'lib/services/apiResponseWrapper';
 
 export type RepoSearchResult = {
     aas: AssetAdministrationShell;
@@ -62,14 +62,14 @@ export class RepositorySearchService {
     async getAasFromDefaultRepository(aasId: string): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
         const result = await this.repositoryClient.getAssetAdministrationShellById(aasId);
         if (result.isSuccess()) return result;
-        return ApiResponseWrapper.fromErrorCode(ApiResultMapper.NOT_FOUND, 'AAS not found');
+        return ApiResponseWrapper.fromErrorCode(ApiResultStatus.NOT_FOUND, 'AAS not found');
     }
 
     async getAasFromRepo(aasId: string, repoUrl: string): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
         const result = await this.repositoryClient.getAssetAdministrationShellById(aasId, undefined, repoUrl);
         if (result.isSuccess()) return result;
         return ApiResponseWrapper.fromErrorCode(
-            ApiResultMapper.NOT_FOUND,
+            ApiResultStatus.NOT_FOUND,
             `AAS '${aasId}' not found in repository '${repoUrl}'`,
         );
     }
@@ -81,89 +81,106 @@ export class RepositorySearchService {
         });
 
         const promises = basePathUrls.map(
-            (url) => this.getAasFromRepo(aasId, url).then((response: ApiResponseWrapper<AssetAdministrationShell>) =>
-            {
-                return { wrapper: response, location: url }
-            }
-            ), // add the URL to the resolved value
+            (url) =>
+                this.getAasFromRepo(aasId, url).then((response: ApiResponseWrapper<AssetAdministrationShell>) => {
+                    return { wrapper: response, location: url };
+                }), // add the URL to the resolved value
         );
 
         const results = await Promise.allSettled(promises);
-        const fulfilledResults = results.filter((result) => result.status === 'fulfilled' && result.value.wrapper.isSuccess());
+        const fulfilledResults = results.filter(
+            (result) => result.status === 'fulfilled' && result.value.wrapper.isSuccess(),
+        );
 
         if (fulfilledResults.length > 0) {
             return ApiResponseWrapper.fromSuccess<RepoSearchResult[]>(
                 fulfilledResults.map(
-                    (result: PromiseFulfilledResult<{wrapper: ApiResponseWrapper<AssetAdministrationShell>, location: string}>) =>
-                        ({ aas: result.value.wrapper.result!, location: result.value.location })
-                )
+                    (
+                        result: PromiseFulfilledResult<{
+                            wrapper: ApiResponseWrapper<AssetAdministrationShell>;
+                            location: string;
+                        }>,
+                    ) => ({ aas: result.value.wrapper.result!, location: result.value.location }),
+                ),
             );
         } else {
-            return ApiResponseWrapper.fromErrorCode(ApiResultMapper.NOT_FOUND, `Could not find AAS ${aasId} in any Repository`);
+            return ApiResponseWrapper.fromErrorCode(
+                ApiResultStatus.NOT_FOUND,
+                `Could not find AAS ${aasId} in any Repository`,
+            );
         }
     }
 
-    async getSubmodelById(id: string): Promise<Submodel> {
+    async getSubmodelById(id: string): Promise<ApiResponseWrapper<Submodel>> {
         const result = await this.submodelRepositoryClient.getSubmodelById(id);
-        if (result.isSuccess()) return result.result!;
-        throw new NotFoundError(`Submodel with id ${id} not found`);
+        if (result.isSuccess()) return result;
+        return ApiResponseWrapper.fromErrorCode(ApiResultStatus.NOT_FOUND, `Submodel with id ${id} not found`);
     }
 
-    async getAttachmentFromSubmodelElement(submodelId: string, submodelElementPath: string): Promise<Blob> {
+    async getAttachmentFromSubmodelElement(
+        submodelId: string,
+        submodelElementPath: string,
+    ): Promise<ApiResponseWrapper<Blob>> {
         const response = await this.submodelRepositoryClient.getAttachmentFromSubmodelElement(
             submodelId,
             submodelElementPath,
         );
-        if (response.isSuccess()) return response.result!;
-        throw new NotFoundError(
+        if (response.isSuccess()) return response;
+        return ApiResponseWrapper.fromErrorCode(
+            ApiResultStatus.NOT_FOUND,
             `Attachment for Submodel with id ${submodelId} at path ${submodelElementPath} not found`,
         );
     }
 
-    async getSubmodelFromAllRepos(submodelId: string) {
+    async getSubmodelFromAllRepos(submodelId: string): Promise<ApiResponseWrapper<Submodel>> {
         const basePathUrls = await this.prismaConnector.getConnectionDataByTypeAction({
             id: '2',
             typeName: 'SUBMODEL_REPOSITORY',
         });
-        const promises = basePathUrls.map((url) =>
-            this.submodelRepositoryClient.getSubmodelById(submodelId, undefined, url),
+        const promises = basePathUrls.map(async (url) =>
+            {
+                const response = await this.submodelRepositoryClient.getSubmodelById(submodelId, undefined, url);
+                if(response.isSuccess()) {
+                    return response;
+                }
+                return Promise.reject();
+            }
         );
 
         try {
             return await Promise.any(promises);
-        } catch (error) {
-            throw new NotFoundError('Submodel not found');
+        } catch (e) {
+            return ApiResponseWrapper.fromErrorCode(ApiResultStatus.NOT_FOUND, 'Submodel not found')
         }
     }
 
-    async getSubmodelReferencesFromShell(aasId: string): Promise<Reference[]> {
+    async getSubmodelReferencesFromShell(aasId: string): Promise<ApiResponseWrapper<Reference[]>> {
         const response = await this.repositoryClient.getSubmodelReferencesFromShell(aasId);
-        if (response.isSuccess()) return response.result!;
-        throw new NotFoundError('Submodel Reference not found');
+        if (response.isSuccess()) return response;
+        return ApiResponseWrapper.fromErrorCode(ApiResultStatus.NOT_FOUND, 'Submodel Reference not found');
     }
 
-    async getThumbnailFromShell(aasId: string): Promise<Blob> {
+    async getThumbnailFromShell(aasId: string): Promise<ApiResponseWrapper<Blob>> {
         const response = await this.repositoryClient.getThumbnailFromShell(aasId);
-        if (response.isSuccess()) return response.result!;
-        throw new NotFoundError('Thumbnail not found');
+        if (response.isSuccess()) return response;
+
+        return ApiResponseWrapper.fromErrorCode(ApiResultStatus.NOT_FOUND, 'Thumbnail not found');
     }
 
-    async getAasThumbnailFromAllRepos(aasId: string) {
+    async getAasThumbnailFromAllRepos(aasId: string): Promise<void> {
         const basePathUrls = await this.prismaConnector.getConnectionDataByTypeAction({
             id: '0',
             typeName: 'AAS_REPOSITORY',
         });
 
-        const promises = basePathUrls.map((url) =>
-            {
-                this.repositoryClient.getThumbnailFromShell(aasId, undefined, url).then((response) => {
-                    if (response.isSuccess() && response.result!.size === 0) {
-                        throw new Error('Empty image');
-                    }
-                    return response.result!;
-                })
-            },
-        );
+        const promises = basePathUrls.map((url) => {
+            this.repositoryClient.getThumbnailFromShell(aasId, undefined, url).then((response) => {
+                if (response.isSuccess() && response.result!.size === 0) {
+                    throw new Error('Empty image');
+                }
+                return response.result!;
+            });
+        });
 
         try {
             return await Promise.any(promises);

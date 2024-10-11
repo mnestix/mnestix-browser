@@ -1,7 +1,7 @@
 import { IAssetAdministrationShellRepositoryApi, ISubmodelRepositoryApi } from 'lib/api/basyx-v3/apiInterface';
 import { AssetAdministrationShell, Reference, Submodel } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
 import { decodeBase64, encodeBase64 } from 'lib/util/Base64Util';
-import { ApiResponseWrapper, ApiResultMapper } from 'lib/services/apiResponseWrapper';
+import { ApiResponseWrapper, ApiResultStatus } from 'lib/services/apiResponseWrapper';
 
 export interface INullableAasRepositoryEntries {
     repositoryUrl: string;
@@ -38,7 +38,7 @@ export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdmi
             }
         }
         const targetRepositoryKind = isSearchingInDefaultRepository ? 'default' : 'foreign';
-        return Promise.resolve(ApiResponseWrapper.fromErrorCode(ApiResultMapper.NOT_FOUND,
+        return Promise.resolve(ApiResponseWrapper.fromErrorCode(ApiResultStatus.NOT_FOUND,
             'no aas found in the ' +
             targetRepositoryKind +
             ' repository for aasId: ' +
@@ -83,7 +83,7 @@ export class SubmodelRepositoryApiInMemory implements ISubmodelRepositoryApi {
         }
         return Promise.resolve(
             ApiResponseWrapper.fromErrorCode(
-                ApiResultMapper.NOT_FOUND,
+                ApiResultStatus.NOT_FOUND,
                 'no submodel found in the default repository for submodelId: ' + submodelId
             )
         );
