@@ -23,10 +23,7 @@ export function SubmodelElementCollectionComponent({
     submodelElementPath,
     submodelElementCollection,
 }: SubmodelElementComponentProps) {
-    const [isExpanded, setIsExpanded] = useState(() => {
-        console.log(`collectionComponent ${submodelElementPath}`);
-        return false;
-    });
+    const [isExpanded, setIsExpanded] = useState(false);
     const componentList: ReactNode[] = [];
 
     if (

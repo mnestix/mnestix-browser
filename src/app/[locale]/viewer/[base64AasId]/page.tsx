@@ -157,8 +157,7 @@ export default function Page() {
     // TODO WIP: This should navigate to pop-up and configure transfer data before invoking this action
     const handleTransferAas = async (targetAasRepositoryUrl: string, targetSubmodelRepositoryUrl: string) => {
         if (!aas) return;
-        console.time('transferAas');
-        const nice = await transferAasWithSubmodels({
+        await transferAasWithSubmodels({
             targetAasRepositoryBaseUrl: targetAasRepositoryUrl,
             targetSubmodelRepositoryBaseUrl: targetSubmodelRepositoryUrl,
             targetDiscoveryBaseUrl: env.DISCOVERY_API_URL,
@@ -168,9 +167,6 @@ export default function Page() {
             aas: aas,
             submodels: submodels.filter((sub) => sub.submodel).map((sub) => sub.submodel!),
         });
-        console.timeLog('transferAas');
-        console.timeEnd('transferAas');
-        console.log(nice);
     };
 
     const pageStyles = {
