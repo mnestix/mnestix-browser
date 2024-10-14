@@ -25,7 +25,6 @@ import { useEnv } from 'app/env/provider';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { performRegistryAasSearch, performSubmodelFullSearch } from 'lib/services/searchUtilActions/searchActions';
 import { performSearchAasFromAllRepositories } from 'lib/services/MultipleRepositorySearch/MultipleRepositorySearchActions';
-import { transferAasWithSubmodels } from 'lib/services/transfer-service/transferActions';
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 
 export type SubmodelOrIdReference = {
@@ -112,9 +111,6 @@ export default function Page() {
             await Promise.all(
                 aas.submodels.map(async (smRef, i) => {
                     const newSm = await fetchSingleSubmodel(smRef, registryAasData?.submodelDescriptors?.[i]);
-                    if (newSm.submodel?.idShort !== 'TechnicalData') {
-                        await new Promise((resolve) => setTimeout(resolve, 5000));
-                    }
                     setSubmodels((submodels) => {
                         const exists = submodels.some((sm) => sm.id === newSm.id);
                         if (exists) return submodels;
@@ -152,21 +148,6 @@ export default function Page() {
 
     const startComparison = () => {
         navigate.push(`/compare?aasId=${encodeURIComponent(aas?.id ?? '')}`);
-    };
-
-    // TODO WIP: This should navigate to pop-up and configure transfer data before invoking this action
-    const handleTransferAas = async (targetAasRepositoryUrl: string, targetSubmodelRepositoryUrl: string) => {
-        if (!aas) return;
-        await transferAasWithSubmodels({
-            targetAasRepositoryBaseUrl: targetAasRepositoryUrl,
-            targetSubmodelRepositoryBaseUrl: targetSubmodelRepositoryUrl,
-            targetDiscoveryBaseUrl: env.DISCOVERY_API_URL,
-            targetAasRegistryBaseUrl: env.REGISTRY_API_URL,
-            targetSubmodelRegistryBaseUrl: env.SUBMODEL_REGISTRY_API_URL,
-            apikey: 'veryhardapikey', //how to pass ApiKey securely ??
-            aas: aas,
-            submodels: submodels.filter((sub) => sub.submodel).map((sub) => sub.submodel!),
-        });
     };
 
     const pageStyles = {
@@ -218,16 +199,6 @@ export default function Page() {
                                 <FormattedMessage {...messages.mnestix.compareButton} />
                             </Button>
                         )}
-                        <Button
-                            sx={{ ml: 2 }}
-                            onClick={() =>
-                                handleTransferAas('http://localhost:5065/repo', 'http://localhost:5065/repo')
-                            }
-                            variant="contained"
-                            data-testid="transfer"
-                        >
-                            Transfer
-                        </Button>
                     </Box>
                     <AASOverviewCard
                         aas={aas}
