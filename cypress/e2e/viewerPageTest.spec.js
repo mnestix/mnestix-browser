@@ -66,6 +66,7 @@ describe('Test the viewer page', function () {
 
         resolutions.forEach((res) => {
             it('test on resolution: ' + res, function () {
+                cy.getByTestId('submodel-tab').contains(testData.submodelTabToClick).click();
                 cy.getByTestId('submodel-dropdown-button').contains('show', { matchCase: false }).as('dropdown');
                 cy.get('@dropdown').click();
 
