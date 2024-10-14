@@ -5,7 +5,7 @@ import {
     DialogProps,
     Divider,
     IconButton,
-    Typography
+    Typography, useMediaQuery, useTheme
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import {
@@ -32,6 +32,9 @@ export function TransferDialog(props: DialogProps) {
     const [submodelsFromContext,] = useSubmodelState();
     const [aasFromContext,] = useAasState();
     const notificationSpawner = useNotificationSpawner();
+
+    const theme = useTheme();
+    const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
     useEffect(() => {
         const transferDtoTemp = { ...transferDto, aas: aasFromContext, submodels: submodelsFromContext }
@@ -79,7 +82,7 @@ export function TransferDialog(props: DialogProps) {
     }
 
     return (
-        <Dialog open={props.open} onClose={props.onClose} maxWidth="md" fullWidth>
+        <Dialog open={props.open} onClose={props.onClose} maxWidth="md" fullWidth fullScreen={fullScreen}>
             <Box sx={{ m: 4 }}>
                 <Typography variant="h2"
                             color="primary"><FormattedMessage {...messages.mnestix.transfer.title}/></Typography>
