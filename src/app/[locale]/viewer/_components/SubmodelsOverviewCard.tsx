@@ -16,11 +16,6 @@ export type SubmodelsOverviewCardProps = {
 };
 
 export function SubmodelsOverviewCard({ submodelIds, submodelsLoading }: SubmodelsOverviewCardProps) {
-    const [state, setState] = useState(() => {
-        console.log('SubmodelsOverviewCard init');
-        return true;
-    });
-
     const [submodelSelectorItems, setSubmodelSelectorItems] = useState<TabSelectorItem[]>([]);
     const [selectedItem, setSelectedItem] = useState<TabSelectorItem>();
 

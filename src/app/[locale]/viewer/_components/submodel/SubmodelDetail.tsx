@@ -3,18 +3,12 @@ import { submodelCustomVisualizationMap } from './SubmodelCustomVisualizationMap
 import { GenericSubmodelDetailComponent } from './generic-submodel/GenericSubmodelDetailComponent';
 import { Box } from '@mui/material';
 import { idEquals } from 'lib/util/IdValidationUtil';
-import { useState } from 'react';
 
 type SubmodelDetailProps = {
     submodel?: Submodel;
 };
 
 export function SubmodelDetail(props: SubmodelDetailProps) {
-    const [state, setState] = useState(() => {
-        console.log(`SubmodelDetail init ${props.submodel?.idShort}`);
-        return true;
-    });
-
     const submodelElements = props.submodel?.submodelElements;
     if (!props.submodel || !submodelElements) return <></>;
 

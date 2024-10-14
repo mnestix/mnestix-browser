@@ -43,12 +43,11 @@ describe('Test the viewer page', function () {
                     cy.setResolution(res);
 
                     cy.getByTestId('submodel-tab').contains(testData.submodelTabToClick).click();
+                    cy.getByTestId('submodelOverviewLoadingSkeleton', { timeout: 50000 }).should('not.exist');
                     cy.getByTestId('submodel-dropdown-button').contains('show', { matchCase: false }).as('dropdown');
                     cy.getByTestId('data-row-title')
                         .contains(testData.dropdownContent, { matchCase: false })
                         .should('not.exist');
-
-                    cy.getByTestId('submodelOverviewLoadingSkeleton', { timeout: 50000 }).should('not.exist');
                     cy.get('@dropdown').click();
                     cy.getByTestId('submodel-dropdown-button').contains('hide', { matchCase: false }).as('dropdown');
                     cy.getByTestId('data-row-title')
