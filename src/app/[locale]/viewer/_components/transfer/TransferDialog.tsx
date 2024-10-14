@@ -70,7 +70,7 @@ export function TransferDialog(props: DialogProps) {
             });
         } catch (error) {
             notificationSpawner.spawn({
-                message: error,
+                message: 'Transfer of AAS not successful',
                 severity: 'error',
             });
         } finally {
