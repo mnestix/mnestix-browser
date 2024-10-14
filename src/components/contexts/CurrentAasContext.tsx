@@ -31,7 +31,7 @@ export const useAasState = () => {
 export const useRegistryAasState = () => {
     const context = useContext(CurrentAasContext);
     if (!context) {
-        throw new Error('registryAasData must be used within a CurrentAasContextProvider');
+        throw new Error('useRegistryAasState must be used within a CurrentAasContextProvider');
     }
     return context.registryAasData;
 };
