@@ -10,8 +10,8 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import {
     TargetRepositoryFormData,
-    TargetRespositories
-} from 'app/[locale]/viewer/_components/transfer/TargetRespositories';
+    TargetRepositories
+} from 'app/[locale]/viewer/_components/transfer/TargetRepositories';
 import { FormattedMessage } from 'react-intl';
 import { messages } from 'lib/i18n/localization';
 import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/types';
@@ -98,7 +98,7 @@ export function TransferDialog(props: DialogProps) {
                 <CloseIcon/>
             </IconButton>
             <DialogContent sx={{ mr: 1, ml: 1 }}>
-                <TargetRespositories onSubmitStep={(values, redirectToNew) => handleSubmitRepositoryStep(values, redirectToNew)}/>
+                <TargetRepositories onSubmitStep={(values, redirectToNew) => handleSubmitRepositoryStep(values, redirectToNew)}/>
             </DialogContent>
             <Divider/>
         </Dialog>

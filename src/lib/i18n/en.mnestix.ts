@@ -207,12 +207,13 @@ export const enMnestix = {
         aasRepository: 'AAS Repository',
         submodelRepository: 'Submodel Repository',
         chooseRepository: 'Choose AAS Repository',
+        repositoryRequired: 'AAS Repository is required',
         repositoryLabel: 'List of AAS Repositories',
-        chooseSubmodelRepository: 'Choose Submodel Repository',
+        chooseSubmodelRepository: 'Choose Submodel Repository (optional)',
         submodelRepositoryLabel: 'List of Submodel Repositories',
         useAasRepository: 'Use AAS Repository',
-        saveAndGoToNew: 'Save & Go to new AAS',
-        saveAndGoToPrev: 'Save & Go to previous AAS'
+        saveAndGoToNew: 'Save & Go to new',
+        saveAndGoToPrev: 'Save & Go to previous'
     },
     aasList: {
         header: 'AAS List',

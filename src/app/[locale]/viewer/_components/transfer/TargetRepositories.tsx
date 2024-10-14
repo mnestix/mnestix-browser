@@ -29,7 +29,7 @@ type TargetRepositoryProps = {
     onSubmitStep: (values: TargetRepositoryFormData, redirectToNew: boolean) => void;
 }
 
-export function TargetRespositories(props: TargetRepositoryProps) {
+export function TargetRepositories(props: TargetRepositoryProps) {
     const notificationSpawner = useNotificationSpawner();
     const [isLoading, setIsLoading] = useState(false);
     const [aasRepositories, setAasRepositories] = useState<string[]>([]);
@@ -54,7 +54,7 @@ export function TargetRespositories(props: TargetRepositoryProps) {
         return;
     }, []);
 
-    const { handleSubmit, control } = useForm();
+    const { handleSubmit, control, formState } = useForm();
     
     const onSubmit = (data: TargetRepositoryFormData) => {
         props.onSubmitStep(data, false);
@@ -78,16 +78,19 @@ export function TargetRespositories(props: TargetRepositoryProps) {
                     <Box display="flex" flexDirection="column">
                         <Box display="flex" flexDirection="row" alignItems="center">
                             <Typography variant="h4"
-                                        sx={{ minWidth: '200px', mr: 2 }}><FormattedMessage {...messages.mnestix.transfer.chooseRepository} /></Typography>
+                                        sx={{ minWidth: '250px', mr: 2 }}><FormattedMessage {...messages.mnestix.transfer.chooseRepository} /></Typography>
                             <FormControl fullWidth>
                                 <Controller
                                     name="repository"
                                     control={control}
                                     defaultValue=""
-                                    render={({ field }) => (
+                                    rules={{ required: intl.formatMessage(messages.mnestix.transfer.repositoryRequired) }}
+                                    render={({ field, fieldState }) => (
                                         <TextField fullWidth 
                                                    select
                                                    label={intl.formatMessage(messages.mnestix.transfer.repositoryLabel)}
+                                                   error={!!fieldState.error}
+                                                   helperText={fieldState.error ? fieldState.error.message : null}
                                                    required {...field}>{ aasRepositories.map((repo, index) => {
                                             return <MenuItem key={index} value={repo}>{repo}</MenuItem>
                                         })}
@@ -97,7 +100,7 @@ export function TargetRespositories(props: TargetRepositoryProps) {
                         </Box>
                         <Box display="flex" flexDirection="row" mt={2} alignItems="center">
                             <Typography variant="h4"
-                                        sx={{ minWidth: '200px', mr: 2 }}><FormattedMessage {...messages.mnestix.transfer.chooseSubmodelRepository} /></Typography>
+                                        sx={{ minWidth: '250px', mr: 2 }}><FormattedMessage {...messages.mnestix.transfer.chooseSubmodelRepository} /></Typography>
                             <FormControl fullWidth>
                                 <Controller
                                     name="submodelRepository"
@@ -118,8 +121,10 @@ export function TargetRespositories(props: TargetRepositoryProps) {
                         </Box>
                         <Divider sx={{ mt: 6, mb: 4 }}/>
                         <DialogActions>
-                            <Button sx={{ mr: 1 }} variant="outlined" onClick={handleSubmit(onSubmit)}>Save & Back to Previous Aas</Button>
-                            <Button variant="contained" type="submit" onClick={handleSubmit(onSubmitRedirect)}>Save & Go to new Aas</Button>
+                            <Button sx={{ mr: 1 }} variant="outlined" disabled={!formState.isValid}
+                                    onClick={handleSubmit(onSubmit)}><FormattedMessage {...messages.mnestix.transfer.saveAndGoToPrev} /></Button>
+                            <Button variant="contained" type="submit" disabled={!formState.isValid}
+                                    onClick={handleSubmit(onSubmitRedirect)}><FormattedMessage {...messages.mnestix.transfer.saveAndGoToNew} /></Button>
                         </DialogActions>
                     </Box>
                 </form>
