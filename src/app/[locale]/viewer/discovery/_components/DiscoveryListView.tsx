@@ -38,7 +38,7 @@ export const DiscoveryListView = () => {
         if (assetId) {
             const response = ApiResponseWrapper.fromPlainObject(await performDiscoveryAasSearch(assetId));
 
-            if (response.isSuccess() || response.result!.length === 0) {
+            if (!response.isSuccess() || response.result!.length === 0) {
                 setIsLoadingList(false);
                 return;
             }
