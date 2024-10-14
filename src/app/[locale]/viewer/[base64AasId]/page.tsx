@@ -25,7 +25,6 @@ import { useEnv } from 'app/env/provider';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { performRegistryAasSearch, performSubmodelFullSearch } from 'lib/services/searchUtilActions/searchActions';
 import { performSearchAasFromAllRepositories } from 'lib/services/MultipleRepositorySearch/MultipleRepositorySearchActions';
-import { transferAasWithSubmodels } from 'lib/services/transfer-service/transferActions';
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 
 export type SubmodelOrIdReference = {
@@ -151,17 +150,6 @@ export default function Page() {
         navigate.push(`/compare?aasId=${encodeURIComponent(aas?.id ?? '')}`);
     };
 
-    // TODO: This should navigate to pop-up and configure transfer data before invoking this action
-    const handleTransferAas = async (targetAasRepositoryUrl: string, targetSubmodelRepositoryUrl: string) => {
-        if (!aas) return;
-        await transferAasWithSubmodels({
-            targetAasRepositoryBaseUrl: targetAasRepositoryUrl,
-            targetSubmodelRepositoryBaseUrl: targetSubmodelRepositoryUrl,
-            aas: aas,
-            submodels: submodels.filter((sub) => sub.submodel).map((sub) => sub.submodel!),
-        });
-    };
-
     const pageStyles = {
         display: 'flex',
         flexDirection: 'column',
@@ -211,16 +199,6 @@ export default function Page() {
                                 <FormattedMessage {...messages.mnestix.compareButton} />
                             </Button>
                         )}
-                        <Button
-                            sx={{ ml: 2 }}
-                            onClick={() =>
-                                handleTransferAas('http://localhost:5064/repo', 'http://localhost:5064/repo')
-                            }
-                            variant="contained"
-                            data-testid="transfer"
-                        >
-                            Transfer
-                        </Button>
                     </Box>
                     <AASOverviewCard
                         aas={aas}

@@ -138,11 +138,14 @@ export class AssetAdministrationShellRepositoryApi extends BaseAPI implements IA
         )(this.fetch, basePath ?? this.basePath);
     }
 
-    createAssetAdministrationShell(aasId: string, options?: any, basePath?: string) {
-        return AssetAdministrationShellRepositoryApiFp(this.configuration).getThumbnailFromAssetInformation(
-            aasId,
-            options,
-        )(this.fetch, basePath ?? this.basePath);
+    postAssetAdministrationShell(
+        aas: AssetAdministrationShell,
+        options?: object | undefined,
+    ): Promise<AssetAdministrationShell> {
+        return AssetAdministrationShellRepositoryApiFp(this.configuration).createAssetAdministrationShell(aas, options)(
+            this.fetch,
+            this.basePath,
+        );
     }
 }
 
@@ -227,6 +230,31 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
                 );
                 if (response.status >= 200 && response.status < 300) {
                     return response.blob();
+                } else {
+                    throw response;
+                }
+            };
+        },
+
+        createAssetAdministrationShell(
+            aas: AssetAdministrationShell,
+            options?: any,
+        ): (fetch?: FetchAPI, basePath?: string) => Promise<AssetAdministrationShell> {
+            return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+                const localVarHeaderParameter = {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                } as any;
+
+                localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options?.headers);
+                localVarRequestOptions.body = JSON.stringify(aas);
+
+                const response = await requestHandler.fetch(basePath + '/shells', localVarRequestOptions);
+                if (response.status >= 200 && response.status < 300) {
+                    return response.json().then((resp) => {
+                        return resp.result as AssetAdministrationShell;
+                    });
                 } else {
                     throw response;
                 }
@@ -403,6 +431,10 @@ export class SubmodelRepositoryApi extends BaseAPI implements ISubmodelRepositor
             options,
         )(this.fetch, this.basePath);
     }
+
+    postSubmodel(submodel: Submodel, options?: object | undefined): Promise<Submodel> {
+        return SubmodelRepositoryApiFp(this.configuration).createSubmodel(submodel, options)(this.fetch, this.basePath);
+    }
 }
 
 /**
@@ -481,6 +513,28 @@ export const SubmodelRepositoryApiFp = function (configuration?: Configuration) 
                 );
                 if (response.status >= 200 && response.status < 300) {
                     return response.blob();
+                } else {
+                    throw response;
+                }
+            };
+        },
+
+        createSubmodel(submodel: Submodel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Submodel> {
+            return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+                const localVarHeaderParameter = {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                } as any;
+
+                localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options?.headers);
+                localVarRequestOptions.body = JSON.stringify(submodel);
+
+                const response = await requestHandler.fetch(basePath + '/submodels', localVarRequestOptions);
+                if (response.status >= 200 && response.status < 300) {
+                    return response.json().then((resp) => {
+                        return resp.result as Submodel;
+                    });
                 } else {
                     throw response;
                 }

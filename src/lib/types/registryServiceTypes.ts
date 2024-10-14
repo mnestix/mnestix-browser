@@ -1,5 +1,6 @@
 import {
     AdministrativeInformation,
+    AssetKind,
     Extension,
     LangStringNameType,
     LangStringTextType,
@@ -23,7 +24,7 @@ export interface AssetAdministrationShellDescriptor {
      */
     extensions?: Extension[];
     administration?: AdministrativeInformation;
-    assetKind?: 'Instance' | 'NotApplicable' | 'Type';
+    assetKind?: AssetKind;
     /**
      * @minLength 1
      * @maxLength 2000
@@ -76,12 +77,12 @@ export interface SubmodelDescriptor {
      * @pattern ^[\x09\x0A\x0D\x20-\uD7FF\uE000-\uFFFD\u10000-\u10FFFF]*$
      */
     id: string;
-    semanticId?: Reference;
+    semanticId?: Reference | null;
     /**
      * @maxItems 2147483647
      * @minItems 1
      */
-    supplementalSemanticId?: Reference[];
+    supplementalSemanticId?: Reference[] | null;
     /**
      * @maxItems 2147483647
      * @minItems 1
