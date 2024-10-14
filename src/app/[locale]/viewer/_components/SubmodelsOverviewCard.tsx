@@ -78,12 +78,14 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                     const endpoint = submodelDescriptor?.endpoints[0].protocolInformation.href;
 
                     if (endpoint) {
-                        const submodelData = await getSubmodelFromSubmodelDescriptor(endpoint);
-                        return {
-                            id: submodelDescriptor.id,
-                            label: submodelDescriptor.idShort ?? '',
-                            submodelData: submodelData,
-                        };
+                        const submodelResponse = ApiResponseWrapper.fromPlainObject(await getSubmodelFromSubmodelDescriptor(endpoint));
+                        if (submodelResponse.isSuccess()) {
+                            return {
+                                id: submodelDescriptor.id,
+                                label: submodelDescriptor.idShort ?? '',
+                                submodelData: submodelResponse.result!,
+                            };
+                        }
                     }
                     return null;
                 }),
@@ -105,12 +107,14 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                         const endpoint = submodelDescriptor?.endpoints[0].protocolInformation.href;
 
                         if (endpoint) {
-                            const submodelData = await getSubmodelFromSubmodelDescriptor(endpoint);
-                            tabSelectorItem = {
-                                id: submodelDescriptor!.id,
-                                label: submodelDescriptor!.idShort ?? '',
-                                submodelData: submodelData,
-                            };
+                            const submodelResponse = ApiResponseWrapper.fromPlainObject(await getSubmodelFromSubmodelDescriptor(endpoint));
+                            if (submodelResponse.isSuccess()) {
+                                tabSelectorItem = {
+                                    id: submodelDescriptor!.id,
+                                    label: submodelDescriptor!.idShort ?? '',
+                                    submodelData: submodelResponse.result!,
+                                };
+                            }
                         }
                     } catch (e) {
                         if (!(e instanceof TypeError || (e instanceof Response && e.status === 404))) {

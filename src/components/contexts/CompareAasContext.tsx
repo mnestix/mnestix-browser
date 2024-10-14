@@ -154,35 +154,36 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
         const newCompareData: SubmodelCompareData[] = [];
         if (submodelDescriptors && submodelDescriptors.length > 0) {
             for (const submodelDescriptor of submodelDescriptors) {
-                const submodelData = await getSubmodelFromSubmodelDescriptor(
+                const submodelResponse = ApiResponseWrapper.fromPlainObject(await getSubmodelFromSubmodelDescriptor(
                     submodelDescriptor.endpoints[0].protocolInformation.href,
-                );
-                const dataRecord = generateSubmodelCompareData(submodelData);
-                newCompareData.push(dataRecord);
+                ));
+                if (submodelResponse.isSuccess()) {
+                    const dataRecord = generateSubmodelCompareData(submodelResponse.result!);
+                    newCompareData.push(dataRecord);
+                }
             }
         } else {
             for (const reference of input as Reference[]) {
                 let submodelAdded = false;
-                try {
-                    const response = ApiResponseWrapper.fromPlainObject(
-                        await getSubmodelDescriptorsById(reference.keys[0].value),
-                    );
-                    if (response.isSuccess()) {
-                        const submodelDescriptor = response.result!;
-                        const submodelData = await getSubmodelFromSubmodelDescriptor(
-                            submodelDescriptor.endpoints[0].protocolInformation.href,
-                        );
-                        const dataRecord = generateSubmodelCompareData(submodelData);
+                const response = ApiResponseWrapper.fromPlainObject(
+                    await getSubmodelDescriptorsById(reference.keys[0].value),
+                );
+                if (response.isSuccess()) {
+                    const submodelDescriptor = response.result!;
+                    const submodelResponse = ApiResponseWrapper.fromPlainObject(await getSubmodelFromSubmodelDescriptor(
+                        submodelDescriptor.endpoints[0].protocolInformation.href,
+                    ));
+                    if (submodelResponse.isSuccess()) {
+                        const dataRecord = generateSubmodelCompareData(submodelResponse.result!);
                         newCompareData.push(dataRecord);
                         submodelAdded = true;
-                    } else {
-                        throw new Error(response.message);
                     }
-                } catch (e) {
+                } else {
                     console.warn(
-                        `Could not be found in Submodel Registry, will continue to look in the repository. ${e}`,
+                        `Could not be found in Submodel Registry, will continue to look in the repository. ${response.message}`,
                     );
                 }
+
                 // Submodel registry is not available or submodel not found there -> search in repo
                 if (!submodelAdded) {
                     const submodelData = ApiResponseWrapper.fromPlainObject(

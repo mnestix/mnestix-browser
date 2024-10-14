@@ -45,8 +45,8 @@ export default function Page() {
 
     async function loadAasContent() {
         if (repoUrl) {
-            const repoAas = await getAasFromRepository(aasIdDecoded, repoUrl);
-            setAas(repoAas ?? undefined);
+            const response  = ApiResponseWrapper.fromPlainObject(await getAasFromRepository(aasIdDecoded, repoUrl));
+            setAas(response.result ?? undefined);
             return;
         }
 

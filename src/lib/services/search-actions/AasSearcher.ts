@@ -141,11 +141,16 @@ export class AasSearcher {
         );
     }
 
-    public async getAasFromRepository(aasId: string, repoUrl: string): Promise<AssetAdministrationShell | null> {
+    public async getAasFromRepository(
+        aasId: string,
+        repoUrl: string,
+    ): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
         const response = await this.multipleDataSource.getAasFromRepo(aasId, repoUrl);
-        if (response.isSuccess()) return response.result!;
-        this.log.warn(`Could not find an AAS '${aasId}' in the repository '${repoUrl}'`);
-        return null;
+        if (response.isSuccess()) return response;
+        return ApiResponseWrapper.fromErrorCode(
+            ApiResultStatus.NOT_FOUND,
+            `Could not find an AAS '${aasId}' in the repository '${repoUrl}'`,
+        );
     }
 
     private createAasResult(aas: AssetAdministrationShell, data?: AasData): AasSearchResult {
