@@ -32,7 +32,7 @@ export const ProductClassChip = (props: ProductClassChipProps) => {
     return (
         <Chip
             sx={{ paddingX: '16px', paddingY: '6px' }}
-            color={'primary'}
+            color='primary'
             label={tooltipText(productClass.description, maxChars)}
             variant="outlined"
             icon={<GetProductClassIcon productClassType={productClass.type} />}
