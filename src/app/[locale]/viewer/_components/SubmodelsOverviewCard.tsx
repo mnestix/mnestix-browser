@@ -4,10 +4,10 @@ import { useIsMobile } from 'lib/hooks/UseBreakpoints';
 import { messages } from 'lib/i18n/localization';
 import { FormattedMessage } from 'react-intl';
 import { SubmodelDetail } from './submodel/SubmodelDetail';
-import { SubmodelSorting } from 'app/[locale]/viewer/_components/submodel/sorting/SubmodelSorting';
 import { TabSelectorItem, VerticalTabSelector } from 'components/basics/VerticalTabSelector';
 import { MobileModal } from 'components/basics/MobileModal';
 import ErrorIcon from '@mui/icons-material/Error';
+import { SortNameplateElements } from 'app/[locale]/viewer/_components/submodel/sorting/SortNameplateElements';
 import { SubmodelOrIdReference } from 'components/contexts/CurrentAasContext';
 
 export type SubmodelsOverviewCardProps = {
@@ -19,7 +19,7 @@ export function SubmodelsOverviewCard({ submodelIds, submodelsLoading }: Submode
     const [submodelSelectorItems, setSubmodelSelectorItems] = useState<TabSelectorItem[]>([]);
     const [selectedItem, setSelectedItem] = useState<TabSelectorItem>();
 
-    SubmodelSorting(selectedItem?.submodelData); // TODO what is this
+    SortNameplateElements(selectedItem?.submodelData);
 
     const [open, setOpen] = useState<boolean>(false);
     const isMobile = useIsMobile();
@@ -32,7 +32,7 @@ export function SubmodelsOverviewCard({ submodelIds, submodelsLoading }: Submode
             .map(getAsTabSelectorItem)
             .filter((item) => !!item)
             .sort(function (x, y) {
-                return x.label == firstSubmodelIdShort ? -1 : y.label == firstSubmodelIdShort ? 1 : 0; // TODO better ordering of other submodels
+                return x.label == firstSubmodelIdShort ? -1 : y.label == firstSubmodelIdShort ? 1 : 0;
             });
     }
 
@@ -62,7 +62,10 @@ export function SubmodelsOverviewCard({ submodelIds, submodelsLoading }: Submode
     }, [submodelIds]);
 
     useEffect(() => {
-        setSelectedItem(isMobile ? undefined : submodelSelectorItems?.[0]);
+        const nameplateTab = submodelSelectorItems.find((tab) => tab.submodelData?.idShort === firstSubmodelIdShort);
+        if (!selectedItem && !isMobile && nameplateTab) {
+            setSelectedItem(nameplateTab);
+        }
     }, [isMobile, submodelSelectorItems]);
 
     const handleClose = () => {
@@ -103,11 +106,13 @@ export function SubmodelsOverviewCard({ submodelIds, submodelsLoading }: Submode
                             selected={selectedItem}
                             setSelected={setSelectedItem}
                         />
-                        {submodelsLoading && <Skeleton height={70} sx={{ mb: 2 }} />}
+                        {submodelsLoading && (
+                            <Skeleton height={70} sx={{ mb: 2 }} data-testid="submodelOverviewLoadingSkeleton" />
+                        )}
                     </Box>
                     {isMobile ? (
                         <MobileModal
-                            title={submodelSelectorItems.find((i) => i.id === selectedItem?.id)?.label}
+                            title={selectedItem?.label}
                             open={open}
                             handleClose={handleClose}
                             content={SelectedContent()}

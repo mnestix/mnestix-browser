@@ -14,6 +14,13 @@ export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdmi
         this.shellsSavedInTheRepositories = options.shellsSavedInTheRepositories;
     }
 
+    postAssetAdministrationShell(
+        _aas: AssetAdministrationShell,
+        _options?: object | undefined,
+    ): Promise<AssetAdministrationShell> {
+        throw new Error('Method not implemented.');
+    }
+
     static getDefaultRepositoryUrl(): string {
         return 'www.aas.default.com/repository';
     }
@@ -64,6 +71,10 @@ export class SubmodelRepositoryApiInMemory implements ISubmodelRepositoryApi {
 
     constructor(options: { submodelsSavedInTheRepository: Submodel[] | null }) {
         this.submodelsSavedInTheRepository = options.submodelsSavedInTheRepository;
+    }
+
+    postSubmodel(_submodel: Submodel, _options?: object | undefined): Promise<Submodel> {
+        throw new Error('Method not implemented.');
     }
 
     getSubmodelMetaDataById(_submodelId: string, _options?: object | undefined): Promise<Submodel> {
