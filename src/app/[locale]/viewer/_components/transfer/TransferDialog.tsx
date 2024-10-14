@@ -37,7 +37,7 @@ export function TransferDialog(props: DialogProps) {
         const transferDtoTemp = { ...transferDto, aas: aasFromContext, submodels: submodelsFromContext }
 
         setTransferDto(transferDtoTemp)
-    }, [])
+    }, [submodelsFromContext, aasFromContext])
 
     const handleSubmitRepositoryStep = async (values: TargetRepositoryFormData, redirectToNew: boolean) => {
         if (!values.repository || !aasFromContext || !values.repository) {
@@ -61,12 +61,6 @@ export function TransferDialog(props: DialogProps) {
 
         try {
             await transferAasWithSubmodels(dtoToSubmit);
-        } catch (error) {
-            notificationSpawner.spawn({
-                message: error,
-                severity: 'error',
-            });
-        } finally {
             if (redirectToNew) {
                 // TODO Redirect to new AAS 
             }
@@ -74,6 +68,12 @@ export function TransferDialog(props: DialogProps) {
                 message: 'Transfer of AAS successful',
                 severity: 'success',
             });
+        } catch (error) {
+            notificationSpawner.spawn({
+                message: error,
+                severity: 'error',
+            });
+        } finally {
             props.onClose && props.onClose({}, 'escapeKeyDown');
         }
     }
