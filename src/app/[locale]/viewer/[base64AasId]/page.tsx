@@ -2,7 +2,12 @@
 
 import { useState } from 'react';
 import { Box, Button, Skeleton, Typography } from '@mui/material';
-import { useAasState, useRegistryAasState } from 'components/contexts/CurrentAasContext';
+import {
+    SubmodelOrIdReference,
+    useAasState,
+    useRegistryAasState,
+    useSubmodelState
+} from 'components/contexts/CurrentAasContext';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { messages } from 'lib/i18n/localization';
@@ -13,7 +18,6 @@ import {
     AssetAdministrationShell,
     LangStringNameType,
     Reference,
-    Submodel,
 } from '@aas-core-works/aas-core3.0-typescript/types';
 import { useIsMobile } from 'lib/hooks/UseBreakpoints';
 import { getTranslationText } from 'lib/util/SubmodelResolverUtil';
@@ -26,18 +30,13 @@ import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { performRegistryAasSearch, performSubmodelFullSearch } from 'lib/services/searchUtilActions/searchActions';
 import { performSearchAasFromAllRepositories } from 'lib/services/MultipleRepositorySearch/MultipleRepositorySearchActions';
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
-
-export type SubmodelOrIdReference = {
-    id: string;
-    submodel?: Submodel;
-    error?: string | Error;
-};
+import { TransferButton } from 'app/[locale]/viewer/_components/transfer/TransferButton';
 
 export default function Page() {
     const navigate = useRouter();
     const searchParams = useParams<{ base64AasId: string }>();
     const base64AasId = searchParams.base64AasId;
-    const [submodels, setSubmodels] = useState<SubmodelOrIdReference[]>([]);
+    const [submodels, setSubmodels] = useSubmodelState();
     const [productImage, setProductImage] = useState<string>();
     const [isLoadingAas, setIsLoadingAas] = useState(false);
     const [isSubmodelsLoading, setIsSubmodelsLoading] = useState(true);
@@ -195,10 +194,11 @@ export default function Page() {
                             )}
                         </Typography>
                         {env.COMPARISON_FEATURE_FLAG && !isMobile && (
-                            <Button variant="contained" onClick={startComparison} data-testid="detail-compare-button">
+                            <Button sx={{ mr: 2 }} variant="contained" onClick={startComparison} data-testid="detail-compare-button">
                                 <FormattedMessage {...messages.mnestix.compareButton} />
                             </Button>
                         )}
+                        <TransferButton/>
                     </Box>
                     <AASOverviewCard
                         aas={aas}
