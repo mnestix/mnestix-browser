@@ -2,15 +2,12 @@
 import { createContext, PropsWithChildren, useContext, useEffect, useState } from 'react';
 import { SubmodelCompareData } from 'lib/types/SubmodelCompareData';
 import { generateSubmodelCompareData, isCompareData, isCompareDataRecord } from 'lib/util/CompareAasUtil';
-import { encodeBase64 } from 'lib/util/Base64Util';
-import { getSubmodelFromSubmodelDescriptor, performRegistryAasSearch } from 'lib/services/search-actions/searchActions';
+import { getSubmodelFromSubmodelDescriptor, performFullAasSearch } from 'lib/services/search-actions/searchActions';
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 import { getSubmodelDescriptorsById } from 'lib/services/submodelRegistryApiActions';
-import {
-    getAssetAdministrationShellById,
-    getSubmodelById,
-} from 'lib/services/repository-access/repositorySearchActions';
+import { getSubmodelById } from 'lib/services/repository-access/repositorySearchActions';
 import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
+import { AasSearchResult } from 'lib/services/search-actions/AasSearcher';
 
 type CompareAasContextType = {
     compareAas: AssetAdministrationShell[];
@@ -76,35 +73,22 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
         const aasList: AssetAdministrationShell[] = [];
         let compareDataTemp: SubmodelCompareData[] = [];
         for (const aasId of input as string[]) {
-            let shell: AssetAdministrationShell | null = null;
-
-            const registrySearchResult = ApiResponseWrapper.fromPlainObject(await performRegistryAasSearch(aasId));
-            if (registrySearchResult.isSuccess()) {
-                shell = registrySearchResult.result!.aas;
-            } else {
-                const response = ApiResponseWrapper.fromPlainObject(
-                    await getAssetAdministrationShellById(encodeBase64(aasId)),
-                );
-                if (response.isSuccess()) shell = response.result!;
-            }
-
+            let searchResult: AasSearchResult | null = null;
+            const response = ApiResponseWrapper.fromPlainObject(await performFullAasSearch(aasId));
+            if (response.isSuccess()) searchResult = response.result!;
+            const shell: AssetAdministrationShell | null = searchResult?.aas ?? null;
             if (shell) {
-                // Get AAS
                 aasList.push(shell!);
-
-                // Get Submodels
                 if (shell!.submodels) {
                     compareDataTemp = await loadSubmodelDataIntoState(
                         compareDataTemp,
                         shell.submodels,
                         aasList.length - 1,
-                        registrySearchResult?.result?.aasData?.submodelDescriptors,
+                        searchResult?.aasData?.submodelDescriptors,
                     );
                 }
             }
         }
-
-        // update the state once
         setCompareAas(aasList);
         setCompareData(compareDataTemp);
     };
@@ -154,9 +138,9 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
         const newCompareData: SubmodelCompareData[] = [];
         if (submodelDescriptors && submodelDescriptors.length > 0) {
             for (const submodelDescriptor of submodelDescriptors) {
-                const submodelResponse = ApiResponseWrapper.fromPlainObject(await getSubmodelFromSubmodelDescriptor(
-                    submodelDescriptor.endpoints[0].protocolInformation.href,
-                ));
+                const submodelResponse = ApiResponseWrapper.fromPlainObject(
+                    await getSubmodelFromSubmodelDescriptor(submodelDescriptor.endpoints[0].protocolInformation.href),
+                );
                 if (submodelResponse.isSuccess()) {
                     const dataRecord = generateSubmodelCompareData(submodelResponse.result!);
                     newCompareData.push(dataRecord);
@@ -170,9 +154,11 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
                 );
                 if (response.isSuccess()) {
                     const submodelDescriptor = response.result!;
-                    const submodelResponse = ApiResponseWrapper.fromPlainObject(await getSubmodelFromSubmodelDescriptor(
-                        submodelDescriptor.endpoints[0].protocolInformation.href,
-                    ));
+                    const submodelResponse = ApiResponseWrapper.fromPlainObject(
+                        await getSubmodelFromSubmodelDescriptor(
+                            submodelDescriptor.endpoints[0].protocolInformation.href,
+                        ),
+                    );
                     if (submodelResponse.isSuccess()) {
                         const dataRecord = generateSubmodelCompareData(submodelResponse.result!);
                         newCompareData.push(dataRecord);

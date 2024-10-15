@@ -1,6 +1,5 @@
 'use server';
 
-import { NotFoundError } from 'lib/errors/NotFoundError';
 import { AasSearcher, AasSearchResult } from 'lib/services/search-actions/AasSearcher';
 import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
 import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
@@ -29,10 +28,10 @@ export async function performDiscoveryAasSearch(searchInput: string): Promise<Ap
     return (await searcher.performAasDiscoverySearch(searchInput)).toJSON();
 }
 
-export async function getSubmodelFromSubmodelDescriptor(url: string) : Promise<ApiResponseWrapper<Submodel>> {
+export async function getSubmodelFromSubmodelDescriptor(url: string): Promise<ApiResponseWrapper<Submodel>> {
     const response = await fetch(url, {
         method: 'GET',
     });
-    const wrapper = await ApiResponseWrapper.fromResponse(response)
+    const wrapper = await ApiResponseWrapper.fromResponse(response);
     return wrapper.transformResult<Submodel>(JSON.parse).toJSON();
 }
