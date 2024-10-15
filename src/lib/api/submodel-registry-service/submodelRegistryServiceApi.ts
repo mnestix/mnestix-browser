@@ -28,9 +28,6 @@ export class SubmodelRegistryServiceApi {
             headers,
         });
 
-        console.log('Mana mana ');
-        console.log('response: ', response);
-
         return response.transformResult<SubmodelDescriptor>(JSON.parse);
     }
 }

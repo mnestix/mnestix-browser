@@ -149,26 +149,16 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
         } else {
             for (const reference of input as Reference[]) {
                 let submodelAdded = false;
-                let response: ApiResponseWrapper<SubmodelDescriptor> | null = null;
-                try {
-                    response = ApiResponseWrapper.fromPlainObject(
-                        await getSubmodelDescriptorsById(reference.keys[0].value),
-                    );
-                } catch (e) {
-                    console.log('error is ungood');
-                }
+                const response: ApiResponseWrapper<SubmodelDescriptor> = ApiResponseWrapper.fromPlainObject(
+                    await getSubmodelDescriptorsById(reference.keys[0].value),
+                );
                 if (response && response.isSuccess()) {
                     const submodelDescriptor = response.result!;
-                    let submodelResponse: ApiResponseWrapper<Submodel> | null = null;
-                    try {
-                        submodelResponse = ApiResponseWrapper.fromPlainObject(
-                            await getSubmodelFromSubmodelDescriptor(
-                                submodelDescriptor.endpoints[0].protocolInformation.href,
-                            ),
-                        );
-                    } catch (e) {
-                        console.log('error is ungood');
-                    }
+                    const submodelResponse: ApiResponseWrapper<Submodel> | null = ApiResponseWrapper.fromPlainObject(
+                        await getSubmodelFromSubmodelDescriptor(
+                            submodelDescriptor.endpoints[0].protocolInformation.href,
+                        ),
+                    );
                     if (submodelResponse && submodelResponse.isSuccess()) {
                         const dataRecord = generateSubmodelCompareData(submodelResponse.result!);
                         newCompareData.push(dataRecord);

@@ -170,22 +170,20 @@ export class AasSearcher {
     }
 
     private async performAasRegistrySearch(searchAasId: string): Promise<ApiResponseWrapper<RegistrySearchResult>> {
-        try {
-            const shellDescription = await this.registryService.getAssetAdministrationShellDescriptorById(searchAasId);
-            if (!shellDescription.isSuccess()) {
-                throw new Error();
-            }
-            const endpoints = shellDescription.result!.endpoints as Endpoint[];
-            const submodelDescriptors = shellDescription.result!.submodelDescriptors as SubmodelDescriptor[];
-            const endpointUrls = endpoints.map((endpoint) => new URL(endpoint.protocolInformation.href));
-            return ApiResponseWrapper.fromSuccess<RegistrySearchResult>({
-                endpoints: endpointUrls,
-                submodelDescriptors: submodelDescriptors,
-            });
-        } catch (e) {
-            this.log.warn(`Could not find the AAS '${searchAasId}' in the registry service`);
-            return ApiResponseWrapper.fromErrorCode(ApiResultStatus.NOT_FOUND, e.errorCode);
+        const shellDescription = await this.registryService.getAssetAdministrationShellDescriptorById(searchAasId);
+        if (!shellDescription.isSuccess()) {
+            return ApiResponseWrapper.fromErrorCode(
+                ApiResultStatus.NOT_FOUND,
+                `Could not find the AAS '${searchAasId}' in the registry service`,
+            );
         }
+        const endpoints = shellDescription.result!.endpoints as Endpoint[];
+        const submodelDescriptors = shellDescription.result!.submodelDescriptors as SubmodelDescriptor[];
+        const endpointUrls = endpoints.map((endpoint) => new URL(endpoint.protocolInformation.href));
+        return ApiResponseWrapper.fromSuccess<RegistrySearchResult>({
+            endpoints: endpointUrls,
+            submodelDescriptors: submodelDescriptors,
+        });
     }
 
     private async getAasFromEndpoint(endpoint: URL): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
