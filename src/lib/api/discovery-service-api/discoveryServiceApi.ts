@@ -1,6 +1,7 @@
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { IDiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApiInterface';
 import { DiscoveryServiceApiInMemory } from 'lib/api/discovery-service-api/discoveryServiceApiInMemory';
+import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
 
 export class DiscoveryServiceApi implements IDiscoveryServiceApi {
     baseUrl: string;
@@ -8,7 +9,7 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
     private constructor(
         protected _baseUrl: string = '',
         protected http: {
-            fetch(url: RequestInfo, init?: RequestInit): Promise<Response>;
+            fetch(url: RequestInfo, init?: RequestInit): Promise<ApiResponseWrapper<string>>;
         },
     ) {
         this.baseUrl = _baseUrl;
@@ -16,11 +17,11 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
 
     static create(
         _baseUrl: string = '',
-        http?: {
-            fetch(url: RequestInfo, init?: RequestInit): Promise<Response>;
+        http: {
+            fetch(url: RequestInfo, init?: RequestInit): Promise<ApiResponseWrapper<string>>;
         },
     ): DiscoveryServiceApi {
-        return new DiscoveryServiceApi(_baseUrl, http ?? window);
+        return new DiscoveryServiceApi(_baseUrl, http);
     }
 
     static createNull(options: {
@@ -60,16 +61,12 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
             headers,
         });
 
-        if (response.ok) {
-            return response.json();
-        } else {
-            throw response;
-        }
+        return response.transformResult(JSON.parse)
     }
 
     async getAllAssetAdministrationShellIdsByAssetLink(
         assetIds: { name: string; value: string }[],
-    ): Promise<{ paging_metadata: string; result: string[] }> {
+    ): Promise<ApiResponseWrapper<{ paging_metadata: string; result: string[] }>> {
         const headers = {
             Accept: 'application/json',
             'Content-Type': 'application/json',
@@ -86,14 +83,10 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
             headers,
         });
 
-        if (response.ok) {
-            return response.json();
-        } else {
-            throw response;
-        }
+        return response.transformResult<{ paging_metadata: string; result: string[] }>(JSON.parse)
     }
 
-    async getAllAssetLinksById(aasId: string) {
+    async getAllAssetLinksById(aasId: string): Promise<ApiResponseWrapper<string[]>> {
         const b64_aasId = encodeBase64(aasId);
 
         const headers = {
@@ -106,11 +99,7 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
             headers,
         });
 
-        if (response.ok) {
-            return response.json();
-        } else {
-            throw response;
-        }
+        return response.transformResult<string []>(JSON.parse)
     }
 
     async postAllAssetLinksById(aasId: string, assetLinks: { name: string; value: string }[]) {
@@ -127,10 +116,6 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
             body: JSON.stringify(assetLinks),
         });
 
-        if (response.ok) {
-            return response.json();
-        } else {
-            throw response;
-        }
+        return response.transformResult(JSON.parse)
     }
 }

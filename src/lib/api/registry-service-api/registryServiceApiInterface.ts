@@ -1,21 +1,18 @@
 import { AssetAdministrationShellDescriptor } from 'lib/types/registryServiceTypes';
 import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
+import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
 
 export interface IRegistryServiceApi {
     baseUrl: string;
 
-    getAllAssetAdministrationShellDescriptors(): Promise<JSON>;
-
-    getAssetAdministrationShellDescriptorById(aasId: string): Promise<AssetAdministrationShellDescriptor>;
-
-    postAssetAdministrationShellDescriptor(shellDescriptor: AssetAdministrationShellDescriptor): Promise<JSON>;
+    getAssetAdministrationShellDescriptorById(
+        aasId: string,
+    ): Promise<ApiResponseWrapper<AssetAdministrationShellDescriptor>>;
 
     putAssetAdministrationShellDescriptorById(
         aasId: string,
         shellDescriptor: AssetAdministrationShellDescriptor,
-    ): Promise<JSON>;
+    ): Promise<ApiResponseWrapper<JSON>>;
 
-    deleteAssetAdministrationShellDescriptorById(aasId: string): Promise<Response>;
-
-    getAssetAdministrationShellFromEndpoint(endpoint: URL): Promise<AssetAdministrationShell>;
+    getAssetAdministrationShellFromEndpoint(endpoint: URL): Promise<ApiResponseWrapper<AssetAdministrationShell>>;
 }

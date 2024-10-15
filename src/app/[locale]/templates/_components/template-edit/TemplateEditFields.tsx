@@ -7,14 +7,14 @@ import { SubmodelViewObject } from 'lib/types/SubmodelViewObject';
 import { PropertyEditComponent } from './edit-components/property/PropertyEditComponent';
 import debounce from 'lodash/debounce';
 import {
+    File,
     ISubmodelElement,
     KeyTypes,
     MultiLanguageProperty,
     Property,
     Submodel,
-    File,
 } from '@aas-core-works/aas-core3.0-typescript/types';
-import { GetKeyType } from 'lib/util/KeyTypeUtil';
+import { getKeyType } from 'lib/util/KeyTypeUtil';
 import { MappingInfoEditComponent } from './edit-components/mapping-info/MappingInfoEditComponent';
 import { MultiplicityEditComponent } from './edit-components/multiplicity/MultiplicityEditComponent';
 import { MultiLangEditComponent } from './edit-components/multi-lang/MultiLangEditComponent';
@@ -60,7 +60,7 @@ export function TemplateEditFields(props: TemplateEditFieldsProps) {
             return;
         }
 
-        const templatePartType = GetKeyType(templatePart.data);
+        const templatePartType = getKeyType(templatePart.data);
 
         switch (templatePartType) {
             case KeyTypes.Submodel:

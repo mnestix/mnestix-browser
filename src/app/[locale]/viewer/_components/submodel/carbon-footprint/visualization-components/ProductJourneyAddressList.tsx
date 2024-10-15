@@ -3,16 +3,16 @@ import { AddressPerLifeCyclePhase } from './ProductJourney';
 
 export function ProductJourneyAddressList(props: { addressesPerLifeCyclePhase: AddressPerLifeCyclePhase[] }) {
     const rowsAdressesList = props.addressesPerLifeCyclePhase
-        .filter((v) => v.address.Street && v.address.HouseNumber && v.address.ZipCode && v.address.CityTown)
+        .filter((v) => v.address.street && v.address.houseNumber && v.address.zipCode && v.address.cityTown)
         .map((phase, index) => {
             return (
                 <Typography key={index} variant="body1" sx={{ color: 'primary.main' }}>
                     <Typography key={index} sx={{ color: 'inherit', fontWeight: 600 }} component="span">
                         {`${phase.lifeCyclePhase}:`}{' '}
                     </Typography>
-                    {`${phase.address.Street} ${phase.address.HouseNumber}, ${phase.address.ZipCode} ${
-                        phase.address.CityTown
-                    }${phase.address.Country ? `, ${phase.address.Country}` : undefined}`}
+                    {`${phase.address.street} ${phase.address.houseNumber}, ${phase.address.zipCode} ${
+                        phase.address.cityTown
+                    }${phase.address.country ? `, ${phase.address.country}` : undefined}`}
                 </Typography>
             );
         });

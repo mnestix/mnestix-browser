@@ -17,8 +17,8 @@ import { DocumentDetailsDialog } from './DocumentDetailsDialog';
 import { isValidUrl } from 'lib/util/UrlUtil';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
-import Image from 'next/image';
 import { getAttachmentFromSubmodelElement } from 'lib/services/repository-access/repositorySearchActions';
+import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
 
 enum DocumentSpecificSemanticId {
     DocumentVersion = 'https://admin-shell.io/vdi/2770/1/0/DocumentVersion',
@@ -172,12 +172,14 @@ export function DocumentComponent(props: MarkingsComponentProps) {
                 '/attachment';
             digitalFile.mimeType = (versionSubmodelEl as File).contentType;
 
-            try {
-                const image = await getAttachmentFromSubmodelElement(props.submodelId, submodelElementPath);
-                digitalFile.digitalFileUrl = URL.createObjectURL(image);
+            const imageRespone = ApiResponseWrapper.fromPlainObject(
+                await getAttachmentFromSubmodelElement(props.submodelId, submodelElementPath),
+            );
+            if (imageRespone.isSuccess()) {
+                digitalFile.digitalFileUrl = URL.createObjectURL(imageRespone.result!);
                 digitalFile.mimeType = (versionSubmodelEl as File).contentType;
-            } catch (e) {
-                console.error('Image not found', e);
+            } else {
+                console.error('Image not found' + imageRespone.message);
             }
         }
 
@@ -204,11 +206,13 @@ export function DocumentComponent(props: MarkingsComponentProps) {
                 submodelElementPath +
                 '/attachment';
 
-            try {
-                const image = await getAttachmentFromSubmodelElement(props.submodelId, submodelElementPath);
-                previewImgUrl = URL.createObjectURL(image);
-            } catch (e) {
-                console.error('Image not found', e);
+            const imageResponse = ApiResponseWrapper.fromPlainObject(
+                await getAttachmentFromSubmodelElement(props.submodelId, submodelElementPath),
+            );
+            if (imageResponse.isSuccess()) {
+                previewImgUrl = URL.createObjectURL(imageResponse.result!);
+            } else {
+                console.error('Image not found' + imageResponse.message);
             }
         }
 
@@ -306,11 +310,11 @@ export function DocumentComponent(props: MarkingsComponentProps) {
             {fileViewObject && (
                 <Box display="flex" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
                     <Box display="flex">
-                        <Link href={fileViewObject!.digitalFileUrl} target="_blank">
+                        <Link href={fileViewObject.digitalFileUrl} target="_blank">
                             <StyledImageWrapper>
-                                {fileViewObject!.previewImgUrl ? (
-                                    <Image src={fileViewObject!.previewImgUrl} height={90} width={90} alt="Document" />
-                                ) : fileViewObject!.mimeType === 'application/pdf' ? (
+                                {fileViewObject.previewImgUrl ? (
+                                    <img src={fileViewObject.previewImgUrl} height={90} width={90} alt="Document" />
+                                ) : fileViewObject.mimeType === 'application/pdf' ? (
                                     <PdfDocumentIcon color="primary" />
                                 ) : (
                                     <InsertDriveFileOutlined color="primary" />
@@ -318,17 +322,17 @@ export function DocumentComponent(props: MarkingsComponentProps) {
                             </StyledImageWrapper>
                         </Link>
                         <Box>
-                            <Typography>{fileViewObject!.title}</Typography>
-                            {fileViewObject!.organizationName && (
+                            <Typography>{fileViewObject.title}</Typography>
+                            {fileViewObject.organizationName && (
                                 <Typography variant="body2" color="text.secondary">
-                                    {fileViewObject!.organizationName}
+                                    {fileViewObject.organizationName}
                                 </Typography>
                             )}
                             <Button
                                 variant="outlined"
                                 startIcon={<OpenInNew />}
                                 sx={{ mt: 1 }}
-                                href={fileViewObject!.digitalFileUrl}
+                                href={fileViewObject.digitalFileUrl}
                                 target="_blank"
                             >
                                 <FormattedMessage {...messages.mnestix.open} />

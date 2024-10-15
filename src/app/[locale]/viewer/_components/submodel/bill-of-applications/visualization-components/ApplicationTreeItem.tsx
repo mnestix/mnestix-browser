@@ -10,14 +10,14 @@ import { Entity, KeyTypes } from '@aas-core-works/aas-core3.0-typescript/types';
 import { AssetIcon } from 'components/custom-icons/AssetIcon';
 import { useAasState } from 'components/contexts/CurrentAasContext';
 import { encodeBase64 } from 'lib/util/Base64Util';
-import { GetKeyType } from 'lib/util/KeyTypeUtil';
-import { EntityDetailsDialog } from 'app/[locale]/viewer/_components/submodel-elements/entity-component/EntityDetailsDialog';
+import { getKeyType } from 'lib/util/KeyTypeUtil';
+import { EntityDetailsDialog } from 'app/[locale]/viewer/_components/submodel-elements/generic-elements/entity-components/EntityDetailsDialog';
 import {
     CustomTreeItemContentProps,
     CustomTreeItemProps,
     ExpandableTreeitem,
     getTreeItemStyle,
-} from '../../../submodel-elements/TreeItem';
+} from 'app/[locale]/viewer/_components/submodel-elements/generic-elements/entity-components/TreeItem';
 
 interface ApplicationTreeItemProps extends CustomTreeItemProps {
     hasChildEntities: boolean;
@@ -44,7 +44,7 @@ const CustomContent = React.forwardRef(function CustomContent(props: Application
         ...other
     } = props;
     const { disabled, expanded, selected, focused, handleExpansion } = useTreeItemState(itemId);
-    const isEntity = data && GetKeyType(data) === KeyTypes.Entity;
+    const isEntity = data && getKeyType(data) === KeyTypes.Entity;
     const [aas] = useAasState();
     const assetId = aas?.assetInformation.globalAssetId;
 

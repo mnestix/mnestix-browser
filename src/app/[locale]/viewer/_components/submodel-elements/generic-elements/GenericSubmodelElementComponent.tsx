@@ -8,26 +8,25 @@ import { FileComponent } from './FileComponent';
 import { MultiLanguagePropertyComponent } from './MultiLanguagePropertyComponent';
 import {
     Entity,
+    File,
+    KeyTypes,
     MultiLanguageProperty,
     Property,
-    ISubmodelElement,
     SubmodelElementCollection,
-    KeyTypes,
-    File,
 } from '@aas-core-works/aas-core3.0-typescript/types';
-import { EntityComponent } from './entity-component/EntityComponent';
-import { GetKeyType } from 'lib/util/KeyTypeUtil';
+import { EntityComponent } from './entity-components/EntityComponent';
+import { getKeyType } from 'lib/util/KeyTypeUtil';
 import { buildSubmodelElementPath } from 'lib/util/SubmodelResolverUtil';
+import {
+    SubmodelElementComponentProps
+} from '../SubmodelElementComponentProps';
 
-type SubmodelElementRendererProps = {
-    readonly submodelId?: string;
-    readonly submodelElement?: ISubmodelElement;
+type GenericSubmodelElementComponentProps = SubmodelElementComponentProps & {
     readonly submodelElementPath?: string | null;
-    readonly hasDivider?: boolean;
     readonly wrapInDataRow?: boolean;
 };
 
-export function SubmodelElementRenderer(props: SubmodelElementRendererProps) {
+export function GenericSubmodelElementComponent(props: GenericSubmodelElementComponentProps) {
     function getRenderElement() {
         if (!props.submodelElement) {
             return;
@@ -36,7 +35,7 @@ export function SubmodelElementRenderer(props: SubmodelElementRendererProps) {
          * We trust that modelType gives us enough information
          * to map the submodelElement interface from our api client to specific types
          */
-        const submodelElementType = GetKeyType(props.submodelElement);
+        const submodelElementType = getKeyType(props.submodelElement);
 
         switch (submodelElementType) {
             case KeyTypes.Property:

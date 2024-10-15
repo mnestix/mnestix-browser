@@ -1,16 +1,16 @@
 import {
     Entity,
-    MultiLanguageProperty,
-    Submodel,
     ISubmodelElement,
-    SubmodelElementCollection,
     KeyTypes,
     LangStringTextType,
+    MultiLanguageProperty,
     Property,
+    Submodel,
+    SubmodelElementCollection,
 } from '@aas-core-works/aas-core3.0-typescript/types';
 import { SubmodelViewObject } from 'lib/types/SubmodelViewObject';
 import { clone, cloneDeep, escapeRegExp, parseInt } from 'lodash';
-import { GetKeyType } from './KeyTypeUtil';
+import { getKeyType } from './KeyTypeUtil';
 
 //TODO disable checks until MNES-244 is fixed
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
@@ -46,14 +46,14 @@ export function generateSubmodelViewObjectFromSubmodelElement(el: ISubmodelEleme
         propertyValue: (localEl as Property).value ?? undefined,
     };
 
-    if (GetKeyType(localEl) === KeyTypes.SubmodelElementCollection) {
+    if (getKeyType(localEl) === KeyTypes.SubmodelElementCollection) {
         const col = localEl as SubmodelElementCollection;
         const arr = col.value || [];
         arr.forEach((child, i) =>
             frontend.children?.push(generateSubmodelViewObjectFromSubmodelElement(child, id + '-' + i)),
         );
         col.value = [];
-    } else if (GetKeyType(localEl) === KeyTypes.Entity) {
+    } else if (getKeyType(localEl) === KeyTypes.Entity) {
         const entity = localEl as Entity;
         entity.statements?.forEach((child, i) =>
             frontend.children?.push(generateSubmodelViewObjectFromSubmodelElement(child, id + '-' + i)),
@@ -93,7 +93,7 @@ function generateSubmodelElements(viewObjects: SubmodelViewObject[]): ISubmodelE
 }
 
 export function viewObjectHasDataValue(el: SubmodelViewObject) {
-    switch (GetKeyType(el.data!)) {
+    switch (getKeyType(el.data!)) {
         case KeyTypes.Property:
         case KeyTypes.File:
             // eslint-disable-next-line @typescript-eslint/no-explicit-any

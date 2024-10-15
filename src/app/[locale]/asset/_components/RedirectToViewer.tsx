@@ -11,6 +11,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import AssetNotFound from 'components/basics/AssetNotFound';
 import { useAasState } from 'components/contexts/CurrentAasContext';
 import { performDiscoveryAasSearch } from 'lib/services/search-actions/searchActions';
+import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
 
 export const RedirectToViewer = () => {
     const navigate = useRouter();
@@ -33,7 +34,7 @@ export const RedirectToViewer = () => {
     }, []);
 
     async function navigateToViewerOfAsset(assetId: string | undefined): Promise<void> {
-        const aasIds = await getAasIdsOfAsset(assetId);
+        const aasIds: string[] = (await getAasIdsOfAsset(assetId)).result!;
         assertAnAasIdExists(aasIds);
         const targetUrl = determineViewerTargetUrl(aasIds);
         setAas(null);
@@ -44,8 +45,9 @@ export const RedirectToViewer = () => {
         if (!assetId) {
             throw new NotFoundError();
         }
-        const discoverySearchResult = await performDiscoveryAasSearch(assetId);
-        return discoverySearchResult ?? [];
+        const response = ApiResponseWrapper.fromPlainObject(await performDiscoveryAasSearch(assetId));
+        if (response.isSuccess()) return response;
+        return ApiResponseWrapper.fromSuccess([]);
     }
 
     function assertAnAasIdExists(aasIds: string[]) {

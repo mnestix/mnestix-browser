@@ -1,6 +1,7 @@
 import { IRegistryServiceApi } from 'lib/api/registry-service-api/registryServiceApiInterface';
 import { AssetAdministrationShellDescriptor } from 'lib/types/registryServiceTypes';
 import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
+import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
 
 export interface INullableAasRegistryEndpointEntries {
     endpoint: URL | string;
@@ -21,41 +22,47 @@ export class RegistryServiceApiInMemory implements IRegistryServiceApi {
         this.shellsAvailableOnEndpoints = options.shellsAvailableOnEndpoints;
     }
 
-    getAllAssetAdministrationShellDescriptors(): Promise<JSON> {
-        throw new Error('Method not implemented.');
-    }
-
-    getAssetAdministrationShellDescriptorById(aasId: string): Promise<AssetAdministrationShellDescriptor> {
+    async getAssetAdministrationShellDescriptorById(
+        aasId: string,
+    ): Promise<ApiResponseWrapper<AssetAdministrationShellDescriptor>> {
         if (!this.registryShellDescriptorEntries) return Promise.reject(new Error('no registry configuration'));
         let shellDescriptor: AssetAdministrationShellDescriptor;
         for (shellDescriptor of this.registryShellDescriptorEntries) {
-            if (shellDescriptor.id === aasId) return Promise.resolve(shellDescriptor);
+            if (shellDescriptor.id === aasId) {
+                const response = new Response(JSON.stringify(shellDescriptor));
+                const value = await ApiResponseWrapper.fromResponse(response);
+                return Promise.resolve(value.transformResult<AssetAdministrationShellDescriptor>(JSON.parse));
+            }
         }
-        return Promise.reject(new Error('no shell descriptor for aasId:' + aasId));
+        return Promise.resolve(
+            ApiResponseWrapper.fromHttpError(
+                404,
+                'no shell descriptor for aasId:' + aasId,
+            ),
+        );
     }
 
-    async getAssetAdministrationShellFromEndpoint(endpoint: URL): Promise<AssetAdministrationShell> {
+    async getAssetAdministrationShellFromEndpoint(
+        endpoint: URL,
+    ): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
         if (!this.shellsAvailableOnEndpoints) return Promise.reject(new Error('no registry configuration'));
         let registryEndpoint: INullableAasRegistryEndpointEntries;
         for (registryEndpoint of this.shellsAvailableOnEndpoints) {
             if (registryEndpoint.endpoint.toString() === endpoint.toString())
-                return Promise.resolve(registryEndpoint.aas);
+            {
+                const value = await ApiResponseWrapper.fromResponse(new Response(JSON.stringify(registryEndpoint.aas)));
+                return Promise.resolve(value.transformResult<AssetAdministrationShell>(JSON.parse));
+            }
         }
-        return Promise.reject(new Error('no shell descriptor for url:' + endpoint));
-    }
-
-    postAssetAdministrationShellDescriptor(_shellDescriptor: AssetAdministrationShellDescriptor): Promise<JSON> {
-        throw new Error('Method not implemented.');
+        return Promise.resolve(
+            ApiResponseWrapper.fromHttpError(404, 'no shell for url:' + endpoint),
+        );
     }
 
     putAssetAdministrationShellDescriptorById(
         _aasId: string,
         _shellDescriptor: AssetAdministrationShellDescriptor,
-    ): Promise<JSON> {
-        throw new Error('Method not implemented.');
-    }
-
-    deleteAssetAdministrationShellDescriptorById(_aasId: string): Promise<Response> {
+    ): Promise<ApiResponseWrapper<JSON>> {
         throw new Error('Method not implemented.');
     }
 }

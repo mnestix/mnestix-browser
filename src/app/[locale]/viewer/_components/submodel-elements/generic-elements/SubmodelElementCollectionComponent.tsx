@@ -5,7 +5,7 @@ import { NestedContentWrapper } from 'components/basics/NestedContentWrapper';
 import { messages } from 'lib/i18n/localization';
 import { ReactNode, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { SubmodelElementRenderer } from './SubmodelElementRenderer';
+import { GenericSubmodelElementComponent } from './GenericSubmodelElementComponent';
 
 enum ExpandButtonText {
     show = 'show',
@@ -32,7 +32,7 @@ export function SubmodelElementCollectionComponent(props: SubmodelElementCompone
     }
     submodelElementCollection.value.forEach((val, index) => {
         componentList.push(
-            <SubmodelElementRenderer
+            <GenericSubmodelElementComponent
                 key={index}
                 submodelElement={val}
                 hasDivider={!(index === 0)}

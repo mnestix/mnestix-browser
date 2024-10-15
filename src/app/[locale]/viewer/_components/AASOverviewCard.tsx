@@ -21,13 +21,15 @@ import { isValidUrl } from 'lib/util/UrlUtil';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { useRouter } from 'next/navigation';
-import { useRegistryAasState } from 'components/contexts/CurrentAasContext';
+import { useAasState, useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { AssetAdministrationShellRepositoryApi } from 'lib/api/basyx-v3/api';
 import { ImageWithFallback } from 'app/[locale]/list/_components/StyledImageWithFallBack';
 import {
     getThumbnailFromShell,
     performGetAasThumbnailFromAllRepos,
 } from 'lib/services/repository-access/repositorySearchActions';
+import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
+import { mnestixFetch } from 'lib/api/infrastructure';
 
 type AASOverviewCardProps = {
     readonly aas: AssetAdministrationShell | null;
@@ -64,29 +66,39 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
     const navigate = useRouter();
     const [productImageUrl, setProductImageUrl] = useState<string | undefined>('');
     const [registryAasData] = useRegistryAasState();
+    const [, setAasState] = useAasState();
 
     async function createAndSetUrlForImageFile() {
         if (!props.aas) return;
 
-        try {
-            let image: Blob;
-            if (registryAasData) {
-                const registryRepository = AssetAdministrationShellRepositoryApi.create({
-                    basePath: registryAasData.aasRegistryRepositoryOrigin,
-                });
-                image = await registryRepository.getThumbnailFromShell(props.aas.id);
-                setProductImageUrl(URL.createObjectURL(image));
-            } else {
-                try {
-                    image = await getThumbnailFromShell(props.aas.id);
-                } catch (e) {
-                    image = await performGetAasThumbnailFromAllRepos(props.aas.id);
-                }
-
+        let image: Blob;
+        if (registryAasData) {
+            const registryRepository = AssetAdministrationShellRepositoryApi.create(
+                mnestixFetch(),
+                undefined,
+                registryAasData.aasRegistryRepositoryOrigin,
+            );
+            const result = ApiResponseWrapper.fromPlainObject(
+                await registryRepository.getThumbnailFromShell(props.aas.id),
+            );
+            if (result.isSuccess()) {
+                image = result.result!;
                 setProductImageUrl(URL.createObjectURL(image));
             }
-        } catch (e) {
-            console.error('Image not found', e);
+        } else {
+            const response = ApiResponseWrapper.fromPlainObject(await getThumbnailFromShell(props.aas.id));
+            if (response.isSuccess()) image = response.result!;
+            else {
+                const response = ApiResponseWrapper.fromPlainObject(
+                    await performGetAasThumbnailFromAllRepos(props.aas.id),
+                );
+                if (response.isSuccess()) image = response.result!;
+                else {
+                    console.error('Image not found');
+                    return;
+                }
+            }
+            setProductImageUrl(URL.createObjectURL(image));
         }
     }
 
@@ -120,7 +132,11 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
     };
 
     const navigateToAas = () => {
-        if (props.imageLinksToDetail && props.aas) navigate.push(`/viewer/${encodeBase64(props.aas.id)}`);
+        if (props.imageLinksToDetail && props.aas) {
+            setAasState(props.aas)
+            const url = `/viewer/${encodeBase64(props.aas.id)}`;
+            navigate.push(url);
+        }
     };
 
     const aasInfo = (

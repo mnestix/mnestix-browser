@@ -90,7 +90,11 @@
                             "value": "true"
                         },
                         {
-                            "name": "ReverseProxy__Clusters__repoCluster__Destinations__destination1__Address",
+                            "name": "ReverseProxy__Clusters__aasRepoCluster__Destinations__destination1__Address",
+                            "value": "[parameters('basyxAppServiceUrl')]"
+                        },
+                        {
+                            "name": "ReverseProxy__Clusters__submodelRepoCluster__Destinations__destination1__Address",
                             "value": "[parameters('basyxAppServiceUrl')]"
                         },
                         {

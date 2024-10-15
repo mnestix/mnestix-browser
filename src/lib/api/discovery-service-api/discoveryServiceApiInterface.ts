@@ -1,15 +1,17 @@
+import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
+
 export interface IDiscoveryServiceApi {
-    linkAasIdAndAssetId(aasId: string, assetId: string): Promise<JSON>;
+    linkAasIdAndAssetId(aasId: string, assetId: string): Promise<ApiResponseWrapper<JSON>>;
 
-    getAasIdsByAssetId(assetId: string): Promise<{ paging_metadata: string; result: string[] }>;
+    getAasIdsByAssetId(assetId: string): Promise<ApiResponseWrapper<{ paging_metadata: string; result: string[] }>>;
 
-    deleteAllAssetLinksById(aasId: string): Promise<JSON>;
+    deleteAllAssetLinksById(aasId: string): Promise<ApiResponseWrapper<JSON>>;
 
     getAllAssetAdministrationShellIdsByAssetLink(
         assetIds: { name: string; value: string }[],
-    ): Promise<{ paging_metadata: string; result: string[] }>;
+    ): Promise<ApiResponseWrapper<{ paging_metadata: string; result: string[] }>>;
 
-    getAllAssetLinksById(aasId: string): Promise<JSON>;
+    getAllAssetLinksById(aasId: string): Promise<ApiResponseWrapper<string[]>>;
 
-    postAllAssetLinksById(aasId: string, assetLinks: { name: string; value: string }[]): Promise<JSON>;
+    postAllAssetLinksById(aasId: string, assetLinks: { name: string; value: string }[]): Promise<ApiResponseWrapper<JSON>>;
 }

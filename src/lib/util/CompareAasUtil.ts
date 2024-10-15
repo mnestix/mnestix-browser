@@ -7,7 +7,7 @@
     SubmodelElementCollection,
 } from '@aas-core-works/aas-core3.0-typescript/types';
 import { SubmodelCompareData, SubmodelCompareDataRecord } from 'lib/types/SubmodelCompareData';
-import { GetKeyType } from 'lib/util/KeyTypeUtil';
+import { getKeyType } from 'lib/util/KeyTypeUtil';
 import { IntlShape } from 'react-intl';
 import { getTranslationText } from 'lib/util/SubmodelResolverUtil';
 
@@ -15,7 +15,7 @@ export function generateSubmodelCompareData(sm: Submodel | SubmodelElementCollec
     const semanticId = sm.semanticId?.keys?.[0]?.value ?? null;
     const idShort = sm.idShort;
     let dataRecords = null;
-    const elementType = GetKeyType(sm);
+    const elementType = getKeyType(sm);
     if (elementType === KeyTypes.SubmodelElementCollection) {
         const submodelElementCollection = sm as SubmodelElementCollection;
         if (submodelElementCollection.value) dataRecords = getSubmodelElementsValues(submodelElementCollection.value);
@@ -46,7 +46,7 @@ export function compareRowValues(smElements: (ISubmodelElement | null)[], intl: 
     smElements.forEach((el) => {
         if (!el) values.push(null);
         if (el) {
-            const submodelElementType = GetKeyType(el);
+            const submodelElementType = getKeyType(el);
             switch (submodelElementType) {
                 case KeyTypes.Property:
                     values.push((el as Property).value ?? null);
@@ -85,7 +85,7 @@ function getSubmodelElementsValues(sm: ISubmodelElement[]): (SubmodelCompareData
     const submodelCompareDataRecords: (SubmodelCompareDataRecord | SubmodelCompareData)[] = [];
 
     sm.forEach((el) => {
-        const submodelElementType = GetKeyType(el);
+        const submodelElementType = getKeyType(el);
         if (submodelElementType === KeyTypes.SubmodelElementCollection) {
             const elementCollection = el as SubmodelElementCollection;
             if (elementCollection.value != null) {

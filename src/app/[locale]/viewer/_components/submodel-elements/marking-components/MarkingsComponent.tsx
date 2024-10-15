@@ -1,7 +1,7 @@
 import { Box } from '@mui/material';
 import { File, Property, SubmodelElementCollection } from '@aas-core-works/aas-core3.0-typescript/types';
 import { DataRow } from 'components/basics/DataRow';
-import { SingleMarkingsComponent } from './SingleMarkingsComponent';
+import { SingleMarkingsComponent } from 'app/[locale]/viewer/_components/submodel-elements/marking-components/SingleMarkingsComponent';
 
 type MarkingsComponentProps = {
     readonly submodelElement?: SubmodelElementCollection;

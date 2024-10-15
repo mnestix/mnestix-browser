@@ -1,15 +1,13 @@
-﻿import { AssetAdministrationShell, Reference } from '@aas-core-works/aas-core3.0-typescript/types';
+﻿import { AssetAdministrationShell, Reference, Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
 import { createContext, PropsWithChildren, useContext, useEffect, useState } from 'react';
 import { SubmodelCompareData } from 'lib/types/SubmodelCompareData';
 import { generateSubmodelCompareData, isCompareData, isCompareDataRecord } from 'lib/util/CompareAasUtil';
-import { encodeBase64 } from 'lib/util/Base64Util';
-import { getSubmodelFromSubmodelDescriptor, performRegistryAasSearch } from 'lib/services/search-actions/searchActions';
+import { getSubmodelFromSubmodelDescriptor, performFullAasSearch } from 'lib/services/search-actions/searchActions';
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 import { getSubmodelDescriptorsById } from 'lib/services/submodelRegistryApiActions';
-import {
-    getAssetAdministrationShellById,
-    getSubmodelById,
-} from 'lib/services/repository-access/repositorySearchActions';
+import { getSubmodelById } from 'lib/services/repository-access/repositorySearchActions';
+import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
+import { AasSearchResult } from 'lib/services/search-actions/AasSearcher';
 
 type CompareAasContextType = {
     compareAas: AssetAdministrationShell[];
@@ -75,28 +73,22 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
         const aasList: AssetAdministrationShell[] = [];
         let compareDataTemp: SubmodelCompareData[] = [];
         for (const aasId of input as string[]) {
-            let shell;
-            const registrySearchResult = await performRegistryAasSearch(aasId);
-            if (registrySearchResult != null) {
-                shell = registrySearchResult.aas as AssetAdministrationShell;
-            } else {
-                shell = await getAssetAdministrationShellById(encodeBase64(aasId));
-            }
-            // Get AAS
-            aasList.push(shell);
-
-            // Get Submodels
-            if (shell.submodels) {
-                compareDataTemp = await loadSubmodelDataIntoState(
-                    compareDataTemp,
-                    shell.submodels,
-                    aasList.length - 1,
-                    registrySearchResult?.aasData?.submodelDescriptors,
-                );
+            let searchResult: AasSearchResult | null = null;
+            const response = ApiResponseWrapper.fromPlainObject(await performFullAasSearch(aasId));
+            if (response.isSuccess()) searchResult = response.result!;
+            const shell: AssetAdministrationShell | null = searchResult?.aas ?? null;
+            if (shell) {
+                aasList.push(shell!);
+                if (shell!.submodels) {
+                    compareDataTemp = await loadSubmodelDataIntoState(
+                        compareDataTemp,
+                        shell.submodels,
+                        aasList.length - 1,
+                        searchResult?.aasData?.submodelDescriptors,
+                    );
+                }
             }
         }
-
-        // update the state once
         setCompareAas(aasList);
         setCompareData(compareDataTemp);
     };
@@ -146,33 +138,47 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
         const newCompareData: SubmodelCompareData[] = [];
         if (submodelDescriptors && submodelDescriptors.length > 0) {
             for (const submodelDescriptor of submodelDescriptors) {
-                const submodelData = await getSubmodelFromSubmodelDescriptor(
-                    submodelDescriptor.endpoints[0].protocolInformation.href,
+                const submodelResponse = ApiResponseWrapper.fromPlainObject(
+                    await getSubmodelFromSubmodelDescriptor(submodelDescriptor.endpoints[0].protocolInformation.href),
                 );
-                const dataRecord = generateSubmodelCompareData(submodelData);
-                newCompareData.push(dataRecord);
+                if (submodelResponse.isSuccess()) {
+                    const dataRecord = generateSubmodelCompareData(submodelResponse.result!);
+                    newCompareData.push(dataRecord);
+                }
             }
         } else {
             for (const reference of input as Reference[]) {
                 let submodelAdded = false;
-                try {
-                    const submodelDescriptor = await getSubmodelDescriptorsById(reference.keys[0].value);
-                    const submodelData = await getSubmodelFromSubmodelDescriptor(
-                        submodelDescriptor.endpoints[0].protocolInformation.href,
+                const response: ApiResponseWrapper<SubmodelDescriptor> = ApiResponseWrapper.fromPlainObject(
+                    await getSubmodelDescriptorsById(reference.keys[0].value),
+                );
+                if (response && response.isSuccess()) {
+                    const submodelDescriptor = response.result!;
+                    const submodelResponse: ApiResponseWrapper<Submodel> | null = ApiResponseWrapper.fromPlainObject(
+                        await getSubmodelFromSubmodelDescriptor(
+                            submodelDescriptor.endpoints[0].protocolInformation.href,
+                        ),
                     );
-                    const dataRecord = generateSubmodelCompareData(submodelData);
-                    newCompareData.push(dataRecord);
-                    submodelAdded = true;
-                } catch (e) {
+                    if (submodelResponse && submodelResponse.isSuccess()) {
+                        const dataRecord = generateSubmodelCompareData(submodelResponse.result!);
+                        newCompareData.push(dataRecord);
+                        submodelAdded = true;
+                    }
+                } else {
                     console.warn(
-                        `Could not be found in Submodel Registry, will continue to look in the repository. ${e}`,
+                        `Could not be found in Submodel Registry, will continue to look in the repository. ${response?.message}`,
                     );
                 }
+
                 // Submodel registry is not available or submodel not found there -> search in repo
                 if (!submodelAdded) {
-                    const submodelData = await getSubmodelById(reference.keys[0].value);
-                    const dataRecord = generateSubmodelCompareData(submodelData);
-                    newCompareData.push(dataRecord);
+                    const submodelData = ApiResponseWrapper.fromPlainObject(
+                        await getSubmodelById(reference.keys[0].value),
+                    );
+                    if (submodelData.isSuccess()) {
+                        const dataRecord = generateSubmodelCompareData(submodelData.result!);
+                        newCompareData.push(dataRecord);
+                    }
                 }
             }
         }
