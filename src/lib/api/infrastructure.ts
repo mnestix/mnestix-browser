@@ -1,6 +1,7 @@
-﻿import { getSession } from 'next-auth/react';
+import { getServerSession } from 'next-auth';
 import { performServerFetch, performServerFetchLegacy } from 'lib/api/serverFetch';
 import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
+import { authOptions } from 'authConfig';
 
 const initializeRequestOptions = async (bearerToken: string, init?: RequestInit) => {
     init = init || {};
@@ -13,7 +14,7 @@ const initializeRequestOptions = async (bearerToken: string, init?: RequestInit)
 };
 
 const getBearerToken = async () => {
-    const session = await getSession();
+    const session = await getServerSession(authOptions);
     if (session && session.accessToken) {
         return session.accessToken;
     } else {
