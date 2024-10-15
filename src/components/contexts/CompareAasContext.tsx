@@ -1,4 +1,4 @@
-﻿import { AssetAdministrationShell, Reference } from '@aas-core-works/aas-core3.0-typescript/types';
+﻿import { AssetAdministrationShell, Reference, Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
 import { createContext, PropsWithChildren, useContext, useEffect, useState } from 'react';
 import { SubmodelCompareData } from 'lib/types/SubmodelCompareData';
 import { generateSubmodelCompareData, isCompareData, isCompareDataRecord } from 'lib/util/CompareAasUtil';
@@ -149,24 +149,34 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
         } else {
             for (const reference of input as Reference[]) {
                 let submodelAdded = false;
-                const response = ApiResponseWrapper.fromPlainObject(
-                    await getSubmodelDescriptorsById(reference.keys[0].value),
-                );
-                if (response.isSuccess()) {
-                    const submodelDescriptor = response.result!;
-                    const submodelResponse = ApiResponseWrapper.fromPlainObject(
-                        await getSubmodelFromSubmodelDescriptor(
-                            submodelDescriptor.endpoints[0].protocolInformation.href,
-                        ),
+                let response: ApiResponseWrapper<SubmodelDescriptor> | null = null;
+                try {
+                    response = ApiResponseWrapper.fromPlainObject(
+                        await getSubmodelDescriptorsById(reference.keys[0].value),
                     );
-                    if (submodelResponse.isSuccess()) {
+                } catch (e) {
+                    console.log('error is ungood');
+                }
+                if (response && response.isSuccess()) {
+                    const submodelDescriptor = response.result!;
+                    let submodelResponse: ApiResponseWrapper<Submodel> | null = null;
+                    try {
+                        submodelResponse = ApiResponseWrapper.fromPlainObject(
+                            await getSubmodelFromSubmodelDescriptor(
+                                submodelDescriptor.endpoints[0].protocolInformation.href,
+                            ),
+                        );
+                    } catch (e) {
+                        console.log('error is ungood');
+                    }
+                    if (submodelResponse && submodelResponse.isSuccess()) {
                         const dataRecord = generateSubmodelCompareData(submodelResponse.result!);
                         newCompareData.push(dataRecord);
                         submodelAdded = true;
                     }
                 } else {
                     console.warn(
-                        `Could not be found in Submodel Registry, will continue to look in the repository. ${response.message}`,
+                        `Could not be found in Submodel Registry, will continue to look in the repository. ${response?.message}`,
                     );
                 }
 
