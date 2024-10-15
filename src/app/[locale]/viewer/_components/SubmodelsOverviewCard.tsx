@@ -22,7 +22,9 @@ import { getSubmodelDescriptorsById } from 'lib/services/submodelRegistryApiActi
 import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 
-export type SubmodelsOverviewCardProps = { readonly smReferences: Reference[] };
+export type SubmodelsOverviewCardProps = {
+    readonly smReferences?: Reference[];
+};
 
 export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
     const [selectedItem, setSelectedItem] = useState<TabSelectorItem>();

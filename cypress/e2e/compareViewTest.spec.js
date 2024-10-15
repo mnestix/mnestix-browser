@@ -160,6 +160,31 @@ describe('Test compare feature view', function () {
             cy.getByTestId('compare-value').should('not.exist');
         });
     });
+
+    it('Clicking the image of an AAS in compare view redirects to the detail page', function () {
+        cy.setResolution(resolutions[0]);
+        
+        // go to compare view with all three test data
+        const url = `/compare?aasId=${compareAAS[0].id}&aasId=${compareAAS[1].id}&aasId=${compareAAS[2].id}`;
+        cy.visit(url);
+        cy.getByTestId('compare-aas-2').should('be.visible');
+        
+        // click second image
+        cy.getByTestId('compare-aas-1')
+            .findByTestId('image-with-fallback')
+            .click();
+        
+        // check if url is correct
+        const b64Url = btoa(compareAAS[1].id)
+            .replace(/=*$/, '');
+        cy.url().should('contain', `/viewer/${b64Url}`);
+            
+        // check if loaded aas id is correct
+        cy.getByTestId('aas-data')
+            .findByTestId('data-row-value')
+            .should('contain', compareAAS[1].id);
+    });
+    
     after(function () {
         cy.deleteCompareMockData();
     });
