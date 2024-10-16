@@ -64,6 +64,15 @@ export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdmi
     ): Promise<Blob> {
         throw new Error('Method not implemented.');
     }
+
+    putThumbnailToShell(
+        _aasId: string,
+        _image: Blob,
+        _options?: object | undefined,
+        _basePath?: string | undefined,
+    ): Promise<Response> {
+        throw new Error('Method not implemented.');
+    }
 }
 
 export class SubmodelRepositoryApiInMemory implements ISubmodelRepositoryApi {

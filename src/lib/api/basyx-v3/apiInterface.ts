@@ -35,6 +35,8 @@ export interface IAssetAdministrationShellRepositoryApi {
      */
     getThumbnailFromShell(aasId: string, options?: object, basePath?: string): Promise<Blob>;
 
+    putThumbnailToShell(aasId: string, image: Blob, options?: object, basePath?: string): Promise<Response>;
+
     postAssetAdministrationShell(aas: AssetAdministrationShell, options?: object): Promise<AssetAdministrationShell>;
 }
 

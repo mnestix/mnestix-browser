@@ -11,10 +11,12 @@ import { AssetAdministrationShellDescriptor, Endpoint, SubmodelDescriptor } from
 import { TransferDto, TransferResult } from 'lib/services/transfer-service/transferActions';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { AssetAdministrationShell, Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
+import { isValidUrl } from 'lib/util/UrlUtil';
 
 export class TransferService {
     private constructor(
         protected readonly targetAasRepositoryClient: IAssetAdministrationShellRepositoryApi,
+        protected readonly sourceAasRepositoryClient: IAssetAdministrationShellRepositoryApi,
         protected readonly targetSubmodelRepositoryClient: ISubmodelRepositoryApi,
         protected readonly targetAasDiscoveryClient?: IDiscoveryServiceApi,
         protected readonly targetAasRegistryClient?: IRegistryServiceApi,
@@ -30,6 +32,11 @@ export class TransferService {
     ): TransferService {
         const targetAasRepositoryClient = AssetAdministrationShellRepositoryApi.create({
             basePath: targetAasRepositoryBaseUrl,
+            fetch: mnestixFetch(),
+        });
+
+        const sourceAasRepositoryClient = AssetAdministrationShellRepositoryApi.create({
+            basePath: process.env.AAS_REPO_API_URL,
             fetch: mnestixFetch(),
         });
 
@@ -52,6 +59,7 @@ export class TransferService {
 
         return new TransferService(
             targetAasRepositoryClient,
+            sourceAasRepositoryClient,
             targetSubmodelRepositoryClient,
             targetAasDiscoveryClient,
             targetAasRegistryClient,
@@ -74,6 +82,10 @@ export class TransferService {
         const promises = [];
 
         promises.push(this.postAasToRepository(aas, apikey));
+
+        if (this.aasThumbnailImageIsFile(aas)) {
+            promises.push(this.postThumbnailImageToShell(aas, apikey));
+        }
 
         if (this.targetAasDiscoveryClient && aas.assetInformation.globalAssetId) {
             promises.push(this.registerAasAtDiscovery(aas));
@@ -169,6 +181,25 @@ export class TransferService {
         }
     }
 
+    private async postThumbnailImageToShell(aas: AssetAdministrationShell, apikey?: string): Promise<TransferResult> {
+        try {
+            const aasThumbnail = await this.sourceAasRepositoryClient.getThumbnailFromShell(aas.id);
+            await this.targetAasRepositoryClient.putThumbnailToShell(aas.id, aasThumbnail, {
+                headers: {
+                    Apikey: apikey,
+                },
+            });
+            return { success: true, operationKind: 'AasRepository', resourceId: '', error: '' };
+        } catch (e) {
+            return {
+                success: false,
+                operationKind: 'AasRepository',
+                resourceId: 'Thumbnail import failed.',
+                error: e.toString(),
+            };
+        }
+    }
+
     createShellDescriptorFromAas(
         aas: AssetAdministrationShell,
         targetBaseUrl: string,
@@ -229,5 +260,10 @@ export class TransferService {
 
     getInterfaceString(target: AssetAdministrationShell | Submodel): string {
         return target instanceof AssetAdministrationShell ? 'AAS-3.0' : 'SUBMODEL-3.0';
+    }
+
+    aasThumbnailImageIsFile(aas: AssetAdministrationShell): boolean {
+        const thumbnailPath = aas.assetInformation.defaultThumbnail?.path;
+        return !!(thumbnailPath && !isValidUrl(thumbnailPath));
     }
 }

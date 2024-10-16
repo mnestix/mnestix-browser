@@ -138,6 +138,22 @@ export class AssetAdministrationShellRepositoryApi extends BaseAPI implements IA
         )(this.fetch, basePath ?? this.basePath);
     }
 
+    /**
+     * @summary Retrieves the thumbnail from the Asset Administration Shell.
+     * @param aasId
+     * @param image
+     * @param options {*} [options] Override http request option.
+     * @param {string} [basePath] The URL for the current repository endpoint.
+     * @returns The thumbnail retrieved from the Asset Administration Shell.
+     */
+    putThumbnailToShell(aasId: string, image: Blob, options?: any, basePath?: string) {
+        return AssetAdministrationShellRepositoryApiFp(this.configuration).putThumbnailToShell(
+            aasId,
+            image,
+            options,
+        )(this.fetch, basePath ?? this.basePath);
+    }
+
     postAssetAdministrationShell(
         aas: AssetAdministrationShell,
         options?: object | undefined,
@@ -230,6 +246,39 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
                 );
                 if (response.status >= 200 && response.status < 300) {
                     return response.blob();
+                } else {
+                    throw response;
+                }
+            };
+        },
+
+        putThumbnailToShell(
+            aasId: string,
+            image: Blob,
+            options?: any,
+        ): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
+                const localVarHeaderParameter = {
+                    Accept: 'application/json',
+                } as any;
+
+                localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options?.headers);
+                const formData = new FormData();
+                formData.append('file', image);
+
+                localVarRequestOptions.body = formData;
+                const response = await requestHandler.fetch(
+                    basePath +
+                        `/shells/{aasId}/asset-information/thumbnail?fileName={fileName}`
+                            .replace(`{aasId}`, encodeBase64(String(aasId)))
+                            .replace(`{fileName}`, 'thumbnail'), //TODO: Get a better file name
+                    localVarRequestOptions,
+                );
+                if (response.status >= 200 && response.status < 300) {
+                    return response.json().then(() => {
+                        return response;
+                    });
                 } else {
                     throw response;
                 }
