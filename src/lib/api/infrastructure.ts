@@ -27,8 +27,7 @@ export const mnestixFetch = ():
     | undefined => {
     return {
         fetch: async (url: RequestInfo, init?: RequestInit) => {
-            const text = await performServerFetch(url, await initializeRequestOptions(await getBearerToken(), init));
-            return new Response(text);
+            return await fetch(url, await initializeRequestOptions(await getBearerToken(), init));
         },
     };
 };
