@@ -9,4 +9,5 @@ cypress-artifacts
 /cypress/videos/
 /cypress/screenshots/
 /prisma/mnestix-database.db
+prisma/database/mnestix-database.db
 /cypress/results/*

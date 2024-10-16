@@ -160,7 +160,7 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
                 configuration,
             ).getAssetAdministrationShellById(aasId, options);
             return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                const response = await requestHandler.fetch(
+                const response = await fetch(
                     basePath + localVarFetchArgs.url,
                     localVarFetchArgs.options,
                 );
@@ -186,7 +186,7 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
                 configuration,
             ).getSubmodelReferencesFromShell(aasId, options);
             return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                const response = await requestHandler.fetch(
+                const response = await fetch(
                     basePath + localVarFetchArgs.url,
                     localVarFetchArgs.options,
                 );
@@ -214,7 +214,7 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
                 configuration,
             ).getThumbnailFromAssetInformation(aasId, options);
             return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                const response = await requestHandler.fetch(
+                const response = await fetch(
                     basePath + localVarFetchArgs.url,
                     localVarFetchArgs.options,
                 );
@@ -419,7 +419,7 @@ export const SubmodelRepositoryApiFp = function (configuration?: Configuration) 
                 options,
             );
             return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                const response = await requestHandler.fetch(
+                const response = await fetch(
                     basePath + localVarFetchArgs.url,
                     localVarFetchArgs.options,
                 );
@@ -442,7 +442,7 @@ export const SubmodelRepositoryApiFp = function (configuration?: Configuration) 
                 options,
             );
             return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                const response = await requestHandler.fetch(
+                const response = await fetch(
                     basePath + localVarFetchArgs.url,
                     localVarFetchArgs.options,
                 );
@@ -468,7 +468,7 @@ export const SubmodelRepositoryApiFp = function (configuration?: Configuration) 
                 configuration,
             ).getAttachmentFromSubmodelElement(submodelId, submodelElementPath, options);
             return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                const response = await requestHandler.fetch(
+                const response = await fetch(
                     basePath + localVarFetchArgs.url,
                     localVarFetchArgs.options,
                 );
