@@ -11,7 +11,7 @@
     "keys": [
       {
         "type": "GlobalReference",
-        "value": "https://admin-shell.io/idta/TimeSeries/1/1",
+        "value": "https://admin-shell.io/idta/TimeSeries/1/1"
       }
     ]
   },
@@ -27,13 +27,6 @@
           }
         ]
       },
-      "qualifiers": [
-        {
-          "type": "Cardinality",
-          "valueType": "xs:string",
-          "value": "One"
-        }
-      ],
       "value": [
         {
           "category": "PARAMETER",
@@ -562,7 +555,7 @@
                         }
                       ],
                       "valueType": "xs:long",
-                      "value": "",
+                      "value": "1729164729987",
                       "modelType": "Property"
                     },
                     {
@@ -585,7 +578,7 @@
                         }
                       ],
                       "valueType": "xs:long",
-                      "value": "",
+                      "value": "8",
                       "modelType": "Property"
                     },
                     {
@@ -608,7 +601,7 @@
                         }
                       ],
                       "valueType": "xs:long",
-                      "value": "",
+                      "value": "2",
                       "modelType": "Property"
                     },
                     {
@@ -631,7 +624,7 @@
                         }
                       ],
                       "valueType": "xs:long",
-                      "value": "",
+                      "value": "4",
                       "modelType": "Property"
                     }
                   ],

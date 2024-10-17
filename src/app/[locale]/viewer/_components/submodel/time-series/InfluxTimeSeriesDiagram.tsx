@@ -1,58 +1,11 @@
 import { FluxResultObserver, InfluxDB } from '@influxdata/influxdb-client-browser';
 import { useEffect, useState } from 'react';
-import {
-    CartesianGrid,
-    Label,
-    Line,
-    LineChart,
-    ReferenceLine,
-    ResponsiveContainer,
-    Tooltip,
-    XAxis,
-    YAxis,
-} from 'recharts';
-import { Alert, Box, CircularProgress, Typography } from '@mui/material';
+import { Alert, Box, CircularProgress } from '@mui/material';
 import { useIntl } from 'react-intl';
 import { messages } from 'lib/i18n/localization';
+import { TimeSeriesLineDiagram } from 'app/[locale]/viewer/_components/submodel/time-series/TimeSeriesLineDiagram';
+import { dataPoint } from 'app/[locale]/viewer/_components/submodel/time-series/TimeSeriesUtil';
 
-type dataPoint = {
-    timestamp: string;
-    value: number;
-};
-
-function formatDate(dateString: string, showSeconds = false) {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: showSeconds ? '2-digit' : undefined,
-    });
-}
-
-function formatDateLabel(dateString: string) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-        year: '2-digit',
-        month: 'numeric',
-        day: 'numeric',
-    });
-}
-
-function getDateStamp(dateString: string) {
-    const date = new Date(dateString);
-    const dateStamp = date.toISOString().split('T')[0];
-    return dateStamp;
-}
-
-function getUTCMidnightEquivalentTime(dates: string[]) {
-    const utcMidnights = dates.map((date) => {
-        const dt = new Date(`${date}`);
-        const utcTime = dt.getTime() + dt.getTimezoneOffset() * 60000;
-        const utcMidnight = new Date(utcTime).toISOString().slice(0, -5) + 'Z';
-        return utcMidnight;
-    });
-    return utcMidnights;
-}
 
 export function InfluxTimeSeriesDiagram(props: { query: string; endpoint: string }) {
     const intl = useIntl();
@@ -95,61 +48,5 @@ export function InfluxTimeSeriesDiagram(props: { query: string; endpoint: string
             </Box>
         );
 
-    const uniqueDates = [...new Set(data.map((date) => getDateStamp(date.timestamp)))];
-
-    const startDayMarkerStamp = getUTCMidnightEquivalentTime(uniqueDates);
-
-    const CustomTooltip = ({
-        active,
-        payload,
-        label,
-    }: {
-        active?: boolean;
-        payload?: Array<{ color: string; name: string; value: string }>;
-        label?: string;
-    }) => {
-        if (payload && payload.length && label) {
-            return (
-                <Box
-                    sx={{
-                        bgcolor: 'white',
-                        border: '1px solid #CCCCCC',
-                        visibility: !active ? 'hidden' : undefined,
-                        padding: '10px',
-                    }}
-                >
-                    <Typography>{formatDate(label, true)}</Typography>
-                    {payload.map((p, index) => (
-                        <Box key={index} sx={{ color: p.color, paddingY: '4px' }}>{`${p.name} : ${p.value} `}</Box>
-                    ))}
-                </Box>
-            );
-        }
-        return null;
-    };
-
-    return (
-        <Box sx={{ width: '100%', height: '250px' }}>
-            <ResponsiveContainer>
-                <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="timestamp" tickFormatter={(v) => formatDate(v)} />
-                    <YAxis />
-                    <Tooltip content={<CustomTooltip />} />
-                    {startDayMarkerStamp.map((marker) => (
-                        <ReferenceLine key={marker} x={marker} stroke="blue" isFront>
-                            <Label
-                                value={formatDateLabel(marker)}
-                                position="insideRight"
-                                dx={-5}
-                                angle={-90}
-                                style={{ textAnchor: 'middle' }}
-                            />
-                        </ReferenceLine>
-                    ))}
-                    <Line type="monotone" dataKey="value" stroke="#5e6b7c" />
-                </LineChart>
-            </ResponsiveContainer>
-        </Box>
-    );
+    return <TimeSeriesLineDiagram data={data}/>
 }

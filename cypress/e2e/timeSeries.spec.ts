@@ -9,8 +9,8 @@ describe('Test the TimeSeries', function () {
     before(function () {
         const encodedAasId = btoa(testAAS.id).replace(/=+$/g, '');
         cy.repoRequest('POST', '/shells', testAAS);
-        cy.postSubmodelToAas(encodedAasId, testInternalSub, testInternalSubRef);
         cy.postSubmodelToAas(encodedAasId, testLinkedSub, testLinkedSubRef);
+        cy.postSubmodelToAas(encodedAasId, testInternalSub, testInternalSubRef);
     });
     resolutions.forEach((res) => {
         describe('test on resolution: ' + res, function () {
