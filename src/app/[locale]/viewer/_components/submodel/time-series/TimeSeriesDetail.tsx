@@ -9,7 +9,7 @@ type TimeSeriesDetailProps = {
 export function TimeSeriesDetail(props: TimeSeriesDetailProps) {
     return (
         <>
-            <TimeSeriesVisualizations submodel={props.submodel} data-testid="timeseries-detail-view" />
+            <TimeSeriesVisualizations submodel={props.submodel} />
             <ExpandableDefaultSubmodelDisplay submodel={props.submodel} />
         </>
     );
