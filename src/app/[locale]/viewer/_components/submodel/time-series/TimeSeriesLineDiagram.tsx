@@ -10,7 +10,7 @@ import {
     YAxis,
 } from 'recharts';
 import { Box, Typography } from '@mui/material';
-import { dataPoint } from 'app/[locale]/viewer/_components/submodel/time-series/TimeSeriesUtil';
+import { DataSet } from 'app/[locale]/viewer/_components/submodel/time-series/TimeSeriesUtil';
 
 function formatDate(dateString: string, showSeconds = false) {
     const date = new Date(dateString);
@@ -43,16 +43,16 @@ function getUTCMidnightEquivalentTime(dates: string[]) {
     });
 }
 
-export function TimeSeriesLineDiagram(props: { data: dataPoint[] }) {
-    const uniqueDates = [...new Set(props.data.map((date) => getDateStamp(date.timestamp)))];
+export function TimeSeriesLineDiagram(props: { data: DataSet }) {
+    const uniqueDates = [...new Set(props.data.points.map((point) => getDateStamp(point['timestamp'] as string)))];
 
     const startDayMarkerStamp = getUTCMidnightEquivalentTime(uniqueDates);
 
     const CustomTooltip = ({
-                               active,
-                               payload,
-                               label,
-                           }: {
+        active,
+        payload,
+        label,
+    }: {
         active?: boolean;
         payload?: Array<{ color: string; name: string; value: string }>;
         label?: string;
@@ -80,7 +80,7 @@ export function TimeSeriesLineDiagram(props: { data: dataPoint[] }) {
     return (
         <Box sx={{ width: '100%', height: '250px' }}>
             <ResponsiveContainer>
-                <LineChart data={props.data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                <LineChart data={props.data.points} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="timestamp" tickFormatter={(v) => formatDate(v)} />
                     <YAxis />
@@ -96,7 +96,11 @@ export function TimeSeriesLineDiagram(props: { data: dataPoint[] }) {
                             />
                         </ReferenceLine>
                     ))}
-                    <Line type="monotone" dataKey="value" stroke="#5e6b7c" />
+                    {props.data.names.map((name, index) => (
+                        <Line type="monotone" key={index} dataKey={name} stroke="#5e6b7c" />
+                    ))}
+                    {/*<Line type="monotone" dataKey="y" stroke="#5e6b7c" />*/}
+                    {/*<Line type="monotone" dataKey="z" stroke="#aa6baa" />*/}
                 </LineChart>
             </ResponsiveContainer>
         </Box>

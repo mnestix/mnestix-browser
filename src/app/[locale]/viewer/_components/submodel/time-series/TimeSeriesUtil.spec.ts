@@ -276,11 +276,12 @@ describe('Parse internal Segment', () => {
             ],
         };
 
-        const points = parseRecordsFromInternalSegment(segment as unknown as SubmodelElementCollection);
-        expect(points).toHaveLength(2);
-        expect(points[0].value).toHaveLength(3);
-        expect(points[1].value[0]).toBe(4);
-        expect('1729164729987' === points[1].timestamp);
+        const dataSet = parseRecordsFromInternalSegment(segment as unknown as SubmodelElementCollection);
+        expect(dataSet?.points).toHaveLength(2);
+        expect(dataSet?.names).toHaveLength(3);
+        expect(Object.keys(dataSet?.points[1] ?? {})[0] === 'sampleAccelerationX');
+        expect(dataSet?.points[1].sampleAccelerationX).toBe(4);
+        expect('1729164729987' === dataSet?.points[1].timestamp);
     });
 
     it('Parse example timestamps', async () => {
@@ -304,13 +305,13 @@ describe('Parse internal Segment', () => {
         const dateFromInt = convertRecordTimeToDate(propertyStructure as unknown as Property);
         expect(dateFromInt).toEqual('2024-10-17T11:32:09.987Z');
 
-        propertyStructure.value = ''
-        expect(convertRecordTimeToDate(propertyStructure as unknown as Property)).toBe(null)
-        propertyStructure.valueType = ''
-        expect(convertRecordTimeToDate(propertyStructure as unknown as Property)).toBe(null)
+        propertyStructure.value = '';
+        expect(convertRecordTimeToDate(propertyStructure as unknown as Property)).toBe(null);
+        propertyStructure.valueType = '';
+        expect(convertRecordTimeToDate(propertyStructure as unknown as Property)).toBe(null);
 
-        propertyStructure.value = '2024-10-01T07:49:10.608Z'
-        propertyStructure.valueType = 'xs:dateTime'
+        propertyStructure.value = '2024-10-01T07:49:10.608Z';
+        propertyStructure.valueType = 'xs:dateTime';
         const dateFromString = convertRecordTimeToDate(propertyStructure as unknown as Property);
         expect(dateFromString).toEqual('2024-10-01T07:49:10.608Z');
     });
