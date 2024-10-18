@@ -32,6 +32,24 @@ export function extractIntlValueBySemanticId(
     return multiLanguageProperty ? getTranslationText(multiLanguageProperty, intl) : '';
 }
 
+export function convertRecordTimeToDate(timeProp: Property) : string | null {
+    if (!timeProp.value) return null;
+
+    const format = timeProp.valueType as unknown as string
+    switch (format) {
+        case 'xs:long':
+            return (new Date(Number.parseFloat(timeProp.value))).toISOString();
+
+        case 'xs:dateTime':
+        case 'xs:time':
+        case 'xs:date':
+            return (new Date(timeProp.value)).toISOString();
+
+        default:
+            return null;
+    }
+}
+
 export function parseRecordsFromInternalSegment(submodelElement: SubmodelElementCollection) : dataPoint[] {
     // get records
     const recordsElement = submodelElement.value?.find((se) => hasSemanticId(se, SubmodelElementSemanticId.TimeSeriesRecords))
@@ -53,7 +71,6 @@ export function parseRecordsFromInternalSegment(submodelElement: SubmodelElement
 
     // parse data
     // TODO time format
-    // TODO data format
     return records.map((record: SubmodelElementCollection) => {
         const vars = (record.value as Property[])
         const timeVar = vars.find(value => hasSemanticId(value, targetSemID));
@@ -61,7 +78,7 @@ export function parseRecordsFromInternalSegment(submodelElement: SubmodelElement
         const numbers = dataVars.map((v) => Number.parseFloat(v.value ?? '0'))
 
         if (timeVar) {
-            return { timestamp: (new Date(Number.parseFloat(timeVar.value ?? '0'))).toString(), value: numbers }
+            return { timestamp: (convertRecordTimeToDate(timeVar) ?? ''), value: numbers }
         }
         return { timestamp: '', value: numbers };
     })

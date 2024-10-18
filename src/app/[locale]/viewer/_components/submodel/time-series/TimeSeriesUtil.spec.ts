@@ -1,9 +1,12 @@
 import { expect } from '@jest/globals';
-import { SubmodelElementCollection } from '@aas-core-works/aas-core3.0-typescript/types';
-import { parseRecordsFromInternalSegment } from 'app/[locale]/viewer/_components/submodel/time-series/TimeSeriesUtil';
+import { Property, SubmodelElementCollection } from '@aas-core-works/aas-core3.0-typescript/types';
+import {
+    convertRecordTimeToDate,
+    parseRecordsFromInternalSegment,
+} from 'app/[locale]/viewer/_components/submodel/time-series/TimeSeriesUtil';
 
 describe('Parse internal Segment', () => {
-    it('Parse example', async () => {
+    it('Parse example internal segment', async () => {
         const segment = {
             idShort: 'InternalSegment',
             semanticId: {
@@ -278,5 +281,37 @@ describe('Parse internal Segment', () => {
         expect(points[0].value).toHaveLength(3);
         expect(points[1].value[0]).toBe(4);
         expect('1729164729987' === points[1].timestamp);
+    });
+
+    it('Parse example timestamps', async () => {
+        const propertyStructure = {
+            category: 'VARIABLE',
+            idShort: 'Time',
+            semanticId: {
+                type: 'ExternalReference',
+                keys: [
+                    {
+                        type: 'GlobalReference',
+                        value: 'https://admin-shell.io/idta/TimeSeries/RelativePointInTime/1/1',
+                    },
+                ],
+            },
+            valueType: 'xs:long',
+            value: '1729164729987',
+            modelType: 'Property',
+        };
+
+        const dateFromInt = convertRecordTimeToDate(propertyStructure as unknown as Property);
+        expect(dateFromInt).toEqual('2024-10-17T11:32:09.987Z');
+
+        propertyStructure.value = ''
+        expect(convertRecordTimeToDate(propertyStructure as unknown as Property)).toBe(null)
+        propertyStructure.valueType = ''
+        expect(convertRecordTimeToDate(propertyStructure as unknown as Property)).toBe(null)
+
+        propertyStructure.value = '2024-10-01T07:49:10.608Z'
+        propertyStructure.valueType = 'xs:dateTime'
+        const dateFromString = convertRecordTimeToDate(propertyStructure as unknown as Property);
+        expect(dateFromString).toEqual('2024-10-01T07:49:10.608Z');
     });
 });
