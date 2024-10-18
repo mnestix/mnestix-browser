@@ -4,7 +4,7 @@ import { useIntl } from 'react-intl';
 import { messages } from 'lib/i18n/localization';
 import { TimeSeriesLineDiagram } from 'app/[locale]/viewer/_components/submodel/time-series/TimeSeriesLineDiagram';
 import {
-    DataSet,
+    TimeSeriesDataSet,
     extractIntlValueBySemanticId,
     parseRecordsFromInternalSegment,
 } from 'app/[locale]/viewer/_components/submodel/time-series/TimeSeriesUtil';
@@ -14,7 +14,7 @@ import { SubmodelElementSemanticId } from 'lib/enums/SubmodelElementSemanticId.e
 
 export function InternalTimeSeries(props: { submodelElement: SubmodelElementCollection }) {
     const intl = useIntl();
-    const [data, setData] = useState<DataSet>({ names: [], points: [] });
+    const [data, setData] = useState<TimeSeriesDataSet>({ names: [], points: [] });
     const [error, setError] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState(true);
 

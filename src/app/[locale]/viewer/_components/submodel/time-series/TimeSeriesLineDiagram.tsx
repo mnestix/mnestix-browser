@@ -11,7 +11,7 @@ import {
     YAxis,
 } from 'recharts';
 import { Box, Typography } from '@mui/material';
-import { DataSet } from 'app/[locale]/viewer/_components/submodel/time-series/TimeSeriesUtil';
+import { TimeSeriesDataSet } from 'app/[locale]/viewer/_components/submodel/time-series/TimeSeriesUtil';
 
 function formatDate(dateString: string, onlyTime = false) {
     const date = new Date(dateString);
@@ -44,7 +44,7 @@ function getUTCMidnightEquivalentTime(dates: string[]) {
     });
 }
 
-export function TimeSeriesLineDiagram(props: { data: DataSet; timeframeSelectable?: boolean }) {
+export function TimeSeriesLineDiagram(props: { data: TimeSeriesDataSet; timeframeSelectable?: boolean }) {
     const uniqueDates = [...new Set(props.data.points.map((point) => getDateStamp(point['timestamp'] as string)))];
     const startDayMarkerStamp = uniqueDates.length > 2 ? getUTCMidnightEquivalentTime(uniqueDates) : [];
 

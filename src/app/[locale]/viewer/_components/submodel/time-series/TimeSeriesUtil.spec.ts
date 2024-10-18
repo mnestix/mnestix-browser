@@ -2,6 +2,7 @@ import { expect } from '@jest/globals';
 import { Property, SubmodelElementCollection } from '@aas-core-works/aas-core3.0-typescript/types';
 import {
     convertRecordTimeToDate,
+    detectRecordTimeSemanticID,
     parseRecordsFromInternalSegment,
 } from 'app/[locale]/viewer/_components/submodel/time-series/TimeSeriesUtil';
 
@@ -314,5 +315,70 @@ describe('Parse internal Segment', () => {
         propertyStructure.valueType = 'xs:dateTime';
         const dateFromString = convertRecordTimeToDate(propertyStructure as unknown as Property);
         expect(dateFromString).toEqual('2024-10-01T07:49:10.608Z');
+    });
+
+    it('Detect timestamp id string', async () => {
+        const record = {
+            idShort: 'Record',
+            semanticId: {
+                type: 'ExternalReference',
+                keys: [
+                    {
+                        type: 'GlobalReference',
+                        value: 'https://admin-shell.io/idta/TimeSeries/Record/1/1',
+                    },
+                ],
+            },
+            value: [
+                {
+                    category: 'VARIABLE',
+                    idShort: 'Time',
+                    semanticId: {
+                        type: 'ExternalReference',
+                        keys: [
+                            {
+                                type: 'GlobalReference',
+                                value: 'https://admin-shell.io/idta/TimeSeries/RelativePointInTime/1/1',
+                            },
+                        ],
+                    },
+                    valueType: 'xs:long',
+                    value: '1729164729987',
+                },
+                {
+                    category: 'VARIABLE',
+                    idShort: 'sampleAccelerationX',
+                    valueType: 'xs:long',
+                    value: '4',
+                },
+            ],
+        };
+        const id = detectRecordTimeSemanticID(record as unknown as SubmodelElementCollection);
+        expect(id === 'https://admin-shell.io/idta/TimeSeries/RelativePointInTime/1/1');
+
+        const recordWithoutID = {
+            idShort: 'Record',
+            semanticId: {},
+            value: [
+                {
+                    category: 'VARIABLE',
+                    idShort: 'Time',
+                    semanticId: {
+                        type: 'ExternalReference',
+                        keys: [
+                            {
+                                type: 'GlobalReference',
+                                value: '',
+                            },
+                        ],
+                    },
+                    valueType: 'xs:long',
+                    value: '1729164729987',
+                },
+            ],
+        };
+
+        const noId = detectRecordTimeSemanticID(recordWithoutID as unknown as SubmodelElementCollection);
+        expect(noId).toBeNull();
     });
 });

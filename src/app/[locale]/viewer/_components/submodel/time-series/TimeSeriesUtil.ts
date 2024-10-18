@@ -8,11 +8,11 @@ import { IntlShape } from 'react-intl';
 import { TimeSeriesTimeFormat, TimeSeriesTimeFormatSemanticIds } from 'lib/enums/TimeSeriesTimeFormatSemanticIds.enum';
 import { Property } from '@aas-core-works/aas-core3.0-typescript/types';
 
-export type DataSet = {
-    points: DataPoint[]
+export type TimeSeriesDataSet = {
+    points: DataPoint[];
     names: string[];
 };
-export type DataPoint = {[key: string]: number | string};
+export type DataPoint = { [key: string]: number | string };
 
 export function extractValueBySemanticId(
     submodelElementCollection: SubmodelElementCollection,
@@ -33,6 +33,10 @@ export function extractIntlValueBySemanticId(
     return multiLanguageProperty ? getTranslationText(multiLanguageProperty, intl) : '';
 }
 
+/**
+ * Parses TimeSeries record variable with timestamp to Date string
+ * @param timeProp Record SMC with timestamp
+ */
 export function convertRecordTimeToDate(timeProp: Property): string | null {
     if (!timeProp.value) return null;
 
@@ -51,48 +55,57 @@ export function convertRecordTimeToDate(timeProp: Property): string | null {
     }
 }
 
-export function parseRecordsFromInternalSegment(submodelElement: SubmodelElementCollection): DataSet | null {
-    // get records
-    const recordsElement = submodelElement.value?.find((se) =>
-        hasSemanticId(se, SubmodelElementSemanticId.TimeSeriesRecords),
-    );
-    if (!recordsElement) return null;
-    const records = (recordsElement as SubmodelElementCollection).value;
-    if (!records || !records?.length) return null;
-
-    // find record timestamp semantic id
-    const firstRecord = records[0] as SubmodelElementCollection;
-    const variables = firstRecord.value;
-    if (!variables || !variables.length) return null;
-    const variableSemIDs = variables.map((value) => (value.semanticId?.keys[0].value ?? '') as string);
+/**
+ * Searches in the record for the timestamp semantic id and returns the id string
+ * @param record : Record with timestamp
+ */
+export function detectRecordTimeSemanticID(record: SubmodelElementCollection): string | null {
+    if (!record.value || !record.value.length) return null;
+    const variableSemIDs = record.value.map((value) => (value.semanticId?.keys[0].value ?? '') as string);
     if (!variableSemIDs.length) return null;
     const format = variableSemIDs
         .map((id) => TimeSeriesTimeFormatSemanticIds[id])
         .find((a) => a !== undefined) as TimeSeriesTimeFormat;
     if (format === undefined) return null;
 
+    return Object.keys(TimeSeriesTimeFormatSemanticIds)[Object.values(TimeSeriesTimeFormatSemanticIds).indexOf(format)];
+}
+
+/**
+ * Parses Record structure to DataSet
+ * @param segment InternalSegment from TimeSeries submodel
+ */
+export function parseRecordsFromInternalSegment(segment: SubmodelElementCollection): TimeSeriesDataSet | null {
+    // get records
+    const recordsElement = segment.value?.find((se) =>
+        hasSemanticId(se, SubmodelElementSemanticId.TimeSeriesRecords),
+    );
+    if (!recordsElement) return null;
+    const records = (recordsElement as SubmodelElementCollection).value;
+    if (!records || !records?.length) return null;
+
     // semantic id of record timestamps
-    const targetSemID = Object.keys(TimeSeriesTimeFormatSemanticIds)[
-        Object.values(TimeSeriesTimeFormatSemanticIds).indexOf(format)
-    ];
+    const targetSemID = detectRecordTimeSemanticID(records[0] as SubmodelElementCollection);
+    if (!targetSemID) return null;
 
-    const namesSet = new Set<string>()
+    const namesSet = new Set<string>();
 
-    // parse data
-    const points = records.map((record: SubmodelElementCollection) => {
-        const vars = record.value as Property[];
-        const timeVar = vars.find((value) => hasSemanticId(value, targetSemID));
-        const dataVars = vars.filter((v) => v !== timeVar);
-        const point : DataPoint = {}
+    // parse records
+    const points = records
+        .map((record: SubmodelElementCollection) => record.value as Property[])
+        .map((recordVars) => {
+            const timeVar = recordVars.find((value) => hasSemanticId(value, targetSemID));
+            const dataVars = recordVars.filter((variable) => variable !== timeVar);
+            const point: DataPoint = {};
 
-        dataVars.forEach((v, index) => {
-            const name = v.idShort ?? index.toString()
-            namesSet.add(name)
-            point[name] = Number.parseFloat(v.value ?? '0')
+            dataVars.forEach((variable, index) => {
+                const name = variable.idShort ?? index.toString();
+                point[name] = Number.parseFloat(variable.value ?? '0');
+                namesSet.add(name);
+            });
+            point['timestamp'] = timeVar ? convertRecordTimeToDate(timeVar) ?? '' : '';
+            return point;
         });
-        point['timestamp'] = timeVar ? (convertRecordTimeToDate(timeVar) ?? '') : ''
-        return point
-    });
 
     return { points: points, names: Array.from(namesSet) };
 }
