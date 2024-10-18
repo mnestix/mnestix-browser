@@ -1,4 +1,5 @@
 import {
+    Brush,
     CartesianGrid,
     Label,
     Line,
@@ -12,12 +13,12 @@ import {
 import { Box, Typography } from '@mui/material';
 import { DataSet } from 'app/[locale]/viewer/_components/submodel/time-series/TimeSeriesUtil';
 
-function formatDate(dateString: string, showSeconds = false) {
+function formatDate(dateString: string, onlyTime = false) {
     const date = new Date(dateString);
     return date.toLocaleTimeString('en-US', {
         hour: '2-digit',
         minute: '2-digit',
-        second: showSeconds ? '2-digit' : undefined,
+        second: onlyTime ? '2-digit' : undefined,
     });
 }
 
@@ -43,10 +44,9 @@ function getUTCMidnightEquivalentTime(dates: string[]) {
     });
 }
 
-export function TimeSeriesLineDiagram(props: { data: DataSet }) {
+export function TimeSeriesLineDiagram(props: { data: DataSet; timeframeSelectable?: boolean }) {
     const uniqueDates = [...new Set(props.data.points.map((point) => getDateStamp(point['timestamp'] as string)))];
-
-    const startDayMarkerStamp = getUTCMidnightEquivalentTime(uniqueDates);
+    const startDayMarkerStamp = uniqueDates.length > 2 ? getUTCMidnightEquivalentTime(uniqueDates) : [];
 
     const CustomTooltip = ({
         active,
@@ -67,7 +67,7 @@ export function TimeSeriesLineDiagram(props: { data: DataSet }) {
                         padding: '10px',
                     }}
                 >
-                    <Typography>{formatDate(label, true)}</Typography>
+                    <Typography>{formatDate(label, uniqueDates.length <= 2)}</Typography>
                     {payload.map((p, index) => (
                         <Box key={index} sx={{ color: p.color, paddingY: '4px' }}>{`${p.name} : ${p.value} `}</Box>
                     ))}
@@ -82,7 +82,7 @@ export function TimeSeriesLineDiagram(props: { data: DataSet }) {
             <ResponsiveContainer>
                 <LineChart data={props.data.points} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="timestamp" tickFormatter={(v) => formatDate(v)} />
+                    <XAxis dataKey="timestamp" tickFormatter={(v) => formatDate(v, uniqueDates.length <= 2)} />
                     <YAxis />
                     <Tooltip content={<CustomTooltip />} />
                     {startDayMarkerStamp.map((marker) => (
@@ -99,8 +99,14 @@ export function TimeSeriesLineDiagram(props: { data: DataSet }) {
                     {props.data.names.map((name, index) => (
                         <Line type="monotone" key={index} dataKey={name} stroke="#5e6b7c" />
                     ))}
-                    {/*<Line type="monotone" dataKey="y" stroke="#5e6b7c" />*/}
-                    {/*<Line type="monotone" dataKey="z" stroke="#aa6baa" />*/}
+                    {props.timeframeSelectable && (
+                        <Brush
+                            dataKey="timestamp"
+                            height={30}
+                            tickFormatter={(v) => formatDate(v, uniqueDates.length <= 2)}
+                            stroke="#5e6b7c"
+                        />
+                    )}
                 </LineChart>
             </ResponsiveContainer>
         </Box>

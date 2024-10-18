@@ -4,34 +4,30 @@ import { useIntl } from 'react-intl';
 import { messages } from 'lib/i18n/localization';
 import { TimeSeriesLineDiagram } from 'app/[locale]/viewer/_components/submodel/time-series/TimeSeriesLineDiagram';
 import {
-    dataPoint,
-    extractIntlValueBySemanticId, parseRecordsFromInternalSegment
+    DataSet,
+    extractIntlValueBySemanticId,
+    parseRecordsFromInternalSegment,
 } from 'app/[locale]/viewer/_components/submodel/time-series/TimeSeriesUtil';
 import { SubmodelElementCollection } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
 import { StyledDataRow } from 'components/basics/StyledDataRow';
-import { TimeFrameSelection } from 'app/[locale]/viewer/_components/submodel/time-series/TimeFrameSelection';
 import { SubmodelElementSemanticId } from 'lib/enums/SubmodelElementSemanticId.enum';
-import { useEnv } from 'app/env/provider';
 
 export function InternalTimeSeries(props: { submodelElement: SubmodelElementCollection }) {
     const intl = useIntl();
-    const [data, setData] = useState<dataPoint[]>([]);
+    const [data, setData] = useState<DataSet>({ names: [], points: [] });
     const [error, setError] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState(true);
-    const [selectedTimeFrame, setSelectedTimeFrame] = useState('1d');
-    const env = useEnv();
-    const showTimeSelection = env.LOCK_TIMESERIES_PERIOD_FEATURE_FLAG;
 
     useEffect(() => {
         setIsLoading(true);
-        const points = parseRecordsFromInternalSegment(props.submodelElement)
+        const points = parseRecordsFromInternalSegment(props.submodelElement);
 
         if (!points) {
             setIsLoading(false);
-            setError(true)
-            return
+            setError(true);
+            return;
         }
-        setData(points)
+        setData(points);
         setIsLoading(false);
     }, [props.submodelElement]);
 
@@ -70,17 +66,8 @@ export function InternalTimeSeries(props: { submodelElement: SubmodelElementColl
                         {description}
                     </Typography>
                 </Box>
-                {showTimeSelection && (
-                    <Box sx={{ marginTop: 2 }}>
-                        <TimeFrameSelection
-                            selectedTimeFrame={selectedTimeFrame}
-                            setSelectedTimeFrame={setSelectedTimeFrame}
-                            selectableTimeFrames={['1m', '6h', '12h', '1d', '7d']}
-                        />
-                    </Box>
-                )}
                 <Box sx={{ marginTop: 2 }}>
-                    <TimeSeriesLineDiagram data={data} />
+                    <TimeSeriesLineDiagram data={data} timeframeSelectable={true} />
                 </Box>
             </StyledDataRow>
         </Box>
