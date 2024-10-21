@@ -8,16 +8,26 @@ import { RegistryServiceApi } from 'lib/api/registry-service-api/registryService
 import { DiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApi';
 import { SubmodelRegistryServiceApi } from 'lib/api/submodel-registry-service/submodelRegistryServiceApi';
 import { AssetAdministrationShellDescriptor, Endpoint, SubmodelDescriptor } from 'lib/types/registryServiceTypes';
-import { TransferDto, TransferResult } from 'lib/services/transfer-service/transferActions';
 import { encodeBase64 } from 'lib/util/Base64Util';
-import { AssetAdministrationShell, Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
+import {
+    AssetAdministrationShell,
+    Blob,
+    File,
+    ISubmodelElement,
+    KeyTypes,
+    Submodel,
+    SubmodelElementCollection,
+} from '@aas-core-works/aas-core3.0-typescript/types';
 import { isValidUrl } from 'lib/util/UrlUtil';
+import { AttachmentData, TransferDto, TransferResult } from 'lib/types/TransferServiceData';
+import { getKeyType } from 'lib/util/KeyTypeUtil';
 
 export class TransferService {
     private constructor(
         protected readonly targetAasRepositoryClient: IAssetAdministrationShellRepositoryApi,
         protected readonly sourceAasRepositoryClient: IAssetAdministrationShellRepositoryApi,
         protected readonly targetSubmodelRepositoryClient: ISubmodelRepositoryApi,
+        protected readonly sourceSubmodelRepositoryClient: ISubmodelRepositoryApi,
         protected readonly targetAasDiscoveryClient?: IDiscoveryServiceApi,
         protected readonly targetAasRegistryClient?: IRegistryServiceApi,
         protected readonly targetSubmodelRegistryClient?: ISubmodelRegistryServiceApiInterface,
@@ -45,6 +55,11 @@ export class TransferService {
             fetch: mnestixFetch(),
         });
 
+        const sourceSubmodelRepositoryClient = SubmodelRepositoryApi.create({
+            basePath: process.env.SUBMODEL_REPO_API_URL,
+            fetch: mnestixFetch(),
+        });
+
         const targetAasDiscoveryClient = targetAasDiscoveryBaseUrl
             ? DiscoveryServiceApi.create(targetAasDiscoveryBaseUrl, mnestixFetch())
             : undefined;
@@ -61,6 +76,7 @@ export class TransferService {
             targetAasRepositoryClient,
             sourceAasRepositoryClient,
             targetSubmodelRepositoryClient,
+            sourceSubmodelRepositoryClient,
             targetAasDiscoveryClient,
             targetAasRegistryClient,
             targetSubmodelRegistryClient,
@@ -97,6 +113,12 @@ export class TransferService {
 
         submodels.forEach((submodel) => {
             promises.push(this.postSubmodelToRepository(submodel, apikey));
+
+            if (submodel.submodelElements) {
+                const attachmentsData = this.getSubmodelAttachments(submodel.submodelElements);
+
+                //promises.push(this.putFileByPath(attachmentsData));
+            }
         });
 
         if (this.targetSubmodelRegistryClient) {
@@ -194,7 +216,7 @@ export class TransferService {
             return {
                 success: false,
                 operationKind: 'AasRepository',
-                resourceId: 'Thumbnail import failed.',
+                resourceId: 'Thumbnail export failed.',
                 error: e.toString(),
             };
         }
@@ -265,5 +287,55 @@ export class TransferService {
     aasThumbnailImageIsFile(aas: AssetAdministrationShell): boolean {
         const thumbnailPath = aas.assetInformation.defaultThumbnail?.path;
         return !!(thumbnailPath && !isValidUrl(thumbnailPath));
+    }
+
+    private getSubmodelAttachments(submodelElements: ISubmodelElement[] | null) {
+        const submodelAttachmentsData: AttachmentData[] = [];
+        for (const subEl of submodelElements as ISubmodelElement[]) {
+            const idShort = subEl.idShort;
+            if (idShort === null || idShort === undefined) continue;
+
+            this.processSubmodelElement(subEl, idShort, submodelAttachmentsData);
+        }
+        return submodelAttachmentsData;
+    }
+
+    private getAttachmentsFromCollection(subElColl: SubmodelElementCollection, collectionIdShort: string) {
+        const submodelAttachmentsData: AttachmentData[] = [];
+        for (const subEl of subElColl.value as ISubmodelElement[]) {
+            if (subEl.idShort === null || subEl.idShort === undefined) continue;
+            const submodelElementIdShort = [collectionIdShort, subEl.idShort].join('.');
+
+            this.processSubmodelElement(subEl, submodelElementIdShort, submodelAttachmentsData);
+        }
+        return submodelAttachmentsData;
+    }
+
+    private processSubmodelElement(
+        subEl: ISubmodelElement,
+        idShort: string,
+        submodelAttachmentsData: AttachmentData[],
+    ) {
+        const modelType = getKeyType(subEl);
+
+        if (modelType === KeyTypes.SubmodelElementCollection) {
+            submodelAttachmentsData.push(
+                ...this.getAttachmentsFromCollection(subEl as SubmodelElementCollection, idShort),
+            );
+        }
+
+        if (modelType === KeyTypes.Blob) {
+            submodelAttachmentsData.push({
+                idShortPath: idShort,
+                fileName: (subEl as Blob).idShort,
+            });
+        }
+
+        if (modelType === KeyTypes.File) {
+            submodelAttachmentsData.push({
+                idShortPath: idShort,
+                fileName: (subEl as File).idShort,
+            });
+        }
     }
 }
