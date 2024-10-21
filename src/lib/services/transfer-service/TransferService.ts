@@ -100,7 +100,7 @@ export class TransferService {
         promises.push(this.postAasToRepository(aas, apikey));
 
         if (this.aasThumbnailImageIsFile(aas)) {
-            promises.push(this.postThumbnailImageToShell(aas, apikey));
+            promises.push(this.putThumbnailImageToShell(aas, apikey));
         }
 
         if (this.targetAasDiscoveryClient && aas.assetInformation.globalAssetId) {
@@ -116,8 +116,9 @@ export class TransferService {
 
             if (submodel.submodelElements) {
                 const attachmentsData = this.getSubmodelAttachments(submodel.submodelElements);
-
-                //promises.push(this.putFileByPath(attachmentsData));
+                attachmentsData.forEach(async (attachmentData) => {
+                    promises.push(this.putAttachmentToSubmodelElement(submodel.id, attachmentData, apikey));
+                });
             }
         });
 
@@ -203,7 +204,7 @@ export class TransferService {
         }
     }
 
-    private async postThumbnailImageToShell(aas: AssetAdministrationShell, apikey?: string): Promise<TransferResult> {
+    private async putThumbnailImageToShell(aas: AssetAdministrationShell, apikey?: string): Promise<TransferResult> {
         try {
             const aasThumbnail = await this.sourceAasRepositoryClient.getThumbnailFromShell(aas.id);
             await this.targetAasRepositoryClient.putThumbnailToShell(aas.id, aasThumbnail, {
@@ -217,6 +218,38 @@ export class TransferService {
                 success: false,
                 operationKind: 'AasRepository',
                 resourceId: 'Thumbnail export failed.',
+                error: e.toString(),
+            };
+        }
+    }
+
+    private async putAttachmentToSubmodelElement(
+        submodelId: string,
+        attachment: AttachmentData,
+        apikey?: string,
+    ): Promise<TransferResult> {
+        try {
+            attachment.file = await this.sourceSubmodelRepositoryClient.getAttachmentFromSubmodelElement(
+                submodelId,
+                attachment.idShortPath,
+            );
+            await this.targetSubmodelRepositoryClient.putAttachmentToSubmodelElement(submodelId, attachment, {
+                headers: {
+                    Apikey: apikey,
+                },
+            });
+
+            return {
+                success: true,
+                operationKind: 'SubmodelRepository',
+                resourceId: attachment.idShortPath,
+                error: '',
+            };
+        } catch (e) {
+            return {
+                success: false,
+                operationKind: 'SubmodelRepository',
+                resourceId: attachment.idShortPath,
                 error: e.toString(),
             };
         }

@@ -1,5 +1,6 @@
 import { AssetAdministrationShell, Reference } from '@aas-core-works/aas-core3.0-typescript/types';
 import { Submodel } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
+import { AttachmentData } from 'lib/types/TransferServiceData';
 
 export interface IAssetAdministrationShellRepositoryApi {
     /**
@@ -70,4 +71,10 @@ export interface ISubmodelRepositoryApi {
     getAttachmentFromSubmodelElement(submodelId: string, submodelElementPath: string, options?: object): Promise<Blob>;
 
     postSubmodel(submodel: Submodel, options?: object): Promise<Submodel>;
+
+    putAttachmentToSubmodelElement(
+        submodelId: string,
+        attachmentData: AttachmentData,
+        options?: object,
+    ): Promise<Response>;
 }

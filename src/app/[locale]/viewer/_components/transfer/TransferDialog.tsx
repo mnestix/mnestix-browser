@@ -17,8 +17,9 @@ import { messages } from 'lib/i18n/localization';
 import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/types';
 import { useEffect, useState } from 'react';
 import { SubmodelOrIdReference, useAasState, useSubmodelState } from 'components/contexts/CurrentAasContext';
-import { transferAasWithSubmodels, TransferDto } from 'lib/services/transfer-service/transferActions';
+import { transferAasWithSubmodels } from 'lib/services/transfer-service/transferActions';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
+import { TransferDto } from 'lib/types/TransferServiceData';
 
 export type TransferFormModel = {
     targetAasRepositoryBaseUrl?: string;

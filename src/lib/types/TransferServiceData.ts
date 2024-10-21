@@ -21,4 +21,5 @@ export type TransferResult = {
 export type AttachmentData = {
     idShortPath: string;
     fileName: string | null;
+    file?: Blob;
 };

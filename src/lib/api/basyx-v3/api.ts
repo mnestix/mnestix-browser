@@ -10,6 +10,7 @@ import {
     INullableAasRepositoryEntries,
     SubmodelRepositoryApiInMemory
 } from 'lib/api/basyx-v3/apiInMemory';
+import { AttachmentData } from 'lib/types/TransferServiceData';
 
 const BASE_PATH = '/'.replace(/\/+$/, '');
 
@@ -484,6 +485,18 @@ export class SubmodelRepositoryApi extends BaseAPI implements ISubmodelRepositor
     postSubmodel(submodel: Submodel, options?: object | undefined): Promise<Submodel> {
         return SubmodelRepositoryApiFp(this.configuration).createSubmodel(submodel, options)(this.fetch, this.basePath);
     }
+
+    putAttachmentToSubmodelElement(
+        submodelId: string,
+        attachmentData: AttachmentData,
+        options?: any,
+    ): Promise<Response> {
+        return SubmodelRepositoryApiFp(this.configuration).putAttachmentToSubmodelElement(
+            submodelId,
+            attachmentData,
+            options,
+        )(this.fetch, this.basePath);
+    }
 }
 
 /**
@@ -584,6 +597,34 @@ export const SubmodelRepositoryApiFp = function (configuration?: Configuration) 
                     return response.json().then((resp) => {
                         return resp.result as Submodel;
                     });
+                } else {
+                    throw response;
+                }
+            };
+        },
+
+        putAttachmentToSubmodelElement(submodelId: string, attachmentData: AttachmentData, options: any) {
+            return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
+                const localVarHeaderParameter = {
+                    Accept: 'application/json',
+                } as any;
+
+                localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options?.headers);
+                const formData = new FormData();
+                formData.append('file', attachmentData.file!);
+
+                localVarRequestOptions.body = formData;
+                const response = await requestHandler.fetch(
+                    basePath +
+                        `/submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/attachment?fileName={fileName}`
+                            .replace(`{submodelIdentifier}`, encodeBase64(String(submodelId)))
+                            .replace(`{idShortPath}`, attachmentData.idShortPath)
+                            .replace(`{fileName}`, attachmentData.fileName ?? 'Document'),
+                    localVarRequestOptions,
+                );
+                if (response.status >= 200 && response.status < 300) {
+                    return response;
                 } else {
                     throw response;
                 }
