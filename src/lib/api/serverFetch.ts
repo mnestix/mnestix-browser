@@ -1,6 +1,6 @@
 'use server';
 
-import { ApiResponseWrapper, ApiResultStatus } from 'lib/services/apiResponseWrapper';
+import { ApiResponseWrapper, ApiResponseWrapperUtil, ApiResultStatus } from 'lib/services/apiResponseWrapper';
 
 /**
  * @deprecated use performServerFetch() instead
@@ -15,16 +15,16 @@ export async function performServerFetchLegacy(
     } else throw result;
 }
 
-export async function performServerFetch(
+export async function performServerFetch<T>(
     input: string | Request | URL,
     init?: RequestInit | undefined,
-): Promise<ApiResponseWrapper<string>> {
+): Promise<ApiResponseWrapper<T>> {
     try {
         const result = await fetch(input, init);
-        return ApiResponseWrapper.fromResponse(result);
+        return ApiResponseWrapperUtil.fromResponse<T>(result);
     } catch (e) {
         const message = 'this could be a network error';
         console.warn(message);
-        return ApiResponseWrapper.fromErrorCode(ApiResultStatus.UNKNOWN_ERROR, message);
+        return ApiResponseWrapperUtil.fromErrorCode(ApiResultStatus.UNKNOWN_ERROR, message);
     }
 }

@@ -8,7 +8,7 @@ import { mnestixFetch } from 'lib/api/infrastructure';
 
 export async function performFullAasSearch(searchInput: string): Promise<ApiResponseWrapper<AasSearchResult>> {
     const searcher = AasSearcher.create();
-    return (await searcher.performFullSearch(searchInput)).toJSON();
+    return await searcher.performFullSearch(searchInput);
 }
 
 export async function getAasFromRepository(
@@ -30,9 +30,9 @@ export async function performDiscoveryAasSearch(searchInput: string): Promise<Ap
 }
 
 export async function getSubmodelFromSubmodelDescriptor(url: string): Promise<ApiResponseWrapper<Submodel>> {
-    const localFetch = mnestixFetch();
+    const localFetch = mnestixFetch<Submodel>();
     const response = await localFetch.fetch(url, {
         method: 'GET',
     });
-    return response.transformResult<Submodel>(JSON.parse).toJSON();
+    return response;
 }

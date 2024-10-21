@@ -41,15 +41,15 @@ export const mnestixFetchLegacy = ():
     };
 };
 
-export const mnestixFetch = (): {
-    fetch(url: RequestInfo | URL, init?: RequestInit | undefined): Promise<ApiResponseWrapper<string>>;
-} => {
+export function mnestixFetch<T>(): {
+    fetch(url: RequestInfo | URL, init?: RequestInit | undefined): Promise<ApiResponseWrapper<T>>;
+} {
     return {
         fetch: async (url: RequestInfo, init?: RequestInit) => {
-            return await performServerFetch(url, await initializeRequestOptions(await getBearerToken(), init));
+            return await performServerFetch<T>(url, await initializeRequestOptions(await getBearerToken(), init));
         },
     };
-};
+}
 
 export const sessionLogOut = async (keycloakEnabled: boolean) => {
     if (!keycloakEnabled) return;

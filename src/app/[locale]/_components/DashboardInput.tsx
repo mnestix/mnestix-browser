@@ -17,14 +17,14 @@ export const DashboardInput = () => {
     const navigate = useRouter();
 
     const browseAasUrl = async (searchString: string) => {
-        const aasSearch: ApiResponseWrapper<AasSearchResult> = ApiResponseWrapper.fromPlainObject(await performFullAasSearch(searchString.trim()));
-        if (!aasSearch.isSuccess()) throw new LocalizedError(messages.mnestix.aasUrlNotFound);
+        const { isSuccess, result }  = await performFullAasSearch(searchString.trim());
+        if (!isSuccess) throw new LocalizedError(messages.mnestix.aasUrlNotFound);
 
-        if (aasSearch.result!.aas) {
-            setAas(aasSearch.result!.aas);
-            setRegistryAasData(aasSearch.result!.aasData);
+        if (result.aas) {
+            setAas(result.aas);
+            setRegistryAasData(result.aasData);
         }
-        navigate.push(aasSearch.result!.redirectUrl);
+        navigate.push(result.redirectUrl);
     };
 
     return (
