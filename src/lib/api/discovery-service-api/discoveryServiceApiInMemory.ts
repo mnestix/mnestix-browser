@@ -35,7 +35,7 @@ export class DiscoveryServiceApiInMemory implements IDiscoveryServiceApi {
         throw new Error('Method not implemented.');
     }
 
-    postAllAssetLinksById(_aasId: string, _assetLinks: DiscoveryEntry[]): Promise<ApiResponseWrapper<JSON>> {
+    postAllAssetLinksById(_aasId: string, _assetLinks: DiscoveryEntry[]): Promise<ApiResponseWrapper<DiscoveryEntry[]>> {
         throw new Error('Method not implemented.');
     }
 }

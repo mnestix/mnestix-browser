@@ -30,7 +30,7 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
         return new DiscoveryServiceApiInMemory(options);
     }
 
-    async linkAasIdAndAssetId(aasId: string, assetId: string) {
+    linkAasIdAndAssetId(aasId: string, assetId: string) {
         return this.postAllAssetLinksById(aasId, [
             {
                 name: 'globalAssetId',
@@ -39,7 +39,7 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
         ]);
     }
 
-    async getAasIdsByAssetId(assetId: string) {
+    getAasIdsByAssetId(assetId: string) {
         return this.getAllAssetAdministrationShellIdsByAssetLink([
             {
                 name: 'globalAssetId',

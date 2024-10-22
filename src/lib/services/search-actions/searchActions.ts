@@ -30,8 +30,8 @@ export async function performDiscoveryAasSearch(searchInput: string): Promise<Ap
 }
 
 export async function getSubmodelFromSubmodelDescriptor(url: string): Promise<ApiResponseWrapper<Submodel>> {
-    const localFetch = mnestixFetch<Submodel>();
-    return await localFetch.fetch(url, {
+    const localFetch = mnestixFetch();
+    return await localFetch.fetch<Submodel>(url, {
         method: 'GET',
     });
 }
