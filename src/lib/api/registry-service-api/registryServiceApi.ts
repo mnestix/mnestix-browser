@@ -13,7 +13,7 @@ export class RegistryServiceApi implements IRegistryServiceApi {
 
     constructor(
         protected http: {
-            fetch(url: RequestInfo | URL, init?: RequestInit): Promise<ApiResponseWrapper<string>>;
+            fetch<T>(url: RequestInfo | URL, init?: RequestInit): Promise<ApiResponseWrapper<T>>;
         },
         protected _baseUrl: string = '',
     ) {
@@ -23,7 +23,7 @@ export class RegistryServiceApi implements IRegistryServiceApi {
     static create(
         _baseUrl: string | undefined,
         mnestixFetch: {
-            fetch(url: RequestInfo, init?: RequestInit | undefined): Promise<ApiResponseWrapper<string>>;
+            fetch<T>(url: RequestInfo, init?: RequestInit | undefined): Promise<ApiResponseWrapper<T>>;
         },
     ) {
         return new RegistryServiceApi(mnestixFetch, _baseUrl);
@@ -36,7 +36,7 @@ export class RegistryServiceApi implements IRegistryServiceApi {
         return new RegistryServiceApiInMemory(options);
     }
 
-    async getAssetAdministrationShellDescriptorById(aasId: string) {
+    async getAssetAdministrationShellDescriptorById(aasId: string) : Promise<ApiResponseWrapper<AssetAdministrationShellDescriptor>> {
         const b64_aasId = encodeBase64(aasId);
 
         const headers = {
@@ -46,28 +46,24 @@ export class RegistryServiceApi implements IRegistryServiceApi {
 
         const url = new URL(`${this.baseUrl}/shell-descriptors/${b64_aasId}`);
 
-        const result = await this.http.fetch(url, {
+        return await this.http.fetch(url, {
             method: 'GET',
             headers,
         });
-
-        return result.transformResult<AssetAdministrationShellDescriptor>(JSON.parse)
     }
 
     async getAssetAdministrationShellFromEndpoint(
         endpoint: URL,
     ): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
-        const response = await this.http.fetch(endpoint.toString(), {
+        return await this.http.fetch(endpoint.toString(), {
             method: 'GET',
         });
-
-        return response.transformResult<AssetAdministrationShell>(JSON.parse)
     }
 
     async putAssetAdministrationShellDescriptorById(
         aasId: string,
         shellDescriptor: AssetAdministrationShellDescriptor,
-    ) {
+    ) : Promise<ApiResponseWrapper<AssetAdministrationShellDescriptor>> {
         const b64_aasId = encodeBase64(aasId);
 
         const headers = {
@@ -77,12 +73,10 @@ export class RegistryServiceApi implements IRegistryServiceApi {
 
         const url = new URL(`${this.baseUrl}/shell-descriptors/${b64_aasId}`);
 
-        const response = await this.http.fetch(url, {
+        return await this.http.fetch(url, {
             method: 'PUT',
             headers,
             body: JSON.stringify(shellDescriptor),
         });
-
-        return response.transformResult<JSON>(JSON.parse)
     }
 }

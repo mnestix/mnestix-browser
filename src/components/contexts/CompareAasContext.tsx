@@ -74,8 +74,8 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
         let compareDataTemp: SubmodelCompareData[] = [];
         for (const aasId of input as string[]) {
             let searchResult: AasSearchResult | null = null;
-            const response = ApiResponseWrapper.fromPlainObject(await performFullAasSearch(aasId));
-            if (response.isSuccess()) searchResult = response.result!;
+            const response = await performFullAasSearch(aasId);
+            if (response.isSuccess) searchResult = response.result;
             const shell: AssetAdministrationShell | null = searchResult?.aas ?? null;
             if (shell) {
                 aasList.push(shell!);
@@ -138,29 +138,28 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
         const newCompareData: SubmodelCompareData[] = [];
         if (submodelDescriptors && submodelDescriptors.length > 0) {
             for (const submodelDescriptor of submodelDescriptors) {
-                const submodelResponse = ApiResponseWrapper.fromPlainObject(
-                    await getSubmodelFromSubmodelDescriptor(submodelDescriptor.endpoints[0].protocolInformation.href),
+                const submodelResponse = await getSubmodelFromSubmodelDescriptor(
+                    submodelDescriptor.endpoints[0].protocolInformation.href,
                 );
-                if (submodelResponse.isSuccess()) {
-                    const dataRecord = generateSubmodelCompareData(submodelResponse.result!);
+                if (submodelResponse.isSuccess) {
+                    const dataRecord = generateSubmodelCompareData(submodelResponse.result);
                     newCompareData.push(dataRecord);
                 }
             }
         } else {
             for (const reference of input as Reference[]) {
                 let submodelAdded = false;
-                const response: ApiResponseWrapper<SubmodelDescriptor> = ApiResponseWrapper.fromPlainObject(
-                    await getSubmodelDescriptorsById(reference.keys[0].value),
+                const response: ApiResponseWrapper<SubmodelDescriptor> = await getSubmodelDescriptorsById(
+                    reference.keys[0].value,
                 );
-                if (response && response.isSuccess()) {
-                    const submodelDescriptor = response.result!;
-                    const submodelResponse: ApiResponseWrapper<Submodel> | null = ApiResponseWrapper.fromPlainObject(
+                if (response && response.isSuccess) {
+                    const submodelDescriptor = response.result;
+                    const submodelResponse: ApiResponseWrapper<Submodel> | null =
                         await getSubmodelFromSubmodelDescriptor(
                             submodelDescriptor.endpoints[0].protocolInformation.href,
-                        ),
-                    );
-                    if (submodelResponse && submodelResponse.isSuccess()) {
-                        const dataRecord = generateSubmodelCompareData(submodelResponse.result!);
+                        );
+                    if (submodelResponse && submodelResponse.isSuccess) {
+                        const dataRecord = generateSubmodelCompareData(submodelResponse.result);
                         newCompareData.push(dataRecord);
                         submodelAdded = true;
                     }
@@ -172,11 +171,9 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
 
                 // Submodel registry is not available or submodel not found there -> search in repo
                 if (!submodelAdded) {
-                    const submodelData = ApiResponseWrapper.fromPlainObject(
-                        await getSubmodelById(reference.keys[0].value),
-                    );
-                    if (submodelData.isSuccess()) {
-                        const dataRecord = generateSubmodelCompareData(submodelData.result!);
+                    const submodelData = await getSubmodelById(reference.keys[0].value);
+                    if (submodelData.isSuccess) {
+                        const dataRecord = generateSubmodelCompareData(submodelData.result);
                         newCompareData.push(dataRecord);
                     }
                 }

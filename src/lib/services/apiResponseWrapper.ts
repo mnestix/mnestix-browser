@@ -45,10 +45,29 @@ export class ApiResponseWrapperUtil {
     }
 
     static fromHttpError<T>(error: number, message: string): ApiResponseWrapper<T> {
-        return new ApiResponseWrapper<T>(null, getStatus(error), message);
-        
-        const res = this.fromErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Hello');
-        res.result
+        return {
+            isSuccess: false,
+            errorCode: getStatus(error),
+            message: message,
+        }
+    }
+
+    static transformResult<T, U>(
+        response: ApiResponseWrapper<T>,
+        transformer: (input: T) => U
+    ): ApiResponseWrapper<U> {
+        if (response.isSuccess) {
+            return {
+                isSuccess: true,
+                result: transformer(response.result),
+            };
+        } else {
+            return {
+                isSuccess: false,
+                errorCode: response.errorCode,
+                message: response.message,
+            };
+        }
     }
 
     static async fromResponse<T>(response: Response): Promise<ApiResponseWrapper<T>> {
@@ -69,6 +88,9 @@ export class ApiResponseWrapperUtil {
     }
 
     static fromSuccess<T>(result: T): ApiResponseWrapper<T> {
-        return new ApiResponseWrapper<T>(result, ApiResultStatus.SUCCESS, '');
+        return {
+            isSuccess: true,
+            result: result,
+        }
     }
 }

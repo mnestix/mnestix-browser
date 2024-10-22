@@ -8,8 +8,6 @@ import { useRouter } from 'next/navigation';
 import { useAasState, useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { LocalizedError } from 'lib/util/LocalizedError';
 import { performFullAasSearch } from 'lib/services/search-actions/searchActions';
-import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
-import { AasSearchResult } from 'lib/services/search-actions/AasSearcher';
 
 export const DashboardInput = () => {
     const [, setAas] = useAasState();

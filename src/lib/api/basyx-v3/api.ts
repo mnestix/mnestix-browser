@@ -10,7 +10,7 @@ import {
     INullableAasRepositoryEntries,
     SubmodelRepositoryApiInMemory,
 } from 'lib/api/basyx-v3/apiInMemory';
-import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
+import { ApiResponseWrapper, ApiResponseWrapperUtil } from 'lib/services/apiResponseWrapper';
 
 const BASE_PATH = '/'.replace(/\/+$/, '');
 
@@ -167,9 +167,11 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
                 configuration,
             ).getAssetAdministrationShellById(aasId, options);
             return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                return (
-                    await requestHandler.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options)
-                ).transformResult<AssetAdministrationShell>(JSON.parse);
+                const response = await requestHandler.fetch(
+                    basePath + localVarFetchArgs.url,
+                    localVarFetchArgs.options,
+                );
+                return ApiResponseWrapperUtil.fromSuccess(response);
             };
         },
         /**
@@ -191,7 +193,7 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
                     basePath + localVarFetchArgs.url,
                     localVarFetchArgs.options,
                 );
-                return response.transformResult<Reference[]>(JSON.parse);
+                return response;
             };
         },
 
@@ -370,7 +372,11 @@ export class SubmodelRepositoryApi implements ISubmodelRepositoryApi {
      * @param {*} [options] Override http request option
      * @memberof SubmodelRepositoryApi
      */
-    getAttachmentFromSubmodelElement(submodelId: string, submodelElementPath: string, options?: any): Promise<ApiResponseWrapper<Blob>> {
+    getAttachmentFromSubmodelElement(
+        submodelId: string,
+        submodelElementPath: string,
+        options?: any,
+    ): Promise<ApiResponseWrapper<Blob>> {
         return SubmodelRepositoryApiFp(this.configuration).getAttachmentFromSubmodelElement(
             submodelId,
             submodelElementPath,
@@ -413,7 +419,10 @@ export const SubmodelRepositoryApiFp = function (configuration?: Configuration) 
          * @param {*} [options] Override http request option
          * @throws {RequiredError}
          */
-        getSubmodelById(submodelId: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ApiResponseWrapper<Submodel>> {
+        getSubmodelById(
+            submodelId: string,
+            options?: any,
+        ): (fetch?: FetchAPI, basePath?: string) => Promise<ApiResponseWrapper<Submodel>> {
             const localVarFetchArgs = SubmodelRepositoryApiFetchParamCreator(configuration).getSubmodelById(
                 encodeBase64(submodelId),
                 options,

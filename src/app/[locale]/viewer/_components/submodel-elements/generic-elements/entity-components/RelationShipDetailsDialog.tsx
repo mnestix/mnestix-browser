@@ -13,7 +13,6 @@ import {
     getSubmodelById,
     getSubmodelReferencesFromShell,
 } from 'lib/services/repository-access/repositorySearchActions';
-import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
 
 type RelationShipDetailsModalProps = {
     readonly relationship: RelationshipElement;
@@ -35,34 +34,28 @@ export function RelationShipDetailsDialog(props: RelationShipDetailsModalProps) 
     useEffect(() => {
         async function _fetchSubmodels() {
             try {
-                const response = ApiResponseWrapper.fromPlainObject(
-                    await getSubmodelReferencesFromShell(base64AasId as string),
-                );
+                const response = await getSubmodelReferencesFromShell(base64AasId as string);
                 let submodelRefs: Reference[];
-                if (response.isSuccess()) submodelRefs = response.result!;
+                if (response.isSuccess) submodelRefs = response.result;
                 else throw Error(response.message);
                 const submodels = [] as Submodel[];
                 for (const reference of submodelRefs) {
                     const id = reference.keys[0].value;
                     try {
                         if (env.SUBMODEL_REGISTRY_API_URL) {
-                            const submodelDescriptors = ApiResponseWrapper.fromPlainObject(
-                                await getSubmodelDescriptorsById(reference.keys[0].value),
-                            );
-                            if (submodelDescriptors.isSuccess()) {
-                                if (submodelDescriptors.result!.id) {
-                                    const submodelResult = ApiResponseWrapper.fromPlainObject(
-                                        await getSubmodelById(submodelDescriptors.result!.id),
-                                    );
-                                    if (submodelResult.isSuccess()) submodels.push(submodelResult.result!);
+                            const submodelDescriptors = await getSubmodelDescriptorsById(reference.keys[0].value);
+                            if (submodelDescriptors.isSuccess) {
+                                if (submodelDescriptors.result.id) {
+                                    const submodelResult = await getSubmodelById(submodelDescriptors.result.id);
+                                    if (submodelResult.isSuccess) submodels.push(submodelResult.result);
                                 }
                             }
                         }
                     } catch (e) {
                         // Submodel registry is not available or submodel not found there -> search in repo
                         if (e instanceof TypeError || (e instanceof Response && e.status === 404)) {
-                            const submodelResult = ApiResponseWrapper.fromPlainObject(await getSubmodelById(id));
-                            if (submodelResult.isSuccess()) submodels.push(submodelResult.result!);
+                            const submodelResult = await getSubmodelById(id);
+                            if (submodelResult.isSuccess) submodels.push(submodelResult.result);
                         } else {
                             console.error(e);
                         }

@@ -16,23 +16,22 @@ export async function getAasFromRepository(
     repositoryUrl: string,
 ): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
     const searcher = AasSearcher.create();
-    return (await searcher.getAasFromRepository(aasId, repositoryUrl)).toJSON();
+    return await searcher.getAasFromRepository(aasId, repositoryUrl);
 }
 
 export async function performRegistryAasSearch(searchInput: string): Promise<ApiResponseWrapper<AasSearchResult>> {
     const searcher = AasSearcher.create();
-    return (await searcher.performRegistrySearch(searchInput)).toJSON();
+    return await searcher.performRegistrySearch(searchInput);
 }
 
 export async function performDiscoveryAasSearch(searchInput: string): Promise<ApiResponseWrapper<string[]>> {
     const searcher = AasSearcher.create();
-    return (await searcher.performAasDiscoverySearch(searchInput)).toJSON();
+    return await searcher.performAasDiscoverySearch(searchInput);
 }
 
 export async function getSubmodelFromSubmodelDescriptor(url: string): Promise<ApiResponseWrapper<Submodel>> {
     const localFetch = mnestixFetch<Submodel>();
-    const response = await localFetch.fetch(url, {
+    return await localFetch.fetch(url, {
         method: 'GET',
     });
-    return response;
 }

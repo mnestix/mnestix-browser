@@ -12,9 +12,13 @@ import { GenericSubmodelElementComponent } from '../GenericSubmodelElementCompon
 import { EntityDetailsDialog } from './EntityDetailsDialog';
 import { RelationShipDetailsDialog } from './RelationShipDetailsDialog';
 import { getKeyType } from 'lib/util/KeyTypeUtil';
-import { CustomTreeItemContentProps, CustomTreeItemProps, ExpandableTreeitem, getTreeItemStyle } from 'app/[locale]/viewer/_components/submodel-elements/generic-elements/entity-components/TreeItem';
+import {
+    CustomTreeItemContentProps,
+    CustomTreeItemProps,
+    ExpandableTreeitem,
+    getTreeItemStyle,
+} from 'app/[locale]/viewer/_components/submodel-elements/generic-elements/entity-components/TreeItem';
 import { performDiscoveryAasSearch } from 'lib/services/search-actions/searchActions';
-import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
 
 const CustomContent = React.forwardRef(function CustomContent(props: CustomTreeItemContentProps, ref) {
     const navigate = useRouter();
@@ -44,8 +48,8 @@ const CustomContent = React.forwardRef(function CustomContent(props: CustomTreeI
             // if so, then navigate to the asset-redirect page of this Mnestix instance,
             // if not, just navigate to the specified URL which might lead anywhere.
 
-            const aasIds = ApiResponseWrapper.fromPlainObject(await performDiscoveryAasSearch(assetId));
-            if (aasIds.isSuccess() && aasIds.result!.length === 0) {
+            const aasIds = await performDiscoveryAasSearch(assetId);
+            if (aasIds.isSuccess && aasIds.result.length === 0) {
                 window.open(assetId, '_blank');
             } else {
                 navigate.push('/asset?assetId=' + encodeURIComponent(assetId));
@@ -99,7 +103,9 @@ const CustomContent = React.forwardRef(function CustomContent(props: CustomTreeI
                             </Button>
                         </>
                     )}
-                    {showDataDirectly && <GenericSubmodelElementComponent submodelElement={data} wrapInDataRow={false} />}
+                    {showDataDirectly && (
+                        <GenericSubmodelElementComponent submodelElement={data} wrapInDataRow={false} />
+                    )}
                 </Box>
                 {isRelationShip && (
                     <Box sx={{ ml: '2px', pl: 1, display: 'flex' }}>

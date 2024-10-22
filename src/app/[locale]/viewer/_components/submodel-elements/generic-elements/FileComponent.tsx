@@ -7,7 +7,6 @@ import { getSanitizedHref } from 'lib/util/HrefUtil';
 import { isValidUrl } from 'lib/util/UrlUtil';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { getAttachmentFromSubmodelElement } from 'lib/services/repository-access/repositorySearchActions';
-import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
 
 const StyledFileImg = styled('img')(() => ({
     objectFit: 'contain',
@@ -31,11 +30,10 @@ export function FileComponent(props: FileComponentProps) {
             if (isValidUrl(file.value)) {
                 setImage(file.value);
             } else if (props.submodelId && props.submodelElementPath) {
-                const imageResponse = ApiResponseWrapper.fromPlainObject(
-                    await getAttachmentFromSubmodelElement(props.submodelId, props.submodelElementPath),
-                );
-                if (imageResponse.isSuccess()) {
-                    const imageObjectURL = URL.createObjectURL(imageResponse.result!);
+                const imageResponse = 
+                    await getAttachmentFromSubmodelElement(props.submodelId, props.submodelElementPath);
+                if (imageResponse.isSuccess) {
+                    const imageObjectURL = URL.createObjectURL(imageResponse.result);
                     setImage(imageObjectURL);
                 } else {
                     console.error('Image not found' + imageResponse.message);

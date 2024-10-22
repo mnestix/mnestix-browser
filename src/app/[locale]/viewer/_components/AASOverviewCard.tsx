@@ -28,7 +28,6 @@ import {
     getThumbnailFromShell,
     performGetAasThumbnailFromAllRepos,
 } from 'lib/services/repository-access/repositorySearchActions';
-import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
 import { mnestixFetch } from 'lib/api/infrastructure';
 
 type AASOverviewCardProps = {
@@ -78,21 +77,17 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
                 undefined,
                 registryAasData.aasRegistryRepositoryOrigin,
             );
-            const result = ApiResponseWrapper.fromPlainObject(
-                await registryRepository.getThumbnailFromShell(props.aas.id),
-            );
-            if (result.isSuccess()) {
-                image = result.result!;
+            const result = await registryRepository.getThumbnailFromShell(props.aas.id);
+            if (result.isSuccess) {
+                image = result.result;
                 setProductImageUrl(URL.createObjectURL(image));
             }
         } else {
-            const response = ApiResponseWrapper.fromPlainObject(await getThumbnailFromShell(props.aas.id));
-            if (response.isSuccess()) image = response.result!;
+            const response = await getThumbnailFromShell(props.aas.id);
+            if (response.isSuccess) image = response.result;
             else {
-                const response = ApiResponseWrapper.fromPlainObject(
-                    await performGetAasThumbnailFromAllRepos(props.aas.id),
-                );
-                if (response.isSuccess()) image = response.result!;
+                const response = await performGetAasThumbnailFromAllRepos(props.aas.id);
+                if (response.isSuccess) image = response.result;
                 else {
                     console.error('Image not found');
                     return;
@@ -133,7 +128,7 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
 
     const navigateToAas = () => {
         if (props.imageLinksToDetail && props.aas) {
-            setAasState(props.aas)
+            setAasState(props.aas);
             const url = `/viewer/${encodeBase64(props.aas.id)}`;
             navigate.push(url);
         }

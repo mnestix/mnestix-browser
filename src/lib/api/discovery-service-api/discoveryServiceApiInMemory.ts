@@ -1,5 +1,5 @@
 import { IDiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApiInterface';
-import { ApiResponseWrapper, ApiResultStatus } from 'lib/services/apiResponseWrapper';
+import { ApiResponseWrapper, ApiResponseWrapperUtil, ApiResultStatus } from 'lib/services/apiResponseWrapper';
 
 export class DiscoveryServiceApiInMemory implements IDiscoveryServiceApi {
     private discoveryEntries: { assetId: string; aasIds: string[] }[];
@@ -8,22 +8,22 @@ export class DiscoveryServiceApiInMemory implements IDiscoveryServiceApi {
         this.discoveryEntries = options.discoveryEntries;
     }
 
-    linkAasIdAndAssetId(_aasId: string, _assetId: string): Promise<ApiResponseWrapper<JSON>> {
+    linkAasIdAndAssetId(_aasId: string, _assetId: string): Promise<ApiResponseWrapper<string>> {
         throw new Error('Method not implemented.');
     }
 
     getAasIdsByAssetId(assetId: string): Promise<ApiResponseWrapper<{ paging_metadata: string; result: string[] }>> {
         for (const discoveryEntry of this.discoveryEntries) {
             if (discoveryEntry.assetId === assetId)
-                return Promise.resolve(ApiResponseWrapper.fromSuccess({
+                return Promise.resolve(ApiResponseWrapperUtil.fromSuccess({
                     paging_metadata: '',
                     result: discoveryEntry.aasIds,
                 }));
         }
-        return Promise.resolve(ApiResponseWrapper.fromErrorCode(ApiResultStatus.NOT_FOUND, 'not found'));
+        return Promise.resolve(ApiResponseWrapperUtil.fromErrorCode(ApiResultStatus.NOT_FOUND, 'not found'));
     }
 
-    deleteAllAssetLinksById(_aasId: string): Promise<ApiResponseWrapper<JSON>> {
+    deleteAllAssetLinksById(_aasId: string): Promise<ApiResponseWrapper<string>> {
         throw new Error('Method not implemented.');
     }
 

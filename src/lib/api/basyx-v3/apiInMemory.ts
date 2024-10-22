@@ -1,7 +1,7 @@
 import { IAssetAdministrationShellRepositoryApi, ISubmodelRepositoryApi } from 'lib/api/basyx-v3/apiInterface';
 import { AssetAdministrationShell, Reference, Submodel } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
 import { decodeBase64, encodeBase64 } from 'lib/util/Base64Util';
-import { ApiResponseWrapper, ApiResultStatus } from 'lib/services/apiResponseWrapper';
+import { ApiResponseWrapper, ApiResponseWrapperUtil, ApiResultStatus } from 'lib/services/apiResponseWrapper';
 
 export interface INullableAasRepositoryEntries {
     repositoryUrl: string;
@@ -32,13 +32,12 @@ export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdmi
                 const isInDefaultRepository = entry.repositoryUrl === defaultRepositoryUrl;
                 if (isInDefaultRepository || !isSearchingInDefaultRepository) {
                     const response = new Response(JSON.stringify(entry.aas));
-                    const value = await ApiResponseWrapper.fromResponse(response);
-                    return value.transformResult<AssetAdministrationShell>(JSON.parse);
+                    return await ApiResponseWrapperUtil.fromResponse<AssetAdministrationShell>(response);
                 }
             }
         }
         const targetRepositoryKind = isSearchingInDefaultRepository ? 'default' : 'foreign';
-        return Promise.resolve(ApiResponseWrapper.fromErrorCode(ApiResultStatus.NOT_FOUND,
+        return Promise.resolve(ApiResponseWrapperUtil.fromErrorCode(ApiResultStatus.NOT_FOUND,
             'no aas found in the ' +
             targetRepositoryKind +
             ' repository for aasId: ' +
@@ -77,12 +76,11 @@ export class SubmodelRepositoryApiInMemory implements ISubmodelRepositoryApi {
         for (const submodel of this.submodelsSavedInTheRepository) {
             if (encodeBase64(submodel.id) === submodelId) {
                 const response = new Response(JSON.stringify(submodel));
-                const value = await ApiResponseWrapper.fromResponse(response);
-                return value.transformResult<Submodel>(JSON.parse);
+                return await ApiResponseWrapperUtil.fromResponse<Submodel>(response);
             }
         }
         return Promise.resolve(
-            ApiResponseWrapper.fromErrorCode(
+            ApiResponseWrapperUtil.fromErrorCode(
                 ApiResultStatus.NOT_FOUND,
                 'no submodel found in the default repository for submodelId: ' + submodelId
             )

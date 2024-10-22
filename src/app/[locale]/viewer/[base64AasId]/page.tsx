@@ -18,7 +18,6 @@ import { useEnv } from 'app/env/provider';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { getAasFromRepository, performFullAasSearch } from 'lib/services/search-actions/searchActions';
 import { LocalizedError } from 'lib/util/LocalizedError';
-import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
 
 export default function Page() {
     const navigate = useRouter();
@@ -45,18 +44,18 @@ export default function Page() {
 
     async function loadAasContent() {
         if (repoUrl) {
-            const response  = ApiResponseWrapper.fromPlainObject(await getAasFromRepository(aasIdDecoded, repoUrl));
+            const response  = await getAasFromRepository(aasIdDecoded, repoUrl);
             setAas(response.result ?? undefined);
             return;
         }
 
-        const result = ApiResponseWrapper.fromPlainObject(await performFullAasSearch(aasIdDecoded));
-        if (!result.isSuccess()) {
+        const result = await performFullAasSearch(aasIdDecoded);
+        if (!result.isSuccess) {
             showError(new LocalizedError(messages.mnestix.aasUrlNotFound), notificationSpawner);
-        } else if (result.result!.aas) {
-            setAas(result.result!.aas);
+        } else if (result.result.aas) {
+            setAas(result.result.aas);
         } else {
-            navigate.push(result.result!.redirectUrl);
+            navigate.push(result.result.redirectUrl);
         }
     }
 

@@ -1,5 +1,5 @@
 import { encodeBase64 } from 'lib/util/Base64Util';
-import { IDiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApiInterface';
+import { DiscoveryEntry, IDiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApiInterface';
 import { DiscoveryServiceApiInMemory } from 'lib/api/discovery-service-api/discoveryServiceApiInMemory';
 import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
 
@@ -9,7 +9,7 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
     private constructor(
         protected _baseUrl: string = '',
         protected http: {
-            fetch(url: RequestInfo, init?: RequestInit): Promise<ApiResponseWrapper<string>>;
+            fetch<T>(url: RequestInfo, init?: RequestInit): Promise<ApiResponseWrapper<T>>;
         },
     ) {
         this.baseUrl = _baseUrl;
@@ -18,7 +18,7 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
     static create(
         _baseUrl: string = '',
         http: {
-            fetch(url: RequestInfo, init?: RequestInit): Promise<ApiResponseWrapper<string>>;
+            fetch<T>(url: RequestInfo, init?: RequestInit): Promise<ApiResponseWrapper<T>>;
         },
     ): DiscoveryServiceApi {
         return new DiscoveryServiceApi(_baseUrl, http);
@@ -48,7 +48,7 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
         ]);
     }
 
-    async deleteAllAssetLinksById(aasId: string) {
+    async deleteAllAssetLinksById(aasId: string): Promise<ApiResponseWrapper<void>> {
         const b64_aasId = encodeBase64(aasId);
 
         const headers = {
@@ -56,12 +56,10 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
             'Content-Type': 'application/json',
         };
 
-        const response = await this.http.fetch(`${this.baseUrl}/lookup/shells/${b64_aasId}`, {
+        return await this.http.fetch(`${this.baseUrl}/lookup/shells/${b64_aasId}`, {
             method: 'DELETE',
             headers,
         });
-
-        return response.transformResult(JSON.parse)
     }
 
     async getAllAssetAdministrationShellIdsByAssetLink(
@@ -78,12 +76,10 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
             url.searchParams.append('assetIds', encodeBase64(JSON.stringify(obj)));
         });
 
-        const response = await this.http.fetch(url.toString(), {
+        return await this.http.fetch(url.toString(), {
             method: 'GET',
             headers,
         });
-
-        return response.transformResult<{ paging_metadata: string; result: string[] }>(JSON.parse)
     }
 
     async getAllAssetLinksById(aasId: string): Promise<ApiResponseWrapper<string[]>> {
@@ -94,15 +90,13 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
             'Content-Type': 'application/json',
         };
 
-        const response = await this.http.fetch(`${this.baseUrl}/lookup/shells/${b64_aasId}`, {
+        return await this.http.fetch(`${this.baseUrl}/lookup/shells/${b64_aasId}`, {
             method: 'GET',
             headers,
         });
-
-        return response.transformResult<string []>(JSON.parse)
     }
 
-    async postAllAssetLinksById(aasId: string, assetLinks: { name: string; value: string }[]) {
+    async postAllAssetLinksById(aasId: string, assetLinks: DiscoveryEntry[]) {
         const b64_aasId = encodeBase64(aasId);
 
         const headers = {
@@ -110,12 +104,10 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
             'Content-Type': 'application/json',
         };
 
-        const response = await this.http.fetch(`${this.baseUrl}/lookup/shells/${b64_aasId}`, {
+        return await this.http.fetch(`${this.baseUrl}/lookup/shells/${b64_aasId}`, {
             method: 'POST',
             headers,
             body: JSON.stringify(assetLinks),
         });
-
-        return response.transformResult(JSON.parse)
     }
 }

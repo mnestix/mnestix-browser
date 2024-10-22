@@ -1,9 +1,11 @@
-import { ApiResponseWrapper, ApiResultStatus } from 'lib/services/apiResponseWrapper';
-import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/types';
+import {
+    ApiResponseWrapperUtil,
+    ApiResultStatus
+} from 'lib/services/apiResponseWrapper';
 import { expect } from '@jest/globals';
 
 describe('', () => {
-    it('transforms a json into a specific result', async () => {
+    /*it('transforms a json into a specific result', async () => {
         const data =
             '{\n' +
             '  "id": "https://mnestix.com/aas/MnestixTestAas2",\n' +
@@ -26,7 +28,7 @@ describe('', () => {
             '  },\n' +
             '  "submodels": []\n' +
             '}';
-        const stringApiWrapper = new ApiResponseWrapper(data, ApiResultStatus.SUCCESS, 'nonono');
+        const stringApiWrapper : ApiResponseWrapper<> = { isSuccess: true, result: data };
 
         expect(() => stringApiWrapper.castResult<AssetAdministrationShell>()).not.toThrow();
     });
@@ -36,26 +38,23 @@ describe('', () => {
         const stringApiWrapper = new ApiResponseWrapper(data, ApiResultStatus.SUCCESS, 'nonono');
 
         expect(() => stringApiWrapper.transformResult(JSON.parse)).toThrow();
-    });
+    });*/
 
     it('transforms the http code to an error code', async () => {
-        const failedResponseWrapper = ApiResponseWrapper.fromHttpError(404, 'error message');
+        const failedResponseWrapper = ApiResponseWrapperUtil.fromHttpError(404, 'error message');
 
-        expect(failedResponseWrapper.errorCode).toBe(ApiResultStatus.NOT_FOUND)
+        expect(failedResponseWrapper.isSuccess).toBe(false);
+        if (!(failedResponseWrapper.isSuccess)) {
+            expect(failedResponseWrapper.errorCode).toBe(ApiResultStatus.NOT_FOUND);
+        }
     });
 
     it('transforms the http code to a success code', async () => {
         const response = new Response(JSON.stringify('dummy value'));
-        const successfulResponseWrapper = await ApiResponseWrapper.fromResponse(response);
-
-        expect(successfulResponseWrapper.errorCode).toBe(ApiResultStatus.SUCCESS)
+        const successfulResponseWrapper = await ApiResponseWrapperUtil.fromResponse(response);
+        expect(successfulResponseWrapper.isSuccess).toBe(true);
+        if (!(successfulResponseWrapper.isSuccess)) {
+            expect(successfulResponseWrapper.errorCode).toBe(ApiResultStatus.SUCCESS);
+        }
     });
-
-    it('correctly serializes into string and back', async () => {
-        const successfulResponseWrapper = ApiResponseWrapper.fromSuccess('dummy content string');
-        const serializedWrapper = successfulResponseWrapper.toJSON()
-        const deserializedWrapper = ApiResponseWrapper.fromPlainObject<string>(serializedWrapper)
-        expect(deserializedWrapper.errorCode).toBe(ApiResultStatus.SUCCESS)
-    });
-
 });

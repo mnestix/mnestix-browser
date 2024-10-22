@@ -10,38 +10,38 @@ const searcher = RepositorySearchService.create();
 export async function performSearchAasFromAllRepositories(
     searchInput: string,
 ): Promise<ApiResponseWrapper<RepoSearchResult[]>> {
-    return (await searcher.getAasFromAllRepos(searchInput)).toJSON();
+    return await searcher.getAasFromAllRepos(searchInput);
 }
 
 export async function performSearchSubmodelFromAllRepos(searchInput: string): Promise<ApiResponseWrapper<Submodel>> {
-    return (await searcher.getSubmodelFromAllRepos(searchInput)).toJSON();
+    return await searcher.getSubmodelFromAllRepos(searchInput);
 }
 
 export async function performGetAasThumbnailFromAllRepos(searchInput: string): Promise<ApiResponseWrapper<Blob>> {
-    return (await searcher.getAasThumbnailFromAllRepos(searchInput)).toJSON();
+    return await searcher.getAasThumbnailFromAllRepos(searchInput);
 }
 
 export async function getAssetAdministrationShellById(
     searchInput: string,
 ): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
-    return (await searcher.getAasFromDefaultRepository(searchInput)).toJSON();
+    return await searcher.getAasFromDefaultRepository(searchInput);
 }
 
 export async function getThumbnailFromShell(searchInput: string): Promise<ApiResponseWrapper<Blob>> {
-    return (await searcher.getThumbnailFromShell(searchInput)).toJSON();
+    return await searcher.getThumbnailFromShell(searchInput);
 }
 
 export async function getSubmodelReferencesFromShell(searchInput: string): Promise<ApiResponseWrapper<Reference[]>> {
-    return (await searcher.getSubmodelReferencesFromShell(searchInput)).toJSON();
+    return await searcher.getSubmodelReferencesFromShell(searchInput);
 }
 
 export async function getSubmodelById(id: string): Promise<ApiResponseWrapper<Submodel>> {
-    return (await searcher.getSubmodelById(id)).toJSON();
+    return await searcher.getSubmodelById(id);
 }
 
 export async function getAttachmentFromSubmodelElement(
     submodelId: string,
     submodelElementPath: string,
 ): Promise<ApiResponseWrapper<Blob>> {
-    return (await searcher.getAttachmentFromSubmodelElement(submodelId, submodelElementPath)).toJSON();
+    return await searcher.getAttachmentFromSubmodelElement(submodelId, submodelElementPath);
 }

@@ -7,7 +7,7 @@ export class SubmodelRegistryServiceApi {
 
     constructor(
         protected http: {
-            fetch(url: RequestInfo | URL, init?: RequestInit): Promise<ApiResponseWrapper<string>>;
+            fetch(url: RequestInfo | URL, init?: RequestInit): Promise<ApiResponseWrapper<SubmodelDescriptor>>;
         },
         protected _baseUrl: string = '',
     ) {
@@ -23,11 +23,9 @@ export class SubmodelRegistryServiceApi {
 
         const url = new URL(`${this.baseUrl}/submodel-descriptors/${b64_submodelId}`);
 
-        const response = await this.http.fetch(url.toString(), {
+        return await this.http.fetch(url.toString(), {
             method: 'GET',
             headers,
         });
-
-        return response.transformResult<SubmodelDescriptor>(JSON.parse);
     }
 }

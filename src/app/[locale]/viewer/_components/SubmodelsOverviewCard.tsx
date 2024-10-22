@@ -19,7 +19,6 @@ import {
     performSearchSubmodelFromAllRepos,
 } from 'lib/services/repository-access/repositorySearchActions';
 import { getSubmodelDescriptorsById } from 'lib/services/submodelRegistryApiActions';
-import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 
 export type SubmodelsOverviewCardProps = {
@@ -45,15 +44,15 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
         const id = reference.keys[0].value;
 
         try {
-            const submodelResponse = ApiResponseWrapper.fromPlainObject(await getSubmodelById(id));
-            if (submodelResponse.isSuccess()) {
-                return submodelResponse.result!;
+            const submodelResponse = await getSubmodelById(id);
+            if (submodelResponse.isSuccess) {
+                return submodelResponse.result;
             } else {
-                const response = ApiResponseWrapper.fromPlainObject(await performSearchSubmodelFromAllRepos(id));
-                if (!response.isSuccess()) {
+                const response = await performSearchSubmodelFromAllRepos(id);
+                if (!response.isSuccess) {
                     throw new Error(response.message);
                 }
-                return response.result!;
+                return response.result;
             }
         } catch (e) {
             console.error(e);
@@ -80,12 +79,12 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                     const endpoint = submodelDescriptor?.endpoints[0].protocolInformation.href;
 
                     if (endpoint) {
-                        const submodelResponse = ApiResponseWrapper.fromPlainObject(await getSubmodelFromSubmodelDescriptor(endpoint));
-                        if (submodelResponse.isSuccess()) {
+                        const submodelResponse = await getSubmodelFromSubmodelDescriptor(endpoint);
+                        if (submodelResponse.isSuccess) {
                             return {
                                 id: submodelDescriptor.id,
                                 label: submodelDescriptor.idShort ?? '',
-                                submodelData: submodelResponse.result!,
+                                submodelData: submodelResponse.result,
                             };
                         }
                     }
@@ -100,21 +99,20 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                     try {
                         let submodelDescriptor: SubmodelDescriptor | null = null;
                         if (env.SUBMODEL_REGISTRY_API_URL) {
-                            const submodelDescriptorRequest = ApiResponseWrapper.fromPlainObject(
-                                await getSubmodelDescriptorsById(reference.keys[0].value),
-                            );
-                            if (submodelDescriptorRequest.isSuccess())
+                            const submodelDescriptorRequest = 
+                                await getSubmodelDescriptorsById(reference.keys[0].value);
+                            if (submodelDescriptorRequest.isSuccess)
                                 submodelDescriptor = submodelDescriptorRequest.result;
                         }
                         const endpoint = submodelDescriptor?.endpoints[0].protocolInformation.href;
 
                         if (endpoint) {
-                            const submodelResponse = ApiResponseWrapper.fromPlainObject(await getSubmodelFromSubmodelDescriptor(endpoint));
-                            if (submodelResponse.isSuccess()) {
+                            const submodelResponse = await getSubmodelFromSubmodelDescriptor(endpoint);
+                            if (submodelResponse.isSuccess) {
                                 tabSelectorItem = {
                                     id: submodelDescriptor!.id,
                                     label: submodelDescriptor!.idShort ?? '',
-                                    submodelData: submodelResponse.result!,
+                                    submodelData: submodelResponse.result
                                 };
                             }
                         }

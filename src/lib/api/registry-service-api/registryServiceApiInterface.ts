@@ -12,7 +12,7 @@ export interface IRegistryServiceApi {
     putAssetAdministrationShellDescriptorById(
         aasId: string,
         shellDescriptor: AssetAdministrationShellDescriptor,
-    ): Promise<ApiResponseWrapper<JSON>>;
+    ): Promise<ApiResponseWrapper<AssetAdministrationShellDescriptor>>;
 
     getAssetAdministrationShellFromEndpoint(endpoint: URL): Promise<ApiResponseWrapper<AssetAdministrationShell>>;
 }
