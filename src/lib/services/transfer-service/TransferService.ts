@@ -212,12 +212,12 @@ export class TransferService {
                     Apikey: apikey,
                 },
             });
-            return { success: true, operationKind: 'AasRepository', resourceId: '', error: '' };
+            return { success: true, operationKind: 'AasRepository', resourceId: 'Thumbnail transfer.', error: '' };
         } catch (e) {
             return {
                 success: false,
                 operationKind: 'AasRepository',
-                resourceId: 'Thumbnail export failed.',
+                resourceId: 'Thumbnail transfer.',
                 error: e.toString(),
             };
         }
@@ -242,14 +242,14 @@ export class TransferService {
             return {
                 success: true,
                 operationKind: 'SubmodelRepository',
-                resourceId: attachment.idShortPath,
+                resourceId: ['File transfer: ', attachment.idShortPath].join(''),
                 error: '',
             };
         } catch (e) {
             return {
                 success: false,
                 operationKind: 'SubmodelRepository',
-                resourceId: attachment.idShortPath,
+                resourceId: ['File transfer: ', attachment.idShortPath].join(''),
                 error: e.toString(),
             };
         }

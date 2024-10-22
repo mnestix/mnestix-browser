@@ -277,9 +277,7 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
                     localVarRequestOptions,
                 );
                 if (response.status >= 200 && response.status < 300) {
-                    return response.json().then(() => {
-                        return response;
-                    });
+                    return response;
                 } else {
                     throw response;
                 }
