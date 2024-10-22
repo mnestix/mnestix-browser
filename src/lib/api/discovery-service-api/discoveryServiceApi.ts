@@ -48,7 +48,7 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
         ]);
     }
 
-    async deleteAllAssetLinksById(aasId: string): Promise<ApiResponseWrapper<void>> {
+    deleteAllAssetLinksById(aasId: string): Promise<ApiResponseWrapper<void>> {
         const b64_aasId = encodeBase64(aasId);
 
         const headers = {
@@ -56,13 +56,13 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
             'Content-Type': 'application/json',
         };
 
-        return await this.http.fetch(`${this.baseUrl}/lookup/shells/${b64_aasId}`, {
+        return this.http.fetch(`${this.baseUrl}/lookup/shells/${b64_aasId}`, {
             method: 'DELETE',
             headers,
         });
     }
 
-    async getAllAssetAdministrationShellIdsByAssetLink(
+    getAllAssetAdministrationShellIdsByAssetLink(
         assetIds: { name: string; value: string }[],
     ): Promise<ApiResponseWrapper<{ paging_metadata: string; result: string[] }>> {
         const headers = {
@@ -76,13 +76,13 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
             url.searchParams.append('assetIds', encodeBase64(JSON.stringify(obj)));
         });
 
-        return await this.http.fetch(url.toString(), {
+        return this.http.fetch(url.toString(), {
             method: 'GET',
             headers,
         });
     }
 
-    async getAllAssetLinksById(aasId: string): Promise<ApiResponseWrapper<string[]>> {
+    getAllAssetLinksById(aasId: string): Promise<ApiResponseWrapper<DiscoveryEntry[]>> {
         const b64_aasId = encodeBase64(aasId);
 
         const headers = {
@@ -90,7 +90,7 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
             'Content-Type': 'application/json',
         };
 
-        return await this.http.fetch(`${this.baseUrl}/lookup/shells/${b64_aasId}`, {
+        return this.http.fetch(`${this.baseUrl}/lookup/shells/${b64_aasId}`, {
             method: 'GET',
             headers,
         });
@@ -104,7 +104,7 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
             'Content-Type': 'application/json',
         };
 
-        return await this.http.fetch(`${this.baseUrl}/lookup/shells/${b64_aasId}`, {
+        return this.http.fetch(`${this.baseUrl}/lookup/shells/${b64_aasId}`, {
             method: 'POST',
             headers,
             body: JSON.stringify(assetLinks),

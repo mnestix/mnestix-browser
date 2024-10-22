@@ -364,7 +364,7 @@ export class SubmodelRepositoryApi implements ISubmodelRepositoryApi {
 
     /**
      * @summary Retrieves the attachment from a submodel element
-     * @param submodelId The id of the submodel the submodel element is part of
+     * @param submodelId The id of the submodel element is part of
      * @param submodelElementPath The path to the submodel element
      * @param {*} [options] Override http request option
      * @memberof SubmodelRepositoryApi
