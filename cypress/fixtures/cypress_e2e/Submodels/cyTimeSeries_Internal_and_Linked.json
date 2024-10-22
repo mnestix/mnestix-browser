@@ -54,13 +54,6 @@
               }
             ]
           },
-          "qualifiers": [
-            {
-              "type": "Cardinality",
-              "valueType": "xs:string",
-              "value": "ZeroToOne"
-            }
-          ],
           "modelType": "MultiLanguageProperty"
         },
         {
@@ -74,13 +67,6 @@
               }
             ]
           },
-          "qualifiers": [
-            {
-              "type": "Cardinality",
-              "valueType": "xs:string",
-              "value": "One"
-            }
-          ],
           "value": [
             {
               "category": "VARIABLE",
@@ -202,6 +188,12 @@
                   }
                 ]
               },
+              "value": [
+                {
+                  "language": "en",
+                  "text": "Acceleration values"
+                }
+              ],
               "modelType": "MultiLanguageProperty"
             },
             {
@@ -216,6 +208,12 @@
                   }
                 ]
               },
+              "value": [
+                {
+                  "language": "en",
+                  "text": "Acceleration values for x,y an z axis"
+                }
+              ],
               "modelType": "MultiLanguageProperty"
             },
             {
@@ -546,6 +544,12 @@
                   }
                 ]
               },
+              "value": [
+                {
+                  "language": "en",
+                  "text": "Coffee consumption data"
+                }
+              ],
               "modelType": "MultiLanguageProperty"
             },
             {
@@ -560,6 +564,12 @@
                   }
                 ]
               },
+              "value": [
+                {
+                  "language": "en",
+                  "text": "Coffee consumption counter per date"
+                }
+              ],
               "modelType": "MultiLanguageProperty"
             },
             {
@@ -703,7 +713,7 @@
                 ]
               },
               "valueType": "xs:string",
-              "value": "",
+              "value": "http://localhost:8086/api/v2/query?org=mnestix?u=admin?p=adminadminadminadmin",
               "modelType": "Property"
             },
             {
@@ -719,7 +729,7 @@
                 ]
               },
               "valueType": "xs:string",
-              "value": "",
+              "value": "from(bucket: \"test-data\") |> range(start: 172950153200000000, stop: 172950553400000000) |> filter(fn: (r) => r[\"_measurement\"] == \"myMeasurement\") |> filter(fn: (r) => r[\"_field\"] == \"coffee\")",
               "modelType": "Property"
             }
           ],

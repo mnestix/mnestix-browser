@@ -24,3 +24,22 @@ services:
   aas-discovery:
     ports:
       - '8082:8081'
+
+  influx-db:
+    image: influxdb:2
+    container_name: influx-test-db
+    profiles: [ "tests" ]
+    ports:
+      - "8086:8086"
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: adminadminadminadmin
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: tokentokentokentoken
+      DOCKER_INFLUXDB_INIT_ORG: mnestix
+      DOCKER_INFLUXDB_INIT_BUCKET: test-data
+    networks:
+      - mnestix-network
+    volumes:
+      - ./influx/data:/var/lib/influxdb2
+      - ./influx/config:/etc/influxdb2

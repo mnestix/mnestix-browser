@@ -9,7 +9,8 @@ import { TimeSeriesDataSet } from 'app/[locale]/viewer/_components/submodel/time
 export function InfluxTimeSeriesDiagram(props: { query: string; endpoint: string }) {
     const intl = useIntl();
     const { query, endpoint } = props;
-    const [url, org] = endpoint.split('/api/v2/query?org=');
+    const url = endpoint.split('/api/v2/query?org=')[0];
+    const org = endpoint.split('/api/v2/query?org=')[1].split('?')[0];
     const [data, setData] = useState<TimeSeriesDataSet>({ points: [], names: [] });
     const [error, setError] = useState<Error | undefined>(undefined);
     const [isLoading, setIsLoading] = useState(true);
@@ -17,14 +18,19 @@ export function InfluxTimeSeriesDiagram(props: { query: string; endpoint: string
     useEffect(() => {
         const responseData: TimeSeriesDataSet = { points: [], names: ['y'] };
 
-        const influx = new InfluxDB({ url }).getQueryApi(org);
+        const influx = new InfluxDB({
+            url,
+            headers: { ['Authorization']: 'Token tokentokentokentoken' },
+        }).getQueryApi(org);
         const observer: FluxResultObserver<string[]> = {
             next(row, tableMeta) {
                 const o = tableMeta.toObject(row);
+                console.log('data: ' + data);
                 responseData.points.push({ timestamp: o._time, y: o._value });
             },
             error(e) {
                 setError(e);
+                console.log('error ' + e);
                 setIsLoading(false);
             },
             complete() {
