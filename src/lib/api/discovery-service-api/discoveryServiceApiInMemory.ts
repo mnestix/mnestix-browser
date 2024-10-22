@@ -1,4 +1,4 @@
-import { IDiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApiInterface';
+import { DiscoveryEntry, IDiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApiInterface';
 import { ApiResponseWrapper, ApiResponseWrapperUtil, ApiResultStatus } from 'lib/services/apiResponseWrapper';
 
 export class DiscoveryServiceApiInMemory implements IDiscoveryServiceApi {
@@ -8,7 +8,7 @@ export class DiscoveryServiceApiInMemory implements IDiscoveryServiceApi {
         this.discoveryEntries = options.discoveryEntries;
     }
 
-    linkAasIdAndAssetId(_aasId: string, _assetId: string): Promise<ApiResponseWrapper<string>> {
+    linkAasIdAndAssetId(_aasId: string, _assetId: string): Promise<ApiResponseWrapper<DiscoveryEntry[]>> {
         throw new Error('Method not implemented.');
     }
 
@@ -23,7 +23,7 @@ export class DiscoveryServiceApiInMemory implements IDiscoveryServiceApi {
         return Promise.resolve(ApiResponseWrapperUtil.fromErrorCode(ApiResultStatus.NOT_FOUND, 'not found'));
     }
 
-    deleteAllAssetLinksById(_aasId: string): Promise<ApiResponseWrapper<string>> {
+    deleteAllAssetLinksById(_aasId: string): Promise<ApiResponseWrapper<void>> {
         throw new Error('Method not implemented.');
     }
 
@@ -31,11 +31,11 @@ export class DiscoveryServiceApiInMemory implements IDiscoveryServiceApi {
         throw new Error('Method not implemented.');
     }
 
-    getAllAssetLinksById(_aasId: string): Promise<ApiResponseWrapper<string[]>> {
+    getAllAssetLinksById(_aasId: string): Promise<ApiResponseWrapper<DiscoveryEntry[]>> {
         throw new Error('Method not implemented.');
     }
 
-    postAllAssetLinksById(_aasId: string, _assetLinks: { name: string; value: string }[]): Promise<ApiResponseWrapper<JSON>> {
+    postAllAssetLinksById(_aasId: string, _assetLinks: DiscoveryEntry[]): Promise<ApiResponseWrapper<JSON>> {
         throw new Error('Method not implemented.');
     }
 }

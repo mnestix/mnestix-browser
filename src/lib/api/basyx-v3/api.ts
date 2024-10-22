@@ -8,9 +8,9 @@ import { IAssetAdministrationShellRepositoryApi, ISubmodelRepositoryApi } from '
 import {
     AssetAdministrationShellRepositoryApiInMemory,
     INullableAasRepositoryEntries,
-    SubmodelRepositoryApiInMemory,
+    SubmodelRepositoryApiInMemory
 } from 'lib/api/basyx-v3/apiInMemory';
-import { ApiResponseWrapper, ApiResponseWrapperUtil } from 'lib/services/apiResponseWrapper';
+import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
 
 const BASE_PATH = '/'.replace(/\/+$/, '');
 
@@ -20,7 +20,7 @@ const BASE_PATH = '/'.replace(/\/+$/, '');
  * @interface FetchAPI
  */
 export type FetchAPI = {
-    fetch: (url: RequestInfo, init?: RequestInit) => Promise<ApiResponseWrapper<string>>;
+    fetch: <T>(url: RequestInfo, init?: RequestInit) => Promise<ApiResponseWrapper<T>>;
 };
 
 /**
@@ -79,7 +79,7 @@ export class RequiredError extends Error {
 export class AssetAdministrationShellRepositoryApi implements IAssetAdministrationShellRepositoryApi {
     private constructor(
         private http: {
-            fetch(url: RequestInfo | URL, init?: RequestInit): Promise<ApiResponseWrapper<string>>;
+            fetch<T>(url: RequestInfo | URL, init?: RequestInit): Promise<ApiResponseWrapper<T>>;
         },
         private configuration?: Configuration | undefined,
         private basePath?: string,
@@ -87,7 +87,7 @@ export class AssetAdministrationShellRepositoryApi implements IAssetAdministrati
 
     static create(
         http: {
-            fetch(url: RequestInfo | URL, init?: RequestInit): Promise<ApiResponseWrapper<string>>;
+            fetch<T>(url: RequestInfo | URL, init?: RequestInit): Promise<ApiResponseWrapper<T>>;
         },
         configuration?: Configuration | undefined,
         basePath?: string,
@@ -166,12 +166,11 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
             const localVarFetchArgs = AssetAdministrationShellRepositoryApiFetchParamCreator(
                 configuration,
             ).getAssetAdministrationShellById(aasId, options);
-            return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                const response = await requestHandler.fetch(
+            return (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return requestHandler.fetch<AssetAdministrationShell>(
                     basePath + localVarFetchArgs.url,
                     localVarFetchArgs.options,
                 );
-                return ApiResponseWrapperUtil.fromSuccess(response);
             };
         },
         /**
@@ -188,12 +187,11 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
             const localVarFetchArgs = AssetAdministrationShellRepositoryApiFetchParamCreator(
                 configuration,
             ).getSubmodelReferencesFromShell(aasId, options);
-            return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                const response = await requestHandler.fetch(
+            return (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return requestHandler.fetch<Reference[]>(
                     basePath + localVarFetchArgs.url,
                     localVarFetchArgs.options,
                 );
-                return response;
             };
         },
 
@@ -210,12 +208,11 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
             const localVarFetchArgs = AssetAdministrationShellRepositoryApiFetchParamCreator(
                 configuration,
             ).getThumbnailFromAssetInformation(aasId, options);
-            return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                const response = await requestHandler.fetch(
+            return (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return requestHandler.fetch<Blob>(
                     basePath + localVarFetchArgs.url,
                     localVarFetchArgs.options,
                 );
-                return response.transformResult<Blob>((a) => new Blob([a], { type: 'text/plain' }));
             };
         },
     };
@@ -338,7 +335,7 @@ export class SubmodelRepositoryApi implements ISubmodelRepositoryApi {
 
     static create(
         http: {
-            fetch(url: RequestInfo | URL, init?: RequestInit): Promise<ApiResponseWrapper<string>>;
+            fetch<T>(url: RequestInfo | URL, init?: RequestInit): Promise<ApiResponseWrapper<T>>;
         },
         configuration?: Configuration | undefined,
         basePath?: string,
@@ -405,12 +402,11 @@ export const SubmodelRepositoryApiFp = function (configuration?: Configuration) 
                 encodeBase64(submodelId),
                 options,
             );
-            return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                const response = await requestHandler.fetch(
+            return (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return requestHandler.fetch<Submodel>(
                     basePath + localVarFetchArgs.url,
                     localVarFetchArgs.options,
                 );
-                return response.transformResult<Submodel>(JSON.parse);
             };
         },
         /**
@@ -427,12 +423,11 @@ export const SubmodelRepositoryApiFp = function (configuration?: Configuration) 
                 encodeBase64(submodelId),
                 options,
             );
-            return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                const response = await requestHandler.fetch(
+            return (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return requestHandler.fetch<Submodel>(
                     basePath + localVarFetchArgs.url,
                     localVarFetchArgs.options,
                 );
-                return response.transformResult<Submodel>(JSON.parse);
             };
         },
         /**
@@ -449,12 +444,8 @@ export const SubmodelRepositoryApiFp = function (configuration?: Configuration) 
             const localVarFetchArgs = SubmodelRepositoryApiFetchParamCreator(
                 configuration,
             ).getAttachmentFromSubmodelElement(submodelId, submodelElementPath, options);
-            return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                const response = await requestHandler.fetch(
-                    basePath + localVarFetchArgs.url,
-                    localVarFetchArgs.options,
-                );
-                return response.transformResult<Blob>((a) => new Blob([a], { type: 'text/plain' }));
+            return (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return requestHandler.fetch<Blob>(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
             };
         },
     };

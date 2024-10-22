@@ -41,12 +41,12 @@ export const mnestixFetchLegacy = ():
     };
 };
 
-export function mnestixFetch<T>(): {
-    fetch(url: RequestInfo | URL, init?: RequestInit | undefined): Promise<ApiResponseWrapper<T>>;
+export function mnestixFetch(): {
+    fetch<T>(url: RequestInfo | URL, init?: RequestInit | undefined): Promise<ApiResponseWrapper<T>>;
 } {
     return {
         fetch: async (url: RequestInfo, init?: RequestInit) => {
-            return await performServerFetch<T>(url, await initializeRequestOptions(await getBearerToken(), init));
+            return await performServerFetch(url, await initializeRequestOptions(await getBearerToken(), init));
         },
     };
 }

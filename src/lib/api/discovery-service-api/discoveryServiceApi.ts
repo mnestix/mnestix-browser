@@ -96,7 +96,7 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
         });
     }
 
-    async postAllAssetLinksById(aasId: string, assetLinks: DiscoveryEntry[]) {
+    postAllAssetLinksById(aasId: string, assetLinks: DiscoveryEntry[]) : Promise<ApiResponseWrapper<DiscoveryEntry[]>> {
         const b64_aasId = encodeBase64(aasId);
 
         const headers = {

@@ -6,7 +6,7 @@ export type DiscoveryEntry = {
 };
 
 export interface IDiscoveryServiceApi {
-    linkAasIdAndAssetId(aasId: string, assetId: string): Promise<ApiResponseWrapper<string>>;
+    linkAasIdAndAssetId(aasId: string, assetId: string): Promise<ApiResponseWrapper<DiscoveryEntry[]>>;
 
     getAasIdsByAssetId(assetId: string): Promise<ApiResponseWrapper<{ paging_metadata: string; result: string[] }>>;
 
@@ -16,7 +16,7 @@ export interface IDiscoveryServiceApi {
         assetIds: DiscoveryEntry[],
     ): Promise<ApiResponseWrapper<{ paging_metadata: string; result: string[] }>>;
 
-    getAllAssetLinksById(aasId: string): Promise<ApiResponseWrapper<string[]>>;
+    getAllAssetLinksById(aasId: string): Promise<ApiResponseWrapper<DiscoveryEntry[]>>;
 
     postAllAssetLinksById(
         aasId: string,
