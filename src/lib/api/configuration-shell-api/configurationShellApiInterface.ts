@@ -21,5 +21,5 @@ export interface ConfigurationShellApiInterface {
         settingsType: string,
     ): Promise<Response>;
 
-    processputSingleSettingValue(response: Response): Promise<Response>;
+    processPutSingleSettingValue(response: Response): Promise<Response>;
 }

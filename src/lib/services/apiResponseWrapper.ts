@@ -6,7 +6,7 @@ export const ApiResultStatus = {
     INTERNAL_SERVER_ERROR: 'INTERNAL_SERVER_ERROR',
 } as const;
 
-export type ApiResultStatus = typeof ApiResultStatus[keyof typeof ApiResultStatus];
+export type ApiResultStatus = (typeof ApiResultStatus)[keyof typeof ApiResultStatus];
 
 const httpStatusMessage: Record<number, ApiResultStatus> = {
     200: ApiResultStatus.SUCCESS,
@@ -19,28 +19,27 @@ const getStatus = (statusCode: number): ApiResultStatus => {
     return statusCode in httpStatusMessage ? httpStatusMessage[statusCode] : ApiResultStatus.UNKNOWN_ERROR;
 };
 
-export type ApiResponseWrapper<T> = ApiResponseWrapperSuccess<T> | ApiResponseWrapperError<T>
+export type ApiResponseWrapper<T> = ApiResponseWrapperSuccess<T> | ApiResponseWrapperError<T>;
 
 export type ApiResponseWrapperSuccess<T> = {
     isSuccess: true;
     result: T;
-}
+};
 
 export type ApiResponseWrapperError<T> = {
     isSuccess: false;
     result?: T;
     errorCode: ApiResultStatus;
     message: string;
-}
+};
 
 export class ApiResponseWrapperUtil {
-
     static fromErrorCode<T>(error: ApiResultStatus, message: string): ApiResponseWrapperError<T> {
         return {
             isSuccess: false,
             result: undefined,
             errorCode: error,
-            message: message
+            message: message,
         };
     }
 
@@ -49,25 +48,7 @@ export class ApiResponseWrapperUtil {
             isSuccess: false,
             errorCode: getStatus(error),
             message: message,
-        }
-    }
-
-    static transformResult<T, U>(
-        response: ApiResponseWrapper<T>,
-        transformer: (input: T) => U
-    ): ApiResponseWrapper<U> {
-        if (response.isSuccess) {
-            return {
-                isSuccess: true,
-                result: transformer(response.result),
-            };
-        } else {
-            return {
-                isSuccess: false,
-                errorCode: response.errorCode,
-                message: response.message,
-            };
-        }
+        };
     }
 
     static async fromResponse<T>(response: Response): Promise<ApiResponseWrapper<T>> {
@@ -76,14 +57,14 @@ export class ApiResponseWrapperUtil {
             return {
                 isSuccess: true,
                 result: await response.json(),
-            }
+            };
         } else {
             return {
                 isSuccess: false,
                 result: await response.json(),
                 errorCode: status,
                 message: response.statusText,
-            }
+            };
         }
     }
 
@@ -91,6 +72,6 @@ export class ApiResponseWrapperUtil {
         return {
             isSuccess: true,
             result: result,
-        }
+        };
     }
 }

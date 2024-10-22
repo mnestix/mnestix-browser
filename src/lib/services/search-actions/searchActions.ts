@@ -8,7 +8,7 @@ import { mnestixFetch } from 'lib/api/infrastructure';
 
 export async function performFullAasSearch(searchInput: string): Promise<ApiResponseWrapper<AasSearchResult>> {
     const searcher = AasSearcher.create();
-    return await searcher.performFullSearch(searchInput);
+    return searcher.performFullSearch(searchInput);
 }
 
 export async function getAasFromRepository(
@@ -16,22 +16,22 @@ export async function getAasFromRepository(
     repositoryUrl: string,
 ): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
     const searcher = AasSearcher.create();
-    return await searcher.getAasFromRepository(aasId, repositoryUrl);
+    return searcher.getAasFromRepository(aasId, repositoryUrl);
 }
 
 export async function performRegistryAasSearch(searchInput: string): Promise<ApiResponseWrapper<AasSearchResult>> {
     const searcher = AasSearcher.create();
-    return await searcher.performRegistrySearch(searchInput);
+    return searcher.performRegistrySearch(searchInput);
 }
 
 export async function performDiscoveryAasSearch(searchInput: string): Promise<ApiResponseWrapper<string[]>> {
     const searcher = AasSearcher.create();
-    return await searcher.performAasDiscoverySearch(searchInput);
+    return searcher.performAasDiscoverySearch(searchInput);
 }
 
 export async function getSubmodelFromSubmodelDescriptor(url: string): Promise<ApiResponseWrapper<Submodel>> {
     const localFetch = mnestixFetch();
-    return await localFetch.fetch<Submodel>(url, {
+    return localFetch.fetch<Submodel>(url, {
         method: 'GET',
     });
 }
