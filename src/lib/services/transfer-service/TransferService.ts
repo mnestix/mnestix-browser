@@ -333,40 +333,40 @@ export class TransferService {
         return submodelAttachmentsData;
     }
 
-    private getAttachmentsFromCollection(subElColl: SubmodelElementCollection, collectionIdShort: string) {
+    private getAttachmentsFromCollection(subElColl: SubmodelElementCollection, collectionIdShortPath: string) {
         const submodelAttachmentsData: AttachmentData[] = [];
         for (const subEl of subElColl.value as ISubmodelElement[]) {
             if (subEl.idShort === null || subEl.idShort === undefined) continue;
-            const submodelElementIdShort = [collectionIdShort, subEl.idShort].join('.');
+            const idShortPath = [collectionIdShortPath, subEl.idShort].join('.');
 
-            this.processSubmodelElement(subEl, submodelElementIdShort, submodelAttachmentsData);
+            this.processSubmodelElement(subEl, idShortPath, submodelAttachmentsData);
         }
         return submodelAttachmentsData;
     }
 
     private processSubmodelElement(
         subEl: ISubmodelElement,
-        idShort: string,
+        idShortPath: string,
         submodelAttachmentsData: AttachmentData[],
     ) {
         const modelType = getKeyType(subEl);
 
         if (modelType === KeyTypes.SubmodelElementCollection) {
             submodelAttachmentsData.push(
-                ...this.getAttachmentsFromCollection(subEl as SubmodelElementCollection, idShort),
+                ...this.getAttachmentsFromCollection(subEl as SubmodelElementCollection, idShortPath),
             );
         }
 
         if (modelType === KeyTypes.Blob) {
             submodelAttachmentsData.push({
-                idShortPath: idShort,
+                idShortPath: idShortPath,
                 fileName: (subEl as Blob).idShort,
             });
         }
 
         if (modelType === KeyTypes.File) {
             submodelAttachmentsData.push({
-                idShortPath: idShort,
+                idShortPath: idShortPath,
                 fileName: (subEl as File).idShort,
             });
         }
