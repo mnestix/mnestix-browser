@@ -21,6 +21,7 @@ import {
 import { isValidUrl } from 'lib/util/UrlUtil';
 import { AttachmentData, TransferDto, TransferResult } from 'lib/types/TransferServiceData';
 import { getKeyType } from 'lib/util/KeyTypeUtil';
+import { generateRandomNumber } from 'lib/util/RandomUtils';
 
 export class TransferService {
     private constructor(
@@ -116,9 +117,8 @@ export class TransferService {
 
             if (submodel.submodelElements) {
                 const attachmentsData = this.getSubmodelAttachments(submodel.submodelElements);
-                attachmentsData.forEach(async (attachmentData) => {
-                    promises.push(this.putAttachmentToSubmodelElement(submodel.id, attachmentData, apikey));
-                });
+                const result = this.processAttachments(submodel.id, attachmentsData, apikey);
+                promises.push(result);
             }
         });
 
@@ -129,6 +129,14 @@ export class TransferService {
         }
 
         return await Promise.all(promises);
+    }
+
+    async processAttachments(submodelId: string, attachmentsData: AttachmentData[], apikey?: string) {
+        const promises = [];
+        for (const attachmentData of attachmentsData) {
+            promises.push(await this.putAttachmentToSubmodelElement(submodelId, attachmentData, apikey));
+        }
+        return promises;
     }
 
     private async postAasToRepository(aas: AssetAdministrationShell, apikey?: string): Promise<TransferResult> {
@@ -233,6 +241,9 @@ export class TransferService {
                 submodelId,
                 attachment.idShortPath,
             );
+            if (attachment.file.type === 'application/pdf') {
+                attachment.fileName = [attachment.fileName, 'pdf'].join('.');
+            }
             await this.targetSubmodelRepositoryClient.putAttachmentToSubmodelElement(submodelId, attachment, {
                 headers: {
                     Apikey: apikey,
@@ -360,14 +371,14 @@ export class TransferService {
         if (modelType === KeyTypes.Blob) {
             submodelAttachmentsData.push({
                 idShortPath: idShortPath,
-                fileName: (subEl as Blob).idShort,
+                fileName: [(subEl as Blob).idShort, generateRandomNumber()].join(''),
             });
         }
 
         if (modelType === KeyTypes.File) {
             submodelAttachmentsData.push({
                 idShortPath: idShortPath,
-                fileName: (subEl as File).idShort,
+                fileName: [(subEl as File).idShort, generateRandomNumber()].join(''),
             });
         }
     }
