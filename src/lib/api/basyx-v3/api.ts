@@ -10,7 +10,7 @@ import {
     INullableAasRepositoryEntries,
     SubmodelRepositoryApiInMemory
 } from 'lib/api/basyx-v3/apiInMemory';
-import { AttachmentData } from 'lib/types/TransferServiceData';
+import { AttachmentDetails } from 'lib/types/TransferServiceData';
 
 const BASE_PATH = '/'.replace(/\/+$/, '');
 
@@ -144,15 +144,23 @@ export class AssetAdministrationShellRepositoryApi extends BaseAPI implements IA
      * @summary Uploads a thumbnail to the specified Asset Administration Shell (AAS).
      * @param {string} aasId - The unique identifier of the Asset Administration Shell.
      * @param {Blob} image - The image file to be uploaded as the thumbnail.
+     * @param fileName - Name of the image file to be uploaded.
      * @param {object} [options] - Optional. Override HTTP request options.
      * @param {string} [basePath] - Optional. The base URL of the repository endpoint.
      * @returns {Promise<Response>} A promise that resolves to the server's response after the thumbnail upload.
      * @memberof AssetAdministrationShellRepositoryApi
      */
-    putThumbnailToShell(aasId: string, image: Blob, options?: any, basePath?: string): Promise<Response> {
+    putThumbnailToShell(
+        aasId: string,
+        image: Blob,
+        fileName: string,
+        options?: any,
+        basePath?: string,
+    ): Promise<Response> {
         return AssetAdministrationShellRepositoryApiFp(this.configuration).putThumbnailToShell(
             aasId,
             image,
+            fileName,
             options,
         )(this.fetch, basePath ?? this.basePath);
     }
@@ -266,12 +274,14 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
          * @summary Uploads a thumbnail to the specified Asset Administration Shell (AAS).
          * @param {string} aasId - The unique identifier of the Asset Administration Shell.
          * @param {Blob} image - The image file to be uploaded as the thumbnail.
+         * @param fileName - Name of the image file to be uploaded.
          * @param {object} [options] - Optional. Override HTTP request options.
          * @throws {RequiredError}
          */
         putThumbnailToShell(
             aasId: string,
             image: Blob,
+            fileName: string,
             options?: any,
         ): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
             return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
@@ -289,7 +299,7 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
                     basePath +
                         `/shells/{aasId}/asset-information/thumbnail?fileName={fileName}`
                             .replace(`{aasId}`, encodeBase64(String(aasId)))
-                            .replace(`{fileName}`, 'thumbnail'), //TODO: Get a better file name
+                            .replace(`{fileName}`, fileName),
                     localVarRequestOptions,
                 );
                 if (response.status >= 200 && response.status < 300) {
@@ -516,19 +526,19 @@ export class SubmodelRepositoryApi extends BaseAPI implements ISubmodelRepositor
     /**
      * @summary Uploads an attachment to a specific submodel element.
      * @param {string} submodelId - The unique identifier of the submodel containing the submodel element.
-     * @param {AttachmentData} attachmentData - The attachment data to be uploaded to the submodel element.
+     * @param {AttachmentDetails} attachmentDetails - The attachment data to be uploaded to the submodel element.
      * @param {object} [options] - Optional. Additional options to override default HTTP request settings.
      * @returns {Promise<Response>} A promise that resolves to the server's response after the attachment upload.
      * @memberof SubmodelRepositoryApi
      */
     putAttachmentToSubmodelElement(
         submodelId: string,
-        attachmentData: AttachmentData,
+        attachmentDetails: AttachmentDetails,
         options?: any,
     ): Promise<Response> {
         return SubmodelRepositoryApiFp(this.configuration).putAttachmentToSubmodelElement(
             submodelId,
-            attachmentData,
+            attachmentDetails,
             options,
         )(this.fetch, this.basePath);
     }
@@ -647,11 +657,11 @@ export const SubmodelRepositoryApiFp = function (configuration?: Configuration) 
         /**
          * @summary Uploads an attachment to a specific submodel element.
          * @param {string} submodelId - The unique identifier of the submodel containing the submodel element.
-         * @param {AttachmentData} attachmentData - The attachment data to be uploaded to the submodel element.
+         * @param {AttachmentDetails} attachmentDetails - The attachment data to be uploaded to the submodel element.
          * @param {object} [options] - Optional. Additional options to override default HTTP request settings.
          * @throws {RequiredError}
          */
-        putAttachmentToSubmodelElement(submodelId: string, attachmentData: AttachmentData, options: any) {
+        putAttachmentToSubmodelElement(submodelId: string, attachmentDetails: AttachmentDetails, options: any) {
             return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
                 const localVarHeaderParameter = {
@@ -660,15 +670,15 @@ export const SubmodelRepositoryApiFp = function (configuration?: Configuration) 
 
                 localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options?.headers);
                 const formData = new FormData();
-                formData.append('file', attachmentData.file!);
+                formData.append('file', attachmentDetails.file!);
 
                 localVarRequestOptions.body = formData;
                 const response = await requestHandler.fetch(
                     basePath +
                         `/submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/attachment?fileName={fileName}`
                             .replace(`{submodelIdentifier}`, encodeBase64(String(submodelId)))
-                            .replace(`{idShortPath}`, attachmentData.idShortPath)
-                            .replace(`{fileName}`, attachmentData.fileName ?? 'Document'),
+                            .replace(`{idShortPath}`, attachmentDetails.idShortPath)
+                            .replace(`{fileName}`, attachmentDetails.fileName ?? 'Document'),
                     localVarRequestOptions,
                 );
                 if (response.status >= 200 && response.status < 300) {

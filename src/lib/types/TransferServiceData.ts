@@ -18,7 +18,7 @@ export type TransferResult = {
     error: string;
 };
 
-export type AttachmentData = {
+export type AttachmentDetails = {
     idShortPath: string;
     fileName: string | null;
     file?: Blob;

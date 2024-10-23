@@ -1,6 +1,6 @@
 import { AssetAdministrationShell, Reference } from '@aas-core-works/aas-core3.0-typescript/types';
 import { Submodel } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
-import { AttachmentData } from 'lib/types/TransferServiceData';
+import { AttachmentDetails } from 'lib/types/TransferServiceData';
 
 export interface IAssetAdministrationShellRepositoryApi {
     /**
@@ -41,12 +41,19 @@ export interface IAssetAdministrationShellRepositoryApi {
      * @summary Uploads a thumbnail to the specified Asset Administration Shell (AAS).
      * @param {string} aasId - The unique identifier of the Asset Administration Shell.
      * @param {Blob} image - The image file to be uploaded as the thumbnail.
+     * @param fileName - Name of the image file to be uploaded.
      * @param {object} [options] - Optional. Override HTTP request options.
      * @param {string} [basePath] - Optional. The base URL of the repository endpoint.
      * @returns {Promise<Response>} A promise that resolves to the server's response after the thumbnail upload.
      * @memberof AssetAdministrationShellRepositoryApi
      */
-    putThumbnailToShell(aasId: string, image: Blob, options?: object, basePath?: string): Promise<Response>;
+    putThumbnailToShell(
+        aasId: string,
+        image: Blob,
+        fileName: string,
+        options?: object,
+        basePath?: string,
+    ): Promise<Response>;
 
     /**
      * @summary Creates a new Asset Administration Shell (AAS) in the repository.
@@ -99,14 +106,14 @@ export interface ISubmodelRepositoryApi {
     /**
      * @summary Uploads an attachment to a specific submodel element.
      * @param {string} submodelId - The unique identifier of the submodel containing the submodel element.
-     * @param {AttachmentData} attachmentData - The attachment data to be uploaded to the submodel element.
+     * @param {AttachmentDetails} attachmentData - The attachment data to be uploaded to the submodel element.
      * @param {object} [options] - Optional. Additional options to override default HTTP request settings.
      * @returns {Promise<Response>} A promise that resolves to the server's response after the attachment upload.
      * @memberof SubmodelRepositoryApi
      */
     putAttachmentToSubmodelElement(
         submodelId: string,
-        attachmentData: AttachmentData,
+        attachmentData: AttachmentDetails,
         options?: object,
     ): Promise<Response>;
 }

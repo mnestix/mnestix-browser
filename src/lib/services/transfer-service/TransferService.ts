@@ -19,7 +19,7 @@ import {
     SubmodelElementCollection,
 } from '@aas-core-works/aas-core3.0-typescript/types';
 import { isValidUrl } from 'lib/util/UrlUtil';
-import { AttachmentData, TransferDto, TransferResult } from 'lib/types/TransferServiceData';
+import { AttachmentDetails, TransferDto, TransferResult } from 'lib/types/TransferServiceData';
 import { getKeyType } from 'lib/util/KeyTypeUtil';
 import { generateRandomNumber } from 'lib/util/RandomUtils';
 
@@ -116,9 +116,8 @@ export class TransferService {
             promises.push(this.postSubmodelToRepository(submodel, apikey));
 
             if (submodel.submodelElements) {
-                const attachmentsData = this.getSubmodelAttachments(submodel.submodelElements);
-                const result = this.processAttachments(submodel.id, attachmentsData, apikey);
-                promises.push(result);
+                const attachmentDetails = this.getSubmodelAttachmentsDetails(submodel.submodelElements);
+                promises.push(this.processAttachments(submodel.id, attachmentDetails, apikey));
             }
         });
 
@@ -129,14 +128,6 @@ export class TransferService {
         }
 
         return await Promise.all(promises);
-    }
-
-    private async processAttachments(submodelId: string, attachmentsData: AttachmentData[], apikey?: string) {
-        const promises = [];
-        for (const attachmentData of attachmentsData) {
-            promises.push(await this.putAttachmentToSubmodelElement(submodelId, attachmentData, apikey));
-        }
-        return promises;
     }
 
     private async postAasToRepository(aas: AssetAdministrationShell, apikey?: string): Promise<TransferResult> {
@@ -215,7 +206,8 @@ export class TransferService {
     private async putThumbnailImageToShell(aas: AssetAdministrationShell, apikey?: string): Promise<TransferResult> {
         try {
             const aasThumbnail = await this.sourceAasRepositoryClient.getThumbnailFromShell(aas.id);
-            await this.targetAasRepositoryClient.putThumbnailToShell(aas.id, aasThumbnail, {
+            const fileName = ['thumbnail', generateRandomNumber()].join('');
+            await this.targetAasRepositoryClient.putThumbnailToShell(aas.id, aasThumbnail, fileName, {
                 headers: {
                     Apikey: apikey,
                 },
@@ -231,23 +223,44 @@ export class TransferService {
         }
     }
 
+    private async processAttachments(submodelId: string, attachmentDetails: AttachmentDetails[], apikey?: string) {
+        const promises = [];
+
+        for (const attachmentDetail of attachmentDetails) {
+            try {
+                attachmentDetail.file = await this.sourceSubmodelRepositoryClient.getAttachmentFromSubmodelElement(
+                    submodelId,
+                    attachmentDetail.idShortPath,
+                );
+                this.processFileExtension(attachmentDetail);
+                promises.push(await this.putAttachmentToSubmodelElement(submodelId, attachmentDetail, apikey));
+            } catch (e) {
+                promises.push({
+                    success: false,
+                    operationKind: 'SubmodelRepository',
+                    resourceId: [
+                        'File transfer: ',
+                        attachmentDetail.idShortPath,
+                        ', not found in source repository',
+                    ].join(''),
+                    error: e.toString(),
+                });
+            }
+        }
+        return promises;
+    }
+
     private async putAttachmentToSubmodelElement(
         submodelId: string,
-        attachment: AttachmentData,
+        attachment: AttachmentDetails,
         apikey?: string,
     ): Promise<TransferResult> {
         try {
-            attachment.file = await this.sourceSubmodelRepositoryClient.getAttachmentFromSubmodelElement(
-                submodelId,
-                attachment.idShortPath,
-            );
-            this.processFileExtension(attachment);
             await this.targetSubmodelRepositoryClient.putAttachmentToSubmodelElement(submodelId, attachment, {
                 headers: {
                     Apikey: apikey,
                 },
             });
-
             return {
                 success: true,
                 operationKind: 'SubmodelRepository',
@@ -331,57 +344,57 @@ export class TransferService {
         return !!(thumbnailPath && !isValidUrl(thumbnailPath));
     }
 
-    private getSubmodelAttachments(submodelElements: ISubmodelElement[] | null) {
-        const submodelAttachmentsData: AttachmentData[] = [];
+    private getSubmodelAttachmentsDetails(submodelElements: ISubmodelElement[] | null) {
+        const submodelAttachmentsDetails: AttachmentDetails[] = [];
         for (const subEl of submodelElements as ISubmodelElement[]) {
             const idShort = subEl.idShort;
             if (idShort === null || idShort === undefined) continue;
 
-            this.processSubmodelElement(subEl, idShort, submodelAttachmentsData);
+            this.processSubmodelElement(subEl, idShort, submodelAttachmentsDetails);
         }
-        return submodelAttachmentsData;
+        return submodelAttachmentsDetails;
     }
 
-    private getAttachmentsFromCollection(subElColl: SubmodelElementCollection, collectionIdShortPath: string) {
-        const submodelAttachmentsData: AttachmentData[] = [];
+    private getAttachmentsDetailsFromCollection(subElColl: SubmodelElementCollection, collectionIdShortPath: string) {
+        const submodelAttachmentsDetails: AttachmentDetails[] = [];
         for (const subEl of subElColl.value as ISubmodelElement[]) {
             if (subEl.idShort === null || subEl.idShort === undefined) continue;
             const idShortPath = [collectionIdShortPath, subEl.idShort].join('.');
 
-            this.processSubmodelElement(subEl, idShortPath, submodelAttachmentsData);
+            this.processSubmodelElement(subEl, idShortPath, submodelAttachmentsDetails);
         }
-        return submodelAttachmentsData;
+        return submodelAttachmentsDetails;
     }
 
     private processSubmodelElement(
         subEl: ISubmodelElement,
         idShortPath: string,
-        submodelAttachmentsData: AttachmentData[],
+        submodelAttachmentsDetails: AttachmentDetails[],
     ) {
         const modelType = getKeyType(subEl);
 
         if (modelType === KeyTypes.SubmodelElementCollection) {
-            submodelAttachmentsData.push(
-                ...this.getAttachmentsFromCollection(subEl as SubmodelElementCollection, idShortPath),
+            submodelAttachmentsDetails.push(
+                ...this.getAttachmentsDetailsFromCollection(subEl as SubmodelElementCollection, idShortPath),
             );
         }
 
         if (modelType === KeyTypes.Blob) {
-            submodelAttachmentsData.push({
+            submodelAttachmentsDetails.push({
                 idShortPath: idShortPath,
                 fileName: [(subEl as Blob).idShort, generateRandomNumber()].join(''),
             });
         }
 
         if (modelType === KeyTypes.File) {
-            submodelAttachmentsData.push({
+            submodelAttachmentsDetails.push({
                 idShortPath: idShortPath,
                 fileName: [(subEl as File).idShort, generateRandomNumber()].join(''),
             });
         }
     }
 
-    private processFileExtension(attachment: AttachmentData) {
+    private processFileExtension(attachment: AttachmentDetails) {
         if (!attachment.file || attachment.file.type === 'application/octet-stream') return;
         const fileExtension = attachment.file.type.split('/')[1];
         attachment.fileName = [attachment.fileName, fileExtension].join('.');
