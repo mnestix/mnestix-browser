@@ -131,7 +131,7 @@ export class TransferService {
         return await Promise.all(promises);
     }
 
-    async processAttachments(submodelId: string, attachmentsData: AttachmentData[], apikey?: string) {
+    private async processAttachments(submodelId: string, attachmentsData: AttachmentData[], apikey?: string) {
         const promises = [];
         for (const attachmentData of attachmentsData) {
             promises.push(await this.putAttachmentToSubmodelElement(submodelId, attachmentData, apikey));
