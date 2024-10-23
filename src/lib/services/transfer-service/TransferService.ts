@@ -241,9 +241,7 @@ export class TransferService {
                 submodelId,
                 attachment.idShortPath,
             );
-            if (attachment.file.type === 'application/pdf') {
-                attachment.fileName = [attachment.fileName, 'pdf'].join('.');
-            }
+            this.processFileExtension(attachment);
             await this.targetSubmodelRepositoryClient.putAttachmentToSubmodelElement(submodelId, attachment, {
                 headers: {
                     Apikey: apikey,
@@ -381,5 +379,11 @@ export class TransferService {
                 fileName: [(subEl as File).idShort, generateRandomNumber()].join(''),
             });
         }
+    }
+
+    private processFileExtension(attachment: AttachmentData) {
+        if (!attachment.file || attachment.file.type === 'application/octet-stream') return;
+        const fileExtension = attachment.file.type.split('/')[1];
+        attachment.fileName = [attachment.fileName, fileExtension].join('.');
     }
 }
