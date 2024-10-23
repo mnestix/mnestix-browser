@@ -20,7 +20,9 @@ import {
 } from 'lib/services/repository-access/repositorySearchActions';
 import { getSubmodelDescriptorsById } from 'lib/services/submodelRegistryApiActions';
 
-export type SubmodelsOverviewCardProps = { readonly smReferences: Reference[] };
+export type SubmodelsOverviewCardProps = {
+    readonly smReferences?: Reference[];
+};
 
 export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
     const [selectedItem, setSelectedItem] = useState<TabSelectorItem>();

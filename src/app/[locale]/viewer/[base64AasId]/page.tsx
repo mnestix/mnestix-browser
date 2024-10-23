@@ -121,7 +121,7 @@ export default function Page() {
                     />
                     {aas?.submodels && aas.submodels.length > 0 && (
                         <SubmodelsOverviewCard smReferences={aas.submodels} />
-                    )}
+                    )}{' '}
                 </Box>
             ) : (
                 <>
