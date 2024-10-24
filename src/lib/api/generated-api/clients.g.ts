@@ -6,81 +6,26 @@
 
 /* tslint:disable */
 /* eslint-disable */
+
 // ReSharper disable InconsistentNaming
-
-export class AasCreatorClient {
-    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
-    private baseUrl: string;
-    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
-
-    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
-        this.http = http ? http : (window as any);
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : '';
-    }
-
-    /**
-     * Creates a new AAS for a given assetIdShort.
-    Response contains id of the newly generated AAS Base64UrlEncoded.
-     * @param assetIdShort The assetIdShort to be used for creating the AAS.
-     * @return CreateAasResponse
-     */
-    createAas(assetIdShort: string, signal?: AbortSignal | undefined): Promise<CreateAasResponse> {
-        let url_ = this.baseUrl + '/api/AasCreator/{assetIdShort}';
-        if (assetIdShort === undefined || assetIdShort === null)
-            throw new Error("The parameter 'assetIdShort' must be defined.");
-        url_ = url_.replace('{assetIdShort}', encodeURIComponent('' + assetIdShort));
-        url_ = url_.replace(/[?&]$/, '');
-
-        let options_: RequestInit = {
-            method: 'POST',
-            signal,
-            headers: {
-                Accept: 'application/json',
-            },
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processCreateAas(_response);
-        });
-    }
-
-    protected processCreateAas(response: Response): Promise<CreateAasResponse> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && response.headers.forEach) {
-            response.headers.forEach((v: any, k: any) => (_headers[k] = v));
-        }
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-                let result200: any = null;
-                let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result200 = CreateAasResponse.fromJS(resultData200);
-                return result200;
-            });
-        } else if (status === 400) {
-            return response.text().then((_responseText) => {
-                let result400: any = null;
-                let resultData400 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result400 = ProblemDetails.fromJS(resultData400);
-                return throwException('A server side error occurred.', status, _responseText, _headers, result400);
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-                return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<CreateAasResponse>(null as any);
-    }
-}
 
 export class AasListClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
-    private baseUrl: string;
+    private readonly baseUrl: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
 
-    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+    private constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : (window as any);
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : '';
+    }
+
+    static create(
+        _baseUrl: string = '',
+        http?: {
+            fetch(url: RequestInfo, init?: RequestInit): Promise<Response>;
+        },
+    ): AasListClient {
+        return new AasListClient(_baseUrl, http ?? window);
     }
 
     /**
@@ -115,7 +60,7 @@ export class AasListClient {
                 let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
                 if (Array.isArray(resultData200)) {
                     result200 = [] as any;
-                    for (let item of resultData200) result200!.push(AasListEntry.fromJS(item));
+                    for (let item of resultData200) result200!.push(item);
                 } else {
                     result200 = <any>null;
                 }
@@ -130,478 +75,6 @@ export class AasListClient {
     }
 }
 
-export class AasRelationshipClient {
-    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
-    private baseUrl: string;
-    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
-
-    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
-        this.http = http ? http : (window as any);
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : '';
-    }
-
-    /**
-     * Returns all asset administration shells that have a direct derivedFrom dependency on the given asset administration shell
-     * @param aasId (optional) The Id of the AAS to search inheritors for
-     * @return A list of (AasId, AssetIdShort)-tuples that derive from the given AasId
-     */
-    getDerivedFrom(aasId?: string | undefined, signal?: AbortSignal | undefined): Promise<Aas[]> {
-        let url_ = this.baseUrl + '/api/AasRelationship/GetDerivedFrom?';
-        if (aasId === null) throw new Error("The parameter 'aasId' cannot be null.");
-        else if (aasId !== undefined) url_ += 'aasId=' + encodeURIComponent('' + aasId) + '&';
-        url_ = url_.replace(/[?&]$/, '');
-
-        let options_: RequestInit = {
-            method: 'GET',
-            signal,
-            headers: {
-                Accept: 'application/json',
-            },
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetDerivedFrom(_response);
-        });
-    }
-
-    protected processGetDerivedFrom(response: Response): Promise<Aas[]> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && response.headers.forEach) {
-            response.headers.forEach((v: any, k: any) => (_headers[k] = v));
-        }
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-                let result200: any = null;
-                let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                if (Array.isArray(resultData200)) {
-                    result200 = [] as any;
-                    for (let item of resultData200) result200!.push(Aas.fromJS(item));
-                } else {
-                    result200 = <any>null;
-                }
-                return result200;
-            });
-        } else if (status === 400) {
-            return response.text().then((_responseText) => {
-                let result400: any = null;
-                let resultData400 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result400 = ProblemDetails.fromJS(resultData400);
-                return throwException('A server side error occurred.', status, _responseText, _headers, result400);
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-                return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<Aas[]>(null as any);
-    }
-}
-
-export class CustomTemplatesClient {
-    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
-    private baseUrl: string;
-    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
-
-    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
-        this.http = http ? http : (window as any);
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : '';
-    }
-
-    /**
-     * Returns all submodel templates from the custom templates AAS.
-
-    This endpoint uses the template transformer to ensure the returned submodels are standard conform.
-     * @return Json which contains all custom submodels.
-     */
-    getAllCustomSubmodels(signal?: AbortSignal | undefined): Promise<void> {
-        let url_ = this.baseUrl + '/api/CustomTemplates';
-        url_ = url_.replace(/[?&]$/, '');
-
-        let options_: RequestInit = {
-            method: 'GET',
-            signal,
-            headers: {},
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetAllCustomSubmodels(_response);
-        });
-    }
-
-    protected processGetAllCustomSubmodels(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && response.headers.forEach) {
-            response.headers.forEach((v: any, k: any) => (_headers[k] = v));
-        }
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-                return;
-            });
-        } else if (status === 404) {
-            return response.text().then((_responseText) => {
-                let result404: any = null;
-                let resultData404 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result404 = ProblemDetails.fromJS(resultData404);
-                return throwException('A server side error occurred.', status, _responseText, _headers, result404);
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-                return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
-    }
-
-    /**
-     * Returns the submodel template from the custom templates AAS with the specified shortId.
-     * @return Json which contains the custom submodel
-     */
-    getCustomSubmodel(base64EncodedCustomTemplateId: string, signal?: AbortSignal | undefined): Promise<void> {
-        let url_ = this.baseUrl + '/api/CustomTemplates/{base64EncodedCustomTemplateId}';
-        if (base64EncodedCustomTemplateId === undefined || base64EncodedCustomTemplateId === null)
-            throw new Error("The parameter 'base64EncodedCustomTemplateId' must be defined.");
-        url_ = url_.replace('{base64EncodedCustomTemplateId}', encodeURIComponent('' + base64EncodedCustomTemplateId));
-        url_ = url_.replace(/[?&]$/, '');
-
-        let options_: RequestInit = {
-            method: 'GET',
-            signal,
-            headers: {},
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetCustomSubmodel(_response);
-        });
-    }
-
-    protected processGetCustomSubmodel(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && response.headers.forEach) {
-            response.headers.forEach((v: any, k: any) => (_headers[k] = v));
-        }
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-                return;
-            });
-        } else if (status === 400) {
-            return response.text().then((_responseText) => {
-                let result400: any = null;
-                let resultData400 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result400 = ProblemDetails.fromJS(resultData400);
-                return throwException('A server side error occurred.', status, _responseText, _headers, result400);
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-                return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
-    }
-}
-
-export class DataIngestClient {
-    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
-    private baseUrl: string;
-    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
-
-    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
-        this.http = http ? http : (window as any);
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : '';
-    }
-
-    /**
-     * Takes the submodel templates with given customTemplateIds and maps the data from the given data json into them.
-    After that, it will store the submodels into the shell with given aasId with its submodel short id.
-     * @param base64EncodedAasId The base64UrlEncoded aasId of the shell where the submodel will be stored in.
-     * @param requestBody The language (e.g.: 'de' or 'en'), a list of submodel template ids and a json with the data for the new submodels.
-                If you do not have any mapping info defined in the referenced submodel, use {} as data json.
-     * @return a list of results for each given template ids
-     */
-    addDataToAas(
-        base64EncodedAasId: string,
-        requestBody: AddDataToAasRequest,
-        signal?: AbortSignal | undefined,
-    ): Promise<AddDataToAasResponse> {
-        let url_ = this.baseUrl + '/api/DataIngest/{base64EncodedAasId}';
-        if (base64EncodedAasId === undefined || base64EncodedAasId === null)
-            throw new Error("The parameter 'base64EncodedAasId' must be defined.");
-        url_ = url_.replace('{base64EncodedAasId}', encodeURIComponent('' + base64EncodedAasId));
-        url_ = url_.replace(/[?&]$/, '');
-
-        const content_ = JSON.stringify(requestBody);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: 'POST',
-            signal,
-            headers: {
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-            },
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processAddDataToAas(_response);
-        });
-    }
-
-    protected processAddDataToAas(response: Response): Promise<AddDataToAasResponse> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && response.headers.forEach) {
-            response.headers.forEach((v: any, k: any) => (_headers[k] = v));
-        }
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-                let result200: any = null;
-                let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result200 = AddDataToAasResponse.fromJS(resultData200);
-                return result200;
-            });
-        } else if (status === 400) {
-            return response.text().then((_responseText) => {
-                let result400: any = null;
-                let resultData400 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result400 = ProblemDetails.fromJS(resultData400);
-                return throwException('A server side error occurred.', status, _responseText, _headers, result400);
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-                return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<AddDataToAasResponse>(null as any);
-    }
-}
-
-export class DefaultTemplatesClient {
-    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
-    private baseUrl: string;
-    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
-
-    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
-        this.http = http ? http : (window as any);
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : '';
-    }
-
-    /**
-     * Creates a new custom template in the custom templates AAS.
-    Submodel Id needs to be unique and present in JSON body.
-     * @param defaultSubmodelTemplate The submodel template to add as json.
-     */
-    addDefaultSubmodelTemplate(defaultSubmodelTemplate: any, signal?: AbortSignal | undefined): Promise<FileResponse> {
-        let url_ = this.baseUrl + '/api/DefaultTemplates';
-        url_ = url_.replace(/[?&]$/, '');
-
-        const content_ = JSON.stringify(defaultSubmodelTemplate);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: 'POST',
-            signal,
-            headers: {
-                'Content-Type': 'application/json',
-                Accept: 'application/octet-stream',
-            },
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processAddDefaultSubmodelTemplate(_response);
-        });
-    }
-
-    protected processAddDefaultSubmodelTemplate(response: Response): Promise<FileResponse> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && response.headers.forEach) {
-            response.headers.forEach((v: any, k: any) => (_headers[k] = v));
-        }
-        if (status === 200 || status === 206) {
-            const contentDisposition = response.headers ? response.headers.get('content-disposition') : undefined;
-            let fileNameMatch = contentDisposition
-                ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition)
-                : undefined;
-            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-            if (fileName) {
-                fileName = decodeURIComponent(fileName);
-            } else {
-                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-            }
-            return response.blob().then((blob) => {
-                return { fileName: fileName, data: blob, status: status, headers: _headers };
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-                return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<FileResponse>(null as any);
-    }
-}
-
-export class IdGeneratorClient {
-    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
-    private baseUrl: string;
-    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
-
-    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
-        this.http = http ? http : (window as any);
-        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : '';
-    }
-
-    /**
-     * Generates a set of ids which is used to create a new AAS.
-    Response contains:
-    - AasId
-    - AasIdShort
-    - AssetId
-    - AssetIdShort
-     * @param assetIdShort The assetIdShort which must be used for generating ids.
-     * @return AasIds
-     */
-    generateIds(assetIdShort: string, signal?: AbortSignal | undefined): Promise<AasIds> {
-        let url_ = this.baseUrl + '/api/IdGenerator/aasIds/{assetIdShort}';
-        if (assetIdShort === undefined || assetIdShort === null)
-            throw new Error("The parameter 'assetIdShort' must be defined.");
-        url_ = url_.replace('{assetIdShort}', encodeURIComponent('' + assetIdShort));
-        url_ = url_.replace(/[?&]$/, '');
-
-        let options_: RequestInit = {
-            method: 'GET',
-            signal,
-            headers: {
-                Accept: 'application/json',
-            },
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGenerateIds(_response);
-        });
-    }
-
-    protected processGenerateIds(response: Response): Promise<AasIds> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && response.headers.forEach) {
-            response.headers.forEach((v: any, k: any) => (_headers[k] = v));
-        }
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-                let result200: any = null;
-                let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result200 = AasIds.fromJS(resultData200);
-                return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-                return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<AasIds>(null as any);
-    }
-
-    /**
-     * Generates a set of ids which is used to create a new AAS.
-    Response contains:
-    - AasId
-    - AasIdShort
-    - AssetId
-    - AssetIdShort
-     * @return AasIds
-     */
-    generateIds2(signal?: AbortSignal | undefined): Promise<AasIds> {
-        let url_ = this.baseUrl + '/api/IdGenerator/aasIds';
-        url_ = url_.replace(/[?&]$/, '');
-
-        let options_: RequestInit = {
-            method: 'GET',
-            signal,
-            headers: {
-                Accept: 'application/json',
-            },
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGenerateIds2(_response);
-        });
-    }
-
-    protected processGenerateIds2(response: Response): Promise<AasIds> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && response.headers.forEach) {
-            response.headers.forEach((v: any, k: any) => (_headers[k] = v));
-        }
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-                let result200: any = null;
-                let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result200 = AasIds.fromJS(resultData200);
-                return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-                return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<AasIds>(null as any);
-    }
-
-    /**
-     * Generates submodel ids as configured in MnestixIdGeneratorSettings.
-     * @param count Amount of submodels id to be generated.
-     * @return List of generated submodel ids
-     */
-    generateSubmodelIds(count: number, signal?: AbortSignal | undefined): Promise<string[]> {
-        let url_ = this.baseUrl + '/api/IdGenerator/submodelIds/{count}';
-        if (count === undefined || count === null) throw new Error("The parameter 'count' must be defined.");
-        url_ = url_.replace('{count}', encodeURIComponent('' + count));
-        url_ = url_.replace(/[?&]$/, '');
-
-        let options_: RequestInit = {
-            method: 'GET',
-            signal,
-            headers: {
-                Accept: 'application/json',
-            },
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGenerateSubmodelIds(_response);
-        });
-    }
-
-    protected processGenerateSubmodelIds(response: Response): Promise<string[]> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && response.headers.forEach) {
-            response.headers.forEach((v: any, k: any) => (_headers[k] = v));
-        }
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-                let result200: any = null;
-                let resultData200 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                if (Array.isArray(resultData200)) {
-                    result200 = [] as any;
-                    for (let item of resultData200) result200!.push(item);
-                } else {
-                    result200 = <any>null;
-                }
-                return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-                return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<string[]>(null as any);
-    }
-}
-
 export class TemplateClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
@@ -612,9 +85,18 @@ export class TemplateClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : '';
     }
 
+    static create(
+        _baseUrl: string = '',
+        http?: {
+            fetch(url: RequestInfo, init?: RequestInit): Promise<Response>;
+        },
+    ): TemplateClient {
+        return new TemplateClient(_baseUrl, http ?? window);
+    }
+
     /**
      * ONLY FOR INTERNAL USAGE. BearerToken needed.
-    Creates a new custom template in the custom templates AAS of the given submodel semantic id.
+     Creates a new custom template in the custom templates AAS of the given submodel semantic id.
      * @param defaultSubmodel The default submodel as json string
      * @return The identifier of the new created submodel in the custom templates AAS.
      */
@@ -670,7 +152,7 @@ export class TemplateClient {
 
     /**
      * ONLY FOR INTERNAL USAGE. BearerToken needed.
-    Updates a custom template in the custom templates AAS.
+     Updates a custom template in the custom templates AAS.
      * @param customSubmodel The submodel to update as json string
      * @param submodelId The id of the submodel
      */
@@ -721,252 +203,6 @@ export class TemplateClient {
         }
         return Promise.resolve<void>(null as any);
     }
-
-    /**
-     * ONLY FOR INTERNAL USAGE. BearerToken needed.
-    Creates a new custom template in the custom templates AAS.
-     * @return The identifier of the new created submodel in the custom templates AAS.
-     */
-    addDefaultSubmodel(defaultSubmodel: any, signal?: AbortSignal | undefined): Promise<string> {
-        let url_ = this.baseUrl + '/api/Template/addDefaultSubmodel';
-        url_ = url_.replace(/[?&]$/, '');
-
-        const content_ = JSON.stringify(defaultSubmodel);
-
-        let options_: RequestInit = {
-            body: content_,
-            method: 'POST',
-            signal,
-            headers: {
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-            },
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processAddDefaultSubmodel(_response);
-        });
-    }
-
-    protected processAddDefaultSubmodel(response: Response): Promise<string> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && response.headers.forEach) {
-            response.headers.forEach((v: any, k: any) => (_headers[k] = v));
-        }
-        if (status === 204) {
-            return response.text().then((_responseText) => {
-                let result204: any = null;
-                let resultData204 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result204 = resultData204 !== undefined ? resultData204 : <any>null;
-
-                return result204;
-            });
-        } else if (status === 400) {
-            return response.text().then((_responseText) => {
-                let result400: any = null;
-                let resultData400 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result400 = ProblemDetails.fromJS(resultData400);
-                return throwException('A server side error occurred.', status, _responseText, _headers, result400);
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-                return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<string>(null as any);
-    }
-
-    /**
-     * ONLY FOR INTERNAL USAGE. BearerToken needed.
-    Returns all submodel templates from the custom templates AAS.
-
-    This endpoint uses the template transformer to ensure the returned submodels are standard conform.
-     * @return Json which contains all custom submodels.
-     */
-    getAllCustomSubmodels(signal?: AbortSignal | undefined): Promise<void> {
-        let url_ = this.baseUrl + '/api/Template/allCustomSubmodels';
-        url_ = url_.replace(/[?&]$/, '');
-
-        let options_: RequestInit = {
-            method: 'GET',
-            signal,
-            headers: {},
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetAllCustomSubmodels(_response);
-        });
-    }
-
-    protected processGetAllCustomSubmodels(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && response.headers.forEach) {
-            response.headers.forEach((v: any, k: any) => (_headers[k] = v));
-        }
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-                return;
-            });
-        } else if (status === 404) {
-            return response.text().then((_responseText) => {
-                let result404: any = null;
-                let resultData404 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result404 = ProblemDetails.fromJS(resultData404);
-                return throwException('A server side error occurred.', status, _responseText, _headers, result404);
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-                return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
-    }
-
-    /**
-     * ONLY FOR INTERNAL USAGE. BearerToken needed.
-    Returns one submodel templates from the custom templates AAS.
-
-    This endpoint uses the template transformer to ensure the returned submodels are standard conform.
-     * @return Json which contains all custom submodels.
-     */
-    getCustomSubmodel(submodelIdShort: string, signal?: AbortSignal | undefined): Promise<void> {
-        let url_ = this.baseUrl + '/api/Template/customSubmodel/{submodelIdShort}';
-        if (submodelIdShort === undefined || submodelIdShort === null)
-            throw new Error("The parameter 'submodelIdShort' must be defined.");
-        url_ = url_.replace('{submodelIdShort}', encodeURIComponent('' + submodelIdShort));
-        url_ = url_.replace(/[?&]$/, '');
-
-        let options_: RequestInit = {
-            method: 'GET',
-            signal,
-            headers: {},
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetCustomSubmodel(_response);
-        });
-    }
-
-    protected processGetCustomSubmodel(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && response.headers.forEach) {
-            response.headers.forEach((v: any, k: any) => (_headers[k] = v));
-        }
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-                return;
-            });
-        } else if (status === 404) {
-            return response.text().then((_responseText) => {
-                let result404: any = null;
-                let resultData404 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result404 = ProblemDetails.fromJS(resultData404);
-                return throwException('A server side error occurred.', status, _responseText, _headers, result404);
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-                return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
-    }
-
-    /**
-     * ONLY FOR INTERNAL USAGE. BearerToken needed.
-    Returns all default submodel templates from the default templates AAS.
-
-    This endpoint uses the template transformer to ensure the returned submodels are standard conform.
-     * @return Json which contains all default submodels.
-     */
-    getAllDefaultSubmodels(signal?: AbortSignal | undefined): Promise<void> {
-        let url_ = this.baseUrl + '/api/Template/allDefaultSubmodels';
-        url_ = url_.replace(/[?&]$/, '');
-
-        let options_: RequestInit = {
-            method: 'GET',
-            signal,
-            headers: {},
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetAllDefaultSubmodels(_response);
-        });
-    }
-
-    protected processGetAllDefaultSubmodels(response: Response): Promise<void> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && response.headers.forEach) {
-            response.headers.forEach((v: any, k: any) => (_headers[k] = v));
-        }
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-                return;
-            });
-        } else if (status === 404) {
-            return response.text().then((_responseText) => {
-                let result404: any = null;
-                let resultData404 = _responseText === '' ? null : JSON.parse(_responseText, this.jsonParseReviver);
-                result404 = ProblemDetails.fromJS(resultData404);
-                return throwException('A server side error occurred.', status, _responseText, _headers, result404);
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-                return throwException('An unexpected server error occurred.', status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<void>(null as any);
-    }
-}
-
-export class CreateAasResponse implements ICreateAasResponse {
-    assetId?: string;
-    base64EncodedAssetId?: string;
-    aasId?: string;
-    base64EncodedAasId?: string;
-
-    constructor(data?: ICreateAasResponse) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.assetId = _data['assetId'];
-            this.base64EncodedAssetId = _data['base64EncodedAssetId'];
-            this.aasId = _data['aasId'];
-            this.base64EncodedAasId = _data['base64EncodedAasId'];
-        }
-    }
-
-    static fromJS(data: any): CreateAasResponse {
-        data = typeof data === 'object' ? data : {};
-        let result = new CreateAasResponse();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data['assetId'] = this.assetId;
-        data['base64EncodedAssetId'] = this.base64EncodedAssetId;
-        data['aasId'] = this.aasId;
-        data['base64EncodedAasId'] = this.base64EncodedAasId;
-        return data;
-    }
-}
-
-export interface ICreateAasResponse {
-    assetId?: string;
-    base64EncodedAssetId?: string;
-    aasId?: string;
-    base64EncodedAasId?: string;
 }
 
 export class ProblemDetails implements IProblemDetails {
@@ -1012,25 +248,6 @@ export class ProblemDetails implements IProblemDetails {
         let result = new ProblemDetails();
         result.init(data);
         return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        for (var property in this) {
-            if (this.hasOwnProperty(property)) data[property] = this[property];
-        }
-        data['type'] = this.type;
-        data['title'] = this.title;
-        data['status'] = this.status;
-        data['detail'] = this.detail;
-        data['instance'] = this.instance;
-        if (this.extensions) {
-            data['extensions'] = {};
-            for (let key in this.extensions) {
-                if (this.extensions.hasOwnProperty(key)) (<any>data['extensions'])[key] = (<any>this.extensions)[key];
-            }
-        }
-        return data;
     }
 }
 
@@ -1083,38 +300,6 @@ export class AasListEntry implements IAasListEntry {
             this.productGroup = _data['productGroup'];
         }
     }
-
-    static fromJS(data: any): AasListEntry {
-        data = typeof data === 'object' ? data : {};
-        let result = new AasListEntry();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data['thumbnailUrl'] = this.thumbnailUrl;
-        data['aasId'] = this.aasId;
-        data['assetId'] = this.assetId;
-        if (this.manufacturerProductDesignation) {
-            data['manufacturerProductDesignation'] = {};
-            for (let key in this.manufacturerProductDesignation) {
-                if (this.manufacturerProductDesignation.hasOwnProperty(key))
-                    (<any>data['manufacturerProductDesignation'])[key] = (<any>this.manufacturerProductDesignation)[
-                        key
-                    ];
-            }
-        }
-        if (this.manufacturerName) {
-            data['manufacturerName'] = {};
-            for (let key in this.manufacturerName) {
-                if (this.manufacturerName.hasOwnProperty(key))
-                    (<any>data['manufacturerName'])[key] = (<any>this.manufacturerName)[key];
-            }
-        }
-        data['productGroup'] = this.productGroup;
-        return data;
-    }
 }
 
 export interface IAasListEntry {
@@ -1126,80 +311,9 @@ export interface IAasListEntry {
     productGroup?: string | undefined;
 }
 
-export class Aas implements IAas {
-    aasId?: string;
-    assetIdShort?: string | undefined;
-
-    constructor(data?: IAas) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.aasId = _data['aasId'];
-            this.assetIdShort = _data['assetIdShort'];
-        }
-    }
-
-    static fromJS(data: any): Aas {
-        data = typeof data === 'object' ? data : {};
-        let result = new Aas();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data['aasId'] = this.aasId;
-        data['assetIdShort'] = this.assetIdShort;
-        return data;
-    }
-}
-
 export interface IAas {
     aasId?: string;
     assetIdShort?: string | undefined;
-}
-
-export class AddDataToAasResponse implements IAddDataToAasResponse {
-    results?: AasDataSupplyResult[];
-
-    constructor(data?: IAddDataToAasResponse) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            if (Array.isArray(_data['results'])) {
-                this.results = [] as any;
-                for (let item of _data['results']) this.results!.push(AasDataSupplyResult.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): AddDataToAasResponse {
-        data = typeof data === 'object' ? data : {};
-        let result = new AddDataToAasResponse();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.results)) {
-            data['results'] = [];
-            for (let item of this.results) data['results'].push(item.toJSON());
-        }
-        return data;
-    }
 }
 
 export interface IAddDataToAasResponse {
@@ -1228,22 +342,6 @@ export class AasDataSupplyResult implements IAasDataSupplyResult {
             this.generatedSubmodelId = _data['generatedSubmodelId'];
         }
     }
-
-    static fromJS(data: any): AasDataSupplyResult {
-        data = typeof data === 'object' ? data : {};
-        let result = new AasDataSupplyResult();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data['templateId'] = this.templateId;
-        data['success'] = this.success;
-        data['message'] = this.message;
-        data['generatedSubmodelId'] = this.generatedSubmodelId;
-        return data;
-    }
 }
 
 export interface IAasDataSupplyResult {
@@ -1253,96 +351,10 @@ export interface IAasDataSupplyResult {
     generatedSubmodelId?: string;
 }
 
-export class AddDataToAasRequest implements IAddDataToAasRequest {
-    language!: string;
-    data!: any;
-    customTemplateIds!: string[];
-
-    constructor(data?: IAddDataToAasRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        if (!data) {
-            this.customTemplateIds = [];
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.language = _data['language'];
-            this.data = _data['data'];
-            if (Array.isArray(_data['customTemplateIds'])) {
-                this.customTemplateIds = [] as any;
-                for (let item of _data['customTemplateIds']) this.customTemplateIds!.push(item);
-            }
-        }
-    }
-
-    static fromJS(data: any): AddDataToAasRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new AddDataToAasRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data['language'] = this.language;
-        data['data'] = this.data;
-        if (Array.isArray(this.customTemplateIds)) {
-            data['customTemplateIds'] = [];
-            for (let item of this.customTemplateIds) data['customTemplateIds'].push(item);
-        }
-        return data;
-    }
-}
-
 export interface IAddDataToAasRequest {
     language: string;
     data: any;
     customTemplateIds: string[];
-}
-
-export class AasIds implements IAasIds {
-    assetId?: string;
-    assetIdShort?: string;
-    aasId?: string;
-    aasIdShort?: string;
-
-    constructor(data?: IAasIds) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property)) (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.assetId = _data['assetId'];
-            this.assetIdShort = _data['assetIdShort'];
-            this.aasId = _data['aasId'];
-            this.aasIdShort = _data['aasIdShort'];
-        }
-    }
-
-    static fromJS(data: any): AasIds {
-        data = typeof data === 'object' ? data : {};
-        let result = new AasIds();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data['assetId'] = this.assetId;
-        data['assetIdShort'] = this.assetIdShort;
-        data['aasId'] = this.aasId;
-        data['aasIdShort'] = this.aasIdShort;
-        return data;
-    }
 }
 
 export interface IAasIds {
@@ -1377,10 +389,6 @@ export class ApiException extends Error {
     }
 
     protected isApiException = true;
-
-    static isApiException(obj: any): obj is ApiException {
-        return obj.isApiException === true;
-    }
 }
 
 function throwException(

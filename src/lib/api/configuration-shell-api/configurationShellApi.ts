@@ -1,12 +1,12 @@
 import { Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
-import { jsonization } from '@aas-core-works/aas-core3.0-typescript';
+import { ConfigurationShellApiInterface } from 'lib/api/configuration-shell-api/configurationShellApiInterface';
 
-export class ConfigurationShellApi {
+export class ConfigurationShellApi implements ConfigurationShellApiInterface {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     basePath: string;
     use_authentication: boolean;
 
-    constructor(
+    private constructor(
         protected _basePath: string = '',
         use_authentication: boolean,
         http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> },
@@ -16,7 +16,17 @@ export class ConfigurationShellApi {
         this.use_authentication = use_authentication;
     }
 
-    public async getIdGenerationSettings(): Promise<Submodel> {
+    static create(
+        _baseUrl: string = '',
+        use_authentication: boolean,
+        http?: {
+            fetch(url: RequestInfo, init?: RequestInit): Promise<Response>;
+        },
+    ): ConfigurationShellApi {
+        return new ConfigurationShellApi(_baseUrl, use_authentication, http ?? window);
+    }
+
+    async getIdGenerationSettings(): Promise<Submodel> {
         let url_ = this.basePath + '/configuration/idGeneration';
         url_ = url_.replace(/[?&]$/, '');
 
@@ -30,17 +40,14 @@ export class ConfigurationShellApi {
         });
     }
 
-    protected async processGetIdGenerationSettings(response: Response): Promise<Submodel> {
+    async processGetIdGenerationSettings(response: Response): Promise<Submodel> {
         const status = response.status;
         const _headers = {};
         if (response.headers && response.headers.forEach) {
             response.headers.forEach((v, k) => (_headers[k] = v));
         }
         if (status === 200) {
-            const _responseText = await response.text();
-            const jsonableSubmodel = JSON.parse(_responseText);
-            const result = jsonization.submodelFromJsonable(jsonableSubmodel);
-            return result.mustValue();
+            return response.json();
         } else if (status === 400) {
             const _responseText1 = await response.text();
             return _responseText1 === '' ? null : JSON.parse(_responseText1);
@@ -51,7 +58,7 @@ export class ConfigurationShellApi {
         return Promise.resolve<Submodel>(null as never);
     }
 
-    public async putSingleIdGenerationSetting(
+    async putSingleIdGenerationSetting(
         idShort: string,
         bearerToken: string,
         values: {
@@ -63,12 +70,12 @@ export class ConfigurationShellApi {
         await this.putSingleSettingValue(`${idShort}.DynamicPart`, bearerToken, values.dynamicPart, 'idGeneration');
     }
 
-    protected async putSingleSettingValue(
+    async putSingleSettingValue(
         path: string,
         bearerToken: string,
         value: string,
         settingsType: string,
-    ): Promise<void | Response> {
+    ): Promise<Response> {
         let url_ = `${this.basePath}/configuration/${settingsType}/submodel-elements/${path}/$value`;
         url_ = url_.replace(/[?&]$/, '');
 
@@ -83,11 +90,11 @@ export class ConfigurationShellApi {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processputSingleSettingValue(_response);
+            return this.processPutSingleSettingValue(_response);
         });
     }
-    
-    protected async processputSingleSettingValue(response: Response): Promise<void | Response> {
+
+    async processPutSingleSettingValue(response: Response): Promise<Response> {
         const status = response.status;
         const _headers = {};
         if (response.headers && response.headers.forEach) {

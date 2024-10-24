@@ -1,5 +1,5 @@
 import { ConnectionType } from '@prisma/client';
-import { DataSourceFormData } from 'lib/services/MultipleRepositorySearch/PrismaConnector';
+import { DataSourceFormData } from 'lib/services/prisma/PrismaConnector';
 
 export interface IPrismaConnector {
     getConnectionData(): unknown;

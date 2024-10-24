@@ -4,14 +4,14 @@ import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript
 import { instance, mock } from 'ts-mockito';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { Log } from 'lib/util/Log';
-import { AasSearcher } from 'lib/services/searchUtilActions/AasSearcher';
+import { AasSearcher } from 'lib/services/search-actions/AasSearcher';
 import { AssetAdministrationShellRepositoryApiInMemory } from 'lib/api/basyx-v3/apiInMemory';
 
 interface DummyAasParameters {
     id?: string;
 }
 
-const AAS_ENDPOINT = 'https://www.origin.com/route/for/aas/';
+const AAS_ENDPOINT = new URL('https://www.origin.com/route/for/aas/');
 
 describe('Full Aas Search happy paths', () => {
     it('navigates to the discovery list when more than one aasId for a given assetId', async () => {
@@ -23,89 +23,105 @@ describe('Full Aas Search happy paths', () => {
             log: log,
         });
 
-        const result = await searcher.fullSearch(searchString);
+        const search = await searcher.performFullSearch(searchString);
 
-        expect(result.redirectUrl).toBe('/viewer/discovery?assetId=' + searchString);
+        expect(search.isSuccess).toBeTruthy();
+        expect(search.result!.redirectUrl).toBe('/viewer/discovery?assetId=' + searchString);
         expect(tracker.getData()).toHaveLength(0);
     });
 
     it('returns details of aas when exactly one aasId for a given assetId and it is registered in the registry', async () => {
         const aasId = 'dummy aasId';
         const searchString = 'irrelevant assetId';
+        const aas = createDummyAas({ id: aasId });
         const searcher = AasSearcher.createNull({
             discoveryEntries: [{ assetId: searchString, aasIds: [aasId] }],
             registryShellDescriptorEntries: [createDummyShellDescriptor(AAS_ENDPOINT, aasId)],
-            shellsByRegistryEndpoint: [{ path: AAS_ENDPOINT, aas: createDummyAas({ id: aasId }) }],
+            shellsAvailableOnRegistryEndpoints: [{ endpoint: AAS_ENDPOINT, aas: aas }],
         });
 
-        const result = await searcher.fullSearch(searchString);
+        const search = await searcher.performFullSearch(searchString);
 
-        expect(result.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
+        expect(search.isSuccess).toBeTruthy();
+        expect(search.result!.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
+        expect(search.result!.aas?.id).toEqual(aas.id);
     });
 
     it('returns details of aas when exactly one aasId for a given assetId and it is not registered in the registry but saved in default repository', async () => {
         const aasId = 'dummy aasId';
         const searchString = 'irrelevant assetId';
+        const aas = createDummyAas({ id: aasId });
         const searcher = AasSearcher.createNull({
             discoveryEntries: [{ assetId: searchString, aasIds: [aasId] }],
             shellsSavedInTheRepositories: [
                 {
-                    aas: createDummyAas({ id: aasId }),
+                    aas: aas,
                     repositoryUrl: AssetAdministrationShellRepositoryApiInMemory.getDefaultRepositoryUrl(),
                 },
             ],
         });
 
-        const result = await searcher.fullSearch(searchString);
+        const search = await searcher.performFullSearch(searchString);
 
-        expect(result.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
+        expect(search.isSuccess).toBeTruthy();
+        expect(search.result!.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
+        expect(search.result!.aas?.id).toEqual(aas.id);
     });
 
     it('returns details of aas when discovery returns nothing and the aas is registered in the registry', async () => {
         const aasId = 'dummy aasId';
         const searchString = aasId;
+        const aas = createDummyAas({ id: aasId });
         const searcher = AasSearcher.createNull({
             registryShellDescriptorEntries: [createDummyShellDescriptor(AAS_ENDPOINT, aasId)],
-            shellsByRegistryEndpoint: [{ path: AAS_ENDPOINT, aas: createDummyAas({ id: aasId }) }],
+            shellsAvailableOnRegistryEndpoints: [{ endpoint: AAS_ENDPOINT, aas: aas }],
         });
 
-        const result = await searcher.fullSearch(searchString);
+        const search = await searcher.performFullSearch(searchString);
 
-        expect(result.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
+        expect(search.isSuccess).toBeTruthy();
+        expect(search.result!.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
+        expect(search.result!.aas?.id).toEqual(aas.id);
     });
 
     it('returns aas for given aasId from default repository', async () => {
         const aasId = 'dummy aasId';
         const searchString = aasId;
+        const aas = createDummyAas({ id: aasId });
         const searcher = AasSearcher.createNull({
             shellsSavedInTheRepositories: [
                 {
-                    aas: createDummyAas({ id: aasId }),
+                    aas: aas,
                     repositoryUrl: AssetAdministrationShellRepositoryApiInMemory.getDefaultRepositoryUrl(),
                 },
             ],
         });
 
-        const result = await searcher.fullSearch(searchString);
+        const search = await searcher.performFullSearch(searchString);
 
-        expect(result.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
+        expect(search.isSuccess).toBeTruthy();
+        expect(search.result!.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
+        expect(search.result!.aas?.id).toEqual(aas.id);
     });
 
     it('returns aas for given aasId from foreign repository if only one found', async () => {
         const aasId = 'dummy aasId';
         const searchString = aasId;
+        const aas = createDummyAas({ id: aasId });
         const searcher = AasSearcher.createNull({
             shellsSavedInTheRepositories: [
                 {
-                    aas: createDummyAas({ id: aasId }),
+                    aas: aas,
                     repositoryUrl: 'www.aas.foreign.cz/repository',
                 },
             ],
         });
 
-        const result = await searcher.fullSearch(searchString);
+        const search = await searcher.performFullSearch(searchString);
 
-        expect(result.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
+        expect(search.isSuccess).toBeTruthy();
+        expect(search.result!.redirectUrl).toBe('/viewer/' + encodeBase64(aasId));
+        expect(search.result!.aas?.id).toEqual(aas.id);
     });
 
     it('returns aas for given aasId from foreign repository if two are found', async () => {
@@ -126,9 +142,10 @@ describe('Full Aas Search happy paths', () => {
             ],
         });
 
-        const result = await searcher.fullSearch(searchString);
+        const search = await searcher.performFullSearch(searchString);
 
-        expect(result.redirectUrl).toBe('/viewer/discovery?assetId=' + searchString);
+        expect(search.isSuccess).toBeTruthy();
+        expect(search.result!.redirectUrl).toBe('/viewer/discovery?assetId=' + searchString);
     });
 });
 
@@ -150,7 +167,12 @@ describe('Full Aas Search edge cases', () => {
         const searcher = AasSearcher.createNull({
             discoveryEntries: [{ assetId: searchString, aasIds: [aasId] }],
             registryShellDescriptorEntries: [createDummyShellDescriptor(AAS_ENDPOINT, aasId)],
-            shellsByRegistryEndpoint: [{ path: AAS_ENDPOINT + 'wrong path', aas: createDummyAas({ id: aasId }) }],
+            shellsAvailableOnRegistryEndpoints: [
+                {
+                    endpoint: new URL(AAS_ENDPOINT + 'wrong path'),
+                    aas: createDummyAas({ id: aasId }),
+                },
+            ],
             log: log,
         });
 
@@ -164,7 +186,12 @@ describe('Full Aas Search edge cases', () => {
         const searcher = AasSearcher.createNull({
             discoveryEntries: [{ assetId: 'wrong asset Id', aasIds: [aasId] }],
             registryShellDescriptorEntries: [createDummyShellDescriptor(AAS_ENDPOINT, aasId)],
-            shellsByRegistryEndpoint: [{ path: AAS_ENDPOINT + 'wrong path', aas: createDummyAas({ id: aasId }) }],
+            shellsAvailableOnRegistryEndpoints: [
+                {
+                    endpoint: new URL(AAS_ENDPOINT + 'wrong path'),
+                    aas: createDummyAas({ id: aasId }),
+                },
+            ],
             log: log,
         });
 
@@ -180,13 +207,13 @@ function createDummyAas({ id = 'irrelevant AasId' }: DummyAasParameters = {}) {
     return s;
 }
 
-function createDummyShellDescriptor(href: string, id: string): AssetAdministrationShellDescriptor {
+function createDummyShellDescriptor(href: URL, id: string): AssetAdministrationShellDescriptor {
     return {
         endpoints: [
             {
                 interface: 'AAS-3.0',
                 protocolInformation: {
-                    href: href,
+                    href: href.toString(),
                 },
             },
         ],
@@ -194,15 +221,13 @@ function createDummyShellDescriptor(href: string, id: string): AssetAdministrati
     };
 }
 
-// Todo: Are you good at typescript? There must be a better way to it!
-//     await expect(searcher.fullSearch(searchString)).rejects.toThrow(); does not work for some reason...
 async function assertThatFunctionThrows(
     searcher: AasSearcher,
     searchString: string,
     partOfExpectedErrorMessage: string | null = null,
 ) {
     try {
-        await searcher.fullSearch(searchString);
+        await searcher.performFullSearch(searchString);
         fail('Your method was expected to throw but did not throw at all.');
     } catch (e) {
         partOfExpectedErrorMessage && expect(e).toContain(partOfExpectedErrorMessage);

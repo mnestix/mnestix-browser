@@ -1,6 +1,5 @@
 'use client';
 
-import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { CenteredLoadingSpinner } from 'components/basics/CenteredLoadingSpinner';
 import { useEnv } from 'app/env/provider';
 import { useState } from 'react';
@@ -14,9 +13,9 @@ import { AasListComparisonHeader } from 'app/[locale]/list/_components/AasListCo
 import AasList from 'app/[locale]/list/_components/AasList';
 import { useIntl } from 'react-intl';
 import { messages } from 'lib/i18n/localization';
+import { getAasListEntries } from 'lib/services/aasListApiActions';
 
 export const AasListView = () => {
-    const { aasListClient } = useApis();
     const [isLoadingList, setIsLoadingList] = useState(false);
     const [aasList, setAasList] = useState<AasListEntry[]>();
     const [aasListFiltered, setAasListFiltered] = useState<AasListEntry[]>();
@@ -28,7 +27,7 @@ export const AasListView = () => {
     useAsyncEffect(async () => {
         try {
             setIsLoadingList(true);
-            const list = await aasListClient.getAasListEntries();
+            const list = await getAasListEntries();
             setAasList(list);
             setAasListFiltered(list);
         } catch (e) {

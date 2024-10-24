@@ -12,14 +12,18 @@ import { GenericSubmodelElementComponent } from '../GenericSubmodelElementCompon
 import { EntityDetailsDialog } from './EntityDetailsDialog';
 import { RelationShipDetailsDialog } from './RelationShipDetailsDialog';
 import { getKeyType } from 'lib/util/KeyTypeUtil';
-import { useApis } from 'components/azureAuthentication/ApiProvider';
-import { CustomTreeItemContentProps, CustomTreeItemProps, ExpandableTreeitem, getTreeItemStyle } from 'app/[locale]/viewer/_components/submodel-elements/generic-elements/entity-components/TreeItem';
+import {
+    CustomTreeItemContentProps,
+    CustomTreeItemProps,
+    ExpandableTreeitem,
+    getTreeItemStyle,
+} from 'app/[locale]/viewer/_components/submodel-elements/generic-elements/entity-components/TreeItem';
+import { performDiscoveryAasSearch } from 'lib/services/search-actions/searchActions';
 
 const CustomContent = React.forwardRef(function CustomContent(props: CustomTreeItemContentProps, ref) {
     const navigate = useRouter();
     const { classes, className, label, itemId, icon: iconProp, data, ...other } = props;
     const { disabled, expanded, selected, focused, handleExpansion } = useTreeItemState(itemId);
-    const { discoveryServiceClient } = useApis();
     const isEntity = getKeyType(data as ISubmodelElement) === KeyTypes.Entity;
     const dataIcon = isEntity ? (
         <AssetIcon fontSize="small" color="primary" />
@@ -43,8 +47,9 @@ const CustomContent = React.forwardRef(function CustomContent(props: CustomTreeI
             // Check if the Asset Id exists in the same repository as the "parent AAS",
             // if so, then navigate to the asset-redirect page of this Mnestix instance,
             // if not, just navigate to the specified URL which might lead anywhere.
-            const aasIds = (await discoveryServiceClient.getAasIdsByAssetId(assetId)).result;
-            if (aasIds.length === 0) {
+
+            const { isSuccess, result: aasIds } = await performDiscoveryAasSearch(assetId);
+            if (isSuccess && aasIds.length === 0) {
                 window.open(assetId, '_blank');
             } else {
                 navigate.push('/asset?assetId=' + encodeURIComponent(assetId));
@@ -98,7 +103,9 @@ const CustomContent = React.forwardRef(function CustomContent(props: CustomTreeI
                             </Button>
                         </>
                     )}
-                    {showDataDirectly && <GenericSubmodelElementComponent submodelElement={data} wrapInDataRow={false} />}
+                    {showDataDirectly && (
+                        <GenericSubmodelElementComponent submodelElement={data} wrapInDataRow={false} />
+                    )}
                 </Box>
                 {isRelationShip && (
                     <Box sx={{ ml: '2px', pl: 1, display: 'flex' }}>

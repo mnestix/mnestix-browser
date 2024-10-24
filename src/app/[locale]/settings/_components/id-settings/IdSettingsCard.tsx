@@ -1,5 +1,5 @@
 import { InfoOutlined } from '@mui/icons-material';
-import { alpha, Box, Skeleton, Divider, Typography, styled } from '@mui/material';
+import { alpha, Box, Divider, Skeleton, styled, Typography } from '@mui/material';
 import { messages } from 'lib/i18n/localization';
 import { Fragment, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -10,15 +10,16 @@ import { useFieldArray, useForm } from 'react-hook-form';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { showError } from 'lib/util/ErrorHandlerUtil';
 import {
-    ISubmodelElement, Property,
+    ISubmodelElement,
+    Property,
     Qualifier,
-    SubmodelElementCollection
+    SubmodelElementCollection,
 } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
 import { getArrayFromString } from 'lib/util/SubmodelResolverUtil';
 import { useAuth } from 'lib/hooks/UseAuth';
-import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { SettingsCardHeader } from 'app/[locale]/settings/_components/SettingsCardHeader';
+import { getIdGenerationSettings, putSingleIdGenerationSetting } from 'lib/services/configurationApiActions';
 
 const StyledDocumentationButton = styled(Box)(({ theme }) => ({
     display: 'flex',
@@ -39,14 +40,13 @@ const StyledDocumentationButton = styled(Box)(({ theme }) => ({
 
 export type IdSettingsFormData = {
     idSettings: IdGenerationSettingFrontend[];
-}
+};
 
 export function IdSettingsCard() {
     const [isEditMode, setIsEditMode] = useState(false);
     const [documentationModalOpen, setDocumentationModalOpen] = useState(false);
     const auth = useAuth();
     const bearerToken = auth.getBearerToken();
-    const { configurationClient } = useApis();
     const notificationSpawner = useNotificationSpawner();
     const intl = useIntl();
     const [isLoading, setIsLoading] = useState(false);
@@ -64,7 +64,7 @@ export function IdSettingsCard() {
         control,
         name: 'idSettings',
     });
-    
+
     // Fetch id settings initially
     useAsyncEffect(async () => {
         await fetchIdSettings();
@@ -73,10 +73,9 @@ export function IdSettingsCard() {
     const fetchIdSettings = async () => {
         try {
             setIsLoading(true);
-            const res = await configurationClient.getIdGenerationSettings();
+            const response = await getIdGenerationSettings();
             const _settings: IdGenerationSettingFrontend[] = [];
-            // set settings from api response
-            res.submodelElements?.forEach((el) => {
+            response.submodelElements?.forEach((el) => {
                 const element = el as ISubmodelElement;
                 const collection = el as SubmodelElementCollection;
                 const _settingsList = collection.value;
@@ -117,24 +116,23 @@ export function IdSettingsCard() {
             });
             setSettings(_settings);
             // set form state
-            reset({ idSettings: _settings })
-
+            reset({ idSettings: _settings });
         } catch (e) {
             showError(e, notificationSpawner);
         } finally {
             setIsLoading(false);
         }
     };
-    
+
     async function saveIdSettings(data: IdSettingsFormData) {
         try {
             setIsLoading(true);
             for (const setting of data.idSettings) {
                 if (setting.prefix.value && setting.dynamicPart.value) {
-                    await configurationClient.putSingleIdGenerationSetting(setting.name, bearerToken, {
+                    await putSingleIdGenerationSetting(setting.name, bearerToken, {
                         prefix: setting.prefix.value,
-                        dynamicPart: setting.dynamicPart.value
-                    })
+                        dynamicPart: setting.dynamicPart.value,
+                    });
                 }
             }
             await fetchIdSettings();
@@ -157,19 +155,22 @@ export function IdSettingsCard() {
 
     return (
         <Box sx={{ p: 3, width: '100%' }}>
-            <SettingsCardHeader title={<FormattedMessage {...messages.mnestix.idStructure} />}
-                                subtitle={<FormattedMessage {...messages.mnestix.idStructureExplanation} />}
-                                onCancel={() => cancelEdit()} onEdit={() => setIsEditMode(true)}
-                                onSubmit={handleSubmit((data) => saveIdSettings(data))}
-                                isEditMode={isEditMode}/>
+            <SettingsCardHeader
+                title={<FormattedMessage {...messages.mnestix.idStructure} />}
+                subtitle={<FormattedMessage {...messages.mnestix.idStructureExplanation} />}
+                onCancel={() => cancelEdit()}
+                onEdit={() => setIsEditMode(true)}
+                onSubmit={handleSubmit((data) => saveIdSettings(data))}
+                isEditMode={isEditMode}
+            />
             <Box sx={{ my: 2 }}>
-                <Divider/>
+                <Divider />
                 {isLoading &&
                     !settings.length &&
                     [0, 1, 2, 3, 4].map((i) => {
                         return (
                             <Fragment key={i}>
-                                <Skeleton variant="text" width="50%" height={26} sx={{ m: 2 }}/>
+                                <Skeleton variant="text" width="50%" height={26} sx={{ m: 2 }} />
                             </Fragment>
                         );
                     })}
@@ -190,7 +191,7 @@ export function IdSettingsCard() {
             </Box>
             <Box sx={{ display: 'flex' }}>
                 <StyledDocumentationButton onClick={() => setDocumentationModalOpen(true)}>
-                    <InfoOutlined sx={{ mr: 1 }}/>
+                    <InfoOutlined sx={{ mr: 1 }} />
                     <Typography>
                         <FormattedMessage {...messages.mnestix.assetIdDocumentation.title} />
                     </Typography>

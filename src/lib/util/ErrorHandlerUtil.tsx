@@ -3,9 +3,19 @@ import { NotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { messages } from 'lib/i18n/localization';
 import { FormattedMessage } from 'react-intl';
 import { NotFoundError } from 'lib/errors/NotFoundError';
+import { LocalizedError } from 'lib/util/LocalizedError';
 
 export function showError(e: unknown, notificationSpawner: NotificationSpawner) {
     console.error('Error:', e);
+
+    if (e instanceof LocalizedError) {
+        notificationSpawner.spawn({
+            message: <FormattedMessage {...e.descriptor} />,
+            severity: 'error',
+        });
+        return;
+    }
+
     if (e instanceof Response) {
         switch (e.status) {
             case 401:

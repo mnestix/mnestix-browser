@@ -5,6 +5,8 @@ import 'cypress-msal-login';
 declare global {
     // eslint-disable-next-line @typescript-eslint/no-namespace
     namespace Cypress {
+        export type Options = Partial<Loggable & Timeoutable & Withinable & Shadow>;
+
         interface Chainable {
             /**
              * @description Set viewport size of the test.
@@ -21,8 +23,9 @@ declare global {
             /**
              * @description Get an element by its data-testid value.
              * @param {string} dataTestId - The data-testid of the element we want to get.
+             * @param option
              */
-            getByTestId(dataTestId: string): Chainable;
+            getByTestId(dataTestId: string, option?: Options): Chainable;
 
             /**
              * @description Find an element by its data-testid value.
@@ -88,7 +91,7 @@ declare global {
              * @description Deletes compare mock data into the repository
              */
             deleteCompareMockData(): Chainable;
-            
+
             /**
              * @description Posts compare mock data into the repository
              */

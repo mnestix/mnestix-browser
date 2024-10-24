@@ -2,102 +2,65 @@
 
 import { useState } from 'react';
 import { Box, Button, Skeleton, Typography } from '@mui/material';
-import { useAasState, useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { messages } from 'lib/i18n/localization';
 import { decodeBase64, safeBase64Decode } from 'lib/util/Base64Util';
 import { ArrowForward } from '@mui/icons-material';
 import { showError } from 'lib/util/ErrorHandlerUtil';
-import { AssetAdministrationShell, LangStringNameType, Reference } from '@aas-core-works/aas-core3.0-typescript/types';
+import { AssetAdministrationShell, LangStringNameType } from '@aas-core-works/aas-core3.0-typescript/types';
 import { useIsMobile } from 'lib/hooks/UseBreakpoints';
 import { getTranslationText } from 'lib/util/SubmodelResolverUtil';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { SubmodelsOverviewCard } from '../_components/SubmodelsOverviewCard';
 import { AASOverviewCard } from 'app/[locale]/viewer/_components/AASOverviewCard';
-import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useEnv } from 'app/env/provider';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
-import { performRegistryAasSearch } from 'lib/services/searchUtilActions/searchActions';
-import { performSearchAasFromAllRepositories } from 'lib/services/MultipleRepositorySearch/MultipleRepositorySearchActions';
+import { getAasFromRepository, performFullAasSearch } from 'lib/services/search-actions/searchActions';
+import { LocalizedError } from 'lib/util/LocalizedError';
 
 export default function Page() {
     const navigate = useRouter();
     const searchParams = useParams<{ base64AasId: string }>();
     const base64AasId = searchParams.base64AasId;
-    const [submodelReferences, setSubmodelReferences] = useState<Reference[]>();
-    const [productImage, setProductImage] = useState<string>();
+    const aasIdDecoded = safeBase64Decode(base64AasId);
     const [isLoadingAas, setIsLoadingAas] = useState(false);
     const notificationSpawner = useNotificationSpawner();
     const isMobile = useIsMobile();
     const intl = useIntl();
     const env = useEnv();
-    const { repositoryClient } = useApis();
-    const [aas, setAas] = useAasState();
-    const [, setRegistryAasData] = useRegistryAasState();
+    const [aas, setAas] = useState<AssetAdministrationShell>();
     const encodedRepoUrl = useSearchParams().get('repoUrl');
     const repoUrl = encodedRepoUrl ? decodeURI(encodedRepoUrl) : undefined;
 
     useAsyncEffect(async () => {
-        await fetchAas();
+        if (aas) {
+            return;
+        }
+        setIsLoadingAas(true);
+        await loadAasContent();
+        setIsLoadingAas(false);
     }, [base64AasId, env]);
 
-    async function fetchAas() {
-        setIsLoadingAas(true);
-
-        if (aas) {
-            setAasData(aas);
-            setIsLoadingAas(false);
+    async function loadAasContent() {
+        if (repoUrl) {
+            const response = await getAasFromRepository(aasIdDecoded, repoUrl);
+            setAas(response.result);
             return;
         }
 
-        try {
-            const aasIdDecoded = safeBase64Decode(base64AasId);
-            const registrySearchResult = await performRegistryAasSearch(aasIdDecoded);
-
-            if (registrySearchResult) {
-                setAas(registrySearchResult.registryAas as AssetAdministrationShell);
-                setRegistryAasData({
-                    submodelDescriptors: registrySearchResult?.registryAasData?.submodelDescriptors,
-                    aasRegistryRepositoryOrigin: registrySearchResult?.registryAasData?.aasRegistryRepositoryOrigin,
-                });
-                setAasData(registrySearchResult.registryAas as AssetAdministrationShell);
-            } else {
-                let fetchedAas;
-                try {
-                    fetchedAas = await repositoryClient.getAssetAdministrationShellById(
-                        base64AasId,
-                        undefined,
-                        repoUrl,
-                    );
-                } catch (e) {
-                    const repoSearchResults = await performSearchAasFromAllRepositories(base64AasId);
-                    if (repoSearchResults.length > 1) {
-                        navigate.push(`/viewer/discovery?aasId=${encodeURI(decodeBase64(base64AasId))}`);
-                    }
-                    fetchedAas = repoSearchResults[0].aas;
-                }
-
-                setAas(fetchedAas);
-                setAasData(fetchedAas);
-            }
-        } catch (e) {
-            showError(e, notificationSpawner);
+        const { isSuccess, result } = await performFullAasSearch(aasIdDecoded);
+        if (!isSuccess) {
+            showError(new LocalizedError(messages.mnestix.aasUrlNotFound), notificationSpawner);
+        } else if (result.aas) {
+            setAas(result.aas);
+        } else {
+            navigate.push(result.redirectUrl);
         }
-
-        setIsLoadingAas(false);
     }
 
-    const setAasData = (shell: AssetAdministrationShell) => {
-        const productImageString = shell.assetInformation?.defaultThumbnail?.path;
-        if (productImageString) {
-            setProductImage(productImageString);
-        }
-        setSubmodelReferences(shell.submodels ?? undefined);
-    };
-
     const startComparison = () => {
-        navigate.push(`/compare?aasId=${encodeURIComponent(aas?.id ?? '')}`);
+        navigate.push(`/compare?aasId=${encodeURIComponent(aasIdDecoded)}`);
     };
 
     const pageStyles = {
@@ -151,12 +114,14 @@ export default function Page() {
                         )}
                     </Box>
                     <AASOverviewCard
-                        aas={aas}
-                        productImage={productImage}
+                        aas={aas ?? null}
+                        productImage={aas?.assetInformation?.defaultThumbnail?.path}
                         isLoading={isLoadingAas}
                         isAccordion={isMobile}
                     />
-                    <SubmodelsOverviewCard smReferences={submodelReferences} />
+                    {aas?.submodels && aas.submodels.length > 0 && (
+                        <SubmodelsOverviewCard smReferences={aas.submodels} />
+                    )}
                 </Box>
             ) : (
                 <>

@@ -23,8 +23,8 @@ Cypress.Commands.add('visitViewer', (aasId) => {
     cy.visit('/viewer/' + btoa(aasId).replace(/=+$/g, ''));
 });
 
-Cypress.Commands.add('getByTestId', (dataTestId) => {
-    cy.get('[data-testid=' + dataTestId + ']');
+Cypress.Commands.add('getByTestId', (dataTestId, option?) => {
+    cy.get('[data-testid=' + dataTestId + ']', option);
 });
 
 Cypress.Commands.add('findByTestId', { prevSubject: true }, (subject, dataTestId) => {

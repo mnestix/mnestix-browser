@@ -16,8 +16,7 @@ describe('Test that the list works together with the comparison view (Resolution
             .click();
         cy.getByTestId('compare-button').click();
         cy.url().should('contain', '/compare');
-        cy.wait(60000);
-        cy.getByTestId('compare-aas-0').should('be.visible');
+        cy.getByTestId('compare-aas-0', { timeout: 60000 }).should('be.visible');
         cy.getByTestId('compare-aas-1').should('be.visible');
 
         // assert that second aas is displayed correctly

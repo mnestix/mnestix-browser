@@ -1,6 +1,7 @@
 import { IAssetAdministrationShellRepositoryApi, ISubmodelRepositoryApi } from 'lib/api/basyx-v3/apiInterface';
 import { AssetAdministrationShell, Reference, Submodel } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
 import { decodeBase64, encodeBase64 } from 'lib/util/Base64Util';
+import { ApiResponseWrapper, ApiResponseWrapperUtil, ApiResultStatus } from 'lib/services/apiResponseWrapper';
 
 export interface INullableAasRepositoryEntries {
     repositoryUrl: string;
@@ -18,11 +19,11 @@ export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdmi
         return 'www.aas.default.com/repository';
     }
 
-    getAssetAdministrationShellById(
+    async getAssetAdministrationShellById(
         aasId: string,
         _options?: object | undefined,
         _basePath?: string | undefined,
-    ): Promise<AssetAdministrationShell> {
+    ): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
         if (!this.shellsSavedInTheRepositories) return Promise.reject('no repository configuration');
         const defaultRepositoryUrl = AssetAdministrationShellRepositoryApiInMemory.getDefaultRepositoryUrl();
         const isSearchingInDefaultRepository = _basePath === defaultRepositoryUrl || _basePath === undefined;
@@ -30,31 +31,31 @@ export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdmi
             if (encodeBase64(entry.aas.id) === aasId) {
                 const isInDefaultRepository = entry.repositoryUrl === defaultRepositoryUrl;
                 if (isInDefaultRepository || !isSearchingInDefaultRepository) {
-                    return Promise.resolve(entry.aas);
+                    const response = new Response(JSON.stringify(entry.aas));
+                    return await ApiResponseWrapperUtil.fromResponse<AssetAdministrationShell>(response);
                 }
             }
         }
         const targetRepositoryKind = isSearchingInDefaultRepository ? 'default' : 'foreign';
-        return Promise.reject(
+        return Promise.resolve(ApiResponseWrapperUtil.fromErrorCode(ApiResultStatus.NOT_FOUND,
             'no aas found in the ' +
-                targetRepositoryKind +
-                ' repository for aasId: ' +
-                aasId +
-                ', which is :' +
-                decodeBase64(aasId) +
-                ' encoded in base64',
-        );
+            targetRepositoryKind +
+            ' repository for aasId: ' +
+            aasId +
+            ', which is :' +
+            decodeBase64(aasId) +
+            ' encoded in base64'));
     }
 
-    getSubmodelReferencesFromShell(_aasId: string, _options?: object | undefined): Promise<Reference[]> {
+    async getSubmodelReferencesFromShell(_aasId: string, _options?: object | undefined): Promise<ApiResponseWrapper<Reference[]>> {
         throw new Error('Method not implemented.');
     }
 
-    getThumbnailFromShell(
+    async getThumbnailFromShell(
         _aasId: string,
         _options?: object | undefined,
         _basePath?: string | undefined,
-    ): Promise<Blob> {
+    ): Promise<ApiResponseWrapper<Blob>> {
         throw new Error('Method not implemented.');
     }
 }
@@ -66,27 +67,31 @@ export class SubmodelRepositoryApiInMemory implements ISubmodelRepositoryApi {
         this.submodelsSavedInTheRepository = options.submodelsSavedInTheRepository;
     }
 
-    getSubmodelMetaDataById(_submodelId: string, _options?: object | undefined): Promise<Submodel> {
-        throw new Error('Method not implemented.');
-    }
-
-    getSubmodelById(
+    async getSubmodelById(
         submodelId: string,
         _options?: object | undefined,
         _basePath?: string | undefined,
-    ): Promise<Submodel> {
+    ): Promise<ApiResponseWrapper<Submodel>> {
         if (!this.submodelsSavedInTheRepository) return Promise.reject('no repository configuration');
         for (const submodel of this.submodelsSavedInTheRepository) {
-            if (encodeBase64(submodel.id) === submodelId) return Promise.resolve(submodel);
+            if (encodeBase64(submodel.id) === submodelId) {
+                const response = new Response(JSON.stringify(submodel));
+                return await ApiResponseWrapperUtil.fromResponse<Submodel>(response);
+            }
         }
-        return Promise.reject('no submodel found in the default repository for submodelId: ' + submodelId);
+        return Promise.resolve(
+            ApiResponseWrapperUtil.fromErrorCode(
+                ApiResultStatus.NOT_FOUND,
+                'no submodel found in the default repository for submodelId: ' + submodelId
+            )
+        );
     }
 
-    getAttachmentFromSubmodelElement(
+    async getAttachmentFromSubmodelElement(
         _submodelId: string,
         _submodelElementPath: string,
         _options?: object | undefined,
-    ): Promise<Blob> {
+    ): Promise<ApiResponseWrapper<Blob>> {
         throw new Error('Method not implemented.');
     }
 }
