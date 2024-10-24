@@ -95,11 +95,11 @@ export class ConfigurationShellApi implements ConfigurationShellApiInterface {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processputSingleSettingValue(_response);
+            return this.processPutSingleSettingValue(_response);
         });
     }
 
-    async processputSingleSettingValue(response: Response): Promise<Response> {
+    async processPutSingleSettingValue(response: Response): Promise<Response> {
         const status = response.status;
         const _headers = {};
         if (response.headers && response.headers.forEach) {

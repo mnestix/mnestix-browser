@@ -19,6 +19,7 @@ import {
     performSearchSubmodelFromAllRepos,
 } from 'lib/services/repository-access/repositorySearchActions';
 import { getSubmodelDescriptorsById } from 'lib/services/submodelRegistryApiActions';
+import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 
 export type SubmodelsOverviewCardProps = {
     readonly smReferences?: Reference[];
@@ -43,13 +44,16 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
         const id = reference.keys[0].value;
 
         try {
-            let fetchedSubmodelData: Submodel;
-            try {
-                fetchedSubmodelData = await getSubmodelById(id);
-            } catch (e) {
-                fetchedSubmodelData = await performSearchSubmodelFromAllRepos(id);
+            const submodelResponse = await getSubmodelById(id);
+            if (submodelResponse.isSuccess) {
+                return submodelResponse.result;
+            } else {
+                const response = await performSearchSubmodelFromAllRepos(id);
+                if (!response.isSuccess) {
+                    throw new Error(response.message);
+                }
+                return response.result;
             }
-            return fetchedSubmodelData;
         } catch (e) {
             console.error(e);
             showError(e, notificationSpawner);
@@ -75,12 +79,14 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                     const endpoint = submodelDescriptor?.endpoints[0].protocolInformation.href;
 
                     if (endpoint) {
-                        const submodelData = await getSubmodelFromSubmodelDescriptor(endpoint);
-                        return {
-                            id: submodelDescriptor.id,
-                            label: submodelDescriptor.idShort ?? '',
-                            submodelData: submodelData,
-                        };
+                        const submodelResponse = await getSubmodelFromSubmodelDescriptor(endpoint);
+                        if (submodelResponse.isSuccess) {
+                            return {
+                                id: submodelDescriptor.id,
+                                label: submodelDescriptor.idShort ?? '',
+                                submodelData: submodelResponse.result,
+                            };
+                        }
                     }
                     return null;
                 }),
@@ -91,18 +97,24 @@ export function SubmodelsOverviewCard(props: SubmodelsOverviewCardProps) {
                 (props.smReferences as Reference[]).map(async (reference): Promise<TabSelectorItem | null> => {
                     let tabSelectorItem: TabSelectorItem | null = null;
                     try {
-                        const submodelDescriptor = env.SUBMODEL_REGISTRY_API_URL
-                            ? await getSubmodelDescriptorsById(reference.keys[0].value)
-                            : null;
+                        let submodelDescriptor: SubmodelDescriptor | null = null;
+                        if (env.SUBMODEL_REGISTRY_API_URL) {
+                            const submodelDescriptorRequest = 
+                                await getSubmodelDescriptorsById(reference.keys[0].value);
+                            if (submodelDescriptorRequest.isSuccess)
+                                submodelDescriptor = submodelDescriptorRequest.result;
+                        }
                         const endpoint = submodelDescriptor?.endpoints[0].protocolInformation.href;
 
                         if (endpoint) {
-                            const submodelData = await getSubmodelFromSubmodelDescriptor(endpoint);
-                            tabSelectorItem = {
-                                id: submodelDescriptor.id,
-                                label: submodelDescriptor.idShort ?? '',
-                                submodelData: submodelData,
-                            };
+                            const submodelResponse = await getSubmodelFromSubmodelDescriptor(endpoint);
+                            if (submodelResponse.isSuccess) {
+                                tabSelectorItem = {
+                                    id: submodelDescriptor!.id,
+                                    label: submodelDescriptor!.idShort ?? '',
+                                    submodelData: submodelResponse.result
+                                };
+                            }
                         }
                     } catch (e) {
                         if (!(e instanceof TypeError || (e instanceof Response && e.status === 404))) {

@@ -171,12 +171,12 @@ export function DocumentComponent(props: MarkingsComponentProps) {
                 '/attachment';
             digitalFile.mimeType = (versionSubmodelEl as File).contentType;
 
-            try {
-                const image = await getAttachmentFromSubmodelElement(props.submodelId, submodelElementPath);
-                digitalFile.digitalFileUrl = URL.createObjectURL(image);
+            const imageRespone = await getAttachmentFromSubmodelElement(props.submodelId, submodelElementPath);
+            if (imageRespone.isSuccess) {
+                digitalFile.digitalFileUrl = URL.createObjectURL(imageRespone.result);
                 digitalFile.mimeType = (versionSubmodelEl as File).contentType;
-            } catch (e) {
-                console.error('Image not found', e);
+            } else {
+                console.error('Image not found' + imageRespone.message);
             }
         }
 
@@ -203,14 +203,14 @@ export function DocumentComponent(props: MarkingsComponentProps) {
                 submodelElementPath +
                 '/attachment';
 
-            try {
-                const image = await getAttachmentFromSubmodelElement(props.submodelId, submodelElementPath);
-                previewImgUrl = URL.createObjectURL(image);
-            } catch (e) {
-                console.error('Image not found', e);
+            const imageResponse = await getAttachmentFromSubmodelElement(props.submodelId, submodelElementPath);
+            if (imageResponse.isSuccess) {
+                previewImgUrl = URL.createObjectURL(imageResponse.result);
+            } else {
+                console.error('Image not found' + imageResponse.message);
             }
         }
-
+        
         return previewImgUrl ?? '';
     }
 

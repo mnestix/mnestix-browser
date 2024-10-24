@@ -7,7 +7,7 @@ import { INullableAasRepositoryEntries } from 'lib/api/basyx-v3/apiInMemory';
 import { PrismaConnector } from 'lib/services/prisma/PrismaConnector';
 import { IPrismaConnector } from 'lib/services/prisma/PrismaConnectorInterface';
 import { Reference } from '@aas-core-works/aas-core3.0-typescript/types';
-import { NotFoundError } from 'lib/errors/NotFoundError';
+import { ApiResponseWrapper, ApiResponseWrapperUtil, ApiResultStatus } from 'lib/services/apiResponseWrapper';
 
 export type RepoSearchResult = {
     aas: AssetAdministrationShell;
@@ -29,14 +29,16 @@ export class RepositorySearchService {
     ) {}
 
     static create(): RepositorySearchService {
-        const repositoryClient = AssetAdministrationShellRepositoryApi.create({
-            basePath: process.env.AAS_REPO_API_URL,
-            fetch: mnestixFetch(),
-        });
-        const submodelRepositoryClient = SubmodelRepositoryApi.create({
-            basePath: process.env.SUBMODEL_REPO_API_URL ?? process.env.AAS_REPO_API_URL,
-            fetch: mnestixFetch(),
-        });
+        const repositoryClient = AssetAdministrationShellRepositoryApi.create(
+            mnestixFetch(),
+            undefined,
+            process.env.AAS_REPO_API_URL,
+        );
+        const submodelRepositoryClient = SubmodelRepositoryApi.create(
+            mnestixFetch(),
+            undefined,
+            process.env.SUBMODEL_REPO_API_URL ?? process.env.AAS_REPO_API_URL,
+        );
         const log = Log.create();
         const prismaConnector = PrismaConnector.create();
         return new RepositorySearchService(repositoryClient, submodelRepositoryClient, prismaConnector, log);
@@ -56,111 +58,129 @@ export class RepositorySearchService {
         );
     }
 
-    async getAasFromDefaultRepository(aasId: string): Promise<AssetAdministrationShell> {
-        try {
-            return await this.repositoryClient.getAssetAdministrationShellById(aasId);
-        } catch (e) {
-            throw new NotFoundError('AAS not found');
-        }
+    async getAasFromDefaultRepository(aasId: string): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
+        const response = await this.repositoryClient.getAssetAdministrationShellById(aasId);
+        if (response.isSuccess) return response;
+        return ApiResponseWrapperUtil.fromErrorCode(ApiResultStatus.NOT_FOUND, 'AAS not found');
     }
 
-    async getAasFromRepo(aasId: string, repoUrl: string): Promise<AssetAdministrationShell> {
-        try {
-            return await this.repositoryClient.getAssetAdministrationShellById(aasId, undefined, repoUrl);
-        } catch (e) {
-            throw new NotFoundError(`AAS '${aasId}' not found in repository '${repoUrl}'`);
-        }
+    async getAasFromRepo(aasId: string, repoUrl: string): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
+        const response = await this.repositoryClient.getAssetAdministrationShellById(aasId, undefined, repoUrl);
+        if (response.isSuccess) return response;
+        return ApiResponseWrapperUtil.fromErrorCode(
+            ApiResultStatus.NOT_FOUND,
+            `AAS '${aasId}' not found in repository '${repoUrl}'`,
+        );
     }
 
-    async getAasFromAllRepos(aasId: string): Promise<RepoSearchResult[]> {
+    async getAasFromAllRepos(aasId: string): Promise<ApiResponseWrapper<RepoSearchResult[]>> {
         const basePathUrls = await this.prismaConnector.getConnectionDataByTypeAction({
             id: '0',
             typeName: 'AAS_REPOSITORY',
         });
 
         const promises = basePathUrls.map(
-            (url) => this.getAasFromRepo(aasId, url).then((aas) => ({ aas: aas, location: url })), // add the URL to the resolved value
+            (url) =>
+                this.getAasFromRepo(aasId, url).then((response: ApiResponseWrapper<AssetAdministrationShell>) => {
+                    return { wrapper: response, location: url };
+                }), // add the URL to the resolved value
         );
 
-        const results = await Promise.allSettled(promises);
-        const fulfilledResults = results.filter((result) => result.status === 'fulfilled');
+        const responses = await Promise.allSettled(promises);
+        const fulfilledResponses = responses.filter(
+            (result) => result.status === 'fulfilled' && result.value.wrapper.isSuccess,
+        );
 
-        if (fulfilledResults.length > 0) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error
-            return fulfilledResults.map((result) => (result as unknown).value);
+        if (fulfilledResponses.length > 0) {
+            return ApiResponseWrapperUtil.fromSuccess<RepoSearchResult[]>(
+                fulfilledResponses.map(
+                    (
+                        result: PromiseFulfilledResult<{
+                            wrapper: ApiResponseWrapper<AssetAdministrationShell>;
+                            location: string;
+                        }>,
+                    ) => ({ aas: result.value.wrapper.result!, location: result.value.location }),
+                ),
+            );
         } else {
-            throw new NotFoundError(`Could not find AAS ${aasId} in any Repository`);
+            return ApiResponseWrapperUtil.fromErrorCode(
+                ApiResultStatus.NOT_FOUND,
+                `Could not find AAS ${aasId} in any Repository`,
+            );
         }
     }
 
-    async getSubmodelById(id: string): Promise<Submodel> {
-        try {
-            return this.submodelRepositoryClient.getSubmodelById(id);
-        } catch (error) {
-            throw new NotFoundError(`Submodel with id ${id} not found`);
-        }
+    async getSubmodelById(id: string): Promise<ApiResponseWrapper<Submodel>> {
+        const result = await this.submodelRepositoryClient.getSubmodelById(id);
+        if (result.isSuccess) return result;
+        return ApiResponseWrapperUtil.fromErrorCode(ApiResultStatus.NOT_FOUND, `Submodel with id ${id} not found`);
     }
 
-    async getAttachmentFromSubmodelElement(submodelId: string, submodelElementPath: string): Promise<Blob> {
-        try {
-            return this.submodelRepositoryClient.getAttachmentFromSubmodelElement(submodelId, submodelElementPath);
-        } catch (error) {
-            throw new NotFoundError(`Attachment for Submodel with id ${submodelId} at path ${submodelElementPath} not found`);
-        }
+    async getAttachmentFromSubmodelElement(
+        submodelId: string,
+        submodelElementPath: string,
+    ): Promise<ApiResponseWrapper<Blob>> {
+        const response = await this.submodelRepositoryClient.getAttachmentFromSubmodelElement(
+            submodelId,
+            submodelElementPath,
+        );
+        if (response.isSuccess) return response;
+        return ApiResponseWrapperUtil.fromErrorCode(
+            ApiResultStatus.NOT_FOUND,
+            `Attachment for Submodel with id ${submodelId} at path ${submodelElementPath} not found`,
+        );
     }
 
-    async getSubmodelFromAllRepos(submodelId: string) {
+    async getSubmodelFromAllRepos(submodelId: string): Promise<ApiResponseWrapper<Submodel>> {
         const basePathUrls = await this.prismaConnector.getConnectionDataByTypeAction({
             id: '2',
             typeName: 'SUBMODEL_REPOSITORY',
         });
-        const promises = basePathUrls.map((url) =>
-            this.submodelRepositoryClient.getSubmodelById(submodelId, undefined, url),
-        );
+        const promises = basePathUrls.map(async (url) => {
+            const response = await this.submodelRepositoryClient.getSubmodelById(submodelId, undefined, url);
+            if (response.isSuccess) return response;
+            return Promise.reject();
+        });
 
         try {
             return await Promise.any(promises);
-        } catch (error) {
-            throw new NotFoundError('Submodel not found');
-        }
-    }
-
-    async getSubmodelReferencesFromShell(aasId: string): Promise<Reference[]> {
-        try {
-            return await this.repositoryClient.getSubmodelReferencesFromShell(aasId);
         } catch (e) {
-            throw new NotFoundError('Submodel Reference not found');
+            return ApiResponseWrapperUtil.fromErrorCode(ApiResultStatus.NOT_FOUND, 'Submodel not found');
         }
     }
 
-    async getThumbnailFromShell(aasId: string): Promise<Blob> {
-        try {
-            return await this.repositoryClient.getThumbnailFromShell(aasId);
-        } catch (e) {
-            throw new NotFoundError('Thumbnail not found');
-        }
+    async getSubmodelReferencesFromShell(aasId: string): Promise<ApiResponseWrapper<Reference[]>> {
+        const response = await this.repositoryClient.getSubmodelReferencesFromShell(aasId);
+        if (response.isSuccess) return response;
+        return ApiResponseWrapperUtil.fromErrorCode(ApiResultStatus.NOT_FOUND, 'Submodel Reference not found');
     }
 
-    async getAasThumbnailFromAllRepos(aasId: string) {
+    async getThumbnailFromShell(aasId: string): Promise<ApiResponseWrapper<Blob>> {
+        const response = await this.repositoryClient.getThumbnailFromShell(aasId);
+        if (response.isSuccess) return response;
+
+        return ApiResponseWrapperUtil.fromErrorCode(ApiResultStatus.NOT_FOUND, 'Thumbnail not found');
+    }
+
+    async getAasThumbnailFromAllRepos(aasId: string): Promise<ApiResponseWrapper<Blob>> {
         const basePathUrls = await this.prismaConnector.getConnectionDataByTypeAction({
             id: '0',
             typeName: 'AAS_REPOSITORY',
         });
 
-        const promises = basePathUrls.map((url) =>
-            this.repositoryClient.getThumbnailFromShell(aasId, undefined, url).then((image) => {
-                if (image.size === 0) {
-                    throw new Error('Empty image');
+        const promises = basePathUrls.map((url) => {
+            return this.repositoryClient.getThumbnailFromShell(aasId, undefined, url).then((response) => {
+                if (response.isSuccess && response.result.size === 0) {
+                    return Promise.reject('Empty image');
                 }
-                return image;
-            }),
-        );
+                return response;
+            });
+        });
 
         try {
             return await Promise.any(promises);
         } catch {
-            throw new NotFoundError('Image not found');
+            return ApiResponseWrapperUtil.fromErrorCode(ApiResultStatus.NOT_FOUND, 'Image not found');
         }
     }
 }

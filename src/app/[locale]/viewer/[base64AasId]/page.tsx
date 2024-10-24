@@ -44,13 +44,13 @@ export default function Page() {
 
     async function loadAasContent() {
         if (repoUrl) {
-            const repoAas = await getAasFromRepository(aasIdDecoded, repoUrl);
-            setAas(repoAas ?? undefined);
+            const response = await getAasFromRepository(aasIdDecoded, repoUrl);
+            setAas(response.result);
             return;
         }
 
-        const result = await performFullAasSearch(aasIdDecoded);
-        if (!result) {
+        const { isSuccess, result } = await performFullAasSearch(aasIdDecoded);
+        if (!isSuccess) {
             showError(new LocalizedError(messages.mnestix.aasUrlNotFound), notificationSpawner);
         } else if (result.aas) {
             setAas(result.aas);
@@ -121,7 +121,7 @@ export default function Page() {
                     />
                     {aas?.submodels && aas.submodels.length > 0 && (
                         <SubmodelsOverviewCard smReferences={aas.submodels} />
-                    )}{' '}
+                    )}
                 </Box>
             ) : (
                 <>

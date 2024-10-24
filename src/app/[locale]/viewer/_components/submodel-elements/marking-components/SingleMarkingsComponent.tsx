@@ -37,12 +37,14 @@ export function SingleMarkingsComponent(props: SingleMarkingsComponentProps) {
 
     useAsyncEffect(async () => {
         if (!isValidUrl(file!.value)) {
-            try {
-                const fileIdShort = idShortPath + '.' + file?.idShort;
-                const image = await getAttachmentFromSubmodelElement(submodelId!, fileIdShort);
+            const fileIdShort = idShortPath + '.' + file?.idShort;
+            const response = await getAttachmentFromSubmodelElement(submodelId!, fileIdShort);
+            let image: Blob;
+            if (response.isSuccess) {
+                image = response.result;
                 setMarkingImage(URL.createObjectURL(image));
-            } catch (e) {
-                console.error('Image not found', e);
+            } else {
+                console.error('Image not found for file ID: ' + fileIdShort);
             }
         } else {
             if (file?.value) setMarkingImage(file.value);

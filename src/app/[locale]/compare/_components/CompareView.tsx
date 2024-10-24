@@ -56,22 +56,20 @@ export function CompareView() {
     };
 
     const handleAddAas = async (aasId: string) => {
-        const aasSearch = await performFullAasSearch(aasId);
-        if (!aasSearch) {
-            throw new LocalizedError(messages.mnestix.aasUrlNotFound);
-        }
+        const { isSuccess, result } = await performFullAasSearch(aasId);
+        if (!isSuccess) throw new LocalizedError(messages.mnestix.aasUrlNotFound);
 
-        if (!aasSearch.aas) {
+        if (!result.aas) {
             throw new LocalizedError(messages.mnestix.compare.moreAasFound);
         }
 
-        const aasExists = compareAas.find((aas) => aas.id === aasSearch.aas!.id);
+        const aasExists = compareAas.find((aas) => aas.id === result.aas!.id);
         if (aasExists) {
             throw new LocalizedError(messages.mnestix.compare.aasAlreadyAdded);
         }
 
         try {
-            await addAas(aasSearch.aas!, aasSearch.aasData?.submodelDescriptors);
+            await addAas(result.aas, result.aasData?.submodelDescriptors);
         } catch (e) {
             throw new LocalizedError(messages.mnestix.compare.aasAddError);
         }

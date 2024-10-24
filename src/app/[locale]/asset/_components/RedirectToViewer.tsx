@@ -11,6 +11,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import AssetNotFound from 'components/basics/AssetNotFound';
 import { useAasState } from 'components/contexts/CurrentAasContext';
 import { performDiscoveryAasSearch } from 'lib/services/search-actions/searchActions';
+import { ApiResponseWrapperUtil } from 'lib/services/apiResponseWrapper';
+import { LocalizedError } from 'lib/util/LocalizedError';
+import { messages } from 'lib/i18n/localization';
 
 export const RedirectToViewer = () => {
     const navigate = useRouter();
@@ -33,8 +36,11 @@ export const RedirectToViewer = () => {
     }, []);
 
     async function navigateToViewerOfAsset(assetId: string | undefined): Promise<void> {
-        const aasIds = await getAasIdsOfAsset(assetId);
-        assertAnAasIdExists(aasIds);
+        const { isSuccess, result: aasIds } = await getAasIdsOfAsset(assetId);
+
+        if (!isSuccess) throw new LocalizedError(messages.mnestix.aasUrlNotFound);
+
+        assertAtLeastOneAasIdExists(aasIds);
         const targetUrl = determineViewerTargetUrl(aasIds);
         setAas(null);
         navigate.replace(targetUrl);
@@ -44,11 +50,12 @@ export const RedirectToViewer = () => {
         if (!assetId) {
             throw new NotFoundError();
         }
-        const discoverySearchResult = await performDiscoveryAasSearch(assetId);
-        return discoverySearchResult ?? [];
+        const response = await performDiscoveryAasSearch(assetId);
+        if (response.isSuccess) return response;
+        return ApiResponseWrapperUtil.fromSuccess([]);
     }
 
-    function assertAnAasIdExists(aasIds: string[]) {
+    function assertAtLeastOneAasIdExists(aasIds: string[]) {
         if (aasIds.length === 0) {
             throw new NotFoundError();
         }

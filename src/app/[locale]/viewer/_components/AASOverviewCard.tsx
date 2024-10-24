@@ -28,6 +28,7 @@ import {
     getThumbnailFromShell,
     performGetAasThumbnailFromAllRepos,
 } from 'lib/services/repository-access/repositorySearchActions';
+import { mnestixFetch } from 'lib/api/infrastructure';
 
 type AASOverviewCardProps = {
     readonly aas: AssetAdministrationShell | null;
@@ -69,25 +70,30 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
     async function createAndSetUrlForImageFile() {
         if (!props.aas) return;
 
-        try {
-            let image: Blob;
-            if (registryAasData) {
-                const registryRepository = AssetAdministrationShellRepositoryApi.create({
-                    basePath: registryAasData.aasRegistryRepositoryOrigin,
-                });
-                image = await registryRepository.getThumbnailFromShell(props.aas.id);
-                setProductImageUrl(URL.createObjectURL(image));
-            } else {
-                try {
-                    image = await getThumbnailFromShell(props.aas.id);
-                } catch (e) {
-                    image = await performGetAasThumbnailFromAllRepos(props.aas.id);
-                }
-
+        let image: Blob;
+        if (registryAasData) {
+            const registryRepository = AssetAdministrationShellRepositoryApi.create(
+                mnestixFetch(),
+                undefined,
+                registryAasData.aasRegistryRepositoryOrigin,
+            );
+            const response = await registryRepository.getThumbnailFromShell(props.aas.id);
+            if (response.isSuccess) {
+                image = response.result;
                 setProductImageUrl(URL.createObjectURL(image));
             }
-        } catch (e) {
-            console.error('Image not found', e);
+        } else {
+            const response = await getThumbnailFromShell(props.aas.id);
+            if (response.isSuccess) image = response.result;
+            else {
+                const response = await performGetAasThumbnailFromAllRepos(props.aas.id);
+                if (response.isSuccess) image = response.result;
+                else {
+                    console.error('Image not found');
+                    return;
+                }
+            }
+            setProductImageUrl(URL.createObjectURL(image));
         }
     }
 
@@ -122,7 +128,7 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
 
     const navigateToAas = () => {
         if (props.imageLinksToDetail && props.aas) {
-            setAasState(props.aas)
+            setAasState(props.aas);
             const url = `/viewer/${encodeBase64(props.aas.id)}`;
             navigate.push(url);
         }

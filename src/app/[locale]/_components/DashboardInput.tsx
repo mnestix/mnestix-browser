@@ -14,15 +14,15 @@ export const DashboardInput = () => {
     const [, setRegistryAasData] = useRegistryAasState();
     const navigate = useRouter();
 
-    const browseAasUrl = async (val: string) => {
-        const aasSearch = await performFullAasSearch(val);
-        if (!aasSearch) throw new LocalizedError(messages.mnestix.aasUrlNotFound);
+    const browseAasUrl = async (searchString: string) => {
+        const { isSuccess, result }  = await performFullAasSearch(searchString.trim());
+        if (!isSuccess) throw new LocalizedError(messages.mnestix.aasUrlNotFound);
 
-        if (aasSearch.aas) {
-            setAas(aasSearch.aas);
-            setRegistryAasData(aasSearch.aasData);
+        if (result.aas) {
+            setAas(result.aas);
+            setRegistryAasData(result.aasData);
         }
-        navigate.push(aasSearch.redirectUrl);
+        navigate.push(result.redirectUrl);
     };
 
     return (
