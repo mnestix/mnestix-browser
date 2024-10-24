@@ -19,8 +19,7 @@ import { useEffect, useState } from 'react';
 import { SubmodelOrIdReference, useAasState, useSubmodelState } from 'components/contexts/CurrentAasContext';
 import { transferAasWithSubmodels } from 'lib/services/transfer-service/transferActions';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
-import { TransferDto } from 'lib/types/TransferServiceData';
-import { CenteredLoadingSpinner } from 'components/basics/CenteredLoadingSpinner';
+import { TransferDto, TransferResult } from 'lib/types/TransferServiceData';
 
 export type TransferFormModel = {
     targetAasRepositoryBaseUrl?: string;
@@ -34,7 +33,7 @@ export function TransferDialog(props: DialogProps) {
     const [submodelsFromContext,] = useSubmodelState();
     const [aasFromContext,] = useAasState();
     const notificationSpawner = useNotificationSpawner();
-    const [ isLoading, setIsLoading ] = useState(false);
+    const [ isSubmitting, setIsSubmitting ] = useState(false);
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -65,16 +64,10 @@ export function TransferDialog(props: DialogProps) {
         }
 
         try {
-            setIsLoading(true)
-            // The transfer service returns a list of results. 
-            // For now we show success, if at least the aas got transferred successfully.
+            setIsSubmitting(true)
             const response = await transferAasWithSubmodels(dtoToSubmit);
-            response.find(response => response.operationKind === 'AasRepository' && response.success)
+            processResult(response)
             
-            notificationSpawner.spawn({
-                message: 'Transfer of AAS successful',
-                severity: 'success',
-            });
         } catch (error) {
             notificationSpawner.spawn({
                 message: 'Transfer of AAS not successful',
@@ -82,12 +75,49 @@ export function TransferDialog(props: DialogProps) {
             });
         } finally {
             props.onClose && props.onClose({}, 'escapeKeyDown');
-            setIsLoading(false)
+            setIsSubmitting(false)
+        }
+    }
+
+    /**
+     * Shows success if all elements got transferred correctly.
+     * Shows error if no element got transferred correctly.
+     * If only parts of the AAS got transferred, 
+     * shows an error for each failed element and a warning in the end.
+     * @param result List of all transfer Results.
+     */
+    const processResult = (result: TransferResult[]) => {
+        if(result.every(result => result.success)) {
+            notificationSpawner.spawn({
+                message: 'Transfer of AAS successful',
+                severity: 'success',
+            });
+            return;
+        }
+        if(result.every(result => result.success)) {
+            notificationSpawner.spawn({
+                message: 'Transfer of AAS not successful',
+                severity: 'error',
+            });
+            return;
+        } else {
+            result.map(result => {
+                if(!result.success) {
+                    notificationSpawner.spawn({
+                        message: `Failed to transfer single element: ${result.error}`,
+                        severity: 'error',
+                    });
+                }
+                notificationSpawner.spawn({
+                    message: 'AAS was only partially transferred.',
+                    severity: 'warning',
+                });
+            })
         }
     }
 
     return (
-        <> { isLoading && <CenteredLoadingSpinner/> }
+        <>
             <Dialog open={props.open} onClose={props.onClose} maxWidth="md" fullWidth fullScreen={fullScreen}>
                 <Box sx={{ m: 4 }}>
                     <Typography variant="h2"
@@ -107,7 +137,7 @@ export function TransferDialog(props: DialogProps) {
                     <CloseIcon/>
                 </IconButton>
                 <DialogContent sx={{ mr: 1, ml: 1 }}>
-                    <TargetRepositories onSubmitStep={(values) => handleSubmitRepositoryStep(values)}/>
+                    <TargetRepositories onSubmitStep={(values) => handleSubmitRepositoryStep(values)} isSubmitting={isSubmitting} />
                 </DialogContent>
                 <Divider/>
             </Dialog>

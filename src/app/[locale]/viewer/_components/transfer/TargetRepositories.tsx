@@ -19,6 +19,7 @@ import { Fragment, useState } from 'react';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { ConnectionTypeEnum } from 'lib/services/database/ConnectionTypeEnum';
 import { Controller, useForm } from 'react-hook-form';
+import { LoadingButton } from '@mui/lab';
 
 export type TargetRepositoryFormData = {
     repository?: string;
@@ -27,6 +28,7 @@ export type TargetRepositoryFormData = {
 
 type TargetRepositoryProps = {
     onSubmitStep: (values: TargetRepositoryFormData) => void;
+    isSubmitting: boolean;
 }
 
 export function TargetRepositories(props: TargetRepositoryProps) {
@@ -117,8 +119,8 @@ export function TargetRepositories(props: TargetRepositoryProps) {
                         </Box>
                         <Divider sx={{ mt: 6, mb: 4 }}/>
                         <DialogActions>
-                            <Button sx={{ mr: 1 }} variant="outlined" disabled={!formState.isValid}
-                                    onClick={handleSubmit(onSubmit)}><FormattedMessage {...messages.mnestix.transfer.title} /></Button>
+                            <LoadingButton sx={{ mr: 1 }} variant="outlined" disabled={!formState.isValid} loading={props.isSubmitting}
+                                    onClick={handleSubmit(onSubmit)}><FormattedMessage {...messages.mnestix.transfer.title} /></LoadingButton>
                         </DialogActions>
                     </Box>
                 </form>
