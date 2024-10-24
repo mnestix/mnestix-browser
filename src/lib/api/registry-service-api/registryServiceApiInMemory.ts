@@ -1,7 +1,7 @@
 import { IRegistryServiceApi } from 'lib/api/registry-service-api/registryServiceApiInterface';
 import { AssetAdministrationShellDescriptor } from 'lib/types/registryServiceTypes';
 import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
-import { ApiResponseWrapper, ApiResponseWrapperUtil, ApiResultStatus } from 'lib/services/apiResponseWrapper';
+import { ApiResponseWrapper, ApiResultStatus, WrapErrorCode, WrapResponse } from 'lib/services/apiResponseWrapper';
 
 export interface INullableAasRegistryEndpointEntries {
     endpoint: URL | string;
@@ -30,13 +30,11 @@ export class RegistryServiceApiInMemory implements IRegistryServiceApi {
         for (shellDescriptor of this.registryShellDescriptorEntries) {
             if (shellDescriptor.id === aasId) {
                 const response = new Response(JSON.stringify(shellDescriptor));
-                const value = await ApiResponseWrapperUtil.fromResponse<AssetAdministrationShellDescriptor>(response);
+                const value = await WrapResponse<AssetAdministrationShellDescriptor>(response);
                 return Promise.resolve(value);
             }
         }
-        return Promise.resolve(
-            ApiResponseWrapperUtil.fromErrorCode(ApiResultStatus.NOT_FOUND, 'no shell descriptor for aasId:' + aasId),
-        );
+        return Promise.resolve(WrapErrorCode(ApiResultStatus.NOT_FOUND, 'no shell descriptor for aasId:' + aasId));
     }
 
     async getAssetAdministrationShellFromEndpoint(
@@ -46,15 +44,13 @@ export class RegistryServiceApiInMemory implements IRegistryServiceApi {
         let registryEndpoint: INullableAasRegistryEndpointEntries;
         for (registryEndpoint of this.shellsAvailableOnEndpoints) {
             if (registryEndpoint.endpoint.toString() === endpoint.toString()) {
-                const value = await ApiResponseWrapperUtil.fromResponse<AssetAdministrationShell>(
+                const value = await WrapResponse<AssetAdministrationShell>(
                     new Response(JSON.stringify(registryEndpoint.aas)),
                 );
                 return Promise.resolve(value);
             }
         }
-        return Promise.resolve(
-            ApiResponseWrapperUtil.fromErrorCode(ApiResultStatus.NOT_FOUND, 'no shell for url:' + endpoint),
-        );
+        return Promise.resolve(WrapErrorCode(ApiResultStatus.NOT_FOUND, 'no shell for url:' + endpoint));
     }
 
     async putAssetAdministrationShellDescriptorById(

@@ -13,7 +13,7 @@ import {
 } from 'lib/services/repository-access/RepositorySearchService';
 import { INullableAasRepositoryEntries } from 'lib/api/basyx-v3/apiInMemory';
 import { mnestixFetch } from 'lib/api/infrastructure';
-import { ApiResponseWrapper, ApiResponseWrapperUtil, ApiResultStatus } from 'lib/services/apiResponseWrapper';
+import { ApiResponseWrapper, ApiResultStatus, WrapErrorCode, WrapSuccess } from 'lib/services/apiResponseWrapper';
 
 interface NullableSearchSetupParameters {
     discoveryEntries?: { assetId: string; aasIds: string[] }[];
@@ -85,7 +85,7 @@ export class AasSearcher {
         const foundOneDiscoveryResult = aasIds.isSuccess && aasIds.result.length === 1;
 
         if (foundMultipleDiscoveryResults) {
-            return ApiResponseWrapperUtil.fromSuccess(this.createDiscoveryRedirectResult(searchInput));
+            return WrapSuccess(this.createDiscoveryRedirectResult(searchInput));
         }
 
         const aasId = foundOneDiscoveryResult ? aasIds.result[0] : searchInput;
@@ -93,49 +93,49 @@ export class AasSearcher {
 
         const aasRegistryResult = await this.performRegistrySearch(aasId);
         if (aasRegistryResult.isSuccess) {
-            return ApiResponseWrapperUtil.fromSuccess(aasRegistryResult.result);
+            return WrapSuccess(aasRegistryResult.result);
         }
 
         const defaultResult = await this.getAasFromDefaultRepository(aasIdEncoded);
         if (defaultResult.isSuccess) {
-            return ApiResponseWrapperUtil.fromSuccess(this.createAasResult(defaultResult.result));
+            return WrapSuccess(this.createAasResult(defaultResult.result));
         }
 
         const potentiallyMultipleAas = await this.getAasFromAllRepositories(aasIdEncoded);
         if (potentiallyMultipleAas.isSuccess) {
             if (potentiallyMultipleAas.result!.length === 1) {
-                return ApiResponseWrapperUtil.fromSuccess(this.createAasResult(potentiallyMultipleAas.result[0].aas));
+                return WrapSuccess(this.createAasResult(potentiallyMultipleAas.result[0].aas));
             }
             if (potentiallyMultipleAas.result!.length > 1) {
-                return ApiResponseWrapperUtil.fromSuccess(this.createDiscoveryRedirectResult(searchInput));
+                return WrapSuccess(this.createDiscoveryRedirectResult(searchInput));
             }
         }
-        return ApiResponseWrapperUtil.fromErrorCode(ApiResultStatus.NOT_FOUND, 'No AAS found for the given ID');
+        return WrapErrorCode(ApiResultStatus.NOT_FOUND, 'No AAS found for the given ID');
     }
 
     // TODO: handle multiple endpoints as result
     public async performRegistrySearch(searchAasId: string): Promise<ApiResponseWrapper<AasSearchResult>> {
         const registrySearchResult = await this.performAasRegistrySearch(searchAasId);
         if (!registrySearchResult.isSuccess) {
-            return ApiResponseWrapperUtil.fromErrorCode(registrySearchResult.errorCode, registrySearchResult.message);
+            return WrapErrorCode(registrySearchResult.errorCode, registrySearchResult.message);
         }
         const endpoint = registrySearchResult.result.endpoints[0];
 
         const aasSearchResult = await this.getAasFromEndpoint(endpoint);
         if (!aasSearchResult.isSuccess) {
-            return ApiResponseWrapperUtil.fromErrorCode(aasSearchResult.errorCode, aasSearchResult.message);
+            return WrapErrorCode(aasSearchResult.errorCode, aasSearchResult.message);
         }
         const data = {
             submodelDescriptors: registrySearchResult.result.submodelDescriptors,
             aasRegistryRepositoryOrigin: endpoint.origin,
         };
-        return ApiResponseWrapperUtil.fromSuccess(this.createAasResult(aasSearchResult.result, data));
+        return WrapSuccess(this.createAasResult(aasSearchResult.result, data));
     }
 
     public async performAasDiscoverySearch(searchAssetId: string): Promise<ApiResponseWrapper<string[]>> {
         const response = await this.discoveryServiceClient.getAasIdsByAssetId(searchAssetId);
-        if (response.isSuccess) return ApiResponseWrapperUtil.fromSuccess(response.result.result);
-        return ApiResponseWrapperUtil.fromErrorCode(
+        if (response.isSuccess) return WrapSuccess(response.result.result);
+        return WrapErrorCode(
             ApiResultStatus.NOT_FOUND,
             `Could not find the asset '${searchAssetId}' in the discovery service`,
         );
@@ -147,7 +147,7 @@ export class AasSearcher {
     ): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
         const response = await this.multipleDataSource.getAasFromRepo(aasId, repoUrl);
         if (response.isSuccess) return response;
-        return ApiResponseWrapperUtil.fromErrorCode(
+        return WrapErrorCode(
             ApiResultStatus.NOT_FOUND,
             `Could not find an AAS '${aasId}' in the repository '${repoUrl}'`,
         );
@@ -172,7 +172,7 @@ export class AasSearcher {
     private async performAasRegistrySearch(searchAasId: string): Promise<ApiResponseWrapper<RegistrySearchResult>> {
         const shellDescription = await this.registryService.getAssetAdministrationShellDescriptorById(searchAasId);
         if (!shellDescription.isSuccess) {
-            return ApiResponseWrapperUtil.fromErrorCode(
+            return WrapErrorCode(
                 ApiResultStatus.NOT_FOUND,
                 `Could not find the AAS '${searchAasId}' in the registry service`,
             );
@@ -180,7 +180,7 @@ export class AasSearcher {
         const endpoints = shellDescription.result.endpoints as Endpoint[];
         const submodelDescriptors = shellDescription.result.submodelDescriptors as SubmodelDescriptor[];
         const endpointUrls = endpoints.map((endpoint) => new URL(endpoint.protocolInformation.href));
-        return ApiResponseWrapperUtil.fromSuccess<RegistrySearchResult>({
+        return WrapSuccess<RegistrySearchResult>({
             endpoints: endpointUrls,
             submodelDescriptors: submodelDescriptors,
         });
@@ -195,7 +195,7 @@ export class AasSearcher {
         if (response.isSuccess) return response;
         const message = `Could not find the AAS '${aasId}' in the default repository`;
         this.log.warn(message);
-        return ApiResponseWrapperUtil.fromErrorCode(ApiResultStatus.NOT_FOUND, message);
+        return WrapErrorCode(ApiResultStatus.NOT_FOUND, message);
     }
 
     private async getAasFromAllRepositories(aasId: string): Promise<ApiResponseWrapper<RepoSearchResult[]>> {
@@ -203,6 +203,6 @@ export class AasSearcher {
         if (response.isSuccess) return response;
         const message = `Could not find the AAS '${aasId}' in any configured repository`;
         this.log.warn(message);
-        return ApiResponseWrapperUtil.fromErrorCode(ApiResultStatus.NOT_FOUND, message);
+        return WrapErrorCode(ApiResultStatus.NOT_FOUND, message);
     }
 }
