@@ -43,14 +43,6 @@ export class ApiResponseWrapperUtil {
         };
     }
 
-    static fromHttpError<T>(error: number, message: string): ApiResponseWrapper<T> {
-        return {
-            isSuccess: false,
-            errorCode: getStatus(error),
-            message: message,
-        };
-    }
-
     static async fromResponse<T>(response: Response): Promise<ApiResponseWrapper<T>> {
         const status = getStatus(response.status);
         if (status === ApiResultStatus.SUCCESS) {

@@ -11,15 +11,6 @@ describe('', () => {
         }
     });
 
-    it('transforms the http code to an error code', async () => {
-        const failedResponseWrapper = ApiResponseWrapperUtil.fromHttpError(404, 'error message');
-
-        expect(failedResponseWrapper.isSuccess).toBe(false);
-        if (!failedResponseWrapper.isSuccess) {
-            expect(failedResponseWrapper.errorCode).toBe(ApiResultStatus.NOT_FOUND);
-        }
-    });
-
     it('return data on success', async () => {
         const data = { name: 'John', age: 42 };
         const responseWrapper = ApiResponseWrapperUtil.fromSuccess(data);
