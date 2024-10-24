@@ -45,14 +45,13 @@ jobs:
           username: ${{ env.REGISTRY_USER }}
           password: ${{ env.REGISTRY_PASS }}
 
-      # Build Docker image
+      - name: Test units
+        id: test_units
+        run: yarn install && npx jest
+
       - name: Build image
         id: build
         run: docker compose build mnestix-browser
-
-      - name: unit tests
-        id: test_unit
-        run: yarn install && npx jest
 
       - name: E2E test
         id: test
