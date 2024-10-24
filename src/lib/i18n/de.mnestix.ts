@@ -215,8 +215,6 @@ export const deMnestix = {
         chooseSubmodelRepository: 'Submodel Repository auswählen (optional)',
         submodelRepositoryLabel: 'Liste der Submodel Repositories',
         useAasRepository: 'AAS Repository verwenden',
-        saveAndGoToNew: 'Speichern & Gehe zu neuer AAS',
-        saveAndGoToPrev: 'Speichern & Gehe zu bisherigen AAS'
     },
     aasList: {
         header: 'AAS List',

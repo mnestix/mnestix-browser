@@ -26,7 +26,7 @@ export type TargetRepositoryFormData = {
 }
 
 type TargetRepositoryProps = {
-    onSubmitStep: (values: TargetRepositoryFormData, redirectToNew: boolean) => void;
+    onSubmitStep: (values: TargetRepositoryFormData) => void;
 }
 
 export function TargetRepositories(props: TargetRepositoryProps) {
@@ -57,11 +57,7 @@ export function TargetRepositories(props: TargetRepositoryProps) {
     const { handleSubmit, control, formState } = useForm();
     
     const onSubmit = (data: TargetRepositoryFormData) => {
-        props.onSubmitStep(data, false);
-    }
-
-    const onSubmitRedirect = (data: TargetRepositoryFormData) => {
-        props.onSubmitStep(data, true);
+        props.onSubmitStep(data);
     }
 
     return(
@@ -122,9 +118,7 @@ export function TargetRepositories(props: TargetRepositoryProps) {
                         <Divider sx={{ mt: 6, mb: 4 }}/>
                         <DialogActions>
                             <Button sx={{ mr: 1 }} variant="outlined" disabled={!formState.isValid}
-                                    onClick={handleSubmit(onSubmit)}><FormattedMessage {...messages.mnestix.transfer.saveAndGoToPrev} /></Button>
-                            <Button variant="contained" type="submit" disabled={!formState.isValid}
-                                    onClick={handleSubmit(onSubmitRedirect)}><FormattedMessage {...messages.mnestix.transfer.saveAndGoToNew} /></Button>
+                                    onClick={handleSubmit(onSubmit)}><FormattedMessage {...messages.mnestix.transfer.title} /></Button>
                         </DialogActions>
                     </Box>
                 </form>

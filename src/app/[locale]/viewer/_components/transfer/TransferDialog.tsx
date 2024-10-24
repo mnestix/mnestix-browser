@@ -20,6 +20,7 @@ import { SubmodelOrIdReference, useAasState, useSubmodelState } from 'components
 import { transferAasWithSubmodels } from 'lib/services/transfer-service/transferActions';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { TransferDto } from 'lib/types/TransferServiceData';
+import { CenteredLoadingSpinner } from 'components/basics/CenteredLoadingSpinner';
 
 export type TransferFormModel = {
     targetAasRepositoryBaseUrl?: string;
@@ -33,7 +34,7 @@ export function TransferDialog(props: DialogProps) {
     const [submodelsFromContext,] = useSubmodelState();
     const [aasFromContext,] = useAasState();
     const notificationSpawner = useNotificationSpawner();
-
+    const [ isLoading, setIsLoading ] = useState(false);
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -43,7 +44,7 @@ export function TransferDialog(props: DialogProps) {
         setTransferDto(transferDtoTemp)
     }, [submodelsFromContext, aasFromContext])
 
-    const handleSubmitRepositoryStep = async (values: TargetRepositoryFormData, redirectToNew: boolean) => {
+    const handleSubmitRepositoryStep = async (values: TargetRepositoryFormData) => {
         if (!values.repository || !aasFromContext || !values.repository) {
             return;
         }
@@ -64,10 +65,12 @@ export function TransferDialog(props: DialogProps) {
         }
 
         try {
-            await transferAasWithSubmodels(dtoToSubmit);
-            if (redirectToNew) {
-                // TODO Redirect to new AAS 
-            }
+            setIsLoading(true)
+            // The transfer service returns a list of results. 
+            // For now we show success, if at least the aas got transferred successfully.
+            const response = await transferAasWithSubmodels(dtoToSubmit);
+            response.find(response => response.operationKind === 'AasRepository' && response.success)
+            
             notificationSpawner.spawn({
                 message: 'Transfer of AAS successful',
                 severity: 'success',
@@ -79,32 +82,35 @@ export function TransferDialog(props: DialogProps) {
             });
         } finally {
             props.onClose && props.onClose({}, 'escapeKeyDown');
+            setIsLoading(false)
         }
     }
 
     return (
-        <Dialog open={props.open} onClose={props.onClose} maxWidth="md" fullWidth fullScreen={fullScreen}>
-            <Box sx={{ m: 4 }}>
-                <Typography variant="h2"
-                            color="primary"><FormattedMessage {...messages.mnestix.transfer.title}/></Typography>
-                <Typography><FormattedMessage {...messages.mnestix.transfer.subtitle}/></Typography>
-            </Box>
-            <IconButton
-                aria-label="close"
-                onClick={(e) => props.onClose && props.onClose(e, 'escapeKeyDown')}
-                sx={(theme) => ({
-                    position: 'absolute',
-                    right: 8,
-                    top: 8,
-                    color: theme.palette.grey[500],
-                })}
-            >
-                <CloseIcon/>
-            </IconButton>
-            <DialogContent sx={{ mr: 1, ml: 1 }}>
-                <TargetRepositories onSubmitStep={(values, redirectToNew) => handleSubmitRepositoryStep(values, redirectToNew)}/>
-            </DialogContent>
-            <Divider/>
-        </Dialog>
+        <> { isLoading && <CenteredLoadingSpinner/> }
+            <Dialog open={props.open} onClose={props.onClose} maxWidth="md" fullWidth fullScreen={fullScreen}>
+                <Box sx={{ m: 4 }}>
+                    <Typography variant="h2"
+                                color="primary"><FormattedMessage {...messages.mnestix.transfer.title}/></Typography>
+                    <Typography><FormattedMessage {...messages.mnestix.transfer.subtitle}/></Typography>
+                </Box>
+                <IconButton
+                    aria-label="close"
+                    onClick={(e) => props.onClose && props.onClose(e, 'escapeKeyDown')}
+                    sx={(theme) => ({
+                        position: 'absolute',
+                        right: 8,
+                        top: 8,
+                        color: theme.palette.grey[500],
+                    })}
+                >
+                    <CloseIcon/>
+                </IconButton>
+                <DialogContent sx={{ mr: 1, ml: 1 }}>
+                    <TargetRepositories onSubmitStep={(values) => handleSubmitRepositoryStep(values)}/>
+                </DialogContent>
+                <Divider/>
+            </Dialog>
+        </>
     );
 }
