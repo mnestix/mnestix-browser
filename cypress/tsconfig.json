@@ -8,6 +8,7 @@
         "types": ["cypress"],
         "moduleResolution": "Node",
         "resolveJsonModule": true,
+        "esModuleInterop": true,
         "allowSyntheticDefaultImports": true
     }
 }

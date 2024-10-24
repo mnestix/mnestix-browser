@@ -127,6 +127,10 @@ export const deMnestix = {
         drunken: 'Anzahl getrunken',
         coffeeKind: 'Kaffeesorte',
     },
+    timeSeries: {
+        linkedSegments: 'Linked Segments',
+        internalSegments: 'Internal Segments',
+    },
     successfullyUpdated: 'Erfolgreich aktualisiert',
     templates: 'Vorlagen',
     all: 'Alle',

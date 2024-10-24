@@ -124,6 +124,10 @@ export const enMnestix = {
         drunken: 'Cups',
         coffeeKind: 'Coffee type',
     },
+    timeSeries: {
+        linkedSegments: 'Linked Segments',
+        internalSegments: 'Internal Segments',
+    },
     successfullyUpdated: 'Updated successfully',
     templates: 'Templates',
     all: 'All',
