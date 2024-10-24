@@ -46,7 +46,7 @@ export class RegistryServiceApi implements IRegistryServiceApi {
 
         const url = new URL(`${this.baseUrl}/shell-descriptors/${b64_aasId}`);
 
-        return await this.http.fetch(url, {
+        return this.http.fetch(url, {
             method: 'GET',
             headers,
         });
@@ -55,7 +55,7 @@ export class RegistryServiceApi implements IRegistryServiceApi {
     async getAssetAdministrationShellFromEndpoint(
         endpoint: URL,
     ): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
-        return await this.http.fetch(endpoint.toString(), {
+        return this.http.fetch(endpoint.toString(), {
             method: 'GET',
         });
     }
@@ -73,7 +73,7 @@ export class RegistryServiceApi implements IRegistryServiceApi {
 
         const url = new URL(`${this.baseUrl}/shell-descriptors/${b64_aasId}`);
 
-        return await this.http.fetch(url, {
+        return this.http.fetch(url, {
             method: 'PUT',
             headers,
             body: JSON.stringify(shellDescriptor),

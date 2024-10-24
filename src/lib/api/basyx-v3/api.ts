@@ -8,7 +8,7 @@ import { IAssetAdministrationShellRepositoryApi, ISubmodelRepositoryApi } from '
 import {
     AssetAdministrationShellRepositoryApiInMemory,
     INullableAasRepositoryEntries,
-    SubmodelRepositoryApiInMemory
+    SubmodelRepositoryApiInMemory,
 } from 'lib/api/basyx-v3/apiInMemory';
 import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
 
@@ -109,11 +109,11 @@ export class AssetAdministrationShellRepositoryApi implements IAssetAdministrati
      * @throws {RequiredError}
      * @memberof AssetAdministrationShellRepositoryApi
      */
-    getAssetAdministrationShellById(aasId: string, options?: any, basePath?: string) {
-        const assetAdministrationShellById = AssetAdministrationShellRepositoryApiFp(
-            this.configuration,
-        ).getAssetAdministrationShellById(aasId, options);
-        return assetAdministrationShellById(this.http, basePath ?? this.basePath);
+    async getAssetAdministrationShellById(aasId: string, options?: any, basePath?: string) {
+        return AssetAdministrationShellRepositoryApiFp(this.configuration).getAssetAdministrationShellById(
+            aasId,
+            options,
+        )(this.http, basePath ?? this.basePath);
     }
 
     /**
@@ -124,7 +124,7 @@ export class AssetAdministrationShellRepositoryApi implements IAssetAdministrati
      * @throws {RequiredError}
      * @memberof AssetAdministrationShellRepositoryApi
      */
-    getSubmodelReferencesFromShell(aasId: string, options?: any) {
+    async getSubmodelReferencesFromShell(aasId: string, options?: any) {
         return AssetAdministrationShellRepositoryApiFp(this.configuration).getSubmodelReferencesFromShell(
             aasId,
             options,
@@ -138,7 +138,7 @@ export class AssetAdministrationShellRepositoryApi implements IAssetAdministrati
      * @param {string} [basePath] The URL for the current repository endpoint.
      * @returns The thumbnail retrieved from the Asset Administration Shell.
      */
-    getThumbnailFromShell(aasId: string, options?: any, basePath?: string) {
+    async getThumbnailFromShell(aasId: string, options?: any, basePath?: string) {
         return AssetAdministrationShellRepositoryApiFp(this.configuration).getThumbnailFromAssetInformation(
             aasId,
             options,
@@ -166,7 +166,7 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
             const localVarFetchArgs = AssetAdministrationShellRepositoryApiFetchParamCreator(
                 configuration,
             ).getAssetAdministrationShellById(aasId, options);
-            return (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+            return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return requestHandler.fetch<AssetAdministrationShell>(
                     basePath + localVarFetchArgs.url,
                     localVarFetchArgs.options,
@@ -187,11 +187,8 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
             const localVarFetchArgs = AssetAdministrationShellRepositoryApiFetchParamCreator(
                 configuration,
             ).getSubmodelReferencesFromShell(aasId, options);
-            return (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                return requestHandler.fetch<Reference[]>(
-                    basePath + localVarFetchArgs.url,
-                    localVarFetchArgs.options,
-                );
+            return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return requestHandler.fetch<Reference[]>(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
             };
         },
 
@@ -208,11 +205,8 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
             const localVarFetchArgs = AssetAdministrationShellRepositoryApiFetchParamCreator(
                 configuration,
             ).getThumbnailFromAssetInformation(aasId, options);
-            return (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                return requestHandler.fetch<Blob>(
-                    basePath + localVarFetchArgs.url,
-                    localVarFetchArgs.options,
-                );
+            return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return requestHandler.fetch<Blob>(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
             };
         },
     };
@@ -355,7 +349,7 @@ export class SubmodelRepositoryApi implements ISubmodelRepositoryApi {
      * @throws {RequiredError}
      * @memberof SubmodelRepositoryApi
      */
-    getSubmodelById(submodelId: string, options?: any, basePath?: string): Promise<ApiResponseWrapper<Submodel>> {
+    async getSubmodelById(submodelId: string, options?: any, basePath?: string): Promise<ApiResponseWrapper<Submodel>> {
         return SubmodelRepositoryApiFp(this.configuration).getSubmodelById(submodelId, options)(
             this.fetch,
             basePath ?? this.basePath,
@@ -369,7 +363,7 @@ export class SubmodelRepositoryApi implements ISubmodelRepositoryApi {
      * @param {*} [options] Override http request option
      * @memberof SubmodelRepositoryApi
      */
-    getAttachmentFromSubmodelElement(
+    async getAttachmentFromSubmodelElement(
         submodelId: string,
         submodelElementPath: string,
         options?: any,
@@ -402,11 +396,8 @@ export const SubmodelRepositoryApiFp = function (configuration?: Configuration) 
                 encodeBase64(submodelId),
                 options,
             );
-            return (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                return requestHandler.fetch<Submodel>(
-                    basePath + localVarFetchArgs.url,
-                    localVarFetchArgs.options,
-                );
+            return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return requestHandler.fetch<Submodel>(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
             };
         },
         /**
@@ -423,11 +414,8 @@ export const SubmodelRepositoryApiFp = function (configuration?: Configuration) 
                 encodeBase64(submodelId),
                 options,
             );
-            return (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                return requestHandler.fetch<Submodel>(
-                    basePath + localVarFetchArgs.url,
-                    localVarFetchArgs.options,
-                );
+            return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return requestHandler.fetch<Submodel>(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
             };
         },
         /**
@@ -444,7 +432,7 @@ export const SubmodelRepositoryApiFp = function (configuration?: Configuration) 
             const localVarFetchArgs = SubmodelRepositoryApiFetchParamCreator(
                 configuration,
             ).getAttachmentFromSubmodelElement(submodelId, submodelElementPath, options);
-            return (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+            return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return requestHandler.fetch<Blob>(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
             };
         },
@@ -524,7 +512,7 @@ export const SubmodelRepositoryApiFetchParamCreator = function (configuration?: 
         },
         /**
          * @summary Retrieves the attachment from a submodel element
-         * @param submodelId The id of the submodel the submodel element is part of
+         * @param submodelId The id of the submodel element is part of
          * @param submodelElementPath The path to the submodel element
          * @param {*} [options] Override http request option
          */

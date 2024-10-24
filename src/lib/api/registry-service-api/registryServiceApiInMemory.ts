@@ -57,7 +57,7 @@ export class RegistryServiceApiInMemory implements IRegistryServiceApi {
         );
     }
 
-    putAssetAdministrationShellDescriptorById(
+    async putAssetAdministrationShellDescriptorById(
         _aasId: string,
         _shellDescriptor: AssetAdministrationShellDescriptor,
     ): Promise<ApiResponseWrapper<AssetAdministrationShellDescriptor>> {

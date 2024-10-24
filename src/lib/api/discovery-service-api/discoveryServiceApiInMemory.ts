@@ -8,11 +8,11 @@ export class DiscoveryServiceApiInMemory implements IDiscoveryServiceApi {
         this.discoveryEntries = options.discoveryEntries;
     }
 
-    linkAasIdAndAssetId(_aasId: string, _assetId: string): Promise<ApiResponseWrapper<DiscoveryEntry[]>> {
+    async linkAasIdAndAssetId(_aasId: string, _assetId: string): Promise<ApiResponseWrapper<DiscoveryEntry[]>> {
         throw new Error('Method not implemented.');
     }
 
-    getAasIdsByAssetId(assetId: string): Promise<ApiResponseWrapper<{ paging_metadata: string; result: string[] }>> {
+    async getAasIdsByAssetId(assetId: string): Promise<ApiResponseWrapper<{ paging_metadata: string; result: string[] }>> {
         for (const discoveryEntry of this.discoveryEntries) {
             if (discoveryEntry.assetId === assetId)
                 return Promise.resolve(ApiResponseWrapperUtil.fromSuccess({
@@ -23,19 +23,19 @@ export class DiscoveryServiceApiInMemory implements IDiscoveryServiceApi {
         return Promise.resolve(ApiResponseWrapperUtil.fromErrorCode(ApiResultStatus.NOT_FOUND, 'not found'));
     }
 
-    deleteAllAssetLinksById(_aasId: string): Promise<ApiResponseWrapper<void>> {
+    async deleteAllAssetLinksById(_aasId: string): Promise<ApiResponseWrapper<void>> {
         throw new Error('Method not implemented.');
     }
 
-    getAllAssetAdministrationShellIdsByAssetLink(_assetIds: { name: string; value: string }[]): Promise<ApiResponseWrapper<{ paging_metadata: string; result: string[] }>> {
+    async getAllAssetAdministrationShellIdsByAssetLink(_assetIds: { name: string; value: string }[]): Promise<ApiResponseWrapper<{ paging_metadata: string; result: string[] }>> {
         throw new Error('Method not implemented.');
     }
 
-    getAllAssetLinksById(_aasId: string): Promise<ApiResponseWrapper<DiscoveryEntry[]>> {
+    async getAllAssetLinksById(_aasId: string): Promise<ApiResponseWrapper<DiscoveryEntry[]>> {
         throw new Error('Method not implemented.');
     }
 
-    postAllAssetLinksById(_aasId: string, _assetLinks: DiscoveryEntry[]): Promise<ApiResponseWrapper<DiscoveryEntry[]>> {
+    async postAllAssetLinksById(_aasId: string, _assetLinks: DiscoveryEntry[]): Promise<ApiResponseWrapper<DiscoveryEntry[]>> {
         throw new Error('Method not implemented.');
     }
 }

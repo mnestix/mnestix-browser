@@ -73,18 +73,15 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
         const aasList: AssetAdministrationShell[] = [];
         let compareDataTemp: SubmodelCompareData[] = [];
         for (const aasId of input as string[]) {
-            let searchResult: AasSearchResult | null = null;
-            const response = await performFullAasSearch(aasId);
-            if (response.isSuccess) searchResult = response.result;
-            const shell: AssetAdministrationShell | null = searchResult?.aas ?? null;
-            if (shell) {
-                aasList.push(shell!);
-                if (shell!.submodels) {
+            const {isSuccess, result } = await performFullAasSearch(aasId);
+            if (isSuccess && result.aas) {
+                aasList.push(result.aas);
+                if (result.aas.submodels) {
                     compareDataTemp = await loadSubmodelDataIntoState(
                         compareDataTemp,
-                        shell.submodels,
+                        result.aas.submodels,
                         aasList.length - 1,
-                        searchResult?.aasData?.submodelDescriptors,
+                        result?.aasData?.submodelDescriptors,
                     );
                 }
             }
@@ -149,23 +146,18 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
         } else {
             for (const reference of input as Reference[]) {
                 let submodelAdded = false;
-                const response: ApiResponseWrapper<SubmodelDescriptor> = await getSubmodelDescriptorsById(
-                    reference.keys[0].value,
-                );
-                if (response && response.isSuccess) {
-                    const submodelDescriptor = response.result;
-                    const submodelResponse: ApiResponseWrapper<Submodel> | null =
-                        await getSubmodelFromSubmodelDescriptor(
-                            submodelDescriptor.endpoints[0].protocolInformation.href,
-                        );
-                    if (submodelResponse && submodelResponse.isSuccess) {
+                const descriptorResponse = await getSubmodelDescriptorsById(reference.keys[0].value);
+                if (descriptorResponse.isSuccess) {
+                    const endpoint = descriptorResponse.result.endpoints[0].protocolInformation.href;
+                    const submodelResponse = await getSubmodelFromSubmodelDescriptor(endpoint);
+                    if (submodelResponse.isSuccess) {
                         const dataRecord = generateSubmodelCompareData(submodelResponse.result);
                         newCompareData.push(dataRecord);
                         submodelAdded = true;
                     }
                 } else {
                     console.warn(
-                        `Could not be found in Submodel Registry, will continue to look in the repository. ${response?.message}`,
+                        `Could not be found in Submodel Registry, will continue to look in the repository. ${descriptorResponse.message}`,
                     );
                 }
 

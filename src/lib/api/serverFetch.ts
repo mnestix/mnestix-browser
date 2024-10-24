@@ -9,10 +9,10 @@ export async function performServerFetchLegacy(
     input: string | Request | URL,
     init?: RequestInit | undefined,
 ): Promise<string> {
-    const result = await fetch(input, init);
-    if (result.status >= 200 && result.status < 300) {
-        return Promise.resolve(await result.text());
-    } else throw result;
+    const response = await fetch(input, init);
+    if (response.status >= 200 && response.status < 300) {
+        return Promise.resolve(await response.text());
+    } else throw response;
 }
 
 export async function performServerFetch<T>(

@@ -59,14 +59,14 @@ export class RepositorySearchService {
     }
 
     async getAasFromDefaultRepository(aasId: string): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
-        const result = await this.repositoryClient.getAssetAdministrationShellById(aasId);
-        if (result.isSuccess) return result;
+        const response = await this.repositoryClient.getAssetAdministrationShellById(aasId);
+        if (response.isSuccess) return response;
         return ApiResponseWrapperUtil.fromErrorCode(ApiResultStatus.NOT_FOUND, 'AAS not found');
     }
 
     async getAasFromRepo(aasId: string, repoUrl: string): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
-        const result = await this.repositoryClient.getAssetAdministrationShellById(aasId, undefined, repoUrl);
-        if (result.isSuccess) return result;
+        const response = await this.repositoryClient.getAssetAdministrationShellById(aasId, undefined, repoUrl);
+        if (response.isSuccess) return response;
         return ApiResponseWrapperUtil.fromErrorCode(
             ApiResultStatus.NOT_FOUND,
             `AAS '${aasId}' not found in repository '${repoUrl}'`,
@@ -86,14 +86,14 @@ export class RepositorySearchService {
                 }), // add the URL to the resolved value
         );
 
-        const results = await Promise.allSettled(promises);
-        const fulfilledResults = results.filter(
+        const responses = await Promise.allSettled(promises);
+        const fulfilledResponses = responses.filter(
             (result) => result.status === 'fulfilled' && result.value.wrapper.isSuccess,
         );
 
-        if (fulfilledResults.length > 0) {
+        if (fulfilledResponses.length > 0) {
             return ApiResponseWrapperUtil.fromSuccess<RepoSearchResult[]>(
-                fulfilledResults.map(
+                fulfilledResponses.map(
                     (
                         result: PromiseFulfilledResult<{
                             wrapper: ApiResponseWrapper<AssetAdministrationShell>;
@@ -138,9 +138,7 @@ export class RepositorySearchService {
         });
         const promises = basePathUrls.map(async (url) => {
             const response = await this.submodelRepositoryClient.getSubmodelById(submodelId, undefined, url);
-            if (response.isSuccess) {
-                return response;
-            }
+            if (response.isSuccess) return response;
             return Promise.reject();
         });
 

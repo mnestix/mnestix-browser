@@ -30,7 +30,7 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
         return new DiscoveryServiceApiInMemory(options);
     }
 
-    linkAasIdAndAssetId(aasId: string, assetId: string) {
+    async linkAasIdAndAssetId(aasId: string, assetId: string) {
         return this.postAllAssetLinksById(aasId, [
             {
                 name: 'globalAssetId',
@@ -39,7 +39,7 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
         ]);
     }
 
-    getAasIdsByAssetId(assetId: string) {
+    async getAasIdsByAssetId(assetId: string) {
         return this.getAllAssetAdministrationShellIdsByAssetLink([
             {
                 name: 'globalAssetId',
@@ -48,7 +48,7 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
         ]);
     }
 
-    deleteAllAssetLinksById(aasId: string): Promise<ApiResponseWrapper<void>> {
+    async deleteAllAssetLinksById(aasId: string): Promise<ApiResponseWrapper<void>> {
         const b64_aasId = encodeBase64(aasId);
 
         const headers = {
@@ -62,7 +62,7 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
         });
     }
 
-    getAllAssetAdministrationShellIdsByAssetLink(
+    async getAllAssetAdministrationShellIdsByAssetLink(
         assetIds: { name: string; value: string }[],
     ): Promise<ApiResponseWrapper<{ paging_metadata: string; result: string[] }>> {
         const headers = {
@@ -82,7 +82,7 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
         });
     }
 
-    getAllAssetLinksById(aasId: string): Promise<ApiResponseWrapper<DiscoveryEntry[]>> {
+    async getAllAssetLinksById(aasId: string): Promise<ApiResponseWrapper<DiscoveryEntry[]>> {
         const b64_aasId = encodeBase64(aasId);
 
         const headers = {
@@ -96,7 +96,7 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
         });
     }
 
-    postAllAssetLinksById(aasId: string, assetLinks: DiscoveryEntry[]) : Promise<ApiResponseWrapper<DiscoveryEntry[]>> {
+    async postAllAssetLinksById(aasId: string, assetLinks: DiscoveryEntry[]) : Promise<ApiResponseWrapper<DiscoveryEntry[]>> {
         const b64_aasId = encodeBase64(aasId);
 
         const headers = {

@@ -199,8 +199,8 @@ export class AasSearcher {
     }
 
     private async getAasFromAllRepositories(aasId: string): Promise<ApiResponseWrapper<RepoSearchResult[]>> {
-        const result = await this.multipleDataSource.getAasFromAllRepos(aasId);
-        if (result.isSuccess) return result;
+        const response = await this.multipleDataSource.getAasFromAllRepos(aasId);
+        if (response.isSuccess) return response;
         const message = `Could not find the AAS '${aasId}' in any configured repository`;
         this.log.warn(message);
         return ApiResponseWrapperUtil.fromErrorCode(ApiResultStatus.NOT_FOUND, message);

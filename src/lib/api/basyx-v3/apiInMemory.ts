@@ -47,11 +47,11 @@ export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdmi
             ' encoded in base64'));
     }
 
-    getSubmodelReferencesFromShell(_aasId: string, _options?: object | undefined): Promise<ApiResponseWrapper<Reference[]>> {
+    async getSubmodelReferencesFromShell(_aasId: string, _options?: object | undefined): Promise<ApiResponseWrapper<Reference[]>> {
         throw new Error('Method not implemented.');
     }
 
-    getThumbnailFromShell(
+    async getThumbnailFromShell(
         _aasId: string,
         _options?: object | undefined,
         _basePath?: string | undefined,
@@ -87,7 +87,7 @@ export class SubmodelRepositoryApiInMemory implements ISubmodelRepositoryApi {
         );
     }
 
-    getAttachmentFromSubmodelElement(
+    async getAttachmentFromSubmodelElement(
         _submodelId: string,
         _submodelElementPath: string,
         _options?: object | undefined,
