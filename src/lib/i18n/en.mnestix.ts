@@ -214,6 +214,10 @@ export const enMnestix = {
         chooseSubmodelRepository: 'Choose Submodel Repository (optional)',
         submodelRepositoryLabel: 'List of Submodel Repositories',
         useAasRepository: 'Use AAS Repository',
+        successfullToast: 'Transfer of AAS successful',
+        errorToast: 'Transfer of AAS not successful',
+        partiallyFailedToast: 'Failed to transfer single element',
+        warningToast: 'AAS was only partially transferred.'
     },
     aasList: {
         header: 'AAS List',

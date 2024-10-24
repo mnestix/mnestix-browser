@@ -12,7 +12,7 @@ import {
     TargetRepositoryFormData,
     TargetRepositories
 } from 'app/[locale]/viewer/_components/transfer/TargetRepositories';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { messages } from 'lib/i18n/localization';
 import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/types';
 import { useEffect, useState } from 'react';
@@ -36,6 +36,7 @@ export function TransferDialog(props: DialogProps) {
     const notificationSpawner = useNotificationSpawner();
     const [ isSubmitting, setIsSubmitting ] = useState(false);
     const theme = useTheme();
+    const intl = useIntl();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
     useEffect(() => {
@@ -92,14 +93,14 @@ export function TransferDialog(props: DialogProps) {
     const processResult = (result: TransferResult[]) => {
         if(result.every(result => result.success)) {
             notificationSpawner.spawn({
-                message: 'Transfer of AAS successful',
+                message: intl.formatMessage(messages.mnestix.transfer.successfullToast),
                 severity: 'success',
             });
             return;
         }
         if(result.every(result => !result.success)) {
             notificationSpawner.spawn({
-                message: 'Transfer of AAS not successful',
+                message: intl.formatMessage(messages.mnestix.transfer.errorToast),
                 severity: 'error',
             });
             return;
@@ -107,12 +108,12 @@ export function TransferDialog(props: DialogProps) {
             result.map(result => {
                 if(!result.success) {
                     notificationSpawner.spawn({
-                        message: `Failed to transfer single element: ${result.error}`,
+                        message: `${intl.formatMessage(messages.mnestix.transfer.partiallyFailedToast)}: ${result.error}`,
                         severity: 'error',
                     });
                 }
                 notificationSpawner.spawn({
-                    message: 'AAS was only partially transferred.',
+                    message: intl.formatMessage(messages.mnestix.transfer.warningToast),
                     severity: 'warning',
                 });
             })
