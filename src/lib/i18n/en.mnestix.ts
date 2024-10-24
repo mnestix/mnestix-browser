@@ -202,8 +202,8 @@ export const enMnestix = {
         hide: 'Hide',
     },
     transfer: {
-        title: 'Export',
-        subtitle: 'To export this AAS to another repository, fill out the following steps.',
+        title: 'Import',
+        subtitle: 'To import this AAS to another repository, fill out the following steps.',
         aasRepository: 'AAS Repository',
         submodelRepository: 'Submodel Repository',
         chooseRepository: 'Choose AAS Repository',
