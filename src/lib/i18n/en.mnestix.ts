@@ -209,6 +209,8 @@ export const enMnestix = {
         chooseRepository: 'Choose AAS Repository',
         repositoryRequired: 'AAS Repository is required',
         repositoryLabel: 'List of AAS Repositories',
+        repositoryApiKey: 'AAS Repository ApiKey',
+        submodelRepositoryApiKey: 'Submodel Repository ApiKey',
         chooseSubmodelRepository: 'Choose Submodel Repository (optional)',
         submodelRepositoryLabel: 'List of Submodel Repositories',
         useAasRepository: 'Use AAS Repository',

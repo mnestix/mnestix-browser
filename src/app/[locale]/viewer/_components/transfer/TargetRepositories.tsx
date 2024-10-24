@@ -1,6 +1,5 @@
 import {
     Box,
-    Button,
     DialogActions,
     Divider,
     FormControl,
@@ -24,6 +23,7 @@ import { LoadingButton } from '@mui/lab';
 export type TargetRepositoryFormData = {
     repository?: string;
     submodelRepository?: string;
+    repositoryApiKey?: string;
 }
 
 type TargetRepositoryProps = {
@@ -74,9 +74,10 @@ export function TargetRepositories(props: TargetRepositoryProps) {
                 }) :
                 <form>
                     <Box display="flex" flexDirection="column">
-                        <Box display="flex" flexDirection="row" alignItems="center">
+                        <Box display="flex" flexDirection="row" alignItems="flex-start">
                             <Typography variant="h4"
                                         sx={{ minWidth: '250px', mr: 2 }}><FormattedMessage {...messages.mnestix.transfer.chooseRepository} /></Typography>
+                            <Box display="flex" flexDirection="column" width="100%">
                             <FormControl fullWidth>
                                 <Controller
                                     name="repository"
@@ -95,8 +96,19 @@ export function TargetRepositories(props: TargetRepositoryProps) {
                                         </TextField>)}
                                 />
                             </FormControl>
+                            <FormControl fullWidth sx={{ mt: 2 }}>
+                                <Controller
+                                    name="repositoryApiKey"
+                                    control={control}
+                                    defaultValue=""
+                                    render={({ field }) => (
+                                        <TextField label={intl.formatMessage(messages.mnestix.transfer.repositoryApiKey)}
+                                                   {...field}/>)}
+                                />
+                            </FormControl>
+                            </Box>
                         </Box>
-                        <Box display="flex" flexDirection="row" mt={2} alignItems="center">
+                        <Box display="flex" flexDirection="row" mt={5} alignItems="flex-start">
                             <Typography variant="h4"
                                         sx={{ minWidth: '250px', mr: 2 }}><FormattedMessage {...messages.mnestix.transfer.chooseSubmodelRepository} /></Typography>
                             <FormControl fullWidth>
@@ -105,7 +117,7 @@ export function TargetRepositories(props: TargetRepositoryProps) {
                                     control={control}
                                     defaultValue="0"
                                     render={({ field }) => (
-                                        <TextField fullWidth 
+                                        <TextField fullWidth
                                                    select
                                                    label={intl.formatMessage(messages.mnestix.transfer.submodelRepositoryLabel)}
                                                    {...field}>

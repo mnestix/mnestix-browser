@@ -212,6 +212,8 @@ export const deMnestix = {
         chooseRepository: 'AAS Repository auswählen',
         repositoryLabel: 'Liste der AAS Repositories',
         repositoryRequired: 'AAS Repository wird benötigt',
+        repositoryApiKey: 'AAS Repository ApiKey',
+        submodelRepositoryApiKey: 'Submodel Repository ApiKey',
         chooseSubmodelRepository: 'Submodel Repository auswählen (optional)',
         submodelRepositoryLabel: 'Liste der Submodel Repositories',
         useAasRepository: 'AAS Repository verwenden',

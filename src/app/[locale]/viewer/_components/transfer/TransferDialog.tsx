@@ -26,6 +26,7 @@ export type TransferFormModel = {
     targetSubmodelRepositoryBaseUrl?: string;
     aas?: AssetAdministrationShell | null;
     submodels?: SubmodelOrIdReference[];
+    apiKey?: string;
 };
 
 export function TransferDialog(props: DialogProps) {
@@ -52,7 +53,8 @@ export function TransferDialog(props: DialogProps) {
         const transferDtoTemp = {
             ...transferDto,
             targetAasRepositoryBaseUrl: values.repository,
-            targetSubmodelRepositoryBaseUrl: values.submodelRepository
+            targetSubmodelRepositoryBaseUrl: values.submodelRepository,
+            apiKey: values.repositoryApiKey
         }
         setTransferDto(transferDtoTemp)
 
@@ -60,14 +62,15 @@ export function TransferDialog(props: DialogProps) {
             submodels: submodelsFromContext.filter((sub) => sub.submodel).map((sub) => sub.submodel!),
             aas: aasFromContext,
             targetAasRepositoryBaseUrl: values.repository,
-            targetSubmodelRepositoryBaseUrl: values.submodelRepository && values.submodelRepository !== '0' ? values.submodelRepository : ''
+            targetSubmodelRepositoryBaseUrl: values.submodelRepository && values.submodelRepository !== '0' ? values.submodelRepository : values.repository,
+            apikey: values.repositoryApiKey
         }
 
         try {
             setIsSubmitting(true)
             const response = await transferAasWithSubmodels(dtoToSubmit);
             processResult(response)
-            
+
         } catch (error) {
             notificationSpawner.spawn({
                 message: 'Transfer of AAS not successful',
@@ -94,7 +97,7 @@ export function TransferDialog(props: DialogProps) {
             });
             return;
         }
-        if(result.every(result => result.success)) {
+        if(result.every(result => !result.success)) {
             notificationSpawner.spawn({
                 message: 'Transfer of AAS not successful',
                 severity: 'error',
@@ -118,7 +121,7 @@ export function TransferDialog(props: DialogProps) {
 
     return (
         <>
-            <Dialog open={props.open} onClose={props.onClose} maxWidth="md" fullWidth fullScreen={fullScreen}>
+            <Dialog open={props.open} onClose={props.onClose} maxWidth="md" fullWidth fullScreen={fullScreen} closeAfterTransition={false}>
                 <Box sx={{ m: 4 }}>
                     <Typography variant="h2"
                                 color="primary"><FormattedMessage {...messages.mnestix.transfer.title}/></Typography>
