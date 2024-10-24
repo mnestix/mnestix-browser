@@ -112,14 +112,15 @@ export class TransferService {
             promises.push(this.registerAasAtRegistry(shellDescriptor));
         }
 
-        submodels.forEach((submodel) => {
+        for (const submodel of submodels) {
             promises.push(this.postSubmodelToRepository(submodel, apikey));
 
             if (submodel.submodelElements) {
                 const attachmentDetails = this.getSubmodelAttachmentsDetails(submodel.submodelElements);
-                promises.push(this.processAttachments(submodel.id, attachmentDetails, apikey));
+                const result = await this.processAttachments(submodel.id, attachmentDetails, apikey);
+                promises.push(...result);
             }
-        });
+        }
 
         if (this.targetSubmodelRegistryClient) {
             submodelDescriptors.forEach((descriptor) => {
@@ -233,18 +234,20 @@ export class TransferService {
                     attachmentDetail.idShortPath,
                 );
                 this.processFileExtension(attachmentDetail);
-                promises.push(await this.putAttachmentToSubmodelElement(submodelId, attachmentDetail, apikey));
+                promises.push(this.putAttachmentToSubmodelElement(submodelId, attachmentDetail, apikey));
             } catch (e) {
-                promises.push({
-                    success: false,
-                    operationKind: 'SubmodelRepository',
-                    resourceId: [
-                        'File transfer: ',
-                        attachmentDetail.idShortPath,
-                        ', not found in source repository',
-                    ].join(''),
-                    error: e.toString(),
-                });
+                promises.push(
+                    Promise.resolve({
+                        success: false,
+                        operationKind: 'SubmodelRepository',
+                        resourceId: [
+                            'File transfer: ',
+                            attachmentDetail.idShortPath,
+                            ', not found in source repository',
+                        ].join(''),
+                        error: e.toString(),
+                    } as TransferResult),
+                );
             }
         }
         return promises;
