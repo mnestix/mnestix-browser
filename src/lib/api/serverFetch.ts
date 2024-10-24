@@ -1,6 +1,6 @@
 'use server';
 
-import { ApiResponseWrapper, ApiResponseWrapperUtil, ApiResultStatus } from 'lib/services/apiResponseWrapper';
+import { ApiResponseWrapper, ApiResultStatus, WrapErrorCode, WrapResponse } from 'lib/services/apiResponseWrapper';
 
 /**
  * @deprecated use performServerFetch() instead
@@ -21,10 +21,10 @@ export async function performServerFetch<T>(
 ): Promise<ApiResponseWrapper<T>> {
     try {
         const response = await fetch(input, init);
-        return ApiResponseWrapperUtil.fromResponse<T>(response);
+        return WrapResponse<T>(response);
     } catch (e) {
         const message = 'this could be a network error';
         console.warn(message);
-        return ApiResponseWrapperUtil.fromErrorCode(ApiResultStatus.UNKNOWN_ERROR, message);
+        return WrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, message);
     }
 }
