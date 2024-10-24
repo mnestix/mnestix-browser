@@ -47,11 +47,6 @@ export class ConfigurationShellApi implements ConfigurationShellApiInterface {
             response.headers.forEach((v, k) => (_headers[k] = v));
         }
         if (status === 200) {
-            //Here, we return the json so the next.js server can transport the object to the client
-            //We should cast it to a Submodel AAS Core3 Type through jsonization.submodelFromJsonable(jsonableSubmodel);
-            //However, then the returned object becomes to complex for next.js server-client communication.
-            //Weirdly, the typescript compiler still recognizes the returned object as an AAS Core Submodel,
-            //so we seem to have no disadvantage from not casting.
             return response.json();
         } else if (status === 400) {
             const _responseText1 = await response.text();

@@ -221,8 +221,6 @@ function createDummyShellDescriptor(href: URL, id: string): AssetAdministrationS
     };
 }
 
-// Todo: Are you good at typescript? There must be a better way to it!
-//     await expect(async() => searcher.fullSearch(searchString)).rejects.toThrow(); does not work for some reason...
 async function assertThatFunctionThrows(
     searcher: AasSearcher,
     searchString: string,
