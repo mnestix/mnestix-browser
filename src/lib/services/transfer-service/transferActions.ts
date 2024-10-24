@@ -1,26 +1,7 @@
 'use server';
 
 import { TransferService } from 'lib/services/transfer-service/TransferService';
-import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
-import { Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
-
-export type TransferDto = {
-    targetAasRepositoryBaseUrl: string;
-    targetDiscoveryBaseUrl?: string;
-    targetAasRegistryBaseUrl?: string;
-    targetSubmodelRepositoryBaseUrl: string;
-    targetSubmodelRegistryBaseUrl?: string;
-    apikey?: string;
-    aas: AssetAdministrationShell;
-    submodels: Submodel[];
-};
-
-export type TransferResult = {
-    operationKind: 'AasRepository' | 'Discovery' | 'AasRegistry' | 'SubmodelRepository' | 'SubmodelRegistry';
-    success: boolean;
-    resourceId: string;
-    error: string;
-};
+import { TransferDto, TransferResult } from 'lib/types/TransferServiceData';
 
 export async function transferAasWithSubmodels(transferDto: TransferDto): Promise<TransferResult[]> {
     const transfer = TransferService.create(

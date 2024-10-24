@@ -1,6 +1,7 @@
 import { IAssetAdministrationShellRepositoryApi, ISubmodelRepositoryApi } from 'lib/api/basyx-v3/apiInterface';
 import { AssetAdministrationShell, Reference, Submodel } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
 import { decodeBase64, encodeBase64 } from 'lib/util/Base64Util';
+import { AttachmentDetails } from 'lib/types/TransferServiceData';
 
 export interface INullableAasRepositoryEntries {
     repositoryUrl: string;
@@ -64,6 +65,16 @@ export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdmi
     ): Promise<Blob> {
         throw new Error('Method not implemented.');
     }
+
+    putThumbnailToShell(
+        _aasId: string,
+        _image: Blob,
+        _fileName: string,
+        _options?: object | undefined,
+        _basePath?: string | undefined,
+    ): Promise<Response> {
+        throw new Error('Method not implemented.');
+    }
 }
 
 export class SubmodelRepositoryApiInMemory implements ISubmodelRepositoryApi {
@@ -71,6 +82,14 @@ export class SubmodelRepositoryApiInMemory implements ISubmodelRepositoryApi {
 
     constructor(options: { submodelsSavedInTheRepository: Submodel[] | null }) {
         this.submodelsSavedInTheRepository = options.submodelsSavedInTheRepository;
+    }
+
+    putAttachmentToSubmodelElement(
+        _submodelId: string,
+        _attachmentData: AttachmentDetails,
+        _options?: object | undefined,
+    ): Promise<Response> {
+        throw new Error('Method not implemented.');
     }
 
     postSubmodel(_submodel: Submodel, _options?: object | undefined): Promise<Submodel> {

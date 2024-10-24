@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, Button, Skeleton, Typography } from '@mui/material';
 import {
     SubmodelOrIdReference,
     useAasState,
     useRegistryAasState,
-    useSubmodelState
+    useSubmodelState,
 } from 'components/contexts/CurrentAasContext';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -14,11 +14,7 @@ import { messages } from 'lib/i18n/localization';
 import { decodeBase64, safeBase64Decode } from 'lib/util/Base64Util';
 import { ArrowForward } from '@mui/icons-material';
 import { showError } from 'lib/util/ErrorHandlerUtil';
-import {
-    AssetAdministrationShell,
-    LangStringNameType,
-    Reference,
-} from '@aas-core-works/aas-core3.0-typescript/types';
+import { AssetAdministrationShell, LangStringNameType, Reference } from '@aas-core-works/aas-core3.0-typescript/types';
 import { useIsMobile } from 'lib/hooks/UseBreakpoints';
 import { getTranslationText } from 'lib/util/SubmodelResolverUtil';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
@@ -57,6 +53,12 @@ export default function Page() {
     useAsyncEffect(async () => {
         await fetchSubmodels();
     }, [aas]);
+
+    useEffect(() => {
+        return () => {
+            setSubmodels(new Array<SubmodelOrIdReference>());
+        };
+    }, []);
 
     async function fetchAas() {
         setIsLoadingAas(true);
@@ -194,11 +196,16 @@ export default function Page() {
                             )}
                         </Typography>
                         {env.COMPARISON_FEATURE_FLAG && !isMobile && (
-                            <Button sx={{ mr: 2 }} variant="contained" onClick={startComparison} data-testid="detail-compare-button">
+                            <Button
+                                sx={{ mr: 2 }}
+                                variant="contained"
+                                onClick={startComparison}
+                                data-testid="detail-compare-button"
+                            >
                                 <FormattedMessage {...messages.mnestix.compareButton} />
                             </Button>
                         )}
-                        <TransferButton/>
+                        <TransferButton />
                     </Box>
                     <AASOverviewCard
                         aas={aas}
