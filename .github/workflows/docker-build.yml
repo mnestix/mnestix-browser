@@ -52,7 +52,7 @@ jobs:
 
       - name: unit tests
         id: test_unit
-        run: npx jest
+        run: yarn install && npx jest
 
       - name: E2E test
         id: test
