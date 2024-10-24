@@ -2,10 +2,10 @@ name: Docker
 
 on:
   push:
-    branches: ['**']
-    tags: ['v*.*.*']
+    branches: [ '**' ]
+    tags: [ 'v*.*.*' ]
   pull_request:
-    branches: ['**']
+    branches: [ '**' ]
 
 env:
   # github.repository as <account>/<repo>
@@ -49,6 +49,10 @@ jobs:
       - name: Build image
         id: build
         run: docker compose build mnestix-browser
+
+      - name: unit tests
+        id: test_unit
+        run: npx jest
 
       - name: E2E test
         id: test
