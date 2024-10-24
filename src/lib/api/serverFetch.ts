@@ -20,8 +20,8 @@ export async function performServerFetch<T>(
     init?: RequestInit | undefined,
 ): Promise<ApiResponseWrapper<T>> {
     try {
-        const result = await fetch(input, init);
-        return ApiResponseWrapperUtil.fromResponse<T>(result);
+        const response = await fetch(input, init);
+        return ApiResponseWrapperUtil.fromResponse<T>(response);
     } catch (e) {
         const message = 'this could be a network error';
         console.warn(message);

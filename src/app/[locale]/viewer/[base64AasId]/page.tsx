@@ -44,18 +44,18 @@ export default function Page() {
 
     async function loadAasContent() {
         if (repoUrl) {
-            const response  = await getAasFromRepository(aasIdDecoded, repoUrl);
+            const response = await getAasFromRepository(aasIdDecoded, repoUrl);
             setAas(response.result ?? undefined);
             return;
         }
 
-        const result = await performFullAasSearch(aasIdDecoded);
-        if (!result.isSuccess) {
+        const response = await performFullAasSearch(aasIdDecoded);
+        if (!response.isSuccess) {
             showError(new LocalizedError(messages.mnestix.aasUrlNotFound), notificationSpawner);
-        } else if (result.result.aas) {
-            setAas(result.result.aas);
+        } else if (response.result.aas) {
+            setAas(response.result.aas);
         } else {
-            navigate.push(result.result.redirectUrl);
+            navigate.push(response.result.redirectUrl);
         }
     }
 

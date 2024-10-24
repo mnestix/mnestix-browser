@@ -77,9 +77,9 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
                 undefined,
                 registryAasData.aasRegistryRepositoryOrigin,
             );
-            const result = await registryRepository.getThumbnailFromShell(props.aas.id);
-            if (result.isSuccess) {
-                image = result.result;
+            const response = await registryRepository.getThumbnailFromShell(props.aas.id);
+            if (response.isSuccess) {
+                image = response.result;
                 setProductImageUrl(URL.createObjectURL(image));
             }
         } else {

@@ -36,12 +36,12 @@ export const RedirectToViewer = () => {
     }, []);
 
     async function navigateToViewerOfAsset(assetId: string | undefined): Promise<void> {
-        const { isSuccess, result } = await getAasIdsOfAsset(assetId);
+        const { isSuccess, result: aasIds } = await getAasIdsOfAsset(assetId);
 
         if (!isSuccess) throw new LocalizedError(messages.mnestix.aasUrlNotFound);
 
-        assertAnAasIdExists(result);
-        const targetUrl = determineViewerTargetUrl(result);
+        assertAtLeastOneAasIdExists(aasIds);
+        const targetUrl = determineViewerTargetUrl(aasIds);
         setAas(null);
         navigate.replace(targetUrl);
     }
@@ -55,7 +55,7 @@ export const RedirectToViewer = () => {
         return ApiResponseWrapperUtil.fromSuccess([]);
     }
 
-    function assertAnAasIdExists(aasIds: string[]) {
+    function assertAtLeastOneAasIdExists(aasIds: string[]) {
         if (aasIds.length === 0) {
             throw new NotFoundError();
         }

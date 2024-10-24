@@ -43,13 +43,13 @@ export function RelationShipDetailsDialog(props: RelationShipDetailsModalProps) 
                     const id = reference.keys[0].value;
                     try {
                         if (env.SUBMODEL_REGISTRY_API_URL) {
-                            const submodelDescriptors = await getSubmodelDescriptorsById(reference.keys[0].value);
-                            if (submodelDescriptors.isSuccess) {
-                                if (submodelDescriptors.result.id) {
-                                    const submodelResult = await getSubmodelById(submodelDescriptors.result.id);
+                            const response = await getSubmodelDescriptorsById(reference.keys[0].value);
+                            if (response.isSuccess) {
+                                if (response.result.id) {
+                                    const submodelResult = await getSubmodelById(response.result.id);
                                     if (submodelResult.isSuccess) submodels.push(submodelResult.result);
                                 }
-                            }
+                            } else throw new Error(response.message);
                         }
                     } catch (e) {
                         // Submodel registry is not available or submodel not found there -> search in repo

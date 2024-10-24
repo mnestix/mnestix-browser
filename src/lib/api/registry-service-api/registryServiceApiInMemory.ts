@@ -1,7 +1,7 @@
 import { IRegistryServiceApi } from 'lib/api/registry-service-api/registryServiceApiInterface';
 import { AssetAdministrationShellDescriptor } from 'lib/types/registryServiceTypes';
 import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
-import { ApiResponseWrapper, ApiResponseWrapperUtil } from 'lib/services/apiResponseWrapper';
+import { ApiResponseWrapper, ApiResponseWrapperUtil, ApiResultStatus } from 'lib/services/apiResponseWrapper';
 
 export interface INullableAasRegistryEndpointEntries {
     endpoint: URL | string;
@@ -35,10 +35,7 @@ export class RegistryServiceApiInMemory implements IRegistryServiceApi {
             }
         }
         return Promise.resolve(
-            ApiResponseWrapperUtil.fromHttpError(
-                404,
-                'no shell descriptor for aasId:' + aasId,
-            ),
+            ApiResponseWrapperUtil.fromErrorCode(ApiResultStatus.NOT_FOUND, 'no shell descriptor for aasId:' + aasId),
         );
     }
 
@@ -48,14 +45,15 @@ export class RegistryServiceApiInMemory implements IRegistryServiceApi {
         if (!this.shellsAvailableOnEndpoints) return Promise.reject(new Error('no registry configuration'));
         let registryEndpoint: INullableAasRegistryEndpointEntries;
         for (registryEndpoint of this.shellsAvailableOnEndpoints) {
-            if (registryEndpoint.endpoint.toString() === endpoint.toString())
-            {
-                const value = await ApiResponseWrapperUtil.fromResponse<AssetAdministrationShell>(new Response(JSON.stringify(registryEndpoint.aas)));
+            if (registryEndpoint.endpoint.toString() === endpoint.toString()) {
+                const value = await ApiResponseWrapperUtil.fromResponse<AssetAdministrationShell>(
+                    new Response(JSON.stringify(registryEndpoint.aas)),
+                );
                 return Promise.resolve(value);
             }
         }
         return Promise.resolve(
-            ApiResponseWrapperUtil.fromHttpError(404, 'no shell for url:' + endpoint),
+            ApiResponseWrapperUtil.fromErrorCode(ApiResultStatus.NOT_FOUND, 'no shell for url:' + endpoint),
         );
     }
 
