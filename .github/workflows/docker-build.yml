@@ -2,10 +2,10 @@ name: Docker
 
 on:
   push:
-    branches: ['**']
-    tags: ['v*.*.*']
+    branches: [ '**' ]
+    tags: [ 'v*.*.*' ]
   pull_request:
-    branches: ['**']
+    branches: [ '**' ]
 
 env:
   # github.repository as <account>/<repo>
@@ -45,7 +45,10 @@ jobs:
           username: ${{ env.REGISTRY_USER }}
           password: ${{ env.REGISTRY_PASS }}
 
-      # Build Docker image
+      - name: Test units
+        id: test_units
+        run: yarn install && npx jest
+
       - name: Build image
         id: build
         run: docker compose build mnestix-browser
