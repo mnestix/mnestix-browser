@@ -233,7 +233,10 @@ export class TransferService {
                     submodelId,
                     attachmentDetail.idShortPath,
                 );
-                this.processFileExtension(attachmentDetail);
+                attachmentDetail.fileName = [
+                    attachmentDetail.fileName,
+                    this.getExtensionFromFileType(attachmentDetail.file.type),
+                ].join('.');
                 promises.push(this.putAttachmentToSubmodelElement(submodelId, attachmentDetail, apikey));
             } catch (e) {
                 promises.push(
@@ -395,9 +398,8 @@ export class TransferService {
         }
     }
 
-    private processFileExtension(attachment: AttachmentDetails) {
-        if (!attachment.file || attachment.file.type === 'application/octet-stream') return;
-        const fileExtension = attachment.file.type.split('/')[1];
-        attachment.fileName = [attachment.fileName, fileExtension].join('.');
+    private getExtensionFromFileType(fileType: string) {
+        if (fileType === 'application/octet-stream') return '';
+        return fileType.split('/')[1];
     }
 }
