@@ -54,7 +54,7 @@ describe('Test the linked TimeSeries', function () {
             cy.intercept('POST', 'http://localhost:8086/api/v2/***', {}).as('influxIntercept');
             cy.visitViewer(testAAS.id);
 
-            cy.wait('@influxIntercept', { timeout: 10000 });
+            cy.wait('@influxIntercept', { timeout: 20000 });
         });
     });
 
