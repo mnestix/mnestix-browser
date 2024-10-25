@@ -21,7 +21,7 @@ import {
 import { isValidUrl } from 'lib/util/UrlUtil';
 import { AttachmentDetails, TransferDto, TransferResult } from 'lib/types/TransferServiceData';
 import { getKeyType } from 'lib/util/KeyTypeUtil';
-import { generateRandomNumber } from 'lib/util/RandomUtils';
+import { generateRandomId } from 'lib/util/RandomUtils';
 
 export class TransferService {
     private constructor(
@@ -207,7 +207,7 @@ export class TransferService {
     private async putThumbnailImageToShell(aas: AssetAdministrationShell, apikey?: string): Promise<TransferResult> {
         try {
             const aasThumbnail = await this.sourceAasRepositoryClient.getThumbnailFromShell(aas.id);
-            const fileName = ['thumbnail', generateRandomNumber()].join('');
+            const fileName = ['thumbnail', generateRandomId()].join('');
             await this.targetAasRepositoryClient.putThumbnailToShell(aas.id, aasThumbnail, fileName, {
                 headers: {
                     Apikey: apikey,
@@ -383,14 +383,14 @@ export class TransferService {
         if (modelType === KeyTypes.Blob) {
             submodelAttachmentsDetails.push({
                 idShortPath: idShortPath,
-                fileName: [(subEl as Blob).idShort, generateRandomNumber()].join(''),
+                fileName: [(subEl as Blob).idShort, generateRandomId()].join(''),
             });
         }
 
         if (modelType === KeyTypes.File) {
             submodelAttachmentsDetails.push({
                 idShortPath: idShortPath,
-                fileName: [(subEl as File).idShort, generateRandomNumber()].join(''),
+                fileName: [(subEl as File).idShort, generateRandomId()].join(''),
             });
         }
     }
