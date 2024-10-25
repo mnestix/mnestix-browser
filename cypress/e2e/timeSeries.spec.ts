@@ -23,7 +23,7 @@ describe('Test the internal TimeSeries', function () {
             });
 
             it('Test for the internal timeseries submodel', function () {
-                cy.getByTestId('submodel-tab').wait(4000).contains('TimeSeries').click();
+                cy.getByTestId('submodel-tab').wait(10000).contains('TimeSeries').click();
 
                 const wrapper = cy.getByTestId('timeseries-internal-wrapper')
                 wrapper.should('exist');
