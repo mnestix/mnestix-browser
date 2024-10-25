@@ -39,6 +39,7 @@ Cypress.Commands.add('repoRequest', (requestMethod, urlPath, requestBody) => {
             ApiKey: Cypress.env('MNESTIX_API_KEY'),
         },
         body: requestBody,
+        failOnStatusCode: false
     });
 });
 

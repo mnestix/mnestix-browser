@@ -713,7 +713,7 @@
                 ]
               },
               "valueType": "xs:string",
-              "value": "http://localhost:8086/api/v2/query?org=mnestix?u=admin?p=adminadminadminadmin",
+              "value": "http://localhost:8086/api/v2/query?token=tokentokentokentoken&org=mnestix",
               "modelType": "Property"
             },
             {

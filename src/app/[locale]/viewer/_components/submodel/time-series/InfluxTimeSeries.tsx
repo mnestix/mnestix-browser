@@ -55,7 +55,7 @@ export function InfluxTimeSeries(props: { submodelElement: SubmodelElementCollec
     }, [queryInAas, selectedTimeFrame]);
 
     return endpoint && query ? (
-        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column' }} data-testid="timeseries-influx-wrapper">
             <StyledDataRow title={name}>
                 <Box sx={{ marginTop: 1 }} />
                 <Box sx={{ display: 'flex', justifyContent: 'left' }}>

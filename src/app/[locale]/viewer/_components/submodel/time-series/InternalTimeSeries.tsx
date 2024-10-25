@@ -55,7 +55,7 @@ export function InternalTimeSeries(props: { submodelElement: SubmodelElementColl
         );
 
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column' }} data-testid="timeseries-internal-wrapper">
             <StyledDataRow title={name}>
                 <Box sx={{ marginTop: 1 }} />
                 <Box sx={{ display: 'flex', justifyContent: 'left' }}>
