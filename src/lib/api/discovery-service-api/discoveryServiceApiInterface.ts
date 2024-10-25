@@ -1,15 +1,25 @@
+import { ApiResponseWrapper } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
+
+export type DiscoveryEntry = {
+    name: string;
+    value: string;
+};
+
 export interface IDiscoveryServiceApi {
-    linkAasIdAndAssetId(aasId: string, assetId: string): Promise<JSON>;
+    linkAasIdAndAssetId(aasId: string, assetId: string): Promise<ApiResponseWrapper<DiscoveryEntry[]>>;
 
-    getAasIdsByAssetId(assetId: string): Promise<{ paging_metadata: string; result: string[] }>;
+    getAasIdsByAssetId(assetId: string): Promise<ApiResponseWrapper<{ paging_metadata: string; result: string[] }>>;
 
-    deleteAllAssetLinksById(aasId: string): Promise<JSON>;
+    deleteAllAssetLinksById(aasId: string): Promise<ApiResponseWrapper<void>>;
 
     getAllAssetAdministrationShellIdsByAssetLink(
-        assetIds: { name: string; value: string }[],
-    ): Promise<{ paging_metadata: string; result: string[] }>;
+        assetIds: DiscoveryEntry[],
+    ): Promise<ApiResponseWrapper<{ paging_metadata: string; result: string[] }>>;
 
-    getAllAssetLinksById(aasId: string): Promise<JSON>;
+    getAllAssetLinksById(aasId: string): Promise<ApiResponseWrapper<DiscoveryEntry[]>>;
 
-    postAllAssetLinksById(aasId: string, assetLinks: { name: string; value: string }[]): Promise<JSON>;
+    postAllAssetLinksById(
+        aasId: string,
+        assetLinks: DiscoveryEntry[],
+    ): Promise<ApiResponseWrapper<DiscoveryEntry[]>>;
 }

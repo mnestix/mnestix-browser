@@ -18,6 +18,14 @@ export class TemplateShellApi {
         this.http = http ? http : window;
     }
 
+    static create(
+        backendApiUrl: string,
+        enable_authentication: boolean,
+        http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> },
+    ): TemplateShellApi {
+        return new TemplateShellApi(backendApiUrl, enable_authentication, http);
+    }
+
     public async getDefaults(token: string): Promise<Submodel[]> {
         const headers = this.prepareHeader(token);
 
