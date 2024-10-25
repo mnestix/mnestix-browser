@@ -12,7 +12,13 @@ export type TransferDto = {
 };
 
 export type TransferResult = {
-    operationKind: 'AasRepository' | 'Discovery' | 'AasRegistry' | 'SubmodelRepository' | 'SubmodelRegistry';
+    operationKind:
+        | 'AasRepository'
+        | 'Discovery'
+        | 'AasRegistry'
+        | 'SubmodelRepository'
+        | 'SubmodelRegistry'
+        | 'File transfer';
     success: boolean;
     resourceId: string;
     error: string;

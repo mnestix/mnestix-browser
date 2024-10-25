@@ -239,12 +239,10 @@ export class TransferService {
                 promises.push(
                     Promise.resolve({
                         success: false,
-                        operationKind: 'SubmodelRepository',
-                        resourceId: [
-                            'File transfer: ',
-                            attachmentDetail.idShortPath,
-                            ', not found in source repository',
-                        ].join(''),
+                        operationKind: 'File transfer',
+                        resourceId: [submodelId, attachmentDetail.idShortPath, ' not found in source repository'].join(
+                            ': ',
+                        ),
                         error: e.toString(),
                     } as TransferResult),
                 );
@@ -266,15 +264,15 @@ export class TransferService {
             });
             return {
                 success: true,
-                operationKind: 'SubmodelRepository',
-                resourceId: ['File transfer: ', attachment.idShortPath].join(''),
+                operationKind: 'File transfer',
+                resourceId: [submodelId, attachment.idShortPath].join(': '),
                 error: '',
             };
         } catch (e) {
             return {
                 success: false,
-                operationKind: 'SubmodelRepository',
-                resourceId: ['File transfer: ', attachment.idShortPath].join(''),
+                operationKind: 'File transfer',
+                resourceId: [submodelId, attachment.idShortPath].join(': '),
                 error: e.toString(),
             };
         }
