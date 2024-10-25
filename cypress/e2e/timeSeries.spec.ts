@@ -20,12 +20,10 @@ describe('Test the internal TimeSeries', function () {
                 } else {
                     cy.visitViewer(testAAS.id);
                 }
-                cy.getByTestId('submodel-tab').contains('TimeSeries').click();
             });
 
             it('Test for the internal timeseries submodel', function () {
-                cy.get('body').click(0, 0);
-
+                cy.getByTestId('submodel-tab').wait(4000).contains('TimeSeries').click();
 
                 const wrapper = cy.getByTestId('timeseries-internal-wrapper')
                 wrapper.should('exist');
