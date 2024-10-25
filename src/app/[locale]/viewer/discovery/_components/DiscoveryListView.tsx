@@ -14,9 +14,9 @@ import { isAasAvailableInRepo } from 'lib/util/checkAasAvailabilityUtil';
 import { useEnv } from 'app/env/provider';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import ListHeader from 'components/basics/ListHeader';
-import { performDiscoveryAasSearch, performRegistryAasSearch } from 'lib/services/searchUtilActions/searchActions';
-import { performSearchAasFromAllRepositories } from 'lib/services/MultipleRepositorySearch/MultipleRepositorySearchActions';
-import { RepoSearchResult } from 'lib/services/MultipleRepositorySearch/MultipleRepositorySearchService';
+import { performDiscoveryAasSearch, performRegistryAasSearch } from 'lib/services/search-actions/searchActions';
+import { performSearchAasFromAllRepositories } from 'lib/services/repository-access/repositorySearchActions';
+import { RepoSearchResult } from 'lib/services/repository-access/RepositorySearchService';
 
 export const DiscoveryListView = () => {
     const [isLoadingList, setIsLoadingList] = useState(false);
@@ -35,46 +35,44 @@ export const DiscoveryListView = () => {
         const entryList: IDiscoveryListEntry[] = [];
 
         if (assetId) {
-            const aasIds = await performDiscoveryAasSearch(assetId);
+            const response = await performDiscoveryAasSearch(assetId);
 
-            if (!aasIds || aasIds.length === 0) {
+            if (!response.isSuccess || response.result.length === 0) {
                 setIsLoadingList(false);
                 return;
             }
-
+            const aasIds = response.result!;
             await Promise.all(
                 aasIds.map(async (aasId) => {
-                    try {
-                        const registrySearchResult = await performRegistryAasSearch(aasId);
-
-                        let aasRepositoryUrl = registrySearchResult?.registryAasData?.aasRegistryRepositoryOrigin;
-                        if (!aasRepositoryUrl) {
+                    const registrySearchResult = await performRegistryAasSearch(aasId);
+                    let aasRepositoryUrl;
+                    if (!registrySearchResult.isSuccess) {
+                        if (env.AAS_REPO_API_URL)
                             aasRepositoryUrl = (await isAasAvailableInRepo(aasId, env.AAS_REPO_API_URL))
                                 ? env.AAS_REPO_API_URL
                                 : undefined;
+                        if (!aasRepositoryUrl) {
+                            console.warn('Did not find the URL of the AAS');
+                            entryList.push({
+                                aasId: aasId,
+                                repositoryUrl: undefined,
+                            });
                         }
-
-                        entryList.push({
-                            aasId: aasId,
-                            repositoryUrl: aasRepositoryUrl,
-                        });
-                    } catch (e) {
-                        console.warn(e);
-                        entryList.push({
-                            aasId: aasId,
-                            repositoryUrl: undefined,
-                        });
+                    } else {
+                        aasRepositoryUrl = registrySearchResult?.result.aasData?.aasRegistryRepositoryOrigin;
                     }
+
+                    entryList.push({
+                        aasId: aasId,
+                        repositoryUrl: aasRepositoryUrl,
+                    });
                 }),
             );
         } else if (aasId) {
+            const response = await performSearchAasFromAllRepositories(encodeBase64(aasId));
             let searchResults: RepoSearchResult[] = [];
-            try {
-                searchResults = await performSearchAasFromAllRepositories(encodeBase64(aasId));
-            } catch (e) {
-                setIsError(true);
-            }
-
+            if (response.isSuccess) searchResults = response.result;
+            else setIsError(true);
             for (const searchResult of searchResults) {
                 entryList.push({
                     aasId: searchResult.aas.id,

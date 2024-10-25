@@ -12,8 +12,7 @@ import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { useSearchParams } from 'next/navigation';
 import { showError } from 'lib/util/ErrorHandlerUtil';
 import { LocalizedError } from 'lib/util/LocalizedError';
-import { performFullAasSearch } from 'lib/services/searchUtilActions/searchActions';
-import { AasSearchResult } from 'lib/services/searchUtilActions/AasSearcher';
+import { performFullAasSearch } from 'lib/services/search-actions/searchActions';
 
 export function CompareView() {
     const { compareAas, addSeveralAas, deleteAas, addAas } = useCompareAasContext();
@@ -57,24 +56,20 @@ export function CompareView() {
     };
 
     const handleAddAas = async (aasId: string) => {
-        let aasSearch: AasSearchResult;
-        try {
-            aasSearch = await performFullAasSearch(aasId);
-        } catch (e) {
-            throw new LocalizedError(messages.mnestix.aasUrlNotFound);
-        }
+        const { isSuccess, result } = await performFullAasSearch(aasId);
+        if (!isSuccess) throw new LocalizedError(messages.mnestix.aasUrlNotFound);
 
-        if (!aasSearch.aas) {
+        if (!result.aas) {
             throw new LocalizedError(messages.mnestix.compare.moreAasFound);
         }
 
-        const aasExists = compareAas.find((aas) => aas.id === aasSearch.aas!.id);
+        const aasExists = compareAas.find((aas) => aas.id === result.aas!.id);
         if (aasExists) {
             throw new LocalizedError(messages.mnestix.compare.aasAlreadyAdded);
         }
 
         try {
-            await addAas(aasSearch.aas!, aasSearch.aasData?.submodelDescriptors);
+            await addAas(result.aas, result.aasData?.submodelDescriptors);
         } catch (e) {
             throw new LocalizedError(messages.mnestix.compare.aasAddError);
         }
@@ -109,8 +104,8 @@ export function CompareView() {
                                     </IconButton>
                                     <AASOverviewCard
                                         key={index}
-                                        aas={aas}
-                                        productImage={aas.assetInformation.defaultThumbnail?.path}
+                                        aas={aas ?? null}
+                                        productImage={aas?.assetInformation?.defaultThumbnail?.path}
                                         isLoading={isLoadingAas}
                                         isAccordion={true}
                                         imageLinksToDetail={true}
