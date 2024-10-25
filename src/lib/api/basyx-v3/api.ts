@@ -10,7 +10,7 @@ import {
     INullableAasRepositoryEntries,
     SubmodelRepositoryApiInMemory,
 } from 'lib/api/basyx-v3/apiInMemory';
-import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
+import { ApiResponseWrapper } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 
 const BASE_PATH = '/'.replace(/\/+$/, '');
 

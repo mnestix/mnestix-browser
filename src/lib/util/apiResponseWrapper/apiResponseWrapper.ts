@@ -33,37 +33,35 @@ export type ApiResponseWrapperError<T> = {
     message: string;
 };
 
-export class ApiResponseWrapperUtil {
-    static fromErrorCode<T>(error: ApiResultStatus, message: string): ApiResponseWrapperError<T> {
-        return {
-            isSuccess: false,
-            result: undefined,
-            errorCode: error,
-            message: message,
-        };
-    }
+export function wrapErrorCode<T>(error: ApiResultStatus, message: string): ApiResponseWrapperError<T> {
+    return {
+        isSuccess: false,
+        result: undefined,
+        errorCode: error,
+        message: message,
+    };
+}
 
-    static async fromResponse<T>(response: Response): Promise<ApiResponseWrapper<T>> {
-        const status = getStatus(response.status);
-        if (status === ApiResultStatus.SUCCESS) {
-            return {
-                isSuccess: true,
-                result: await response.json(),
-            };
-        } else {
-            return {
-                isSuccess: false,
-                result: await response.json(),
-                errorCode: status,
-                message: response.statusText,
-            };
-        }
-    }
-
-    static fromSuccess<T>(result: T): ApiResponseWrapper<T> {
+export async function wrapResponse<T>(response: Response): Promise<ApiResponseWrapper<T>> {
+    const status = getStatus(response.status);
+    if (status === ApiResultStatus.SUCCESS) {
         return {
             isSuccess: true,
-            result: result,
+            result: await response.json(),
+        };
+    } else {
+        return {
+            isSuccess: false,
+            result: await response.json(),
+            errorCode: status,
+            message: response.statusText,
         };
     }
+}
+
+export function wrapSuccess<T>(result: T): ApiResponseWrapper<T> {
+    return {
+        isSuccess: true,
+        result: result,
+    };
 }
