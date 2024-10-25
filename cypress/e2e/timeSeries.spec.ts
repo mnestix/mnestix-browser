@@ -4,9 +4,8 @@ import testInternalLinkedSub from '../fixtures/cypress_e2e/Submodels/cyTimeSerie
 import testInternalLinkedSubRef from '../fixtures/cypress_e2e/Submodels/cyTimeSeries_Internal_Linked_SubmodelReference.json';
 
 describe('Test the internal TimeSeries', function () {
-    const encodedAasId = btoa(testAAS.id).replace(/=+$/g, '');
-
     before(function () {
+        const encodedAasId = btoa(testAAS.id).replace(/=+$/g, '');
         cy.repoRequest('POST', '/shells', testAAS);
         cy.postSubmodelToAas(encodedAasId, testInternalLinkedSub, testInternalLinkedSubRef);
     });
@@ -36,6 +35,7 @@ describe('Test the internal TimeSeries', function () {
         });
     });
     after(function () {
+        const encodedAasId = btoa(testAAS.id).replace(/=+$/g, '');
         cy.repoRequest('DELETE', '/shells/' + encodedAasId, null);
         const encodedTestInternalLinkedSub = btoa(testInternalLinkedSub.id).replace(/=+$/g, '');
         cy.repoRequest('DELETE', '/submodels/' + encodedTestInternalLinkedSub, null);
@@ -43,11 +43,10 @@ describe('Test the internal TimeSeries', function () {
 });
 
 describe('Test the linked TimeSeries', function () {
-    const encodedAasId = btoa(testAAS.id).replace(/=+$/g, '');
-
     describe('test linked submodel', function () {
         it('Test for the linked timeseries submodel', function () {
 
+            const encodedAasId = btoa(testAAS.id).replace(/=+$/g, '');
             cy.repoRequest('POST', '/shells', testAAS)
             cy.postSubmodelToAas(encodedAasId, testInternalLinkedSub, testInternalLinkedSubRef)
 
@@ -59,6 +58,7 @@ describe('Test the linked TimeSeries', function () {
     });
 
     after(function () {
+        const encodedAasId = btoa(testAAS.id).replace(/=+$/g, '');
         cy.repoRequest('DELETE', '/shells/' + encodedAasId, null);
         const encodedTestInternalLinkedSub = btoa(testInternalLinkedSub.id).replace(/=+$/g, '');
         cy.repoRequest('DELETE', '/submodels/' + encodedTestInternalLinkedSub, null);
