@@ -1,4 +1,5 @@
 ﻿import { getSession } from 'next-auth/react';
+import { performServerFetch } from 'lib/api/serverFetch';
 
 const initializeRequestOptions = async (bearerToken: string, init?: RequestInit) => {
     init = init || {};
@@ -26,7 +27,8 @@ export const mnestixFetch = ():
     | undefined => {
     return {
         fetch: async (url: RequestInfo, init?: RequestInit) => {
-            return await fetch(url, await initializeRequestOptions(await getBearerToken(), init));
+            const text = await performServerFetch(url, await initializeRequestOptions(await getBearerToken(), init));
+            return new Response(text);
         },
     };
 };
