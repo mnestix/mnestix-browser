@@ -6,7 +6,7 @@ import {
     RegistryServiceApiInMemory,
 } from 'lib/api/registry-service-api/registryServiceApiInMemory';
 import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/types';
-import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
+import { ApiResponseWrapper } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 
 export class RegistryServiceApi implements IRegistryServiceApi {
     baseUrl: string;

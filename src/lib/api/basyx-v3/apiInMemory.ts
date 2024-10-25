@@ -1,7 +1,7 @@
 import { IAssetAdministrationShellRepositoryApi, ISubmodelRepositoryApi } from 'lib/api/basyx-v3/apiInterface';
 import { AssetAdministrationShell, Reference, Submodel } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
 import { decodeBase64, encodeBase64 } from 'lib/util/Base64Util';
-import { ApiResponseWrapper, ApiResultStatus, WrapErrorCode, WrapResponse } from 'lib/services/apiResponseWrapper';
+import { ApiResponseWrapper, ApiResultStatus, wrapErrorCode, wrapResponse } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 
 export interface INullableAasRepositoryEntries {
     repositoryUrl: string;
@@ -32,13 +32,13 @@ export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdmi
                 const isInDefaultRepository = entry.repositoryUrl === defaultRepositoryUrl;
                 if (isInDefaultRepository || !isSearchingInDefaultRepository) {
                     const response = new Response(JSON.stringify(entry.aas));
-                    return await WrapResponse<AssetAdministrationShell>(response);
+                    return await wrapResponse<AssetAdministrationShell>(response);
                 }
             }
         }
         const targetRepositoryKind = isSearchingInDefaultRepository ? 'default' : 'foreign';
         return Promise.resolve(
-            WrapErrorCode(
+            wrapErrorCode(
                 ApiResultStatus.NOT_FOUND,
                 'no aas found in the ' +
                     targetRepositoryKind +
@@ -83,11 +83,11 @@ export class SubmodelRepositoryApiInMemory implements ISubmodelRepositoryApi {
         for (const submodel of this.submodelsSavedInTheRepository) {
             if (encodeBase64(submodel.id) === submodelId) {
                 const response = new Response(JSON.stringify(submodel));
-                return await WrapResponse<Submodel>(response);
+                return await wrapResponse<Submodel>(response);
             }
         }
         return Promise.resolve(
-            WrapErrorCode(
+            wrapErrorCode(
                 ApiResultStatus.NOT_FOUND,
                 'no submodel found in the default repository for submodelId: ' + submodelId,
             ),

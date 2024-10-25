@@ -33,7 +33,7 @@ export type ApiResponseWrapperError<T> = {
     message: string;
 };
 
-export function WrapErrorCode<T>(error: ApiResultStatus, message: string): ApiResponseWrapperError<T> {
+export function wrapErrorCode<T>(error: ApiResultStatus, message: string): ApiResponseWrapperError<T> {
     return {
         isSuccess: false,
         result: undefined,
@@ -42,7 +42,7 @@ export function WrapErrorCode<T>(error: ApiResultStatus, message: string): ApiRe
     };
 }
 
-export async function WrapResponse<T>(response: Response): Promise<ApiResponseWrapper<T>> {
+export async function wrapResponse<T>(response: Response): Promise<ApiResponseWrapper<T>> {
     const status = getStatus(response.status);
     if (status === ApiResultStatus.SUCCESS) {
         return {
@@ -59,7 +59,7 @@ export async function WrapResponse<T>(response: Response): Promise<ApiResponseWr
     }
 }
 
-export function WrapSuccess<T>(result: T): ApiResponseWrapper<T> {
+export function wrapSuccess<T>(result: T): ApiResponseWrapper<T> {
     return {
         isSuccess: true,
         result: result,

@@ -1,4 +1,4 @@
-import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
+import { ApiResponseWrapper } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 
 export type DiscoveryEntry = {
     name: string;

@@ -1,5 +1,5 @@
 import { encodeBase64 } from 'lib/util/Base64Util';
-import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
+import { ApiResponseWrapper } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 
 export class SubmodelRegistryServiceApi {

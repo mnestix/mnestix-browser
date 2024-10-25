@@ -1,5 +1,5 @@
 import { DiscoveryEntry, IDiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApiInterface';
-import { ApiResponseWrapper, ApiResultStatus, WrapErrorCode, WrapSuccess } from 'lib/services/apiResponseWrapper';
+import { ApiResponseWrapper, ApiResultStatus, wrapErrorCode, wrapSuccess } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 
 export class DiscoveryServiceApiInMemory implements IDiscoveryServiceApi {
     private discoveryEntries: { assetId: string; aasIds: string[] }[];
@@ -18,13 +18,13 @@ export class DiscoveryServiceApiInMemory implements IDiscoveryServiceApi {
         for (const discoveryEntry of this.discoveryEntries) {
             if (discoveryEntry.assetId === assetId)
                 return Promise.resolve(
-                    WrapSuccess({
+                    wrapSuccess({
                         paging_metadata: '',
                         result: discoveryEntry.aasIds,
                     }),
                 );
         }
-        return Promise.resolve(WrapErrorCode(ApiResultStatus.NOT_FOUND, 'not found'));
+        return Promise.resolve(wrapErrorCode(ApiResultStatus.NOT_FOUND, 'not found'));
     }
 
     async deleteAllAssetLinksById(_aasId: string): Promise<ApiResponseWrapper<void>> {

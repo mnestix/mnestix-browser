@@ -7,7 +7,7 @@ import { INullableAasRepositoryEntries } from 'lib/api/basyx-v3/apiInMemory';
 import { PrismaConnector } from 'lib/services/prisma/PrismaConnector';
 import { IPrismaConnector } from 'lib/services/prisma/PrismaConnectorInterface';
 import { Reference } from '@aas-core-works/aas-core3.0-typescript/types';
-import { ApiResponseWrapper, ApiResultStatus, WrapErrorCode, WrapSuccess } from 'lib/services/apiResponseWrapper';
+import { ApiResponseWrapper, ApiResultStatus, wrapErrorCode, wrapSuccess } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 
 export type RepoSearchResult = {
     aas: AssetAdministrationShell;
@@ -61,13 +61,13 @@ export class RepositorySearchService {
     async getAasFromDefaultRepository(aasId: string): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
         const response = await this.repositoryClient.getAssetAdministrationShellById(aasId);
         if (response.isSuccess) return response;
-        return WrapErrorCode(ApiResultStatus.NOT_FOUND, 'AAS not found');
+        return wrapErrorCode(ApiResultStatus.NOT_FOUND, 'AAS not found');
     }
 
     async getAasFromRepo(aasId: string, repoUrl: string): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
         const response = await this.repositoryClient.getAssetAdministrationShellById(aasId, undefined, repoUrl);
         if (response.isSuccess) return response;
-        return WrapErrorCode(ApiResultStatus.NOT_FOUND, `AAS '${aasId}' not found in repository '${repoUrl}'`);
+        return wrapErrorCode(ApiResultStatus.NOT_FOUND, `AAS '${aasId}' not found in repository '${repoUrl}'`);
     }
 
     async getAasFromAllRepos(aasId: string): Promise<ApiResponseWrapper<RepoSearchResult[]>> {
@@ -89,7 +89,7 @@ export class RepositorySearchService {
         );
 
         if (fulfilledResponses.length > 0) {
-            return WrapSuccess<RepoSearchResult[]>(
+            return wrapSuccess<RepoSearchResult[]>(
                 fulfilledResponses.map(
                     (
                         result: PromiseFulfilledResult<{
@@ -100,14 +100,14 @@ export class RepositorySearchService {
                 ),
             );
         } else {
-            return WrapErrorCode(ApiResultStatus.NOT_FOUND, `Could not find AAS ${aasId} in any Repository`);
+            return wrapErrorCode(ApiResultStatus.NOT_FOUND, `Could not find AAS ${aasId} in any Repository`);
         }
     }
 
     async getSubmodelById(id: string): Promise<ApiResponseWrapper<Submodel>> {
         const result = await this.submodelRepositoryClient.getSubmodelById(id);
         if (result.isSuccess) return result;
-        return WrapErrorCode(ApiResultStatus.NOT_FOUND, `Submodel with id ${id} not found`);
+        return wrapErrorCode(ApiResultStatus.NOT_FOUND, `Submodel with id ${id} not found`);
     }
 
     async getAttachmentFromSubmodelElement(
@@ -119,7 +119,7 @@ export class RepositorySearchService {
             submodelElementPath,
         );
         if (response.isSuccess) return response;
-        return WrapErrorCode(
+        return wrapErrorCode(
             ApiResultStatus.NOT_FOUND,
             `Attachment for Submodel with id ${submodelId} at path ${submodelElementPath} not found`,
         );
@@ -139,21 +139,21 @@ export class RepositorySearchService {
         try {
             return await Promise.any(promises);
         } catch (e) {
-            return WrapErrorCode(ApiResultStatus.NOT_FOUND, 'Submodel not found');
+            return wrapErrorCode(ApiResultStatus.NOT_FOUND, 'Submodel not found');
         }
     }
 
     async getSubmodelReferencesFromShell(aasId: string): Promise<ApiResponseWrapper<Reference[]>> {
         const response = await this.repositoryClient.getSubmodelReferencesFromShell(aasId);
         if (response.isSuccess) return response;
-        return WrapErrorCode(ApiResultStatus.NOT_FOUND, 'Submodel Reference not found');
+        return wrapErrorCode(ApiResultStatus.NOT_FOUND, 'Submodel Reference not found');
     }
 
     async getThumbnailFromShell(aasId: string): Promise<ApiResponseWrapper<Blob>> {
         const response = await this.repositoryClient.getThumbnailFromShell(aasId);
         if (response.isSuccess) return response;
 
-        return WrapErrorCode(ApiResultStatus.NOT_FOUND, 'Thumbnail not found');
+        return wrapErrorCode(ApiResultStatus.NOT_FOUND, 'Thumbnail not found');
     }
 
     async getAasThumbnailFromAllRepos(aasId: string): Promise<ApiResponseWrapper<Blob>> {
@@ -174,7 +174,7 @@ export class RepositorySearchService {
         try {
             return await Promise.any(promises);
         } catch {
-            return WrapErrorCode(ApiResultStatus.NOT_FOUND, 'Image not found');
+            return wrapErrorCode(ApiResultStatus.NOT_FOUND, 'Image not found');
         }
     }
 }

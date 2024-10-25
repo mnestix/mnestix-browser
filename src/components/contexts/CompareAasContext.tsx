@@ -1,4 +1,4 @@
-﻿import { AssetAdministrationShell, Reference, Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
+﻿import { AssetAdministrationShell, Reference } from '@aas-core-works/aas-core3.0-typescript/types';
 import { createContext, PropsWithChildren, useContext, useEffect, useState } from 'react';
 import { SubmodelCompareData } from 'lib/types/SubmodelCompareData';
 import { generateSubmodelCompareData, isCompareData, isCompareDataRecord } from 'lib/util/CompareAasUtil';
@@ -6,8 +6,6 @@ import { getSubmodelFromSubmodelDescriptor, performFullAasSearch } from 'lib/ser
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 import { getSubmodelDescriptorsById } from 'lib/services/submodelRegistryApiActions';
 import { getSubmodelById } from 'lib/services/repository-access/repositorySearchActions';
-import { ApiResponseWrapper } from 'lib/services/apiResponseWrapper';
-import { AasSearchResult } from 'lib/services/search-actions/AasSearcher';
 
 type CompareAasContextType = {
     compareAas: AssetAdministrationShell[];
@@ -73,7 +71,7 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
         const aasList: AssetAdministrationShell[] = [];
         let compareDataTemp: SubmodelCompareData[] = [];
         for (const aasId of input as string[]) {
-            const {isSuccess, result } = await performFullAasSearch(aasId);
+            const { isSuccess, result } = await performFullAasSearch(aasId);
             if (isSuccess && result.aas) {
                 aasList.push(result.aas);
                 if (result.aas.submodels) {

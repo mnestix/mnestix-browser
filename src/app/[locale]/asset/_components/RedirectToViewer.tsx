@@ -11,7 +11,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import AssetNotFound from 'components/basics/AssetNotFound';
 import { useAasState } from 'components/contexts/CurrentAasContext';
 import { performDiscoveryAasSearch } from 'lib/services/search-actions/searchActions';
-import { WrapSuccess } from 'lib/services/apiResponseWrapper';
+import { wrapSuccess } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 import { LocalizedError } from 'lib/util/LocalizedError';
 import { messages } from 'lib/i18n/localization';
 
@@ -52,7 +52,7 @@ export const RedirectToViewer = () => {
         }
         const response = await performDiscoveryAasSearch(assetId);
         if (response.isSuccess) return response;
-        return WrapSuccess([]);
+        return wrapSuccess([]);
     }
 
     function assertAtLeastOneAasIdExists(aasIds: string[]) {
