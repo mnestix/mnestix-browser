@@ -5,6 +5,7 @@ import { InternalTimeSeries } from 'app/[locale]/viewer/_components/submodel/tim
 import { hasSemanticId } from 'lib/util/SubmodelResolverUtil';
 import { messages } from 'lib/i18n/localization';
 import { FormattedMessage } from 'react-intl';
+import { Typography } from '@mui/material';
 
 export function TimeSeriesVisualizations(props: { submodel: Submodel }) {
     const timeSeriesSegments = props.submodel.submodelElements?.find(
@@ -23,8 +24,9 @@ export function TimeSeriesVisualizations(props: { submodel: Submodel }) {
         <>
             {linkedSegments && linkedSegments.length > 0 && (
                 <>
-                    <FormattedMessage {...messages.mnestix.timeSeries.linkedSegments} />
-                    <br />
+                    <Typography>
+                        <FormattedMessage {...messages.mnestix.timeSeries.linkedSegments} />
+                    </Typography>
                     {linkedSegments.map((segment, index) => {
                         return <InfluxTimeSeries submodelElement={segment} key={index} />;
                     })}
@@ -33,8 +35,9 @@ export function TimeSeriesVisualizations(props: { submodel: Submodel }) {
 
             {internalSegments && internalSegments.length > 0 && (
                 <>
-                    <FormattedMessage {...messages.mnestix.timeSeries.internalSegments} />
-                    <br />
+                    <Typography>
+                        <FormattedMessage {...messages.mnestix.timeSeries.internalSegments} />
+                    </Typography>
                     {internalSegments?.map((segment, index) => {
                         return <InternalTimeSeries submodelElement={segment} key={index} />;
                     })}
