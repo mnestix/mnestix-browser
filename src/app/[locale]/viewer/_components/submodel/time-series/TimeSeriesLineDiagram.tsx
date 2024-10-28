@@ -14,7 +14,7 @@ import { Box, Typography } from '@mui/material';
 import { TimeSeriesDataSet } from 'app/[locale]/viewer/_components/submodel/time-series/TimeSeriesUtil';
 
 function formatDate(dateString: string, onlyTime = false) {
-    const date = new Date();
+    const date = new Date(dateString);
 
     const options: Intl.DateTimeFormatOptions = {
         year: onlyTime ? undefined : '2-digit',
