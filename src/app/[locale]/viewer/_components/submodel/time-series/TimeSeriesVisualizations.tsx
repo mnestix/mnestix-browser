@@ -21,7 +21,7 @@ export function TimeSeriesVisualizations(props: { submodel: Submodel }) {
 
     return (
         <>
-            {linkedSegments && (
+            {linkedSegments && linkedSegments.length > 0 && (
                 <>
                     <FormattedMessage {...messages.mnestix.timeSeries.linkedSegments} />
                     <br />
@@ -31,7 +31,7 @@ export function TimeSeriesVisualizations(props: { submodel: Submodel }) {
                 </>
             )}
 
-            {linkedSegments && (
+            {internalSegments && internalSegments.length > 0 && (
                 <>
                     <FormattedMessage {...messages.mnestix.timeSeries.internalSegments} />
                     <br />
