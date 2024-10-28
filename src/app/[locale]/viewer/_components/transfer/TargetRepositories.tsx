@@ -102,7 +102,7 @@ export function TargetRepositories(props: TargetRepositoryProps) {
                                     control={control}
                                     defaultValue=""
                                     render={({ field }) => (
-                                        <TextField label={intl.formatMessage(messages.mnestix.transfer.repositoryApiKey)}
+                                        <TextField type="passwort" label={intl.formatMessage(messages.mnestix.transfer.repositoryApiKey)}
                                                    {...field}/>)}
                                 />
                             </FormControl>

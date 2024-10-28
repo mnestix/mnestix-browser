@@ -216,7 +216,7 @@ export const enMnestix = {
         useAasRepository: 'Use AAS Repository',
         successfullToast: 'Transfer of AAS successful',
         errorToast: 'Transfer of AAS not successful',
-        partiallyFailedToast: 'Failed to transfer single element',
+        partiallyFailedToast: 'Failed to transfer element',
         warningToast: 'AAS was only partially transferred.'
     },
     aasList: {
