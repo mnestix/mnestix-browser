@@ -1,6 +1,5 @@
 import {
     Box,
-    Button,
     DialogActions,
     Divider,
     FormControl,
@@ -19,14 +18,17 @@ import { Fragment, useState } from 'react';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { ConnectionTypeEnum } from 'lib/services/database/ConnectionTypeEnum';
 import { Controller, useForm } from 'react-hook-form';
+import { LoadingButton } from '@mui/lab';
 
 export type TargetRepositoryFormData = {
     repository?: string;
     submodelRepository?: string;
+    repositoryApiKey?: string;
 }
 
 type TargetRepositoryProps = {
-    onSubmitStep: (values: TargetRepositoryFormData, redirectToNew: boolean) => void;
+    onSubmitStep: (values: TargetRepositoryFormData) => void;
+    isSubmitting: boolean;
 }
 
 export function TargetRepositories(props: TargetRepositoryProps) {
@@ -57,11 +59,7 @@ export function TargetRepositories(props: TargetRepositoryProps) {
     const { handleSubmit, control, formState } = useForm();
     
     const onSubmit = (data: TargetRepositoryFormData) => {
-        props.onSubmitStep(data, false);
-    }
-
-    const onSubmitRedirect = (data: TargetRepositoryFormData) => {
-        props.onSubmitStep(data, true);
+        props.onSubmitStep(data);
     }
 
     return(
@@ -76,9 +74,10 @@ export function TargetRepositories(props: TargetRepositoryProps) {
                 }) :
                 <form>
                     <Box display="flex" flexDirection="column">
-                        <Box display="flex" flexDirection="row" alignItems="center">
+                        <Box display="flex" flexDirection="row" alignItems="flex-start">
                             <Typography variant="h4"
                                         sx={{ minWidth: '250px', mr: 2 }}><FormattedMessage {...messages.mnestix.transfer.chooseRepository} /></Typography>
+                            <Box display="flex" flexDirection="column" width="100%">
                             <FormControl fullWidth>
                                 <Controller
                                     name="repository"
@@ -97,8 +96,19 @@ export function TargetRepositories(props: TargetRepositoryProps) {
                                         </TextField>)}
                                 />
                             </FormControl>
+                            <FormControl fullWidth sx={{ mt: 2 }}>
+                                <Controller
+                                    name="repositoryApiKey"
+                                    control={control}
+                                    defaultValue=""
+                                    render={({ field }) => (
+                                        <TextField type="password" label={intl.formatMessage(messages.mnestix.transfer.repositoryApiKey)}
+                                                   {...field}/>)}
+                                />
+                            </FormControl>
+                            </Box>
                         </Box>
-                        <Box display="flex" flexDirection="row" mt={2} alignItems="center">
+                        <Box display="flex" flexDirection="row" mt={5} alignItems="flex-start">
                             <Typography variant="h4"
                                         sx={{ minWidth: '250px', mr: 2 }}><FormattedMessage {...messages.mnestix.transfer.chooseSubmodelRepository} /></Typography>
                             <FormControl fullWidth>
@@ -107,7 +117,7 @@ export function TargetRepositories(props: TargetRepositoryProps) {
                                     control={control}
                                     defaultValue="0"
                                     render={({ field }) => (
-                                        <TextField fullWidth 
+                                        <TextField fullWidth
                                                    select
                                                    label={intl.formatMessage(messages.mnestix.transfer.submodelRepositoryLabel)}
                                                    {...field}>
@@ -121,10 +131,8 @@ export function TargetRepositories(props: TargetRepositoryProps) {
                         </Box>
                         <Divider sx={{ mt: 6, mb: 4 }}/>
                         <DialogActions>
-                            <Button sx={{ mr: 1 }} variant="outlined" disabled={!formState.isValid}
-                                    onClick={handleSubmit(onSubmit)}><FormattedMessage {...messages.mnestix.transfer.saveAndGoToPrev} /></Button>
-                            <Button variant="contained" type="submit" disabled={!formState.isValid}
-                                    onClick={handleSubmit(onSubmitRedirect)}><FormattedMessage {...messages.mnestix.transfer.saveAndGoToNew} /></Button>
+                            <LoadingButton sx={{ mr: 1 }} variant="outlined" disabled={!formState.isValid} loading={props.isSubmitting}
+                                    onClick={handleSubmit(onSubmit)}><FormattedMessage {...messages.mnestix.transfer.title} /></LoadingButton>
                         </DialogActions>
                     </Box>
                 </form>

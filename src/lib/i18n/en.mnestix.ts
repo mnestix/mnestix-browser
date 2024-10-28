@@ -202,18 +202,22 @@ export const enMnestix = {
         hide: 'Hide',
     },
     transfer: {
-        title: 'Export',
-        subtitle: 'To export this AAS to another repository, fill out the following steps.',
+        title: 'Import',
+        subtitle: 'To import this AAS to another repository, fill out the following steps.',
         aasRepository: 'AAS Repository',
         submodelRepository: 'Submodel Repository',
         chooseRepository: 'Choose AAS Repository',
         repositoryRequired: 'AAS Repository is required',
         repositoryLabel: 'List of AAS Repositories',
+        repositoryApiKey: 'AAS Repository ApiKey',
+        submodelRepositoryApiKey: 'Submodel Repository ApiKey',
         chooseSubmodelRepository: 'Choose Submodel Repository (optional)',
         submodelRepositoryLabel: 'List of Submodel Repositories',
         useAasRepository: 'Use AAS Repository',
-        saveAndGoToNew: 'Save & Go to new',
-        saveAndGoToPrev: 'Save & Go to previous'
+        successfullToast: 'Transfer of AAS successful',
+        errorToast: 'Transfer of AAS not successful',
+        partiallyFailedToast: 'Failed to transfer element',
+        warningToast: 'AAS was only partially transferred.'
     },
     aasList: {
         header: 'AAS List',
