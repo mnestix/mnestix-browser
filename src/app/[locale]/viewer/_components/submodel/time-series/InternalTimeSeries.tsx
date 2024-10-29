@@ -4,9 +4,9 @@ import { useIntl } from 'react-intl';
 import { messages } from 'lib/i18n/localization';
 import { TimeSeriesLineDiagram } from 'app/[locale]/viewer/_components/submodel/time-series/TimeSeriesLineDiagram';
 import {
-    TimeSeriesDataSet,
     extractIntlValueBySemanticId,
     parseRecordsFromInternalSegment,
+    TimeSeriesDataSet,
 } from 'app/[locale]/viewer/_components/submodel/time-series/TimeSeriesUtil';
 import { SubmodelElementCollection } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
 import { StyledDataRow } from 'components/basics/StyledDataRow';
