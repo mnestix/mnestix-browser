@@ -1,3 +1,6 @@
+/**
+ * @deprecated Please use t() of useTranslations(... instead as shown in TimeSeriesVisualizations.tsx
+ */
 export const enMnestix = {
     welcome: 'Welcome to Mnestix',
     digitalTwinMadeEasy: 'Digital Twin made easy.',
@@ -19,7 +22,7 @@ export const enMnestix = {
     unexpectedError: 'Unexpected error',
     unauthorizedError: {
         title: 'Unauthorized access',
-        content: 'You don\'t have access to this AAS. You may login or contact your administrator to get access.',
+        content: 'You don`t have access to this AAS. You may login or contact your administrator to get access.',
     },
     settings: 'Settings',
     idStructure: 'ID structure',

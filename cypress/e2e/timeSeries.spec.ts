@@ -2,9 +2,10 @@
 import testAAS from '../fixtures/cypress_e2e/cypressTestAas.json';
 import testInternalLinkedSub from '../fixtures/cypress_e2e/Submodels/cyTimeSeries_Internal_and_Linked.json';
 import testInternalLinkedSubRef from '../fixtures/cypress_e2e/Submodels/cyTimeSeries_Internal_Linked_SubmodelReference.json';
+import toBase64 from '../support/base64-conversion';
 
 describe('Test the internal TimeSeries', function () {
-    const encodedAasId = btoa(testAAS.id).replace(/=+$/g, '');
+    const encodedAasId = toBase64(testAAS.id);
 
     before(function () {
         cy.repoRequest('POST', '/shells', testAAS);
@@ -31,13 +32,13 @@ describe('Test the internal TimeSeries', function () {
     });
     after(function () {
         cy.repoRequest('DELETE', '/shells/' + encodedAasId, null);
-        const encodedTestInternalLinkedSub = btoa(testInternalLinkedSub.id).replace(/=+$/g, '');
+        const encodedTestInternalLinkedSub = toBase64(testInternalLinkedSub.id);
         cy.repoRequest('DELETE', '/submodels/' + encodedTestInternalLinkedSub, null);
     });
 });
 
 describe('Test the linked TimeSeries', function () {
-    const encodedAasId = btoa(testAAS.id).replace(/=+$/g, '');
+    const encodedAasId = toBase64(testAAS.id);
 
     describe('test linked submodel', function () {
         it('Test for the linked timeseries submodel', function () {
@@ -53,7 +54,7 @@ describe('Test the linked TimeSeries', function () {
 
     after(function () {
         cy.repoRequest('DELETE', '/shells/' + encodedAasId, null);
-        const encodedTestInternalLinkedSub = btoa(testInternalLinkedSub.id).replace(/=+$/g, '');
+        const encodedTestInternalLinkedSub = toBase64(testInternalLinkedSub.id);
         cy.repoRequest('DELETE', '/submodels/' + encodedTestInternalLinkedSub, null);
     });
 });

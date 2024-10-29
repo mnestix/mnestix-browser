@@ -1,3 +1,6 @@
+/**
+ * @deprecated Please use t() of useTranslations(... instead as shown in TimeSeriesVisualizations.tsx
+ */
 export const deMnestix = {
     welcome: 'Willkommen bei Mnestix',
     digitalTwinMadeEasy: 'Digitaler Zwilling leicht gemacht.',
