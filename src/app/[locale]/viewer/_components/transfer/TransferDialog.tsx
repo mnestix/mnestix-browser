@@ -5,18 +5,19 @@ import {
     DialogProps,
     Divider,
     IconButton,
-    Typography, useMediaQuery, useTheme
+    Typography,
+    useMediaQuery,
+    useTheme,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import {
+    TargetRepositories,
     TargetRepositoryFormData,
-    TargetRepositories
 } from 'app/[locale]/viewer/_components/transfer/TargetRepositories';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { messages } from 'lib/i18n/localization';
-import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/types';
-import { useEffect, useState } from 'react';
-import { SubmodelOrIdReference, useAasState, useSubmodelState } from 'components/contexts/CurrentAasContext';
+import { useState } from 'react';
+import { useAasState, useSubmodelState } from 'components/contexts/CurrentAasContext';
 import { transferAasWithSubmodels } from 'lib/services/transfer-service/transferActions';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { TransferDto, TransferResult } from 'lib/types/TransferServiceData';
@@ -80,14 +81,12 @@ export function TransferDialog(props: DialogProps) {
                 message: intl.formatMessage(messages.mnestix.transfer.successfullToast),
                 severity: 'success',
             });
-            return;
         }
-        if(result.every(result => !result.success)) {
+        else if(result.every(result => !result.success)) {
             notificationSpawner.spawn({
                 message: intl.formatMessage(messages.mnestix.transfer.errorToast),
                 severity: 'error',
             });
-            return;
         } else {
             result.map(result => {
                 if(!result.success) {

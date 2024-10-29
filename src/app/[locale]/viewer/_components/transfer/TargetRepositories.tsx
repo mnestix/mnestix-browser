@@ -19,6 +19,7 @@ import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { ConnectionTypeEnum } from 'lib/services/database/ConnectionTypeEnum';
 import { Controller, useForm } from 'react-hook-form';
 import { LoadingButton } from '@mui/lab';
+import { useEnv } from 'app/env/provider';
 
 export type TargetRepositoryFormData = {
     repository?: string;
@@ -37,13 +38,16 @@ export function TargetRepositories(props: TargetRepositoryProps) {
     const [aasRepositories, setAasRepositories] = useState<string[]>([]);
     const [submodelRepositories, setSubmodelRepositories] = useState<string[]>([]);
     const intl = useIntl();
+    const env = useEnv();
 
     useAsyncEffect(async () => {
         try {
             setIsLoading(true);
             const aasRepositories = await getConnectionDataByTypeAction({ id: '0', typeName: ConnectionTypeEnum.AAS_REPOSITORY });
+            if(env.AAS_REPO_API_URL) aasRepositories.push(env.AAS_REPO_API_URL)
             setAasRepositories(aasRepositories);
             const submodelRepositories = await getConnectionDataByTypeAction({ id: '2', typeName: ConnectionTypeEnum.SUBMODEL_REPOSITORY });
+            if(env.SUBMODEL_REPO_API_URL) submodelRepositories.push(env.SUBMODEL_REPO_API_URL)
             setSubmodelRepositories(submodelRepositories);
         } catch(error) {
             notificationSpawner.spawn({
@@ -90,7 +94,8 @@ export function TargetRepositories(props: TargetRepositoryProps) {
                                                    label={intl.formatMessage(messages.mnestix.transfer.repositoryLabel)}
                                                    error={!!fieldState.error}
                                                    helperText={fieldState.error ? fieldState.error.message : null}
-                                                   required {...field}>{ aasRepositories.map((repo, index) => {
+                                                   required {...field}>
+                                            { aasRepositories.map((repo, index) => {
                                             return <MenuItem key={index} value={repo}>{repo}</MenuItem>
                                         })}
                                         </TextField>)}

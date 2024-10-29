@@ -375,8 +375,8 @@ export class TransferService {
         idShortPath: string,
         submodelAttachmentsDetails: AttachmentDetails[],
     ) {
+        if(!(subEl as SubmodelElementCollection).value) return;
         const modelType = getKeyType(subEl);
-
         if (modelType === KeyTypes.SubmodelElementCollection) {
             submodelAttachmentsDetails.push(
                 ...this.getAttachmentsDetailsFromCollection(subEl as SubmodelElementCollection, idShortPath),
