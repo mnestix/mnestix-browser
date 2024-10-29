@@ -5,9 +5,9 @@ import { SubmodelRegistryServiceApi } from 'lib/api/submodel-registry-service/su
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 import { ApiResponseWrapper } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 
-const submodelRegistryServiceClient = new SubmodelRegistryServiceApi(
-    mnestixFetch(),
+const submodelRegistryServiceClient = SubmodelRegistryServiceApi.create(
     process.env.SUBMODEL_REGISTRY_API_URL,
+    mnestixFetch(),
 );
 
 export async function getSubmodelDescriptorsById(submodelId: string): Promise<ApiResponseWrapper<SubmodelDescriptor>> {

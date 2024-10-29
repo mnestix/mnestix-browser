@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, Button, Skeleton, Typography } from '@mui/material';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -8,7 +8,7 @@ import { messages } from 'lib/i18n/localization';
 import { decodeBase64, safeBase64Decode } from 'lib/util/Base64Util';
 import { ArrowForward } from '@mui/icons-material';
 import { showError } from 'lib/util/ErrorHandlerUtil';
-import { AssetAdministrationShell, LangStringNameType } from '@aas-core-works/aas-core3.0-typescript/types';
+import { AssetAdministrationShell, LangStringNameType, Reference } from '@aas-core-works/aas-core3.0-typescript/types';
 import { useIsMobile } from 'lib/hooks/UseBreakpoints';
 import { getTranslationText } from 'lib/util/SubmodelResolverUtil';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
@@ -18,6 +18,9 @@ import { useEnv } from 'app/env/provider';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { getAasFromRepository, performFullAasSearch } from 'lib/services/search-actions/searchActions';
 import { LocalizedError } from 'lib/util/LocalizedError';
+import { SubmodelOrIdReference, useRegistryAasState, useSubmodelState } from 'components/contexts/CurrentAasContext';
+import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
+import { TransferButton } from 'app/[locale]/viewer/_components/transfer/TransferButton';
 
 export default function Page() {
     const navigate = useRouter();
@@ -32,6 +35,20 @@ export default function Page() {
     const [aas, setAas] = useState<AssetAdministrationShell>();
     const encodedRepoUrl = useSearchParams().get('repoUrl');
     const repoUrl = encodedRepoUrl ? decodeURI(encodedRepoUrl) : undefined;
+
+    const [submodels, setSubmodels] = useSubmodelState();
+    const [isSubmodelsLoading, setIsSubmodelsLoading] = useState(true);
+    const [registryAasData, setRegistryAasData] = useRegistryAasState();
+
+    useAsyncEffect(async () => {
+        await fetchSubmodels();
+    }, [aas]);
+
+    useEffect(() => {
+        return () => {
+            setSubmodels(new Array<SubmodelOrIdReference>());
+        };
+    }, []);
 
     useAsyncEffect(async () => {
         if (aas) {
@@ -57,6 +74,40 @@ export default function Page() {
         } else {
             navigate.push(result.redirectUrl);
         }
+    }
+
+    async function fetchSubmodels() {
+        setIsSubmodelsLoading(true);
+        if (aas?.submodels) {
+            await Promise.all(
+                aas.submodels.map(async (smRef, i) => {
+                    const newSm = await fetchSingleSubmodel(smRef, registryAasData?.submodelDescriptors?.[i]);
+                    setSubmodels((submodels) => {
+                        const exists = submodels.some((sm) => sm.id === newSm.id);
+                        if (exists) return submodels;
+                        return [...submodels, newSm];
+                    });
+                }),
+            );
+        }
+        setIsSubmodelsLoading(false);
+    }
+
+    async function fetchSingleSubmodel(
+        reference: Reference,
+        smDescriptor?: SubmodelDescriptor,
+    ): Promise<SubmodelOrIdReference> {
+        const sm = await performSubmodelFullSearch(reference, smDescriptor);
+        if (!sm)
+            return {
+                id: reference.keys[0].value,
+                error: 'Submodel failed to load', // TODO error localization
+            };
+
+        return {
+            id: sm.id,
+            submodel: sm,
+        };
     }
 
     const startComparison = () => {
@@ -108,10 +159,16 @@ export default function Page() {
                             )}
                         </Typography>
                         {env.COMPARISON_FEATURE_FLAG && !isMobile && (
-                            <Button variant="contained" onClick={startComparison} data-testid="detail-compare-button">
+                            <Button
+                                sx={{ mr: 2 }}
+                                variant="contained"
+                                onClick={startComparison}
+                                data-testid="detail-compare-button"
+                            >
                                 <FormattedMessage {...messages.mnestix.compareButton} />
                             </Button>
                         )}
+                        <TransferButton />
                     </Box>
                     <AASOverviewCard
                         aas={aas ?? null}
@@ -119,8 +176,9 @@ export default function Page() {
                         isLoading={isLoadingAas}
                         isAccordion={isMobile}
                     />
+                    <SubmodelsOverviewCard submodelIds={submodels} submodelsLoading={isSubmodelsLoading} />
                     {aas?.submodels && aas.submodels.length > 0 && (
-                        <SubmodelsOverviewCard smReferences={aas.submodels} />
+                        <SubmodelsOverviewCard submodelIds={submodels} submodelsLoading={isSubmodelsLoading} />
                     )}
                 </Box>
             ) : (

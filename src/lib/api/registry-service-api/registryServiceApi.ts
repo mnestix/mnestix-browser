@@ -36,7 +36,9 @@ export class RegistryServiceApi implements IRegistryServiceApi {
         return new RegistryServiceApiInMemory(options);
     }
 
-    async getAssetAdministrationShellDescriptorById(aasId: string) : Promise<ApiResponseWrapper<AssetAdministrationShellDescriptor>> {
+    async getAssetAdministrationShellDescriptorById(
+        aasId: string,
+    ): Promise<ApiResponseWrapper<AssetAdministrationShellDescriptor>> {
         const b64_aasId = encodeBase64(aasId);
 
         const headers = {
@@ -44,7 +46,7 @@ export class RegistryServiceApi implements IRegistryServiceApi {
             'Content-Type': 'application/json',
         };
 
-        const url = new URL(`${this.baseUrl}/shell-descriptors/${b64_aasId}`);
+        const url = new URL(`/shell-descriptors/${b64_aasId}`, this.baseUrl);
 
         return this.http.fetch(url, {
             method: 'GET',
@@ -63,7 +65,7 @@ export class RegistryServiceApi implements IRegistryServiceApi {
     async putAssetAdministrationShellDescriptorById(
         aasId: string,
         shellDescriptor: AssetAdministrationShellDescriptor,
-    ) : Promise<ApiResponseWrapper<AssetAdministrationShellDescriptor>> {
+    ): Promise<ApiResponseWrapper<AssetAdministrationShellDescriptor>> {
         const b64_aasId = encodeBase64(aasId);
 
         const headers = {
@@ -71,7 +73,7 @@ export class RegistryServiceApi implements IRegistryServiceApi {
             'Content-Type': 'application/json',
         };
 
-        const url = new URL(`${this.baseUrl}/shell-descriptors/${b64_aasId}`);
+        const url = new URL(`/shell-descriptors/${b64_aasId}`, this.baseUrl);
 
         return this.http.fetch(url, {
             method: 'PUT',

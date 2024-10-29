@@ -8,9 +8,11 @@ import { IAssetAdministrationShellRepositoryApi, ISubmodelRepositoryApi } from '
 import {
     AssetAdministrationShellRepositoryApiInMemory,
     INullableAasRepositoryEntries,
-    SubmodelRepositoryApiInMemory,
+    SubmodelRepositoryApiInMemory
 } from 'lib/api/basyx-v3/apiInMemory';
 import { ApiResponseWrapper } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
+import { AttachmentDetails } from 'lib/types/TransferServiceData';
+import { mnestixFetch } from 'lib/api/infrastructure';
 
 const BASE_PATH = '/'.replace(/\/+$/, '');
 
@@ -86,9 +88,7 @@ export class AssetAdministrationShellRepositoryApi implements IAssetAdministrati
     ) {}
 
     static create(
-        http: {
-            fetch<T>(url: RequestInfo | URL, init?: RequestInit): Promise<ApiResponseWrapper<T>>;
-        },
+        http: FetchAPI,
         configuration?: Configuration | undefined,
         basePath?: string,
     ): AssetAdministrationShellRepositoryApi {
@@ -143,6 +143,48 @@ export class AssetAdministrationShellRepositoryApi implements IAssetAdministrati
             aasId,
             options,
         )(this.http, basePath ?? this.basePath);
+    }
+
+    /**
+     * @summary Uploads a thumbnail to the specified Asset Administration Shell (AAS).
+     * @param {string} aasId - The unique identifier of the Asset Administration Shell.
+     * @param {Blob} image - The image file to be uploaded as the thumbnail.
+     * @param fileName - Name of the image file to be uploaded.
+     * @param {object} [options] - Optional. Override HTTP request options.
+     * @param {string} [basePath] - Optional. The base URL of the repository endpoint.
+     * @returns {Promise<Response>} A promise that resolves to the server's response after the thumbnail upload.
+     * @memberof AssetAdministrationShellRepositoryApi
+     */
+    putThumbnailToShell(
+        aasId: string,
+        image: Blob,
+        fileName: string,
+        options?: any,
+        basePath?: string,
+    ): Promise<ApiResponseWrapper<Response>> {
+        return AssetAdministrationShellRepositoryApiFp(this.configuration).putThumbnailToShell(
+            aasId,
+            image,
+            fileName,
+            options,
+        )(mnestixFetch(), basePath ?? this.basePath);
+    }
+
+    /**
+     * @summary Creates a new Asset Administration Shell (AAS) in the repository.
+     * @param {AssetAdministrationShell} aas - The Asset Administration Shell object to be created.
+     * @param {object} [options] - Optional. Additional options to override the default HTTP request settings.
+     * @returns {Promise<AssetAdministrationShell>} A promise that resolves to the newly created Asset Administration Shell.
+     * @memberof AssetAdministrationShellRepositoryApi
+     */
+    postAssetAdministrationShell(
+        aas: AssetAdministrationShell,
+        options?: object | undefined,
+    ): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
+        return AssetAdministrationShellRepositoryApiFp(this.configuration).createAssetAdministrationShell(aas, options)(
+            this.http,
+            this.basePath,
+        );
     }
 }
 
@@ -207,6 +249,71 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
             ).getThumbnailFromAssetInformation(aasId, options);
             return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return requestHandler.fetch<Blob>(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
+            };
+        },
+
+        /**
+         * @summary Uploads a thumbnail to the specified Asset Administration Shell (AAS).
+         * @param {string} aasId - The unique identifier of the Asset Administration Shell.
+         * @param {Blob} image - The image file to be uploaded as the thumbnail.
+         * @param fileName - Name of the image file to be uploaded.
+         * @param {object} [options] - Optional. Override HTTP request options.
+         * @throws {RequiredError}
+         */
+        putThumbnailToShell(
+            aasId: string,
+            image: Blob,
+            fileName: string,
+            options?: any,
+        ): (fetch: FetchAPI, basePath?: string) => Promise<ApiResponseWrapper<Response>> {
+            return async (requestHandler: FetchAPI, basePath: string = BASE_PATH) => {
+                const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
+                const localVarHeaderParameter = {
+                    Accept: 'application/json',
+                } as any;
+
+                localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options?.headers);
+                const formData = new FormData();
+                formData.append('file', image);
+
+                localVarRequestOptions.body = formData;
+                const response = await requestHandler.fetch<Response>(
+                    basePath +
+                        `/shells/{aasId}/asset-information/thumbnail?fileName={fileName}`
+                            .replace(`{aasId}`, encodeBase64(String(aasId)))
+                            .replace(`{fileName}`, fileName),
+                    localVarRequestOptions,
+                );
+
+                return response;
+            };
+        },
+
+        /**
+         * @summary Creates a new Asset Administration Shell (AAS) in the repository.
+         * @param {AssetAdministrationShell} aas - The Asset Administration Shell object to be created.
+         * @param {object} [options] - Optional. Additional options to override the default HTTP request settings.
+         * @throws {RequiredError}
+         */
+        createAssetAdministrationShell(
+            aas: AssetAdministrationShell,
+            options?: any,
+        ): (fetch: FetchAPI, basePath?: string) => Promise<ApiResponseWrapper<AssetAdministrationShell>> {
+            return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+                const localVarHeaderParameter = {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                } as any;
+
+                localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options?.headers);
+                localVarRequestOptions.body = JSON.stringify(aas);
+
+                const response = await requestHandler.fetch<AssetAdministrationShell>(
+                    basePath + '/shells',
+                    localVarRequestOptions,
+                );
+                return response;
             };
         },
     };
@@ -327,13 +434,7 @@ export class SubmodelRepositoryApi implements ISubmodelRepositoryApi {
         private basePath?: string,
     ) {}
 
-    static create(
-        http: {
-            fetch<T>(url: RequestInfo | URL, init?: RequestInit): Promise<ApiResponseWrapper<T>>;
-        },
-        configuration?: Configuration | undefined,
-        basePath?: string,
-    ): SubmodelRepositoryApi {
+    static create(http: FetchAPI, configuration?: Configuration | undefined, basePath?: string): SubmodelRepositoryApi {
         return new SubmodelRepositoryApi(http, configuration, basePath);
     }
 
@@ -374,6 +475,37 @@ export class SubmodelRepositoryApi implements ISubmodelRepositoryApi {
             options,
         )(this.fetch, this.basePath);
     }
+
+    /**
+     * @summary Creates a new submodel in the Submodel repository.
+     * @param {Submodel} submodel - The submodel object to be created.
+     * @param {object} [options] - Optional. Additional options to override default HTTP request settings.
+     * @returns {Promise<Submodel>} A promise that resolves to the newly created submodel.
+     * @memberof SubmodelRepositoryApi
+     */
+    postSubmodel(submodel: Submodel, options?: object | undefined): Promise<ApiResponseWrapper<Submodel>> {
+        return SubmodelRepositoryApiFp(this.configuration).createSubmodel(submodel, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * @summary Uploads an attachment to a specific submodel element.
+     * @param {string} submodelId - The unique identifier of the submodel containing the submodel element.
+     * @param {AttachmentDetails} attachmentDetails - The attachment data to be uploaded to the submodel element.
+     * @param {object} [options] - Optional. Additional options to override default HTTP request settings.
+     * @returns {Promise<Response>} A promise that resolves to the server's response after the attachment upload.
+     * @memberof SubmodelRepositoryApi
+     */
+    putAttachmentToSubmodelElement(
+        submodelId: string,
+        attachmentDetails: AttachmentDetails,
+        options?: any,
+    ): Promise<ApiResponseWrapper<Response>> {
+        return SubmodelRepositoryApiFp(this.configuration).putAttachmentToSubmodelElement(
+            submodelId,
+            attachmentDetails,
+            options,
+        )(this.fetch, this.basePath);
+    }
 }
 
 /**
@@ -381,25 +513,6 @@ export class SubmodelRepositoryApi implements ISubmodelRepositoryApi {
  */
 export const SubmodelRepositoryApiFp = function (configuration?: Configuration) {
     return {
-        /**
-         * @summary Retrieves the meta data of a submodel
-         * @param {string} submodelId The Submodels unique id
-         * @param {*} [options] Override http request option
-         * @throws {RequiredError}
-         */
-        getSubmodelMetaDataById(
-            submodelId: string,
-            options?: any,
-        ): (requestHandler?: FetchAPI, basePath?: string) => Promise<ApiResponseWrapper<Submodel>> {
-            // HINT: Submodel is taken from aas_core_meta
-            const localVarFetchArgs = SubmodelRepositoryApiFetchParamCreator(configuration).getSubmodelMetaDataById(
-                encodeBase64(submodelId),
-                options,
-            );
-            return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                return requestHandler.fetch<Submodel>(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
-            };
-        },
         /**
          * @summary Retrieves the submodel
          * @param {string} submodelId The Submodels unique id
@@ -434,6 +547,61 @@ export const SubmodelRepositoryApiFp = function (configuration?: Configuration) 
             ).getAttachmentFromSubmodelElement(submodelId, submodelElementPath, options);
             return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return requestHandler.fetch<Blob>(basePath + localVarFetchArgs.url, localVarFetchArgs.options);
+            };
+        },
+
+        /**
+         * @summary Creates a new submodel in the Submodel repository.
+         * @param {Submodel} submodel - The submodel object to be created.
+         * @param {object} [options] - Optional. Additional options to override default HTTP request settings.
+         * @throws {RequiredError}
+         */
+        createSubmodel(
+            submodel: Submodel,
+            options?: any,
+        ): (requestHandler?: FetchAPI, basePath?: string) => Promise<ApiResponseWrapper<Submodel>> {
+            return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+                const localVarHeaderParameter = {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                } as any;
+
+                localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options?.headers);
+                localVarRequestOptions.body = JSON.stringify(submodel);
+
+                return await requestHandler.fetch<Submodel>(basePath + '/submodels', localVarRequestOptions);
+            };
+        },
+
+        /**
+         * @summary Uploads an attachment to a specific submodel element.
+         * @param {string} submodelId - The unique identifier of the submodel containing the submodel element.
+         * @param {AttachmentDetails} attachmentDetails - The attachment data to be uploaded to the submodel element.
+         * @param {object} [options] - Optional. Additional options to override default HTTP request settings.
+         * @throws {RequiredError}
+         */
+        putAttachmentToSubmodelElement(submodelId: string, attachmentDetails: AttachmentDetails, options: any) {
+            return async (requestHandler: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
+                const localVarHeaderParameter = {
+                    Accept: 'application/json',
+                } as any;
+
+                localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options?.headers);
+                const formData = new FormData();
+                formData.append('file', attachmentDetails.file!);
+
+                localVarRequestOptions.body = formData;
+                const response = await requestHandler.fetch<Response>(
+                    basePath +
+                        `/submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/attachment?fileName={fileName}`
+                            .replace(`{submodelIdentifier}`, encodeBase64(String(submodelId)))
+                            .replace(`{idShortPath}`, attachmentDetails.idShortPath)
+                            .replace(`{fileName}`, attachmentDetails.fileName ?? 'Document'),
+                    localVarRequestOptions,
+                );
+                return response;
             };
         },
     };

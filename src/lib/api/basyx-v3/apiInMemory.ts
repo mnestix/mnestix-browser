@@ -1,7 +1,12 @@
 import { IAssetAdministrationShellRepositoryApi, ISubmodelRepositoryApi } from 'lib/api/basyx-v3/apiInterface';
 import { AssetAdministrationShell, Reference, Submodel } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
 import { decodeBase64, encodeBase64 } from 'lib/util/Base64Util';
-import { ApiResponseWrapper, ApiResultStatus, wrapErrorCode, wrapResponse } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
+import {
+    ApiResponseWrapper,
+    ApiResultStatus,
+    wrapErrorCode,
+    wrapResponse,
+} from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 
 export interface INullableAasRepositoryEntries {
     repositoryUrl: string;
@@ -13,6 +18,13 @@ export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdmi
 
     constructor(options: { shellsSavedInTheRepositories: INullableAasRepositoryEntries[] | null }) {
         this.shellsSavedInTheRepositories = options.shellsSavedInTheRepositories;
+    }
+
+    postAssetAdministrationShell(
+        _aas: AssetAdministrationShell,
+        _options?: object | undefined,
+    ): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
+        throw new Error('Method not implemented.');
     }
 
     static getDefaultRepositoryUrl(): string {
@@ -72,6 +84,10 @@ export class SubmodelRepositoryApiInMemory implements ISubmodelRepositoryApi {
 
     constructor(options: { submodelsSavedInTheRepository: Submodel[] | null }) {
         this.submodelsSavedInTheRepository = options.submodelsSavedInTheRepository;
+    }
+
+    postSubmodel(_submodel: Submodel, _options?: object | undefined): Promise<ApiResponseWrapper<Submodel>> {
+        throw new Error('Method not implemented.');
     }
 
     async getSubmodelById(

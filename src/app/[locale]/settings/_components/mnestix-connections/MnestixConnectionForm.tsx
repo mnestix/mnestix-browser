@@ -7,15 +7,11 @@ import { Control, Controller, FieldArrayWithId, useFieldArray, UseFormGetValues 
 import { ConnectionFormData } from 'app/[locale]/settings/_components/mnestix-connections/MnestixConnectionsCard';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { tooltipText } from 'lib/util/ToolTipText';
+import { ConnectionTypeEnum } from 'lib/services/database/ConnectionTypeEnum';
 
-enum ConnectionType {
-    AAS_REPOSITORY = 'AAS_REPOSITORY',
-    SUBMODEL_REPOSITORY = 'SUBMODEL_REPOSITORY',
-}
-
-const ConnectionTypeMap: Record<string, ConnectionType> = {
-    aasRepository: ConnectionType.AAS_REPOSITORY,
-    submodelRepository: ConnectionType.SUBMODEL_REPOSITORY,
+const ConnectionTypeMap: Record<string, ConnectionTypeEnum> = {
+    aasRepository: ConnectionTypeEnum.AAS_REPOSITORY,
+    submodelRepository: ConnectionTypeEnum.SUBMODEL_REPOSITORY,
 };
 
 /**
