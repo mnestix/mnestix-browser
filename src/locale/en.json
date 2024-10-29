@@ -18,6 +18,12 @@
         "scan-id-label": "Scan AAS ID or Asset ID",
         "enter-manually-label": "or enter manually"
     },
+    "submodels": {
+        "timeSeries": {
+            "internalSegments": "Internal segments",
+            "linkedSegments": "Linked segments"
+        }
+    },
     "settings": {
         "header": "Settings"
     }

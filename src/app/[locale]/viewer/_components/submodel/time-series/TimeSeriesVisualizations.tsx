@@ -3,11 +3,12 @@ import { SubmodelElementSemanticId } from 'lib/enums/SubmodelElementSemanticId.e
 import { InfluxTimeSeries } from './InfluxTimeSeries';
 import { InternalTimeSeries } from 'app/[locale]/viewer/_components/submodel/time-series/InternalTimeSeries';
 import { hasSemanticId } from 'lib/util/SubmodelResolverUtil';
-import { messages } from 'lib/i18n/localization';
-import { FormattedMessage } from 'react-intl';
 import { Typography } from '@mui/material';
+import { useTranslations } from 'next-intl';
 
 export function TimeSeriesVisualizations(props: { submodel: Submodel }) {
+    const t = useTranslations('submodels.timeSeries');
+
     const timeSeriesSegments = props.submodel.submodelElements?.find(
         (el) => el.semanticId?.keys[0].value === SubmodelElementSemanticId.TimeSeriesSegments,
     ) as SubmodelElementCollection | undefined;
@@ -24,9 +25,7 @@ export function TimeSeriesVisualizations(props: { submodel: Submodel }) {
         <>
             {linkedSegments && linkedSegments.length > 0 && (
                 <>
-                    <Typography>
-                        <FormattedMessage {...messages.mnestix.timeSeries.linkedSegments} />
-                    </Typography>
+                    <Typography>{t('linkedSegments')}</Typography>
                     {linkedSegments.map((segment, index) => {
                         return <InfluxTimeSeries submodelElement={segment} key={index} />;
                     })}
@@ -35,9 +34,7 @@ export function TimeSeriesVisualizations(props: { submodel: Submodel }) {
 
             {internalSegments && internalSegments.length > 0 && (
                 <>
-                    <Typography>
-                        <FormattedMessage {...messages.mnestix.timeSeries.internalSegments} />
-                    </Typography>
+                    <Typography>{t('internalSegments')}</Typography>
                     {internalSegments?.map((segment, index) => {
                         return <InternalTimeSeries submodelElement={segment} key={index} />;
                     })}
