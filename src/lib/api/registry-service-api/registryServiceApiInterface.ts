@@ -15,4 +15,6 @@ export interface IRegistryServiceApi {
     ): Promise<ApiResponseWrapper<AssetAdministrationShellDescriptor>>;
 
     getAssetAdministrationShellFromEndpoint(endpoint: URL): Promise<ApiResponseWrapper<AssetAdministrationShell>>;
+
+    postAssetAdministrationShellDescriptor(shellDescriptor: AssetAdministrationShellDescriptor): Promise<ApiResponseWrapper<void>>;
 }

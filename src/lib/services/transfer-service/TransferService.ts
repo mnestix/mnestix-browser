@@ -136,74 +136,74 @@ export class TransferService {
     }
 
     private async postAasToRepository(aas: AssetAdministrationShell, apikey?: string): Promise<TransferResult> {
-        try {
-            await this.targetAasRepositoryClient.postAssetAdministrationShell(aas, {
-                headers: {
-                    Apikey: apikey,
-                },
-            });
+        const response = await this.targetAasRepositoryClient.postAssetAdministrationShell(aas, {
+            headers: {
+                Apikey: apikey,
+            },
+        });
+        if (response.isSuccess) {
             return { success: true, operationKind: 'AasRepository', resourceId: aas.id, error: '' };
-        } catch (e) {
-            return { success: false, operationKind: 'AasRepository', resourceId: aas.id, error: e.toString() };
+        } else {
+            return { success: false, operationKind: 'AasRepository', resourceId: aas.id, error: response.message };
         }
     }
 
     private async registerAasAtDiscovery(aas: AssetAdministrationShell): Promise<TransferResult> {
-        try {
-            await this.targetAasDiscoveryClient!.postAllAssetLinksById(aas.id, [
-                {
-                    name: 'globalAssetId',
-                    value: aas.assetInformation.globalAssetId!,
-                },
-            ]);
+        const response = await this.targetAasDiscoveryClient!.postAllAssetLinksById(aas.id, [
+            {
+                name: 'globalAssetId',
+                value: aas.assetInformation.globalAssetId!,
+            },
+        ]);
+        if (response.isSuccess) {
             return { success: true, operationKind: 'Discovery', resourceId: aas.id, error: '' };
-        } catch (e) {
-            return { success: false, operationKind: 'Discovery', resourceId: aas.id, error: e.toString() };
+        } else {
+            return { success: false, operationKind: 'Discovery', resourceId: aas.id, error: response.message };
         }
     }
 
     private async registerAasAtRegistry(shellDescriptor: AssetAdministrationShellDescriptor): Promise<TransferResult> {
-        try {
-            await this.targetAasRegistryClient!.postAssetAdministrationShellDescriptor(shellDescriptor);
+        const response = await this.targetAasRegistryClient!.postAssetAdministrationShellDescriptor(shellDescriptor);
+        if (response.isSuccess) {
             return { success: true, operationKind: 'AasRegistry', resourceId: shellDescriptor.id, error: '' };
-        } catch (e) {
+        } else {
             return {
                 success: false,
                 operationKind: 'AasRegistry',
                 resourceId: shellDescriptor.id,
-                error: e.toString(),
+                error: response.message,
             };
         }
     }
 
     private async postSubmodelToRepository(submodel: Submodel, apikey?: string): Promise<TransferResult> {
-        try {
-            await this.targetSubmodelRepositoryClient.postSubmodel(submodel, {
-                headers: {
-                    Apikey: apikey,
-                },
-            });
+        const response = await this.targetSubmodelRepositoryClient.postSubmodel(submodel, {
+            headers: {
+                Apikey: apikey,
+            },
+        });
+        if (response.isSuccess) {
             return { success: true, operationKind: 'SubmodelRepository', resourceId: submodel.id, error: '' };
-        } catch (e) {
+        } else {
             return {
                 success: false,
                 operationKind: 'SubmodelRepository',
                 resourceId: submodel.id,
-                error: e.toString(),
+                error: response.message,
             };
         }
     }
 
     private async registerSubmodelAtRegistry(submodelDescriptor: SubmodelDescriptor): Promise<TransferResult> {
-        try {
-            await this.targetSubmodelRegistryClient!.postSubmodelDescriptor(submodelDescriptor);
+        const response = await this.targetSubmodelRegistryClient!.postSubmodelDescriptor(submodelDescriptor);
+        if (response.isSuccess) {
             return { success: true, operationKind: 'SubmodelRegistry', resourceId: submodelDescriptor.id, error: '' };
-        } catch (e) {
+        } else {
             return {
                 success: false,
                 operationKind: 'SubmodelRegistry',
                 resourceId: submodelDescriptor.id,
-                error: e.toString(),
+                error: response.message,
             };
         }
     }
@@ -265,24 +265,24 @@ export class TransferService {
         attachment: AttachmentDetails,
         apikey?: string,
     ): Promise<TransferResult> {
-        try {
-            await this.targetSubmodelRepositoryClient.putAttachmentToSubmodelElement(submodelId, attachment, {
-                headers: {
-                    Apikey: apikey,
-                },
-            });
+        const response = await this.targetSubmodelRepositoryClient.putAttachmentToSubmodelElement(submodelId, attachment, {
+            headers: {
+                Apikey: apikey,
+            },
+        });
+        if (response.isSuccess) {
             return {
                 success: true,
                 operationKind: 'File transfer',
                 resourceId: [submodelId, attachment.idShortPath].join(': '),
                 error: '',
             };
-        } catch (e) {
+        } else {
             return {
                 success: false,
                 operationKind: 'File transfer',
                 resourceId: [submodelId, attachment.idShortPath].join(': '),
-                error: e.toString(),
+                error: response.message,
             };
         }
     }

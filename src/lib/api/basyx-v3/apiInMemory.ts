@@ -7,6 +7,7 @@ import {
     wrapErrorCode,
     wrapResponse,
 } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
+import { AttachmentDetails } from 'lib/types/TransferServiceData';
 
 export interface INullableAasRepositoryEntries {
     repositoryUrl: string;
@@ -24,6 +25,16 @@ export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdmi
         _aas: AssetAdministrationShell,
         _options?: object | undefined,
     ): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
+        throw new Error('Method not implemented.');
+    }
+
+    putThumbnailToShell(
+        _aasId: string,
+        _image: Blob,
+        _fileName: string,
+        _options?: object | undefined,
+        _basePath?: string | undefined,
+    ): Promise<ApiResponseWrapper<Response>> {
         throw new Error('Method not implemented.');
     }
 
@@ -84,6 +95,14 @@ export class SubmodelRepositoryApiInMemory implements ISubmodelRepositoryApi {
 
     constructor(options: { submodelsSavedInTheRepository: Submodel[] | null }) {
         this.submodelsSavedInTheRepository = options.submodelsSavedInTheRepository;
+    }
+
+    putAttachmentToSubmodelElement(
+        _submodelId: string,
+        _attachmentData: AttachmentDetails,
+        _options?: object | undefined,
+    ): Promise<ApiResponseWrapper<Response>> {
+        throw new Error('Method not implemented.');
     }
 
     postSubmodel(_submodel: Submodel, _options?: object | undefined): Promise<ApiResponseWrapper<Submodel>> {

@@ -54,6 +54,21 @@ export class RegistryServiceApi implements IRegistryServiceApi {
         });
     }
 
+    async postAssetAdministrationShellDescriptor(shellDescriptor: AssetAdministrationShellDescriptor) : Promise<ApiResponseWrapper<void>> {
+        const headers = {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        };
+
+        const url = new URL('/shell-descriptors', this.baseUrl);
+
+        return await this.http.fetch(url.toString(), {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(shellDescriptor),
+        });
+    }
+
     async getAssetAdministrationShellFromEndpoint(
         endpoint: URL,
     ): Promise<ApiResponseWrapper<AssetAdministrationShell>> {

@@ -277,15 +277,13 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
                 formData.append('file', image);
 
                 localVarRequestOptions.body = formData;
-                const response = await requestHandler.fetch<Response>(
+                return await requestHandler.fetch<Response>(
                     basePath +
                         `/shells/{aasId}/asset-information/thumbnail?fileName={fileName}`
                             .replace(`{aasId}`, encodeBase64(String(aasId)))
                             .replace(`{fileName}`, fileName),
                     localVarRequestOptions,
                 );
-
-                return response;
             };
         },
 
@@ -309,11 +307,10 @@ export const AssetAdministrationShellRepositoryApiFp = function (configuration?:
                 localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options?.headers);
                 localVarRequestOptions.body = JSON.stringify(aas);
 
-                const response = await requestHandler.fetch<AssetAdministrationShell>(
+                return await requestHandler.fetch<AssetAdministrationShell>(
                     basePath + '/shells',
                     localVarRequestOptions,
                 );
-                return response;
             };
         },
     };
@@ -593,7 +590,7 @@ export const SubmodelRepositoryApiFp = function (configuration?: Configuration) 
                 formData.append('file', attachmentDetails.file!);
 
                 localVarRequestOptions.body = formData;
-                const response = await requestHandler.fetch<Response>(
+                return await requestHandler.fetch<Response>(
                     basePath +
                         `/submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/attachment?fileName={fileName}`
                             .replace(`{submodelIdentifier}`, encodeBase64(String(submodelId)))
@@ -601,7 +598,6 @@ export const SubmodelRepositoryApiFp = function (configuration?: Configuration) 
                             .replace(`{fileName}`, attachmentDetails.fileName ?? 'Document'),
                     localVarRequestOptions,
                 );
-                return response;
             };
         },
     };
