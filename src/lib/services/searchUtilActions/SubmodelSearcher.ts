@@ -50,12 +50,12 @@ export class SubmodelSearcher {
         }
 
         const submodelFromDefaultRepo = await this.getSubmodelById(submodelId);
-        if (submodelFromDefaultRepo) {
+        if (submodelFromDefaultRepo.isSuccess) {
             return submodelFromDefaultRepo;
         }
 
         const submodelFromAllRepos = await this.getSubmodelFromAllRepos(submodelId);
-        if (submodelFromAllRepos) {
+        if (submodelFromAllRepos.isSuccess) {
             return submodelFromAllRepos;
         }
 
