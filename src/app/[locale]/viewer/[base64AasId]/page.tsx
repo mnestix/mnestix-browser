@@ -180,7 +180,6 @@ export default function Page() {
                         isLoading={isLoadingAas}
                         isAccordion={isMobile}
                     />
-                    <SubmodelsOverviewCard submodelIds={submodels} submodelsLoading={isSubmodelsLoading} />
                     {aas?.submodels && aas.submodels.length > 0 && (
                         <SubmodelsOverviewCard submodelIds={submodels} submodelsLoading={isSubmodelsLoading} />
                     )}
