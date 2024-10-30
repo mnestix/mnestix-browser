@@ -79,7 +79,7 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
                 registryAasData.aasRegistryRepositoryOrigin,
             );
             const response = await registryRepository.getThumbnailFromShell(props.aas.id);
-            if (response.isSuccess && 'fileType' in response) {
+            if (isSuccessWithFile(response)) {
                 image = base64ToBlob(response.result, response.fileType);
                 setProductImageUrl(URL.createObjectURL(image));
             }

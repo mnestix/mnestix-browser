@@ -7,7 +7,12 @@ import { INullableAasRepositoryEntries } from 'lib/api/basyx-v3/apiInMemory';
 import { PrismaConnector } from 'lib/services/prisma/PrismaConnector';
 import { IPrismaConnector } from 'lib/services/prisma/PrismaConnectorInterface';
 import { Reference } from '@aas-core-works/aas-core3.0-typescript/types';
-import { ApiResponseWrapper, ApiResultStatus, wrapErrorCode, wrapSuccess } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
+import {
+    ApiResponseWrapper,
+    ApiResultStatus,
+    wrapErrorCode,
+    wrapSuccess,
+} from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 
 export type RepoSearchResult = {
     aas: AssetAdministrationShell;
@@ -164,7 +169,7 @@ export class RepositorySearchService {
 
         const promises = basePathUrls.map((url) => {
             return this.repositoryClient.getThumbnailFromShell(aasId, undefined, url).then((response) => {
-                if (response.isSuccess && response.result.size === 0) {
+                if (response.isSuccess && response.result instanceof Blob && response.result.size === 0) {
                     return Promise.reject('Empty image');
                 }
                 return response;
