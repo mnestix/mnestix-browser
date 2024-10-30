@@ -85,7 +85,7 @@ export function TimeSeriesLineDiagram(props: { data: TimeSeriesDataSet; timefram
     return (
         <Box sx={{ width: '100%', height: '250px' }} data-testid="timeseries-line-chart">
             <ResponsiveContainer>
-                <LineChart data={props.data.points} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                <LineChart data={props.data.points} margin={{ top: 5, right: 30, left: -20, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis fontSize={11} dataKey="timestamp" tickFormatter={(v) => formatDate(v, uniqueDates.length <= 2)} />
                     <YAxis fontSize={11}/>
