@@ -36,15 +36,13 @@ export function FileComponent(props: FileComponentProps) {
                     props.submodelId,
                     props.submodelElementPath,
                 );
-                if (imageResponse.isSuccess) {
-                    if (isSuccessWithFile(imageResponse)) {
-                        const imageObjectURL = URL.createObjectURL(
-                            base64ToBlob(imageResponse.result, imageResponse.fileType),
-                        );
-                        setImage(imageObjectURL);
-                    }
-                } else {
+                if (!imageResponse.isSuccess) {
                     console.error('Image not found' + imageResponse.message);
+                } else if (isSuccessWithFile(imageResponse)) {
+                    const imageObjectURL = URL.createObjectURL(
+                        base64ToBlob(imageResponse.result, imageResponse.fileType),
+                    );
+                    setImage(imageObjectURL);
                 }
             }
         }
