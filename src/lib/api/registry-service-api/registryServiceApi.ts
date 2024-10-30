@@ -54,7 +54,9 @@ export class RegistryServiceApi implements IRegistryServiceApi {
         });
     }
 
-    async postAssetAdministrationShellDescriptor(shellDescriptor: AssetAdministrationShellDescriptor) : Promise<ApiResponseWrapper<void>> {
+    async postAssetAdministrationShellDescriptor(
+        shellDescriptor: AssetAdministrationShellDescriptor,
+    ): Promise<ApiResponseWrapper<void>> {
         const headers = {
             Accept: 'application/json',
             'Content-Type': 'application/json',

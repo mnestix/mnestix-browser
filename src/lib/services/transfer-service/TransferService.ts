@@ -11,6 +11,7 @@ import { AssetAdministrationShellDescriptor, Endpoint, SubmodelDescriptor } from
 import { encodeBase64 } from 'lib/util/Base64Util';
 import {
     AssetAdministrationShell,
+    AssetKind,
     Blob,
     File,
     ISubmodelElement,
@@ -265,11 +266,15 @@ export class TransferService {
         attachment: AttachmentDetails,
         apikey?: string,
     ): Promise<TransferResult> {
-        const response = await this.targetSubmodelRepositoryClient.putAttachmentToSubmodelElement(submodelId, attachment, {
-            headers: {
-                Apikey: apikey,
+        const response = await this.targetSubmodelRepositoryClient.putAttachmentToSubmodelElement(
+            submodelId,
+            attachment,
+            {
+                headers: {
+                    Apikey: apikey,
+                },
             },
-        });
+        );
         if (response.isSuccess) {
             return {
                 success: true,
@@ -300,7 +305,7 @@ export class TransferService {
             displayName: aas.displayName || undefined,
             extensions: aas.extensions || undefined,
             administration: aas.administration || undefined,
-            assetKind: aas.assetInformation.assetKind as unknown as 'Instance' | 'NotApplicable' | 'Type' | undefined,
+            assetKind: AssetKind[aas.assetInformation.assetKind] as 'Instance' | 'NotApplicable' | 'Type',
             assetType: aas.assetInformation.assetType || undefined,
             globalAssetId: aas.assetInformation.globalAssetId || undefined,
             endpoints: [endpoint],
