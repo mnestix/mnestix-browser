@@ -23,40 +23,42 @@ import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { TransferDto, TransferResult } from 'lib/types/TransferServiceData';
 
 export type TransferFormModel = {
-    targetAasRepositoryFormModel: TargetRepositoryFormData
+    targetAasRepositoryFormModel: TargetRepositoryFormData;
 };
 
 export function TransferDialog(props: DialogProps) {
     const [transferDto, setTransferDto] = useState<TransferFormModel>();
-    const [submodelsFromContext,] = useSubmodelState();
-    const [aasFromContext,] = useAasState();
+    const [submodelsFromContext] = useSubmodelState();
+    const [aasFromContext] = useAasState();
     const notificationSpawner = useNotificationSpawner();
-    const [ isSubmitting, setIsSubmitting ] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const theme = useTheme();
     const intl = useIntl();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
     const handleSubmitRepositoryStep = async (values: TargetRepositoryFormData) => {
-        if (!values.repository || !aasFromContext || !values.repository) {
+        if (!values.repository || !aasFromContext) {
             return;
         }
 
         // This state can be used later to hold the data of multiple steps
-        setTransferDto({ ...transferDto, targetAasRepositoryFormModel: values })
+        setTransferDto({ ...transferDto, targetAasRepositoryFormModel: values });
 
         const dtoToSubmit: TransferDto = {
             submodels: submodelsFromContext.filter((sub) => sub.submodel).map((sub) => sub.submodel!),
             aas: aasFromContext,
             targetAasRepositoryBaseUrl: values.repository,
-            targetSubmodelRepositoryBaseUrl: values.submodelRepository && values.submodelRepository !== '0' ? values.submodelRepository : values.repository,
-            apikey: values.repositoryApiKey
-        }
+            targetSubmodelRepositoryBaseUrl:
+                values.submodelRepository && values.submodelRepository !== '0'
+                    ? values.submodelRepository
+                    : values.repository,
+            apikey: values.repositoryApiKey,
+        };
 
         try {
-            setIsSubmitting(true)
+            setIsSubmitting(true);
             const response = await transferAasWithSubmodels(dtoToSubmit);
-            processResult(response)
-
+            processResult(response);
         } catch (error) {
             notificationSpawner.spawn({
                 message: intl.formatMessage(messages.mnestix.transfer.errorToast),
@@ -64,32 +66,31 @@ export function TransferDialog(props: DialogProps) {
             });
         } finally {
             props.onClose && props.onClose({}, 'escapeKeyDown');
-            setIsSubmitting(false)
+            setIsSubmitting(false);
         }
-    }
+    };
 
     /**
      * Shows success if all elements got transferred correctly.
      * Shows error if no element got transferred correctly.
-     * If only parts of the AAS got transferred, 
+     * If only parts of the AAS got transferred,
      * shows an error for each failed element and a warning in the end.
      * @param result List of all transfer Results.
      */
     const processResult = (result: TransferResult[]) => {
-        if(result.every(result => result.success)) {
+        if (result.every((result) => result.success)) {
             notificationSpawner.spawn({
                 message: intl.formatMessage(messages.mnestix.transfer.successfullToast),
                 severity: 'success',
             });
-        }
-        else if(result.every(result => !result.success)) {
+        } else if (result.every((result) => !result.success)) {
             notificationSpawner.spawn({
                 message: intl.formatMessage(messages.mnestix.transfer.errorToast),
                 severity: 'error',
             });
         } else {
-            result.map(result => {
-                if(!result.success) {
+            result.map((result) => {
+                if (!result.success) {
                     notificationSpawner.spawn({
                         message: `${intl.formatMessage(messages.mnestix.transfer.partiallyFailedToast)}: ${result.error}`,
                         severity: 'error',
@@ -99,16 +100,26 @@ export function TransferDialog(props: DialogProps) {
                     message: intl.formatMessage(messages.mnestix.transfer.warningToast),
                     severity: 'warning',
                 });
-            })
+            });
         }
-    }
+    };
 
     return (
-        <Dialog open={props.open} onClose={props.onClose} maxWidth="md" fullWidth fullScreen={fullScreen} closeAfterTransition={false}>
+        <Dialog
+            open={props.open}
+            onClose={props.onClose}
+            maxWidth="md"
+            fullWidth
+            fullScreen={fullScreen}
+            closeAfterTransition={false}
+        >
             <Box sx={{ m: 4 }}>
-                <Typography variant="h2"
-                            color="primary"><FormattedMessage {...messages.mnestix.transfer.title}/></Typography>
-                <Typography><FormattedMessage {...messages.mnestix.transfer.subtitle}/></Typography>
+                <Typography variant="h2" color="primary">
+                    <FormattedMessage {...messages.mnestix.transfer.title} />
+                </Typography>
+                <Typography>
+                    <FormattedMessage {...messages.mnestix.transfer.subtitle} />
+                </Typography>
             </Box>
             <IconButton
                 aria-label="close"
@@ -120,12 +131,15 @@ export function TransferDialog(props: DialogProps) {
                     color: theme.palette.grey[500],
                 })}
             >
-                <CloseIcon/>
+                <CloseIcon />
             </IconButton>
             <DialogContent sx={{ mr: 1, ml: 1 }}>
-                <TargetRepositories onSubmitStep={(values) => handleSubmitRepositoryStep(values)} isSubmitting={isSubmitting} />
+                <TargetRepositories
+                    onSubmitStep={(values) => handleSubmitRepositoryStep(values)}
+                    isSubmitting={isSubmitting}
+                />
             </DialogContent>
-            <Divider/>
+            <Divider />
         </Dialog>
     );
 }

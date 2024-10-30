@@ -8,7 +8,7 @@ import { messages } from 'lib/i18n/localization';
 import { decodeBase64, safeBase64Decode } from 'lib/util/Base64Util';
 import { ArrowForward } from '@mui/icons-material';
 import { showError } from 'lib/util/ErrorHandlerUtil';
-import { AssetAdministrationShell, LangStringNameType, Reference } from '@aas-core-works/aas-core3.0-typescript/types';
+import { LangStringNameType, Reference } from '@aas-core-works/aas-core3.0-typescript/types';
 import { useIsMobile } from 'lib/hooks/UseBreakpoints';
 import { getTranslationText } from 'lib/util/SubmodelResolverUtil';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
@@ -19,10 +19,15 @@ import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import {
     getAasFromRepository,
     performFullAasSearch,
-    performSubmodelFullSearch
+    performSubmodelFullSearch,
 } from 'lib/services/search-actions/searchActions';
 import { LocalizedError } from 'lib/util/LocalizedError';
-import { SubmodelOrIdReference, useRegistryAasState, useSubmodelState } from 'components/contexts/CurrentAasContext';
+import {
+    SubmodelOrIdReference,
+    useAasState,
+    useRegistryAasState,
+    useSubmodelState,
+} from 'components/contexts/CurrentAasContext';
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 import { TransferButton } from 'app/[locale]/viewer/_components/transfer/TransferButton';
 
@@ -36,17 +41,16 @@ export default function Page() {
     const isMobile = useIsMobile();
     const intl = useIntl();
     const env = useEnv();
-    const [aas, setAas] = useState<AssetAdministrationShell>();
     const encodedRepoUrl = useSearchParams().get('repoUrl');
     const repoUrl = encodedRepoUrl ? decodeURI(encodedRepoUrl) : undefined;
-
+    const [aasFromContext, setAasFromContext] = useAasState();
     const [submodels, setSubmodels] = useSubmodelState();
     const [isSubmodelsLoading, setIsSubmodelsLoading] = useState(true);
     const [registryAasData] = useRegistryAasState();
 
     useAsyncEffect(async () => {
         await fetchSubmodels();
-    }, [aas]);
+    }, [aasFromContext]);
 
     useEffect(() => {
         return () => {
@@ -55,7 +59,7 @@ export default function Page() {
     }, []);
 
     useAsyncEffect(async () => {
-        if (aas) {
+        if (aasFromContext) {
             return;
         }
         setIsLoadingAas(true);
@@ -66,15 +70,17 @@ export default function Page() {
     async function loadAasContent() {
         if (repoUrl) {
             const response = await getAasFromRepository(aasIdDecoded, repoUrl);
-            setAas(response.result);
-            return;
+            if (response.isSuccess) {
+                setAasFromContext(response.result);
+                return;
+            }
         }
 
         const { isSuccess, result } = await performFullAasSearch(aasIdDecoded);
         if (!isSuccess) {
             showError(new LocalizedError(messages.mnestix.aasUrlNotFound), notificationSpawner);
         } else if (result.aas) {
-            setAas(result.aas);
+            setAasFromContext(result.aas);
         } else {
             navigate.push(result.redirectUrl);
         }
@@ -82,9 +88,9 @@ export default function Page() {
 
     async function fetchSubmodels() {
         setIsSubmodelsLoading(true);
-        if (aas?.submodels) {
+        if (aasFromContext?.submodels) {
             await Promise.all(
-                aas.submodels.map(async (smRef, i) => {
+                aasFromContext.submodels.map(async (smRef, i) => {
                     const newSm = await fetchSingleSubmodel(smRef, registryAasData?.submodelDescriptors?.[i]);
                     setSubmodels((submodels) => {
                         const exists = submodels.some((sm) => sm.id === newSm.id);
@@ -139,7 +145,7 @@ export default function Page() {
 
     return (
         <Box sx={pageStyles}>
-            {aas || isLoadingAas ? (
+            {aasFromContext || isLoadingAas ? (
                 <Box sx={viewerStyles}>
                     <Box display="flex" flexDirection="row" alignContent="flex-end">
                         <Typography
@@ -156,8 +162,8 @@ export default function Page() {
                         >
                             {isLoadingAas ? (
                                 <Skeleton width="40%" sx={{ margin: '0 auto' }} />
-                            ) : aas?.displayName ? (
-                                getTranslationText(aas?.displayName as LangStringNameType[], intl)
+                            ) : aasFromContext?.displayName ? (
+                                getTranslationText(aasFromContext?.displayName as LangStringNameType[], intl)
                             ) : (
                                 ''
                             )}
@@ -175,12 +181,12 @@ export default function Page() {
                         <TransferButton />
                     </Box>
                     <AASOverviewCard
-                        aas={aas ?? null}
-                        productImage={aas?.assetInformation?.defaultThumbnail?.path}
+                        aas={aasFromContext ?? null}
+                        productImage={aasFromContext?.assetInformation?.defaultThumbnail?.path}
                         isLoading={isLoadingAas}
                         isAccordion={isMobile}
                     />
-                    {aas?.submodels && aas.submodels.length > 0 && (
+                    {aasFromContext?.submodels && aasFromContext.submodels.length > 0 && (
                         <SubmodelsOverviewCard submodelIds={submodels} submodelsLoading={isSubmodelsLoading} />
                     )}
                 </Box>
