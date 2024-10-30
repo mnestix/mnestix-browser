@@ -21,7 +21,8 @@
     "submodels": {
         "timeSeries": {
             "internalSegments": "Internal segments",
-            "linkedSegments": "Linked segments"
+            "linkedSegments": "Linked segments",
+            "selectTimeframe": "Select timeframe"
         }
     },
     "settings": {

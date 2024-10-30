@@ -12,6 +12,7 @@ import {
 } from 'recharts';
 import { Box, Typography, useTheme } from '@mui/material';
 import { TimeSeriesDataSet } from 'app/[locale]/viewer/_components/submodel/time-series/TimeSeriesUtil';
+import { useTranslations } from 'next-intl';
 
 function formatDate(dateString: string, onlyTime = false) {
     const date = new Date(dateString);
@@ -52,6 +53,7 @@ function getUTCMidnightEquivalentTime(dates: string[]) {
 export function TimeSeriesLineDiagram(props: { data: TimeSeriesDataSet; timeframeSelectable?: boolean }) {
     const uniqueDates = [...new Set(props.data.points.map((point) => getDateStamp(point['timestamp'] as string)))];
     const startDayMarkerStamp = uniqueDates.length > 2 ? getUTCMidnightEquivalentTime(uniqueDates) : [];
+    const t = useTranslations('submodels.timeSeries');
     const theme = useTheme();
     const color = theme.palette.primary.main;
 
@@ -129,6 +131,9 @@ export function TimeSeriesLineDiagram(props: { data: TimeSeriesDataSet; timefram
                     )}
                 </LineChart>
             </ResponsiveContainer>
+            <Typography color="text.secondary" variant="body2" align='center'>
+                {t('selectTimeframe')}
+            </Typography>
         </Box>
     );
 }
