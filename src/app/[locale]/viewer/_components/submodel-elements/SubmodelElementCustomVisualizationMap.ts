@@ -10,5 +10,5 @@ export const submodelElementCustomVisualizationMap = {
     [SubmodelElementSemanticId.Markings]: MarkingsComponent,
     [SubmodelElementSemanticId.MarkingsIrdi]: MarkingsComponent,
     [SubmodelElementSemanticId.Document]: DocumentComponent,
-    [SubmodelElementSemanticId.DocumentIrdi]: DocumentComponent
+    [SubmodelElementSemanticId.DocumentIrdi]: DocumentComponent,
 };
