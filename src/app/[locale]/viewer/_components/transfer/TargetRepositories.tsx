@@ -12,7 +12,7 @@ import { messages } from 'lib/i18n/localization';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
     getConnectionDataByTypeAction
-} from 'lib/services/database/MnestixConnectionServerActions';
+} from 'lib/services/database/connectionServerActions';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { Fragment, useState } from 'react';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';

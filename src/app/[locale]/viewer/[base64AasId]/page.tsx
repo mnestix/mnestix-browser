@@ -16,7 +16,11 @@ import { SubmodelsOverviewCard } from '../_components/SubmodelsOverviewCard';
 import { AASOverviewCard } from 'app/[locale]/viewer/_components/AASOverviewCard';
 import { useEnv } from 'app/env/provider';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
-import { getAasFromRepository, performFullAasSearch } from 'lib/services/search-actions/searchActions';
+import {
+    getAasFromRepository,
+    performFullAasSearch,
+    performSubmodelFullSearch
+} from 'lib/services/search-actions/searchActions';
 import { LocalizedError } from 'lib/util/LocalizedError';
 import { SubmodelOrIdReference, useRegistryAasState, useSubmodelState } from 'components/contexts/CurrentAasContext';
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
@@ -38,7 +42,7 @@ export default function Page() {
 
     const [submodels, setSubmodels] = useSubmodelState();
     const [isSubmodelsLoading, setIsSubmodelsLoading] = useState(true);
-    const [registryAasData, setRegistryAasData] = useRegistryAasState();
+    const [registryAasData] = useRegistryAasState();
 
     useAsyncEffect(async () => {
         await fetchSubmodels();
@@ -97,16 +101,16 @@ export default function Page() {
         reference: Reference,
         smDescriptor?: SubmodelDescriptor,
     ): Promise<SubmodelOrIdReference> {
-        const sm = await performSubmodelFullSearch(reference, smDescriptor);
-        if (!sm)
+        const submodelResponse = await performSubmodelFullSearch(reference, smDescriptor);
+        if (!submodelResponse.isSuccess)
             return {
                 id: reference.keys[0].value,
                 error: 'Submodel failed to load', // TODO error localization
             };
 
         return {
-            id: sm.id,
-            submodel: sm,
+            id: submodelResponse.result.id,
+            submodel: submodelResponse.result,
         };
     }
 

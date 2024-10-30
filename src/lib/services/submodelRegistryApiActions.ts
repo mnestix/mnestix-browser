@@ -11,5 +11,5 @@ const submodelRegistryServiceClient = SubmodelRegistryServiceApi.create(
 );
 
 export async function getSubmodelDescriptorsById(submodelId: string): Promise<ApiResponseWrapper<SubmodelDescriptor>> {
-    return submodelRegistryServiceClient.getSubmodelDescriptorsById(submodelId);
+    return submodelRegistryServiceClient.getSubmodelDescriptorById(submodelId);
 }
