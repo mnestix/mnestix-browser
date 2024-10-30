@@ -23,7 +23,7 @@ export class SubmodelSearcher {
             process.env.SUBMODEL_REPO_API_URL ?? process.env.AAS_REPO_API_URL,
         );
         const submodelRegistryClient = SubmodelRegistryServiceApi.create(
-            process.env.SUBMODEL_REPO_API_URL ?? process.env.AAS_REPO_API_URL,
+            process.env.SUBMODEL_REGISTRY_API_URL ?? process.env.REGISTRY_API_URL,
             mnestixFetch(),
         );
 
