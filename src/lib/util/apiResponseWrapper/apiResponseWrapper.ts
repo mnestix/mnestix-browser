@@ -1,3 +1,5 @@
+import { blobToBase64 } from 'lib/util/Base64Util';
+
 export const ApiResultStatus = {
     SUCCESS: 'SUCCESS',
     NOT_FOUND: 'NOT_FOUND',
@@ -19,11 +21,20 @@ const getStatus = (statusCode: number): ApiResultStatus => {
     return statusCode in httpStatusMessage ? httpStatusMessage[statusCode] : ApiResultStatus.UNKNOWN_ERROR;
 };
 
-export type ApiResponseWrapper<T> = ApiResponseWrapperSuccess<T> | ApiResponseWrapperError<T>;
+export type ApiResponseWrapper<T> =
+    | ApiResponseWrapperSuccess<T>
+    | ApiResponseWrapperError<T>
+    | ApiResponseWrapperSuccessWithFile<T>;
 
 export type ApiResponseWrapperSuccess<T> = {
     isSuccess: true;
     result: T;
+};
+
+export type ApiResponseWrapperSuccessWithFile<T> = {
+    isSuccess: true;
+    result: T extends Blob ? string : T;
+    fileType: string;
 };
 
 export type ApiResponseWrapperError<T> = {
@@ -63,5 +74,14 @@ export function wrapSuccess<T>(result: T): ApiResponseWrapper<T> {
     return {
         isSuccess: true,
         result: result,
+    };
+}
+
+export async function wrapFileResponse<T>(response: Response): Promise<ApiResponseWrapper<T>> {
+    const fileFromResponse = await response.blob();
+    return {
+        isSuccess: true,
+        result: (await blobToBase64(fileFromResponse)) as ApiResponseWrapperSuccessWithFile<T>['result'],
+        fileType: fileFromResponse.type,
     };
 }

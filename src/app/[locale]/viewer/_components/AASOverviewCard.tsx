@@ -18,7 +18,7 @@ import { IconCircleWrapper } from 'components/basics/IconCircleWrapper';
 import { AssetIcon } from 'components/custom-icons/AssetIcon';
 import { ShellIcon } from 'components/custom-icons/ShellIcon';
 import { isValidUrl } from 'lib/util/UrlUtil';
-import { encodeBase64 } from 'lib/util/Base64Util';
+import { base64ToBlob, encodeBase64 } from 'lib/util/Base64Util';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { useRouter } from 'next/navigation';
 import { useAasState, useRegistryAasState } from 'components/contexts/CurrentAasContext';
@@ -29,6 +29,7 @@ import {
     performGetAasThumbnailFromAllRepos,
 } from 'lib/services/repository-access/repositorySearchActions';
 import { mnestixFetch } from 'lib/api/infrastructure';
+import { isSuccessWithFile } from 'lib/util/apiResponseWrapper/apiResponseWrapperUtil';
 
 type AASOverviewCardProps = {
     readonly aas: AssetAdministrationShell | null;
@@ -78,16 +79,18 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
                 registryAasData.aasRegistryRepositoryOrigin,
             );
             const response = await registryRepository.getThumbnailFromShell(props.aas.id);
-            if (response.isSuccess) {
-                image = response.result;
+            if (response.isSuccess && 'fileType' in response) {
+                image = base64ToBlob(response.result, response.fileType);
                 setProductImageUrl(URL.createObjectURL(image));
             }
         } else {
             const response = await getThumbnailFromShell(props.aas.id);
-            if (response.isSuccess) image = response.result;
-            else {
+
+            if (isSuccessWithFile(response)) {
+                image = base64ToBlob(response.result, response.fileType);
+            } else {
                 const response = await performGetAasThumbnailFromAllRepos(props.aas.id);
-                if (response.isSuccess) image = response.result;
+                if (isSuccessWithFile(response)) image = base64ToBlob(response.result, response.fileType);
                 else {
                     console.error('Image not found');
                     return;
