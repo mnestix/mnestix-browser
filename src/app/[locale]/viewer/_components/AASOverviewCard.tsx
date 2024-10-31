@@ -196,6 +196,7 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
                         <Skeleton
                             variant="rectangular"
                             sx={{ height: '300px', maxWidth: '300px', width: '100%' }}
+                            data-testid="aas-loading-skeleton"
                         ></Skeleton>
                         <Box width="100%">
                             {isAccordion ? (
