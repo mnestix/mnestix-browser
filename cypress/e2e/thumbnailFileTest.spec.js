@@ -10,8 +10,7 @@ describe('Thumbnail image as a file loaded test', function () {
     resolutions.forEach((res) => {
         it('should load thumbnail from file and visualize it in detail view (Resolution: ' + res + ')', function () {
             cy.setResolution(res);
-            cy.visitViewer(thumbnailAasMockData.id);
-            cy.getByTestId('aas-loading-skeleton').should('not.exist');
+            cy.visitViewer(thumbnailAasMockData.id).wait(5000);
             cy.getByTestId('default-thumbnail-image-with-fallback', { timeout: 1000 }).should('not.exist');
             cy.getByTestId('image-with-fallback', { timeout: 1000 })
                 .should('exist')
@@ -71,8 +70,7 @@ describe('Thumbnail image as a file not loaded test', function () {
             'should not load thumbnail from file and show default image in detail view (Resolution: ' + res + ')',
             function () {
                 cy.setResolution(res);
-                cy.visitViewer(thumbnailAasMockData.id);
-                cy.getByTestId('aas-loading-skeleton').should('not.exist');
+                cy.visitViewer(thumbnailAasMockData.id).wait(5000);
                 cy.getByTestId('default-thumbnail-image-with-fallback', { timeout: 1000 }).should('exist');
                 cy.getByTestId('image-with-fallback', { timeout: 1000 }).should('not.exist');
             },

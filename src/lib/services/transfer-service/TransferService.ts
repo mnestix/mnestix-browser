@@ -8,7 +8,7 @@ import { RegistryServiceApi } from 'lib/api/registry-service-api/registryService
 import { DiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApi';
 import { SubmodelRegistryServiceApi } from 'lib/api/submodel-registry-service/submodelRegistryServiceApi';
 import { AssetAdministrationShellDescriptor, Endpoint, SubmodelDescriptor } from 'lib/types/registryServiceTypes';
-import { encodeBase64 } from 'lib/util/Base64Util';
+import { base64ToBlob, encodeBase64 } from 'lib/util/Base64Util';
 import {
     AssetAdministrationShell,
     AssetKind,
@@ -23,6 +23,8 @@ import { isValidUrl } from 'lib/util/UrlUtil';
 import { AttachmentDetails, TransferDto, TransferResult } from 'lib/types/TransferServiceData';
 import { getKeyType } from 'lib/util/KeyTypeUtil';
 import { generateRandomId } from 'lib/util/RandomUtils';
+import { isSuccessWithFile } from 'lib/util/apiResponseWrapper/apiResponseWrapperUtil';
+import { ApiResponseWrapperError } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 
 export class TransferService {
     private constructor(
@@ -211,8 +213,8 @@ export class TransferService {
 
     private async putThumbnailImageToShell(aas: AssetAdministrationShell, apikey?: string): Promise<TransferResult> {
         const response = await this.sourceAasRepositoryClient.getThumbnailFromShell(aas.id);
-        if (response.isSuccess) {
-            const aasThumbnail = response.result;
+        if (isSuccessWithFile(response)) {
+            const aasThumbnail = base64ToBlob(response.result, response.fileType);
             const fileName = ['thumbnail', generateRandomId()].join('');
             await this.targetAasRepositoryClient.putThumbnailToShell(aas.id, aasThumbnail, fileName, {
                 headers: {
@@ -225,7 +227,7 @@ export class TransferService {
                 success: false,
                 operationKind: 'AasRepository',
                 resourceId: 'Thumbnail transfer.',
-                error: response.message,
+                error: (response as ApiResponseWrapperError<Blob>).message,
             };
         }
     }
@@ -238,8 +240,8 @@ export class TransferService {
                 submodelId,
                 attachmentDetail.idShortPath,
             );
-            if (response.isSuccess) {
-                attachmentDetail.file = response.result;
+            if (isSuccessWithFile(response)) {
+                attachmentDetail.file = base64ToBlob(response.result, response.fileType);
                 attachmentDetail.fileName = [
                     attachmentDetail.fileName,
                     this.getExtensionFromFileType(attachmentDetail.file.type),
@@ -253,7 +255,7 @@ export class TransferService {
                         resourceId: [submodelId, attachmentDetail.idShortPath, ' not found in source repository'].join(
                             ': ',
                         ),
-                        error: response.message,
+                        error: (response as ApiResponseWrapperError<Blob>).message,
                     } as TransferResult),
                 );
             }
