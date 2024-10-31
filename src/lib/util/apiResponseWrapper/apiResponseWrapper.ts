@@ -18,7 +18,10 @@ const httpStatusMessage: Record<number, ApiResultStatus> = {
 };
 
 const getStatus = (statusCode: number): ApiResultStatus => {
-    return statusCode in httpStatusMessage ? httpStatusMessage[statusCode] : ApiResultStatus.UNKNOWN_ERROR;
+    if (statusCode in httpStatusMessage) return httpStatusMessage[statusCode];
+    if (statusCode > 400 && statusCode < 500) return ApiResultStatus.UNKNOWN_ERROR;
+    if (statusCode > 500) return ApiResultStatus.INTERNAL_SERVER_ERROR;
+    return ApiResultStatus.SUCCESS;
 };
 
 export type ApiResponseWrapper<T> =

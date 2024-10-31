@@ -1,4 +1,10 @@
-import { ApiResultStatus, wrapErrorCode, wrapResponse, wrapSuccess } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
+import {
+    ApiResponseWrapperError,
+    ApiResultStatus,
+    wrapErrorCode,
+    wrapResponse,
+    wrapSuccess,
+} from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 import { expect } from '@jest/globals';
 
 describe('', () => {
@@ -19,6 +25,29 @@ describe('', () => {
         if (responseWrapper.isSuccess) {
             expect(responseWrapper.result).toBe(data);
         }
+    });
+
+    it('return data on success even when not defined in code', async () => {
+        const data = { name: 'John', age: 42 };
+        const response = new Response(JSON.stringify(data), { status: 201 });
+        const responseWrapper = await wrapResponse(response);
+
+        expect(responseWrapper.isSuccess).toBe(true);
+        if (responseWrapper.isSuccess) {
+            expect(responseWrapper.result).toEqual(data);
+        }
+    });
+
+    it('return failure even when undefined code', async () => {
+        const userErrorResponse = await wrapResponse(new Response('{}', { status: 402 }));
+        const serverErrorResponse = await wrapResponse(new Response('{}', { status: 502 }));
+
+        expect(userErrorResponse.isSuccess).toBe(false);
+        expect((userErrorResponse as ApiResponseWrapperError<unknown>).errorCode).toBe(ApiResultStatus.UNKNOWN_ERROR);
+        expect(serverErrorResponse.isSuccess).toBe(false);
+        expect((serverErrorResponse as ApiResponseWrapperError<unknown>).errorCode).toBe(
+            ApiResultStatus.INTERNAL_SERVER_ERROR,
+        );
     });
 
     it('keep the error code', async () => {

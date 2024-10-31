@@ -3,8 +3,10 @@
 import { AasSearcher, AasSearchResult } from 'lib/services/search-actions/AasSearcher';
 import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
 import { ApiResponseWrapper } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
-import { Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
+import { Reference, Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
 import { mnestixFetch } from 'lib/api/infrastructure';
+import { SubmodelSearcher } from 'lib/services/searchUtilActions/SubmodelSearcher';
+import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 
 export async function performFullAasSearch(searchInput: string): Promise<ApiResponseWrapper<AasSearchResult>> {
     const searcher = AasSearcher.create();
@@ -34,4 +36,12 @@ export async function getSubmodelFromSubmodelDescriptor(url: string): Promise<Ap
     return localFetch.fetch<Submodel>(url, {
         method: 'GET',
     });
+}
+
+export async function performSubmodelFullSearch(
+    submodelReference: Reference,
+    submodelDescriptor?: SubmodelDescriptor,
+): Promise<ApiResponseWrapper<Submodel>> {
+    const searcher = SubmodelSearcher.create();
+    return searcher.performSubmodelFullSearch(submodelReference, submodelDescriptor);
 }

@@ -23,7 +23,7 @@ declare global {
             /**
              * @description Get an element by its data-testid value.
              * @param {string} dataTestId - The data-testid of the element we want to get.
-             * @param option
+             * @param option - Options passed to internal get method.
              */
             getByTestId(dataTestId: string, option?: Options): Chainable;
 
