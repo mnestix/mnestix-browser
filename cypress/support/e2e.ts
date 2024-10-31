@@ -36,14 +36,10 @@ declare global {
             /**
              * @description Make a request to /repo/shells/base64EncodedAasId
              * @param requestMethod - The request method. For example PUT, GET, DELETE, ...
-             * @param base64EncodedAasId - The AAS to send the request to
+             * @param urlPath - Url path where the request will be sent
              * @param requestBody - The request body
              */
-            repoRequest(
-                requestMethod: string,
-                base64EncodedAasId: string,
-                requestBody: string | object | null,
-            ): Chainable;
+            repoRequest(requestMethod: string, urlPath: string, requestBody: string | object | null): Chainable;
 
             /**
              * @description Put the test AAS found under cypress/fixtures/ to the repo
@@ -115,6 +111,14 @@ declare global {
              * @param msg The message to search for.
              */
             isNotificationSent(msg: string): Chainable;
+
+            postTestThumbnailAas(): Chainable;
+
+            deleteTestThumbnailAas(): Chainable;
+
+            uploadThumbnailToAas(aasId: string): Chainable;
+
+            deleteThumbnailFromAas(aasId: string): Chainable;
         }
     }
 }
