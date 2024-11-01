@@ -82,9 +82,19 @@ export function wrapSuccess<T>(result: T): ApiResponseWrapper<T> {
 
 export async function wrapFileResponse<T>(response: Response): Promise<ApiResponseWrapper<T>> {
     const fileFromResponse = await response.blob();
-    return {
-        isSuccess: true,
-        result: (await blobToBase64(fileFromResponse)) as ApiResponseWrapperSuccessWithFile<T>['result'],
-        fileType: fileFromResponse.type,
-    };
+    const status = getStatus(response.status);
+    if (status === ApiResultStatus.SUCCESS) {
+        return {
+            isSuccess: true,
+            result: (await blobToBase64(fileFromResponse)) as ApiResponseWrapperSuccessWithFile<T>['result'],
+            fileType: fileFromResponse.type,
+        };
+    } else {
+        return {
+            isSuccess: false,
+            result: await response.json().catch((e) => console.warn(e.message)),
+            errorCode: status,
+            message: response.statusText,
+        };
+    }
 }
