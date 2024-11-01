@@ -93,8 +93,8 @@ describe('Thumbnail image as a file not loaded test', function () {
             ')',
         function () {
             cy.visitViewer(thumbnailAasMockData.id);
-            cy.getByTestId('detail-compare-button').click();
-            cy.getByTestId('compare-aas-0').findByTestId('image-with-fallback').wait(2000).should('not.exist');
+            cy.getByTestId('detail-compare-button').click().wait(2000);
+            cy.getByTestId('compare-aas-0').findByTestId('image-with-fallback').should('not.exist');
             cy.getByTestId('compare-aas-0').findByTestId('default-thumbnail-image-with-fallback').should('exist');
         },
     );
