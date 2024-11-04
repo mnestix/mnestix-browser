@@ -29,11 +29,7 @@ describe('Test the redirection by clicking the header logo', function () {
         resolutions.forEach((res) => {
             it('should click on the logo and be redirected to the home screen (Resolution: ' + res + ')', function () {
                 cy.setResolution(res);
-                if (res === 'iphone-6') {
-                    cy.visit('/viewer/' + btoa(testId).replace(/=+$/g, ''));
-                } else {
-                    cy.visitViewer(testId);
-                }
+                cy.visitViewer(testId);
                 cy.getByTestId('header-logo').click();
                 cy.wait(100);
                 cy.getByTestId('welcome-text').should('exist');

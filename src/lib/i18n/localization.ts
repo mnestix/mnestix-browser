@@ -7,6 +7,7 @@ import { MessageDescriptor } from 'react-intl';
 
 // TODO: Read language from browser or language set by user from local storage
 export const defaultLanguage = 'en';
+
 const de = { mnestix: deMnestix };
 const en = { mnestix: enMnestix };
 
@@ -15,6 +16,9 @@ export const translationLists: Record<string, Record<string, string>> = {
     en: flatten(en),
 };
 
+/**
+ * @deprecated Please use t() of useTranslations(... instead as shown in TimeSeriesVisualizations.tsx
+ */
 export const messages = getMessagesFromTranslations('', de);
 
 export type MessageDescriptorWithId = MessageDescriptor & { readonly id: string };
