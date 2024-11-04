@@ -30,7 +30,7 @@ export async function performServerFetch<T>(
 
         const contentType = response.headers.get('Content-Type') || '';
 
-        if (!contentType.includes('application/json')) {
+        if (contentType && !contentType.includes('application/json')) {
             return wrapFileResponse(response);
         }
 
