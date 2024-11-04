@@ -61,12 +61,12 @@ export async function wrapResponse<T>(response: Response): Promise<ApiResponseWr
     if (status === ApiResultStatus.SUCCESS) {
         return {
             isSuccess: true,
-            result: await response.json(),
+            result: await response.json().catch((e) => console.warn(e.message)),
         };
     } else {
         return {
             isSuccess: false,
-            result: await response.json(),
+            result: await response.json().catch((e) => console.warn(e.message)),
             errorCode: status,
             message: response.statusText,
         };
