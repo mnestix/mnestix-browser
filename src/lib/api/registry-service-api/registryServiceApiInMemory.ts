@@ -9,10 +9,9 @@ export interface INullableAasRegistryEndpointEntries {
 }
 
 export class RegistryServiceApiInMemory implements IRegistryServiceApi {
-    private registryShellDescriptorEntries: AssetAdministrationShellDescriptor[] | null;
+    private readonly registryShellDescriptorEntries: AssetAdministrationShellDescriptor[] | null;
+    private readonly shellsAvailableOnEndpoints: INullableAasRegistryEndpointEntries[] | null;
     baseUrl: string;
-    _baseUrl: string;
-    private shellsAvailableOnEndpoints: INullableAasRegistryEndpointEntries[] | null;
 
     constructor(options: {
         registryShellDescriptorEntries: AssetAdministrationShellDescriptor[] | null;
@@ -20,6 +19,12 @@ export class RegistryServiceApiInMemory implements IRegistryServiceApi {
     }) {
         this.registryShellDescriptorEntries = options.registryShellDescriptorEntries;
         this.shellsAvailableOnEndpoints = options.shellsAvailableOnEndpoints;
+    }
+
+    postAssetAdministrationShellDescriptor(
+        _shellDescriptor: AssetAdministrationShellDescriptor,
+    ): Promise<ApiResponseWrapper<void>> {
+        throw new Error('Method not implemented.');
     }
 
     async getAssetAdministrationShellDescriptorById(

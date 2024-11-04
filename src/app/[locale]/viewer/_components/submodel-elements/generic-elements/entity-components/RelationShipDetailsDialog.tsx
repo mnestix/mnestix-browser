@@ -8,11 +8,11 @@ import { showError } from 'lib/util/ErrorHandlerUtil';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { useParams } from 'next/navigation';
 import { useEnv } from 'app/env/provider';
-import { getSubmodelDescriptorsById } from 'lib/services/submodelRegistryApiActions';
 import {
     getSubmodelById,
     getSubmodelReferencesFromShell,
 } from 'lib/services/repository-access/repositorySearchActions';
+import { getSubmodelDescriptorsById } from 'lib/services/submodelRegistryApiActions';
 
 type RelationShipDetailsModalProps = {
     readonly relationship: RelationshipElement;

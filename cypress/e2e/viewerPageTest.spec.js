@@ -1,7 +1,6 @@
 ﻿import testAAS from '../fixtures/testAAS.json';
 import resolutions from '../fixtures/resolutions.json';
 import toBase64 from '../support/base64-conversion';
-
 const testMobileResolution = 'iphone-6';
 
 const testData = {
@@ -44,6 +43,7 @@ describe('Test the viewer page', function () {
                     cy.setResolution(res);
 
                     cy.getByTestId('submodel-tab').contains(testData.submodelTabToClick).click();
+                    cy.getByTestId('submodelOverviewLoadingSkeleton', { timeout: 50000 }).should('not.exist');
                     cy.getByTestId('submodel-dropdown-button').contains('show', { matchCase: false }).as('dropdown');
                     cy.getByTestId('data-row-title')
                         .contains(testData.dropdownContent, { matchCase: false })
@@ -67,6 +67,7 @@ describe('Test the viewer page', function () {
 
         resolutions.forEach((res) => {
             it('test on resolution: ' + res, function () {
+                cy.getByTestId('submodel-tab').contains(testData.submodelTabToClick).click();
                 cy.getByTestId('submodel-dropdown-button').contains('show', { matchCase: false }).as('dropdown');
                 cy.get('@dropdown').click();
 
