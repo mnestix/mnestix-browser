@@ -26,6 +26,7 @@ export async function performServerFetch<T>(
 ): Promise<ApiResponseWrapper<T>> {
     try {
         const response = await fetch(input, init);
+        console.log('fetching ' + input.toString());
         return wrapResponse<T>(response);
     } catch (e) {
         const message = 'this could be a network error';

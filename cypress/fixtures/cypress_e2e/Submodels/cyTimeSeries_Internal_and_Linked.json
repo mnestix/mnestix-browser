@@ -1,0 +1,742 @@
+﻿{
+  "id": "https://mnestix.io/cyTimeSeriesInternalLinked",
+  "idShort": "TimeSeries",
+  "administration": {
+    "version": "1",
+    "revision": "1"
+  },
+  "modelType": "Submodel",
+  "semanticId": {
+    "type": "ExternalReference",
+    "keys": [
+      {
+        "type": "GlobalReference",
+        "value": "https://admin-shell.io/idta/TimeSeries/1/1"
+      }
+    ]
+  },
+  "submodelElements": [
+    {
+      "idShort": "Metadata",
+      "semanticId": {
+        "type": "ExternalReference",
+        "keys": [
+          {
+            "type": "GlobalReference",
+            "value": "https://admin-shell.io/idta/TimeSeries/Metadata/1/1"
+          }
+        ]
+      },
+      "value": [
+        {
+          "category": "PARAMETER",
+          "idShort": "Name",
+          "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+              {
+                "type": "GlobalReference",
+                "value": "https://admin-shell.io/idta/TimeSeries/Metadata/Name/1/1"
+              }
+            ]
+          },
+          "modelType": "MultiLanguageProperty"
+        },
+        {
+          "category": "PARAMETER",
+          "idShort": "Description",
+          "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+              {
+                "type": "GlobalReference",
+                "value": "https://admin-shell.io/idta/TimeSeries/Metadata/Description/1/1"
+              }
+            ]
+          },
+          "modelType": "MultiLanguageProperty"
+        },
+        {
+          "idShort": "Record",
+          "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+              {
+                "type": "GlobalReference",
+                "value": "https://admin-shell.io/idta/TimeSeries/Record/1/1"
+              }
+            ]
+          },
+          "value": [
+            {
+              "category": "VARIABLE",
+              "idShort": "Time",
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/idta/TimeSeries/RelativePointInTime/1/1"
+                  }
+                ]
+              },
+              "valueType": "xs:long",
+              "value": "",
+              "modelType": "Property"
+            },
+            {
+              "category": "VARIABLE",
+              "idShort": "sampleAccelerationX",
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://sample.com/AccelerationX/1/1"
+                  }
+                ]
+              },
+              "valueType": "xs:long",
+              "value": "1",
+              "modelType": "Property"
+            },
+            {
+              "category": "VARIABLE",
+              "idShort": "sampleAccelerationY",
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://sample.com/AccelerationY/1/1"
+                  }
+                ]
+              },
+              "qualifiers": [
+                {
+                  "type": "Cardinality",
+                  "valueType": "xs:string",
+                  "value": "ZeroToOne"
+                }
+              ],
+              "valueType": "xs:long",
+              "value": "1",
+              "modelType": "Property"
+            },
+            {
+              "category": "VARIABLE",
+              "idShort": "sampleAccelerationZ",
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://sample.com/AccelerationZ/1/1"
+                  }
+                ]
+              },
+              "valueType": "xs:long",
+              "value": "1",
+              "modelType": "Property"
+            }
+          ],
+          "modelType": "SubmodelElementCollection"
+        }
+      ],
+      "modelType": "SubmodelElementCollection"
+    },
+    {
+      "idShort": "Segments",
+      "semanticId": {
+        "type": "ExternalReference",
+        "keys": [
+          {
+            "type": "GlobalReference",
+            "value": "https://admin-shell.io/idta/TimeSeries/Segments/1/1"
+          }
+        ]
+      },
+      "qualifiers": [
+        {
+          "type": "Cardinality",
+          "valueType": "xs:string",
+          "value": "One"
+        }
+      ],
+      "value": [
+        {
+          "idShort": "InternalSegment",
+          "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+              {
+                "type": "GlobalReference",
+                "value": "https://admin-shell.io/idta/TimeSeries/Segments/InternalSegment/1/1"
+              }
+            ]
+          },
+          "value": [
+            {
+              "category": "PARAMETER",
+              "idShort": "Name",
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/idta/TimeSeries/Segment/Name/1/1"
+                  }
+                ]
+              },
+              "value": [
+                {
+                  "language": "en",
+                  "text": "Acceleration values"
+                }
+              ],
+              "modelType": "MultiLanguageProperty"
+            },
+            {
+              "category": "PARAMETER",
+              "idShort": "Description",
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/idta/TimeSeries/Segment/Description/1/1"
+                  }
+                ]
+              },
+              "value": [
+                {
+                  "language": "en",
+                  "text": "Acceleration values for x,y an z axis"
+                }
+              ],
+              "modelType": "MultiLanguageProperty"
+            },
+            {
+              "category": "VARIABLE",
+              "idShort": "RecordCount",
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/idta/TimeSeries/Segment/RecordCount/1/1"
+                  }
+                ]
+              },
+              "valueType": "xs:long",
+              "value": "",
+              "modelType": "Property"
+            },
+            {
+              "category": "VARIABLE",
+              "idShort": "StartTime",
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/idta/TimeSeries/Segment/StartTime/1/1"
+                  }
+                ]
+              },
+              "valueType": "xs:string",
+              "value": "",
+              "modelType": "Property"
+            },
+            {
+              "category": "VARIABLE",
+              "idShort": "EndTime",
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/idta/TimeSeries/Segment/EndTime/1/1"
+                  }
+                ]
+              },
+              "valueType": "xs:string",
+              "value": "",
+              "modelType": "Property"
+            },
+            {
+              "category": "VARIABLE",
+              "idShort": "Duration",
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/idta/TimeSeries/Segment/Duration/1/1"
+                  }
+                ]
+              },
+              "valueType": "xs:string",
+              "value": "",
+              "modelType": "Property"
+            },
+            {
+              "category": "PARAMETER",
+              "idShort": "SamplingInterval",
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/idta/TimeSeries/Segment/SamplingInterval/1/1"
+                  }
+                ]
+              },
+              "valueType": "xs:long",
+              "value": "",
+              "modelType": "Property"
+            },
+            {
+              "category": "PARAMETER",
+              "idShort": "SamplingRate",
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/idta/TimeSeries/Segment/SamplingRate/1/1"
+                  }
+                ]
+              },
+              "valueType": "xs:long",
+              "value": "",
+              "modelType": "Property"
+            },
+            {
+              "category": "PARAMETER",
+              "idShort": "State",
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/idta/TimeSeries/Segment/State/1/1"
+                  }
+                ]
+              },
+              "valueType": "xs:string",
+              "value": "",
+              "modelType": "Property"
+            },
+            {
+              "category": "VARIABLE",
+              "idShort": "LastUpdate",
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/idta/TimeSeries/Segment/LastUpdate/1/1"
+                  }
+                ]
+              },
+              "valueType": "xs:string",
+              "value": "",
+              "modelType": "Property"
+            },
+            {
+              "idShort": "Records",
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/idta/TimeSeries/Records/1/1"
+                  }
+                ]
+              },
+              "value": [
+                {
+                  "idShort": "Record",
+                  "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                      {
+                        "type": "GlobalReference",
+                        "value": "https://admin-shell.io/idta/TimeSeries/Record/1/1"
+                      }
+                    ]
+                  },
+                  "value": [
+                    {
+                      "category": "VARIABLE",
+                      "idShort": "Time",
+                      "semanticId": {
+                        "type": "ExternalReference",
+                        "keys": [
+                          {
+                            "type": "GlobalReference",
+                            "value": "https://admin-shell.io/idta/TimeSeries/RelativePointInTime/1/1"
+                          }
+                        ]
+                      },
+                      "valueType": "xs:dateTime",
+                      "value": "2024-10-05T12:48:00.000Z",
+                      "modelType": "Property"
+                    },
+                    {
+                      "category": "VARIABLE",
+                      "idShort": "sampleAccelerationX",
+                      "semanticId": {
+                        "type": "ExternalReference",
+                        "keys": [
+                          {
+                            "type": "GlobalReference",
+                            "value": "https://sample.com/AccelerationX/1/1"
+                          }
+                        ]
+                      },
+                      "valueType": "xs:long",
+                      "value": "8",
+                      "modelType": "Property"
+                    },
+                    {
+                      "category": "VARIABLE",
+                      "idShort": "sampleAccelerationY",
+                      "semanticId": {
+                        "type": "ExternalReference",
+                        "keys": [
+                          {
+                            "type": "GlobalReference",
+                            "value": "https://sample.com/AccelerationY/1/1"
+                          }
+                        ]
+                      },
+                      "valueType": "xs:long",
+                      "value": "2",
+                      "modelType": "Property"
+                    },
+                    {
+                      "category": "VARIABLE",
+                      "idShort": "sampleAccelerationZ",
+                      "semanticId": {
+                        "type": "ExternalReference",
+                        "keys": [
+                          {
+                            "type": "GlobalReference",
+                            "value": "https://sample.com/AccelerationZ/1/1"
+                          }
+                        ]
+                      },
+                      "valueType": "xs:long",
+                      "value": "4",
+                      "modelType": "Property"
+                    }
+                  ],
+                  "modelType": "SubmodelElementCollection"
+                },
+                {
+                  "idShort": "Record",
+                  "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                      {
+                        "type": "GlobalReference",
+                        "value": "https://admin-shell.io/idta/TimeSeries/Record/1/1"
+                      }
+                    ]
+                  },
+                  "value": [
+                    {
+                      "category": "VARIABLE",
+                      "idShort": "Time",
+                      "semanticId": {
+                        "type": "ExternalReference",
+                        "keys": [
+                          {
+                            "type": "GlobalReference",
+                            "value": "https://admin-shell.io/idta/TimeSeries/RelativePointInTime/1/1"
+                          }
+                        ]
+                      },
+                      "valueType": "xs:dateTime",
+                      "value": "2024-10-05T14:48:00.000Z",
+                      "modelType": "Property"
+                    },
+                    {
+                      "category": "VARIABLE",
+                      "idShort": "sampleAccelerationX",
+                      "semanticId": {
+                        "type": "ExternalReference",
+                        "keys": [
+                          {
+                            "type": "GlobalReference",
+                            "value": "https://sample.com/AccelerationX/1/1"
+                          }
+                        ]
+                      },
+                      "valueType": "xs:long",
+                      "value": "9",
+                      "modelType": "Property"
+                    },
+                    {
+                      "category": "VARIABLE",
+                      "idShort": "sampleAccelerationY",
+                      "semanticId": {
+                        "type": "ExternalReference",
+                        "keys": [
+                          {
+                            "type": "GlobalReference",
+                            "value": "https://sample.com/AccelerationY/1/1"
+                          }
+                        ]
+                      },
+                      "valueType": "xs:long",
+                      "value": "4",
+                      "modelType": "Property"
+                    },
+                    {
+                      "category": "VARIABLE",
+                      "idShort": "sampleAccelerationZ",
+                      "semanticId": {
+                        "type": "ExternalReference",
+                        "keys": [
+                          {
+                            "type": "GlobalReference",
+                            "value": "https://sample.com/AccelerationZ/1/1"
+                          }
+                        ]
+                      },
+                      "valueType": "xs:long",
+                      "value": "6",
+                      "modelType": "Property"
+                    }
+                  ],
+                  "modelType": "SubmodelElementCollection"
+                }
+              ],
+              "modelType": "SubmodelElementCollection"
+            }
+          ],
+          "modelType": "SubmodelElementCollection"
+        },
+        {
+          "idShort": "LinkedSegment",
+          "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+              {
+                "type": "GlobalReference",
+                "value": "https://admin-shell.io/idta/TimeSeries/Segments/LinkedSegment/1/1"
+              }
+            ]
+          },
+          "value": [
+            {
+              "category": "PARAMETER",
+              "idShort": "Name",
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/idta/TimeSeries/Segment/Name/1/1"
+                  }
+                ]
+              },
+              "value": [
+                {
+                  "language": "en",
+                  "text": "Coffee consumption data"
+                }
+              ],
+              "modelType": "MultiLanguageProperty"
+            },
+            {
+              "category": "PARAMETER",
+              "idShort": "Description",
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/idta/TimeSeries/Segment/Description/1/1"
+                  }
+                ]
+              },
+              "value": [
+                {
+                  "language": "en",
+                  "text": "Coffee consumption counter per date"
+                }
+              ],
+              "modelType": "MultiLanguageProperty"
+            },
+            {
+              "category": "VARIABLE",
+              "idShort": "RecordCount",
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/idta/TimeSeries/Segment/RecordCount/1/1"
+                  }
+                ]
+              },
+              "valueType": "xs:long",
+              "value": "",
+              "modelType": "Property"
+            },
+            {
+              "category": "VARIABLE",
+              "idShort": "StartTime",
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/idta/TimeSeries/Segment/StartTime/1/1"
+                  }
+                ]
+              },
+              "valueType": "xs:string",
+              "value": "",
+              "modelType": "Property"
+            },
+            {
+              "category": "VARIABLE",
+              "idShort": "EndTime",
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/idta/TimeSeries/Segment/EndTime/1/1 "
+                  }
+                ]
+              },
+              "valueType": "xs:string",
+              "value": "",
+              "modelType": "Property"
+            },
+            {
+              "category": "VARIABLE",
+              "idShort": "Duration",
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/idta/TimeSeries/Segment/Duration/1/1"
+                  }
+                ]
+              },
+              "valueType": "xs:string",
+              "value": "",
+              "modelType": "Property"
+            },
+            {
+              "category": "PARAMETER",
+              "idShort": "SamplingInterval",
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/idta/TimeSeries/Segment/SamplingInterval/1/1"
+                  }
+                ]
+              },
+              "valueType": "xs:long",
+              "value": "",
+              "modelType": "Property"
+            },
+            {
+              "category": "PARAMETER",
+              "idShort": "SamplingRate",
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/idta/TimeSeries/Segment/SamplingRate/1/1"
+                  }
+                ]
+              },
+              "valueType": "xs:long",
+              "value": "",
+              "modelType": "Property"
+            },
+            {
+              "category": "PARAMETER",
+              "idShort": "State",
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/idta/TimeSeries/Segment/State/1/1"
+                  }
+                ]
+              },
+              "valueType": "xs:string",
+              "value": "",
+              "modelType": "Property"
+            },
+            {
+              "category": "VARIABLE",
+              "idShort": "LastUpdate",
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/idta/TimeSeries/Segment/LastUpdate/1/1"
+                  }
+                ]
+              },
+              "valueType": "xs:string",
+              "value": "",
+              "modelType": "Property"
+            },
+            {
+              "category": "PARAMETER",
+              "idShort": "Endpoint",
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/idta/TimeSeries/Endpoint/1/1"
+                  }
+                ]
+              },
+              "valueType": "xs:string",
+              "value": "http://localhost:8086/api/v2/query?token=tokentokentokentoken&org=mnestix",
+              "modelType": "Property"
+            },
+            {
+              "category": "PARAMETER",
+              "idShort": "Query",
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/idta/TimeSeries/Query/1/1"
+                  }
+                ]
+              },
+              "valueType": "xs:string",
+              "value": "from(bucket: \"test-data\") |> range(start: 172950153200000000, stop: 172950553400000000) |> filter(fn: (r) => r[\"_measurement\"] == \"myMeasurement\") |> filter(fn: (r) => r[\"_field\"] == \"coffee\")",
+              "modelType": "Property"
+            }
+          ],
+          "modelType": "SubmodelElementCollection"
+        }
+      ],
+      "modelType": "SubmodelElementCollection"
+    }
+  ]
+}
