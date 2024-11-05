@@ -17,10 +17,10 @@ export type AasRegistryEndpointEntryInMemory = {
 
 export class RegistryServiceApiInMemory implements IRegistryServiceApi {
     constructor(
-        protected baseUrl: string,
-        protected registryShellDescriptors: AssetAdministrationShellDescriptor[],
-        protected registryShellEndpoints: AasRegistryEndpointEntryInMemory[],
-        protected reachable: ServiceReachable = ServiceReachable.Yes,
+        readonly baseUrl: string,
+        readonly registryShellDescriptors: AssetAdministrationShellDescriptor[],
+        readonly registryShellEndpoints: AasRegistryEndpointEntryInMemory[],
+        readonly reachable: ServiceReachable = ServiceReachable.Yes,
     ) {}
 
     getBaseUrl(): string {
@@ -32,7 +32,7 @@ export class RegistryServiceApiInMemory implements IRegistryServiceApi {
     ): Promise<ApiResponseWrapper<void>> {
         if (this.reachable !== ServiceReachable.Yes)
             return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Service not reachable');
-        if (this.registryShellDescriptors.find((desciptor) => desciptor.id === shellDescriptor.id))
+        if (this.registryShellDescriptors.find((descriptor) => descriptor.id === shellDescriptor.id))
             return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, `Shell Descriptor for AAS '${shellDescriptor.id}' already registered at '${this.getBaseUrl()}'`);
         this.registryShellDescriptors.push(shellDescriptor);
         return wrapSuccess(undefined);

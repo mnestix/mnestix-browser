@@ -111,8 +111,8 @@ export class SubmodelRepositoryApiInMemory implements ISubmodelRepositoryApi {
     async postSubmodel(submodel: Submodel, _options?: object): Promise<ApiResponseWrapper<Submodel>> {
         if (this.reachable !== ServiceReachable.Yes)
             return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Service not reachable');
-
-        this.submodelsInRepository.delete(submodel.id);
+        if (this.submodelsInRepository.has(submodel.id))
+            return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, `Submodel repository '${this.getBaseUrl()}' already has a submodel '${submodel.id}'`);
         this.submodelsInRepository.set(submodel.id, submodel);
         return wrapSuccess(submodel);
     }

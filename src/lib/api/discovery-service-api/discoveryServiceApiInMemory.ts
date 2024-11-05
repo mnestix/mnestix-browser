@@ -7,6 +7,7 @@ import {
 } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 import { ServiceReachable } from 'lib/services/transfer-service/TransferService';
 import { SpecificAssetId } from '@aas-core-works/aas-core3.0-typescript/types';
+import { isEqual } from 'lodash';
 
 export class DiscoveryServiceApiInMemory implements IDiscoveryServiceApi {
     constructor(
@@ -26,7 +27,7 @@ export class DiscoveryServiceApiInMemory implements IDiscoveryServiceApi {
             aasId: aasId,
             assetId: assetId,
         };
-        if (this.discoveryEntries.includes(newEntry)) {
+        if (this.discoveryEntries.find(value => isEqual(value, newEntry))) {
             return wrapErrorCode(
                 ApiResultStatus.UNKNOWN_ERROR,
                 `Link for AAS '${aasId}' and asset '${assetId}' already in Discovery '${this.baseUrl}'`,

@@ -7,11 +7,9 @@ import { IDiscoveryServiceApi } from 'lib/api/discovery-service-api/discoverySer
 import { RegistryServiceApi } from 'lib/api/registry-service-api/registryServiceApi';
 import { DiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApi';
 import { SubmodelRegistryServiceApi } from 'lib/api/submodel-registry-service/submodelRegistryServiceApi';
-import { AssetAdministrationShellDescriptor, Endpoint, SubmodelDescriptor } from 'lib/types/registryServiceTypes';
-import { encodeBase64 } from 'lib/util/Base64Util';
+import { AssetAdministrationShellDescriptor, SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 import {
     AssetAdministrationShell,
-    AssetKind,
     Blob,
     File,
     ISubmodelElement,
@@ -19,26 +17,29 @@ import {
     Submodel,
     SubmodelElementCollection,
 } from '@aas-core-works/aas-core3.0-typescript/types';
-import { isValidUrl } from 'lib/util/UrlUtil';
 import { AttachmentDetails, TransferResult } from 'lib/types/TransferServiceData';
 import { getKeyType } from 'lib/util/KeyTypeUtil';
 import { generateRandomId } from 'lib/util/RandomUtils';
+import {
+    aasThumbnailImageIsFile,
+    createShellDescriptorFromAas,
+    createSubmodelDescriptorFromSubmodel,
+} from 'lib/util/TransferUtil';
 
 export enum ServiceReachable {
     Yes = 'Yes',
     No = 'No',
-    WrongEndpoint = 'WrongEndpoint',
 }
 
 export class TransferService {
     private constructor(
-        protected readonly targetAasRepositoryClient: IAssetAdministrationShellRepositoryApi,
-        protected readonly sourceAasRepositoryClient: IAssetAdministrationShellRepositoryApi,
-        protected readonly targetSubmodelRepositoryClient: ISubmodelRepositoryApi,
-        protected readonly sourceSubmodelRepositoryClient: ISubmodelRepositoryApi,
-        protected readonly targetAasDiscoveryClient?: IDiscoveryServiceApi,
-        protected readonly targetAasRegistryClient?: IRegistryServiceApi,
-        protected readonly targetSubmodelRegistryClient?: ISubmodelRegistryServiceApi,
+        readonly targetAasRepositoryClient: IAssetAdministrationShellRepositoryApi,
+        readonly sourceAasRepositoryClient: IAssetAdministrationShellRepositoryApi,
+        readonly targetSubmodelRepositoryClient: ISubmodelRepositoryApi,
+        readonly sourceSubmodelRepositoryClient: ISubmodelRepositoryApi,
+        readonly targetAasDiscoveryClient?: IDiscoveryServiceApi,
+        readonly targetAasRegistryClient?: IRegistryServiceApi,
+        readonly targetSubmodelRegistryClient?: ISubmodelRegistryServiceApi,
     ) {}
 
     static create(
@@ -161,9 +162,9 @@ export class TransferService {
         apikey?: string,
     ): Promise<TransferResult[]> {
         const submodelDescriptors = submodels.map((submodel) =>
-            this.createSubmodelDescriptorFromSubmodel(submodel, this.targetAasRepositoryClient.getBaseUrl()),
+            createSubmodelDescriptorFromSubmodel(submodel, this.targetAasRepositoryClient.getBaseUrl()),
         );
-        const shellDescriptor = this.createShellDescriptorFromAas(
+        const shellDescriptor = createShellDescriptorFromAas(
             aas,
             this.targetAasRepositoryClient.getBaseUrl(),
             submodelDescriptors,
@@ -173,7 +174,7 @@ export class TransferService {
 
         promises.push(this.postAasToRepository(aas, apikey));
 
-        if (this.aasThumbnailImageIsFile(aas)) {
+        if (aasThumbnailImageIsFile(aas)) {
             promises.push(this.putThumbnailImageToShell(aas, apikey));
         }
 
@@ -215,11 +216,6 @@ export class TransferService {
         } else {
             return { success: false, operationKind: 'AasRepository', resourceId: aas.id, error: response.message };
         }
-    }
-
-    getEndpointUrl(target: AssetAdministrationShell | Submodel, targetBaseUrl: string) {
-        const subpath = target instanceof AssetAdministrationShell ? 'shells' : 'submodels';
-        return new URL(`${subpath}/${encodeBase64(target.id)}`, targetBaseUrl);
     }
 
     private async registerAasAtRegistry(shellDescriptor: AssetAdministrationShellDescriptor): Promise<TransferResult> {
@@ -351,79 +347,16 @@ export class TransferService {
         }
     }
 
-    createShellDescriptorFromAas(
-        aas: AssetAdministrationShell,
-        targetBaseUrl: string,
-        submodelDescriptors?: SubmodelDescriptor[],
-    ): AssetAdministrationShellDescriptor {
-        const endpoint = this.createEndpointForDescriptor(aas, targetBaseUrl);
-        return {
-            id: aas.id,
-            idShort: aas.idShort || undefined,
-            description: aas.description || undefined,
-            displayName: aas.displayName || undefined,
-            extensions: aas.extensions || undefined,
-            administration: aas.administration || undefined,
-            assetKind: AssetKind[aas.assetInformation.assetKind] as 'Instance' | 'NotApplicable' | 'Type',
-            assetType: aas.assetInformation.assetType || undefined,
-            globalAssetId: aas.assetInformation.globalAssetId || undefined,
-            endpoints: [endpoint],
-            specificAssetIds: aas.assetInformation.specificAssetIds || undefined,
-            submodelDescriptors: submodelDescriptors,
-        };
-    }
-
-    createSubmodelDescriptorFromSubmodel(submodel: Submodel, targetBaseUrl: string): SubmodelDescriptor {
-        const endpoint = this.createEndpointForDescriptor(submodel, targetBaseUrl);
-        return {
-            id: submodel.id,
-            idShort: submodel.idShort || undefined,
-            semanticId: submodel.semanticId == null ? undefined : submodel.semanticId,
-            description: submodel.description || undefined,
-            displayName: submodel.displayName || undefined,
-            extensions: submodel.extensions || undefined,
-            administration: submodel.administration || undefined,
-            endpoints: [endpoint],
-            supplementalSemanticId:
-                submodel.supplementalSemanticIds == null ? undefined : submodel.supplementalSemanticIds,
-        };
-    }
-
-    createEndpointForDescriptor(target: AssetAdministrationShell | Submodel, baseUrl: string): Endpoint {
-        const targetEndpointUrl = this.getEndpointUrl(target, baseUrl);
-        return {
-            interface: this.getInterfaceString(target),
-            protocolInformation: {
-                endpointProtocol: 'HTTP',
-                endpointProtocolVersion: ['1.1'],
-                href: targetEndpointUrl.toString(),
-                // securityAttributes: '',
-                // subprotocol: ,
-                // subprotocolBody,
-                // subprotocolBodyEncoding,
-            },
-        };
-    }
-
     private async registerAasAtDiscovery(aas: AssetAdministrationShell): Promise<TransferResult> {
         const response = await this.targetAasDiscoveryClient!.linkAasIdAndAssetId(
             aas.id,
-            aas.assetInformation.globalAssetId!
+            aas.assetInformation.globalAssetId!,
         );
         if (response.isSuccess) {
             return { success: true, operationKind: 'Discovery', resourceId: aas.id, error: '' };
         } else {
             return { success: false, operationKind: 'Discovery', resourceId: aas.id, error: response.message };
         }
-    }
-
-    getInterfaceString(target: AssetAdministrationShell | Submodel): string {
-        return target instanceof AssetAdministrationShell ? 'AAS-3.0' : 'SUBMODEL-3.0';
-    }
-
-    aasThumbnailImageIsFile(aas: AssetAdministrationShell): boolean {
-        const thumbnailPath = aas.assetInformation.defaultThumbnail?.path;
-        return !!(thumbnailPath && !isValidUrl(thumbnailPath));
     }
 
     private getSubmodelAttachmentsDetails(submodelElements: ISubmodelElement[] | null) {
