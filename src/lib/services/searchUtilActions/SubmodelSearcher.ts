@@ -1,7 +1,7 @@
 import { Reference, Submodel } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 import { mnestixFetch } from 'lib/api/infrastructure';
-import { ISubmodelRegistryServiceApiInterface } from 'lib/api/submodel-registry-service/ISubmodelRegistryServiceApiInterface';
+import { ISubmodelRegistryServiceApi } from 'lib/api/submodel-registry-service/ISubmodelRegistryServiceApi';
 import { SubmodelRegistryServiceApi } from 'lib/api/submodel-registry-service/submodelRegistryServiceApi';
 import {
     ApiResponseWrapper,
@@ -13,7 +13,7 @@ import { RepositorySearchService } from 'lib/services/repository-access/Reposito
 
 export class SubmodelSearcher {
     private constructor(
-        protected readonly getSubmodelRegistryClient: (basePath: string) => ISubmodelRegistryServiceApiInterface,
+        protected readonly getSubmodelRegistryClient: (basePath: string) => ISubmodelRegistryServiceApi,
         protected readonly multipleDataSource: RepositorySearchService,
     ) {}
 

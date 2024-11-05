@@ -1,11 +1,17 @@
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 import { encodeBase64 } from 'lib/util/Base64Util';
-import { ISubmodelRegistryServiceApiInterface } from 'lib/api/submodel-registry-service/ISubmodelRegistryServiceApiInterface';
+import { ISubmodelRegistryServiceApi } from 'lib/api/submodel-registry-service/ISubmodelRegistryServiceApi';
 import { FetchAPI } from 'lib/api/basyx-v3/api';
-import { ApiResponseWrapper } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
+import {
+    ApiResponseWrapper,
+    ApiResultStatus,
+    wrapErrorCode,
+    wrapSuccess,
+} from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 import { Submodel } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
+import { ServiceReachable } from 'lib/services/transfer-service/TransferService';
 
-export class SubmodelRegistryServiceApi implements ISubmodelRegistryServiceApiInterface {
+export class SubmodelRegistryServiceApi implements ISubmodelRegistryServiceApi {
     constructor(
         private baseUrl: string,
         private http: FetchAPI,
@@ -13,6 +19,14 @@ export class SubmodelRegistryServiceApi implements ISubmodelRegistryServiceApiIn
 
     static create(baseUrl: string, mnestixFetch: FetchAPI) {
         return new SubmodelRegistryServiceApi(baseUrl, mnestixFetch);
+    }
+
+    static createNull(
+        baseUrl: string,
+        registrySubmodelDescriptors: SubmodelDescriptor[],
+        reachable: ServiceReachable = ServiceReachable.Yes,
+    ) {
+        return new SubmodelRegistryServiceApiInMemory(baseUrl, registrySubmodelDescriptors, reachable);
     }
 
     getBasePath(): string {
@@ -106,5 +120,57 @@ export class SubmodelRegistryServiceApi implements ISubmodelRegistryServiceApiIn
         return this.http.fetch<Submodel>(endpoint.toString(), {
             method: 'GET',
         });
+    }
+}
+
+class SubmodelRegistryServiceApiInMemory implements ISubmodelRegistryServiceApi {
+    constructor(
+        protected baseUrl: string,
+        protected registrySubmodelDescriptors: SubmodelDescriptor[],
+        protected reachable: ServiceReachable,
+    ) {}
+
+    getBasePath(): string {
+        return this.baseUrl;
+    }
+
+    async getSubmodelDescriptorById(submodelId: string): Promise<ApiResponseWrapper<SubmodelDescriptor>> {
+        if (this.reachable !== ServiceReachable.Yes)
+            return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Service not reachable');
+        const foundDescriptor = this.registrySubmodelDescriptors.find((descriptor) => descriptor.id === submodelId);
+        if (foundDescriptor) return wrapSuccess(foundDescriptor);
+        return wrapErrorCode(
+            ApiResultStatus.NOT_FOUND,
+            `No Submodel descriptor for submodel id '${submodelId}' found in '${this.getBasePath()}'`,
+        );
+    }
+
+    putSubmodelDescriptorById(
+        _submodelId: string,
+        _submodelDescriptor: SubmodelDescriptor,
+    ): Promise<ApiResponseWrapper<SubmodelDescriptor>> {
+        throw new Error('Method not implemented.');
+    }
+
+    deleteSubmodelDescriptorById(_submodelId: string): Promise<ApiResponseWrapper<void>> {
+        throw new Error('Method not implemented.');
+    }
+
+    async getAllSubmodelDescriptors(): Promise<ApiResponseWrapper<SubmodelDescriptor[]>> {
+        if (this.reachable !== ServiceReachable.Yes)
+            return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Service not reachable');
+        return wrapSuccess(this.registrySubmodelDescriptors);
+    }
+
+    postSubmodelDescriptor(_submodelDescriptor: SubmodelDescriptor): Promise<ApiResponseWrapper<SubmodelDescriptor>> {
+        throw new Error('Method not implemented.');
+    }
+
+    deleteAllSubmodelDescriptors(): Promise<ApiResponseWrapper<void>> {
+        throw new Error('Method not implemented.');
+    }
+
+    getSubmodelFromEndpoint(_endpoint: string): Promise<ApiResponseWrapper<Submodel>> {
+        throw new Error('Method not implemented.');
     }
 }

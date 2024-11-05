@@ -2,7 +2,7 @@ import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 import { ApiResponseWrapper } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 import { Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
 
-export interface ISubmodelRegistryServiceApiInterface {
+export interface ISubmodelRegistryServiceApi {
     /**
      * Return the basePath of this registry service endpoint.
      */

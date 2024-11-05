@@ -7,6 +7,7 @@ import {
 } from 'lib/api/registry-service-api/registryServiceApiInMemory';
 import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/types';
 import { ApiResponseWrapper } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
+import { ServiceReachable } from 'lib/services/transfer-service/TransferService';
 
 export class RegistryServiceApi implements IRegistryServiceApi {
     constructor(
@@ -29,8 +30,9 @@ export class RegistryServiceApi implements IRegistryServiceApi {
         baseUrl: string,
         registryShellDescriptors: AssetAdministrationShellDescriptor[],
         registryShellEndpoints: AasRegistryEndpointEntryInMemory[],
+        reachable: ServiceReachable = ServiceReachable.Yes,
     ) {
-        return new RegistryServiceApiInMemory(baseUrl, registryShellDescriptors, registryShellEndpoints);
+        return new RegistryServiceApiInMemory(baseUrl, registryShellDescriptors, registryShellEndpoints, reachable);
     }
 
     getBaseUrl(): string {
@@ -92,7 +94,9 @@ export class RegistryServiceApi implements IRegistryServiceApi {
         });
     }
 
-    async getAssetAdministrationShellFromEndpoint(endpoint: UR): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
+    async getAssetAdministrationShellFromEndpoint(
+        endpoint: URL,
+    ): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
         return this.http.fetch<AssetAdministrationShell>(endpoint.toString(), {
             method: 'GET',
         });

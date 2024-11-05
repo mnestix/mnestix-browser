@@ -1,7 +1,7 @@
 import { AssetAdministrationShellRepositoryApi, SubmodelRepositoryApi } from 'lib/api/basyx-v3/api';
 import { mnestixFetch } from 'lib/api/infrastructure';
 import { IAssetAdministrationShellRepositoryApi, ISubmodelRepositoryApi } from 'lib/api/basyx-v3/apiInterface';
-import { ISubmodelRegistryServiceApiInterface } from 'lib/api/submodel-registry-service/ISubmodelRegistryServiceApiInterface';
+import { ISubmodelRegistryServiceApi } from 'lib/api/submodel-registry-service/ISubmodelRegistryServiceApi';
 import { IRegistryServiceApi } from 'lib/api/registry-service-api/registryServiceApiInterface';
 import { IDiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApiInterface';
 import { RegistryServiceApi } from 'lib/api/registry-service-api/registryServiceApi';
@@ -38,7 +38,7 @@ export class TransferService {
         protected readonly sourceSubmodelRepositoryClient: ISubmodelRepositoryApi,
         protected readonly targetAasDiscoveryClient?: IDiscoveryServiceApi,
         protected readonly targetAasRegistryClient?: IRegistryServiceApi,
-        protected readonly targetSubmodelRegistryClient?: ISubmodelRegistryServiceApiInterface,
+        protected readonly targetSubmodelRegistryClient?: ISubmodelRegistryServiceApi,
     ) {}
 
     static create(
@@ -95,39 +95,57 @@ export class TransferService {
 
     static createNull(
         targetAasRepository: ServiceReachable = ServiceReachable.Yes,
+        sourceAasRepository: ServiceReachable = ServiceReachable.Yes,
         targetSubmodelRepository: ServiceReachable = ServiceReachable.Yes,
+        sourceSubmodelRepository: ServiceReachable = ServiceReachable.Yes,
         targetAasDiscovery?: ServiceReachable,
         targetAasRegistry?: ServiceReachable,
-        targetSubmodelRegistry?: ServiceReachable
+        targetSubmodelRegistry?: ServiceReachable,
     ): TransferService {
-        const targetAasRepositoryClient = AssetAdministrationShellRepositoryApi.createNull({
-            shellsSavedInTheRepositories: [],
-            reachable: targetAasRepository
-        });
+        const targetAasRepositoryClient = AssetAdministrationShellRepositoryApi.createNull(
+            'targetAasRepositoryClient.com',
+            [],
+            targetAasRepositor,
+        );
 
-        const targetSubmodelRepositoryClient = SubmodelRepositoryApi.createNull({
-            submodelsSavedInTheRepository: [],
-            reachable: targetSubmodelRepositor
-        });
+        const sourceAasRepositoryClient = AssetAdministrationShellRepositoryApi.createNull(
+            'sourceAasRepositoryClient.com',
+            [],
+            sourceAasRepositor,
+        );
 
-        const targetAasDiscoveryClient = targetAasDiscoveryBaseUrl
-            ? DiscoveryServiceApi.create(targetAasDiscoveryBaseUrl, mnestixFetch())
+        const targetSubmodelRepositoryClient = SubmodelRepositoryApi.createNull(
+            'targetSubmodelRepositoryClient.com',
+            [],
+            targetSubmodelRepository,
+        );
+
+        const sourceSubmodelRepositoryClient = SubmodelRepositoryApi.createNull(
+            'sourceSubmodelRepositoryClient.com',
+            [],
+            sourceSubmodelRepositor,
+        );
+
+        const targetAasDiscoveryClient = targetAasDiscovery
+            ? DiscoveryServiceApi.createNull('targetDiscoveryClient.com', [], targetAasDiscovery)
             : undefined;
 
-        const targetAasRegistryClient = targetAasRegistryBaseUrl
-            ? RegistryServiceApi.create(targetAasRegistryBaseUrl, mnestixFetch())
+        const targetAasRegistryClient = targetAasRegistry
+            ? RegistryServiceApi.createNull('targetAasRegistryClient.com', [], [], targetAasRegistry)
             : undefined;
 
-        const targetSubmodelRegistryClient = targetSubmodelRegistryBaseUrl
-            ? SubmodelRegistryServiceApi.create(targetSubmodelRegistryBaseUrl, mnestixFetch())
+        const targetSubmodelRegistryClient = targetSubmodelRegistry
+            ? SubmodelRegistryServiceApi.createNull('targetSubmodelRegistryClient.com', [], targetSubmodelRegistry)
             : undefined;
 
         return new TransferService(
             targetAasRepositoryClient,
+            sourceAasRepositoryClient,
             targetSubmodelRepositoryClient,
+            sourceSubmodelRepositoryClient,
             targetAasDiscoveryClient,
             targetAasRegistryClient,
-            targetSubmodelRegistryClient
+            targetSubmodelRegistryClient,
         );
     }
 

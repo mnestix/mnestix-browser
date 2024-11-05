@@ -2,6 +2,7 @@ import { encodeBase64 } from 'lib/util/Base64Util';
 import { DiscoveryEntry, IDiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApiInterface';
 import { DiscoveryServiceApiInMemory } from 'lib/api/discovery-service-api/discoveryServiceApiInMemory';
 import { ApiResponseWrapper } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
+import { ServiceReachable } from 'lib/services/transfer-service/TransferService';
 
 export class DiscoveryServiceApi implements IDiscoveryServiceApi {
     private constructor(
@@ -23,8 +24,9 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
     static createNull(
         baseUrl: string,
         discoveryEntries: { assetId: string; aasIds: string[] }[],
+        reachable: ServiceReachable = ServiceReachable.Yes,
     ): DiscoveryServiceApiInMemory {
-        return new DiscoveryServiceApiInMemory(baseUrl, discoveryEntries);
+        return new DiscoveryServiceApiInMemory(baseUrl, discoveryEntries, reachable);
     }
 
     getBaseUrl(): string {

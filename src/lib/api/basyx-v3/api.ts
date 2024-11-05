@@ -11,6 +11,7 @@ import {
 import { ApiResponseWrapper } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 import { AttachmentDetails } from 'lib/types/TransferServiceData';
 import { mnestixFetch } from 'lib/api/infrastructure';
+import { ServiceReachable } from 'lib/services/transfer-service/TransferService';
 
 export type FetchAPI = {
     fetch: <T>(url: RequestInfo, init?: RequestInit) => Promise<ApiResponseWrapper<T>>;
@@ -56,8 +57,9 @@ export class AssetAdministrationShellRepositoryApi implements IAssetAdministrati
     static createNull(
         baseUrl: string,
         shellsInRepositories: AssetAdministrationShell[],
+        reachable: ServiceReachable = ServiceReachable.Yes,
     ): AssetAdministrationShellRepositoryApiInMemory {
-        return new AssetAdministrationShellRepositoryApiInMemory(baseUrl, shellsInRepositories);
+        return new AssetAdministrationShellRepositoryApiInMemory(baseUrl, shellsInRepositories, reachable);
     }
 
     getBaseUrl(): string {
@@ -330,15 +332,19 @@ export class SubmodelRepositoryApi implements ISubmodelRepositoryApi {
     private constructor(
         private baseUrl: string,
         private http: FetchAPI,
-        private configuration?: Configuration
+        private configuration?: Configuration,
     ) {}
 
     static create(baseUrl: string, http: FetchAPI, configuration?: Configuration): SubmodelRepositoryApi {
         return new SubmodelRepositoryApi(baseUrl, http, configuration);
     }
 
-    static createNull(basePath: string, submodelsInRepository: Submodel[]): SubmodelRepositoryApiInMemory {
-        return new SubmodelRepositoryApiInMemory(basePath, submodelsInRepository);
+    static createNull(
+        basePath: string,
+        submodelsInRepository: Submodel[],
+        reachable: ServiceReachable = ServiceReachable.Yes,
+    ): SubmodelRepositoryApiInMemory {
+        return new SubmodelRepositoryApiInMemory(basePath, submodelsInRepository, reachable);
     }
 
     getBaseUrl(): string {
@@ -348,7 +354,7 @@ export class SubmodelRepositoryApi implements ISubmodelRepositoryApi {
     async getSubmodelById(submodelId: string, options?: any): Promise<ApiResponseWrapper<Submodel>> {
         return SubmodelRepositoryApiFp(this.configuration).getSubmodelById(submodelId, options)(
             this.http,
-            this.baseUrl
+            this.baseUl,
         );
     }
 

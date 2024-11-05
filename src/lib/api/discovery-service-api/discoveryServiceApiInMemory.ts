@@ -5,11 +5,13 @@ import {
     wrapErrorCode,
     wrapSuccess,
 } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
+import { ServiceReachable } from 'lib/services/transfer-service/TransferService';
 
 export class DiscoveryServiceApiInMemory implements IDiscoveryServiceApi {
     constructor(
         protected baseUrl: string,
         protected discoveryEntries: { assetId: string; aasIds: string[] }[],
+        protected reachable: ServiceReachable = ServiceReachable.Yes,
     ) {}
 
     getBaseUrl(): string {
@@ -23,6 +25,8 @@ export class DiscoveryServiceApiInMemory implements IDiscoveryServiceApi {
     async getAasIdsByAssetId(
         assetId: string,
     ): Promise<ApiResponseWrapper<{ paging_metadata: string; result: string[] }>> {
+        if (this.reachable !== ServiceReachable.Yes)
+            return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Service no;t reachable');
         const foundEntry = this.discoveryEntries.find((entry) => entry.assetId === assetId);
         if (!foundEntry) {
             return Promise.resolve(

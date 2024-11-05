@@ -8,12 +8,13 @@ import {
     wrapResponse,
 } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 import { AttachmentDetails } from 'lib/types/TransferServiceData';
+import { ServiceReachable } from 'lib/services/transfer-service/TransferService';
 
 export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdministrationShellRepositoryApi {
     constructor(
         private baseUrl: string,
         private shellsInRepositories: AssetAdministrationShell[] = [],
-        private reachable: boolean = true,
+        private reachable: ServiceReachable = ServiceReachable.Yes,
     ) {}
 
     getBaseUrl(): string {
@@ -40,6 +41,8 @@ export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdmi
         aasId: string,
         _options?: object,
     ): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
+        if (this.reachable !== ServiceReachable.Yes)
+            return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Service no;t reachable');
         const foundAas = this.shellsInRepositories.find((entry) => encodeBase64(entry.id) === aasId);
         if (foundAas) {
             const response = new Response(JSON.stringify(foundAas));
@@ -69,6 +72,7 @@ export class SubmodelRepositoryApiInMemory implements ISubmodelRepositoryApi {
     constructor(
         private baseUrl: string,
         private readonly submodelsInRepository: Submodel[],
+        private reachable: ServiceReachable = ServiceReachable.Yes,
     ) {}
 
     getBaseUrl(): string {
@@ -88,6 +92,8 @@ export class SubmodelRepositoryApiInMemory implements ISubmodelRepositoryApi {
     }
 
     async getSubmodelById(submodelId: string, _options?: object): Promise<ApiResponseWrapper<Submodel>> {
+        if (this.reachable !== ServiceReachable.Yes)
+            return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Service no;t reachable');
         const foundAas = this.submodelsInRepository.find((entry) => encodeBase64(entry.id) === submodelId);
         if (foundAas) {
             const response = new Response(JSON.stringify(foundAas));

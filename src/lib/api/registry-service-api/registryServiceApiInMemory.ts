@@ -7,6 +7,7 @@ import {
     wrapErrorCode,
     wrapResponse,
 } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
+import { ServiceReachable } from 'lib/services/transfer-service/TransferService';
 
 export type AasRegistryEndpointEntryInMemory = {
     endpoint: URL | string;
@@ -18,6 +19,7 @@ export class RegistryServiceApiInMemory implements IRegistryServiceApi {
         protected baseUrl: string,
         protected registryShellDescriptors: AssetAdministrationShellDescriptor[],
         protected registryShellEndpoints: AasRegistryEndpointEntryInMemory[],
+        protected reachable: ServiceReachable = ServiceReachable.Yes,
     ) {}
 
     getBaseUrl(): string {
@@ -33,6 +35,8 @@ export class RegistryServiceApiInMemory implements IRegistryServiceApi {
     async getAssetAdministrationShellDescriptorById(
         aasId: string,
     ): Promise<ApiResponseWrapper<AssetAdministrationShellDescriptor>> {
+        if (this.reachable !== ServiceReachable.Yes)
+            return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Service not reachable');
         const foundDescriptor = this.registryShellDescriptors.find((shellDescriptor) => shellDescriptor.id === aasId);
         if (!foundDescriptor) {
             return Promise.resolve(
@@ -51,6 +55,8 @@ export class RegistryServiceApiInMemory implements IRegistryServiceApi {
     async getAssetAdministrationShellFromEndpoint(
         endpoint: URL,
     ): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
+        if (this.reachable !== ServiceReachable.Yes)
+            return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Service not reachable');
         const foundEndpoint = this.registryShellEndpoints.find(
             (shellEndpoint) => shellEndpoint.endpoint.toString() === endpoint.toString(),
         );
