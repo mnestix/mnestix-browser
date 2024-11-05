@@ -128,7 +128,7 @@ export class AasSearcher {
         if (!this.discoveryServiceClient)
             return wrapErrorCode(ApiResultStatus.INTERNAL_SERVER_ERROR, 'Discovery service is not defined');
         const response = await this.discoveryServiceClient.getAasIdsByAssetId(searchAssetId);
-        if (response.isSuccess) return wrapSuccess(response.result.result);
+        if (response.isSuccess) return wrapSuccess(response.result);
         return wrapErrorCode(
             ApiResultStatus.NOT_FOUND,
             `Could not find the asset '${searchAssetId}' in the discovery service`,

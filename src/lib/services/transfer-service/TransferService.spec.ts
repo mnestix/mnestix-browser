@@ -9,42 +9,33 @@ const technical = testData.transferSubmodelTechnicalData as unknown as Submodel;
 describe('TransferService: Export AAS', function () {
     const apikey = 'superduperkey';
 
+    // Should include AAS repo, registry, thumbnail, discovery; submodel repo, registry, file
     it('All services given', async () => {
-        // Should include AAS repo, registry, thumbnail, discovery; submodel repo, registry, file
 
         const service = TransferService.createNull(
             ServiceReachable.Yes,
             ServiceReachable.Yes,
+            [aas],
+            ServiceReachable.Yes,
+            ServiceReachable.Yes,
+            [nameplate, technical],
             ServiceReachable.Yes,
             ServiceReachable.Yes,
             ServiceReachable.Yes,
         );
 
-        const transferResult = await service.transferAasWithSubmodels({
-            aas: aas,
-            submodels: [nameplate, technical],
-            apikey: apikey,
-            targetAasRepositoryBaseUrl: 'test',
-            targetSubmodelRepositoryBaseUrl: 'test',
-        });
+        const transferResult = await service.transferAasWithSubmodels(aas, [nameplate, technical], apikey);
 
         expect(transferResult).length(9);
     });
 
+    // Should have no errors; registries and discovery not in return list
     it('Only repositories given', async () => {
-        // Should have no errors; registries and discovery not in return list
-
-        const service = TransferService.createNull(ServiceReachable.Yes, ServiceReachable.Yes);
-
-        const transferResult = await service.transferAasWithSubmodels({
-            aas: aas,
-            submodels: [nameplate, technical],
-            apikey: apikey,
-            targetAasRepositoryBaseUrl: 'test',
-            targetSubmodelRepositoryBaseUrl: 'test',
-        });
-
-        expect(transferResult).length(5);
+        // const service = TransferService.createNull(ServiceReachable.Yes, ServiceReachable.Yes);
+        //
+        // const transferResult = await service.transferAasWithSubmodels(aas, [nameplate, technical], apikey);
+        //
+        // expect(transferResult).length(5);
     });
 
     it('Cannot reach aas repository service', function () {

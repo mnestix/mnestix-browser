@@ -6,6 +6,7 @@ import {
     ApiResultStatus,
     wrapErrorCode,
     wrapResponse,
+    wrapSuccess,
 } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 import { AttachmentDetails } from 'lib/types/TransferServiceData';
 import { ServiceReachable } from 'lib/services/transfer-service/TransferService';
@@ -21,11 +22,19 @@ export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdmi
         return this.baseUrl;
     }
 
-    postAssetAdministrationShell(
-        _aas: AssetAdministrationShell,
+    async postAssetAdministrationShell(
+        aas: AssetAdministrationShell,
         _options?: object | undefined,
     ): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
-        throw new Error('Method not implemented.');
+        if (this.reachable !== ServiceReachable.Yes)
+            return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Service not reachable');
+        if (this.shellsInRepositories.find((entry) => encodeBase64(entry.id) === aas.id))
+            return wrapErrorCode(
+                ApiResultStatus.INTERNAL_SERVER_ERROR,
+                `AAS repository already has an AAS with id '${aas.id}`,
+            );
+        this.shellsInRepositories.push(aas);
+        return wrapSuccess(aas);
     }
 
     putThumbnailToShell(
@@ -42,7 +51,7 @@ export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdmi
         _options?: object,
     ): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
         if (this.reachable !== ServiceReachable.Yes)
-            return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Service no;t reachable');
+            return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Service not reachable');
         const foundAas = this.shellsInRepositories.find((entry) => encodeBase64(entry.id) === aasId);
         if (foundAas) {
             const response = new Response(JSON.stringify(foundAas));

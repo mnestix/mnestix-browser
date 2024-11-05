@@ -1,8 +1,9 @@
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { DiscoveryEntry, IDiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApiInterface';
 import { DiscoveryServiceApiInMemory } from 'lib/api/discovery-service-api/discoveryServiceApiInMemory';
-import { ApiResponseWrapper } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
+import { ApiResponseWrapper, wrapErrorCode, wrapSuccess } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 import { ServiceReachable } from 'lib/services/transfer-service/TransferService';
+import { SpecificAssetId } from '@aas-core-works/aas-core3.0-typescript/types';
 
 export class DiscoveryServiceApi implements IDiscoveryServiceApi {
     private constructor(
@@ -23,7 +24,7 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
 
     static createNull(
         baseUrl: string,
-        discoveryEntries: { assetId: string; aasIds: string[] }[],
+        discoveryEntries: { assetId: string; aasId: string }[],
         reachable: ServiceReachable = ServiceReachable.Yes,
     ): DiscoveryServiceApiInMemory {
         return new DiscoveryServiceApiInMemory(baseUrl, discoveryEntries, reachable);
@@ -33,13 +34,16 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
         return this.baseUrl;
     }
 
-    async linkAasIdAndAssetId(aasId: string, assetId: string) {
-        return this.postAllAssetLinksById(aasId, [
-            {
-                name: 'globalAssetId',
-                value: assetId,
-            },
-        ]);
+    async linkAasIdAndAssetId(aasId: string, assetId: string): Promise<ApiResponseWrapper<DiscoveryEntry>> {
+        const response = await this.postAllAssetLinksById(aasId, {
+            name: 'globalAssetId',
+            value: assetId,
+        } as SpecificAssetId);
+        if (!response.isSuccess) return wrapErrorCode(response.errorCode, response.message);
+        return wrapSuccess({
+            aasId: aasId,
+            asset: response.result,
+        });
     }
 
     async getAasIdsByAssetId(assetId: string) {
@@ -47,28 +51,13 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
             {
                 name: 'globalAssetId',
                 value: assetId,
-            },
+            } as SpecificAssetId,
         ]);
     }
 
-    async deleteAllAssetLinksById(aasId: string): Promise<ApiResponseWrapper<void>> {
-        const b64_aasId = encodeBase64(aasId);
-
-        const headers = {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-        };
-
-        const url = new URL(`lookup/shells/${b64_aasId}`, this.baseUrl);
-        return this.http.fetch(url.toString(), {
-            method: 'DELETE',
-            headers,
-        });
-    }
-
     async getAllAssetAdministrationShellIdsByAssetLink(
-        assetIds: { name: string; value: string }[],
-    ): Promise<ApiResponseWrapper<{ paging_metadata: string; result: string[] }>> {
+        assetIds: SpecificAssetId[],
+    ): Promise<ApiResponseWrapper<string[]>> {
         const headers = {
             Accept: 'application/json',
             'Content-Type': 'application/json',
@@ -80,13 +69,14 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
             url.searchParams.append('assetIds', encodeBase64(JSON.stringify(obj)));
         });
 
-        return this.http.fetch(url.toString(), {
+        const response = await this.http.fetch<string[]>(url.toString(), {
             method: 'GET',
             headers,
         });
+        return response;
     }
 
-    async getAllAssetLinksById(aasId: string): Promise<ApiResponseWrapper<DiscoveryEntry[]>> {
+    async getAllAssetLinksById(aasId: string): Promise<ApiResponseWrapper<SpecificAssetId[]>> {
         const b64_aasId = encodeBase64(aasId);
 
         const headers = {
@@ -95,7 +85,7 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
         };
 
         const url = new URL(`lookup/shells/${b64_aasId}`, this.baseUrl);
-        return this.http.fetch(url.toString(), {
+        return this.http.fetch<SpecificAssetId[]>(url.toString(), {
             method: 'GET',
             headers,
         });
@@ -103,8 +93,8 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
 
     async postAllAssetLinksById(
         aasId: string,
-        assetLinks: DiscoveryEntry[],
-    ): Promise<ApiResponseWrapper<DiscoveryEntry[]>> {
+        assetLinks: SpecificAssetId, // this is NOT a list in the specification
+    ): Promise<ApiResponseWrapper<SpecificAssetId>> {
         const b64_aasId = encodeBase64(aasId);
 
         const headers = {
@@ -113,10 +103,25 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
         };
 
         const url = new URL(`lookup/shells/${b64_aasId}`, this.baseUrl);
-        return this.http.fetch(url.toString(), {
+        return this.http.fetch<SpecificAssetId>(url.toString(), {
             method: 'POST',
             headers,
             body: JSON.stringify(assetLinks),
+        });
+    }
+
+    async deleteAllAssetLinksById(aasId: string): Promise<ApiResponseWrapper<void>> {
+        const b64_aasId = encodeBase64(aasId);
+
+        const headers = {
+            Accept: 'application/json',
+            'Content-Type': 'application/json'
+        };
+
+        const url = new URL(`lookup/shells/${b64_aasId}`, this.baseUrl);
+        return this.http.fetch(url.toString(), {
+            method: 'DELETE',
+            headers
         });
     }
 }

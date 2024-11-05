@@ -354,7 +354,7 @@ export class SubmodelRepositoryApi implements ISubmodelRepositoryApi {
     async getSubmodelById(submodelId: string, options?: any): Promise<ApiResponseWrapper<Submodel>> {
         return SubmodelRepositoryApiFp(this.configuration).getSubmodelById(submodelId, options)(
             this.http,
-            this.baseUl,
+            this.baseUrl,
         );
     }
 

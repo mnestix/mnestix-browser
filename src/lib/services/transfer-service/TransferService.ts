@@ -20,7 +20,7 @@ import {
     SubmodelElementCollection,
 } from '@aas-core-works/aas-core3.0-typescript/types';
 import { isValidUrl } from 'lib/util/UrlUtil';
-import { AttachmentDetails, TransferDto, TransferResult } from 'lib/types/TransferServiceData';
+import { AttachmentDetails, TransferResult } from 'lib/types/TransferServiceData';
 import { getKeyType } from 'lib/util/KeyTypeUtil';
 import { generateRandomId } from 'lib/util/RandomUtils';
 
@@ -96,46 +96,52 @@ export class TransferService {
     static createNull(
         targetAasRepository: ServiceReachable = ServiceReachable.Yes,
         sourceAasRepository: ServiceReachable = ServiceReachable.Yes,
+        sourceAasEntries: AssetAdministrationShell[] = [],
         targetSubmodelRepository: ServiceReachable = ServiceReachable.Yes,
         sourceSubmodelRepository: ServiceReachable = ServiceReachable.Yes,
+        sourceSubmodelEntries: Submodel[] = [],
         targetAasDiscovery?: ServiceReachable,
         targetAasRegistry?: ServiceReachable,
         targetSubmodelRegistry?: ServiceReachable,
     ): TransferService {
         const targetAasRepositoryClient = AssetAdministrationShellRepositoryApi.createNull(
-            'targetAasRepositoryClient.com',
+            'https://targetAasRepositoryClient.com',
             [],
-            targetAasRepositor,
+            targetAasRepository,
         );
 
         const sourceAasRepositoryClient = AssetAdministrationShellRepositoryApi.createNull(
-            'sourceAasRepositoryClient.com',
-            [],
-            sourceAasRepositor,
+            'https://sourceAasRepositoryClient.com',
+            sourceAasEntries,
+            sourceAasRepository,
         );
 
         const targetSubmodelRepositoryClient = SubmodelRepositoryApi.createNull(
-            'targetSubmodelRepositoryClient.com',
+            'https://targetSubmodelRepositoryClient.com',
             [],
             targetSubmodelRepository,
         );
 
         const sourceSubmodelRepositoryClient = SubmodelRepositoryApi.createNull(
-            'sourceSubmodelRepositoryClient.com',
-            [],
-            sourceSubmodelRepositor,
+            'https://sourceSubmodelRepositoryClient.com',
+            sourceSubmodelEntries,
+            sourceSubmodelRepository,
         );
 
         const targetAasDiscoveryClient = targetAasDiscovery
-            ? DiscoveryServiceApi.createNull('targetDiscoveryClient.com', [], targetAasDiscovery)
+            ? DiscoveryServiceApi.createNull('https://targetDiscoveryClient.com', [], targetAasDiscovery)
             : undefined;
 
         const targetAasRegistryClient = targetAasRegistry
-            ? RegistryServiceApi.createNull('targetAasRegistryClient.com', [], [], targetAasRegistry)
+            ? RegistryServiceApi.createNull('https://targetAasRegistryClient.com', [], [], targetAasRegistry)
             : undefined;
 
         const targetSubmodelRegistryClient = targetSubmodelRegistry
-            ? SubmodelRegistryServiceApi.createNull('targetSubmodelRegistryClient.com', [], targetSubmodelRegistry)
+            ? SubmodelRegistryServiceApi.createNull(
+                  'https://targetSubmodelRegistryClient.com',
+                  [],
+                  targetSubmodelRegistry,
+              )
             : undefined;
 
         return new TransferService(
@@ -149,17 +155,19 @@ export class TransferService {
         );
     }
 
-    async transferAasWithSubmodels({
-        aas,
-        submodels,
-        apikey,
-        targetAasRepositoryBaseUrl,
-        targetSubmodelRepositoryBaseUrl,
-    }: TransferDto): Promise<TransferResult[]> {
+    async transferAasWithSubmodels(
+        aas: AssetAdministrationShell,
+        submodels: Submodel[],
+        apikey: string,
+    ): Promise<TransferResult[]> {
         const submodelDescriptors = submodels.map((submodel) =>
-            this.createSubmodelDescriptorFromSubmodel(submodel, targetSubmodelRepositoryBaseUrl),
+            this.createSubmodelDescriptorFromSubmodel(submodel, this.targetAasRepositoryClient.getBaseUrl()),
         );
-        const shellDescriptor = this.createShellDescriptorFromAas(aas, targetAasRepositoryBaseUrl, submodelDescriptors);
+        const shellDescriptor = this.createShellDescriptorFromAas(
+            aas,
+            this.targetAasRepositoryClient.getBaseUrl(),
+            submodelDescriptors,
+        );
 
         const promises = [];
 
@@ -209,18 +217,9 @@ export class TransferService {
         }
     }
 
-    private async registerAasAtDiscovery(aas: AssetAdministrationShell): Promise<TransferResult> {
-        const response = await this.targetAasDiscoveryClient!.postAllAssetLinksById(aas.id, [
-            {
-                name: 'globalAssetId',
-                value: aas.assetInformation.globalAssetId!,
-            },
-        ]);
-        if (response.isSuccess) {
-            return { success: true, operationKind: 'Discovery', resourceId: aas.id, error: '' };
-        } else {
-            return { success: false, operationKind: 'Discovery', resourceId: aas.id, error: response.message };
-        }
+    getEndpointUrl(target: AssetAdministrationShell | Submodel, targetBaseUrl: string) {
+        const subpath = target instanceof AssetAdministrationShell ? 'shells' : 'submodels';
+        return new URL(`${subpath}/${encodeBase64(target.id)}`, targetBaseUrl);
     }
 
     private async registerAasAtRegistry(shellDescriptor: AssetAdministrationShellDescriptor): Promise<TransferResult> {
@@ -406,9 +405,16 @@ export class TransferService {
         };
     }
 
-    getEndpointUrl(target: AssetAdministrationShell | Submodel, targetBaseUrl: string) {
-        const subpath = target instanceof AssetAdministrationShell ? 'shells' : 'submodels';
-        return new URL(`/${subpath}/${encodeBase64(target.id)}`, targetBaseUrl);
+    private async registerAasAtDiscovery(aas: AssetAdministrationShell): Promise<TransferResult> {
+        const response = await this.targetAasDiscoveryClient!.linkAasIdAndAssetId(
+            aas.id,
+            aas.assetInformation.globalAssetId!
+        );
+        if (response.isSuccess) {
+            return { success: true, operationKind: 'Discovery', resourceId: aas.id, error: '' };
+        } else {
+            return { success: false, operationKind: 'Discovery', resourceId: aas.id, error: response.message };
+        }
     }
 
     getInterfaceString(target: AssetAdministrationShell | Submodel): string {
