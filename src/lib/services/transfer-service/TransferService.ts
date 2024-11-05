@@ -104,11 +104,12 @@ export class TransferService {
         const shellDescriptor = this.createShellDescriptorFromAas(aas, targetAasRepositoryBaseUrl, submodelDescriptors);
 
         const promises = [];
+        const attachmentPromises: Promise<TransferResult>[] = [];
 
         promises.push(this.postAasToRepository(aas, apikey));
 
         if (this.aasThumbnailImageIsFile(aas)) {
-            promises.push(this.putThumbnailImageToShell(aas, apikey));
+            attachmentPromises.push(this.putThumbnailImageToShell(aas, apikey));
         }
 
         if (this.targetAasDiscoveryClient && aas.assetInformation.globalAssetId) {
@@ -125,7 +126,7 @@ export class TransferService {
             if (submodel.submodelElements) {
                 const attachmentDetails = this.getSubmodelAttachmentsDetails(submodel.submodelElements);
                 const result = await this.processAttachments(submodel.id, attachmentDetails, apikey);
-                promises.push(...result);
+                attachmentPromises.push(...result);
             }
         }
 
@@ -135,7 +136,17 @@ export class TransferService {
             });
         }
 
-        return await Promise.all(promises);
+        const mainResults = await Promise.all(promises);
+        // Ensure AAS and submodels are fully transferred before initiating file uploads to prevent 'not-found' errors.
+        // Azure’s hosted repository requires time to process newly uploaded AAS and submodels, so a temporary 2-second delay is applied.
+        // TODO: Implement a dynamic readiness check to replace the fixed 2-second delay.
+        const attachmentResults: TransferResult[] = await new Promise((resolve) => {
+            setTimeout(() => {
+                resolve(Promise.all(attachmentPromises));
+            }, 2000);
+        });
+
+        return [...mainResults, ...attachmentResults];
     }
 
     private async postAasToRepository(aas: AssetAdministrationShell, apikey?: string): Promise<TransferResult> {
@@ -389,9 +400,9 @@ export class TransferService {
         idShortPath: string,
         submodelAttachmentsDetails: AttachmentDetails[],
     ) {
-        if (!(subEl as SubmodelElementCollection).value) return;
         const modelType = getKeyType(subEl);
         if (modelType === KeyTypes.SubmodelElementCollection) {
+            if (!(subEl as SubmodelElementCollection).value) return;
             submodelAttachmentsDetails.push(
                 ...this.getAttachmentsDetailsFromCollection(subEl as SubmodelElementCollection, idShortPath),
             );
@@ -414,6 +425,6 @@ export class TransferService {
 
     private getExtensionFromFileType(fileType: string) {
         if (fileType === 'application/octet-stream') return '';
-        return fileType.split('/')[1];
+        return fileType.split(/[+/]/)[1];
     }
 }
