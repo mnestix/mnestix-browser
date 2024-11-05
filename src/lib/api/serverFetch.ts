@@ -4,7 +4,7 @@ import {
     ApiResponseWrapper,
     ApiResultStatus,
     wrapErrorCode,
-    wrapResponse
+    wrapResponse,
 } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 
 /**
@@ -30,7 +30,7 @@ export async function performServerFetch<T>(
         return wrapResponse<T>(response);
     } catch (e) {
         const message = 'this could be a network error';
-        console.warn(message);
+        console.warn(message, '\nException message:', e.message);
         return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, message);
     }
 }
