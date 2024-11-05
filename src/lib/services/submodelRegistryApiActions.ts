@@ -6,7 +6,7 @@ import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 import { ApiResponseWrapper } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 
 const submodelRegistryServiceClient = SubmodelRegistryServiceApi.create(
-    process.env.SUBMODEL_REGISTRY_API_URL,
+    process.env.SUBMODEL_REGISTRY_API_URL ?? '', // TODO this should throw or return a failed api wrapper
     mnestixFetch(),
 );
 
