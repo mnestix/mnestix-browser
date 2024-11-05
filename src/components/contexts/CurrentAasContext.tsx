@@ -59,7 +59,7 @@ export const CurrentAasContextProvider = (props: PropsWithChildren) => {
     const aasOriginSource = useState<string | null>(null);
 
     return (
-        <CurrentAasContext.Provider value={{ aasState, registryAasData, submodelState, aasOriginSource}}>
+        <CurrentAasContext.Provider value={{ aasState, registryAasData, submodelState, aasOriginSource }}>
             {props.children}
         </CurrentAasContext.Provider>
     );
