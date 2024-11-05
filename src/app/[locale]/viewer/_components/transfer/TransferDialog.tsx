@@ -45,8 +45,8 @@ export function TransferDialog(props: DialogProps) {
         setTransferDto({ ...transferDto, targetAasRepositoryFormModel: values });
 
         const dtoToSubmit: TransferDto = {
-            submodels: submodelsFromContext.filter((sub) => sub.submodel).map((sub) => sub.submodel!),
             aas: aasFromContext,
+            submodels: submodelsFromContext.filter((sub) => sub.submodel).map((sub) => sub.submodel!),
             targetAasRepositoryBaseUrl: values.repository,
             targetSubmodelRepositoryBaseUrl:
                 values.submodelRepository && values.submodelRepository !== '0'

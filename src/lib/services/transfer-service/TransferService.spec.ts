@@ -1,3 +1,4 @@
+import { expect } from '@jest/globals';
 import { ServiceReachable, TransferService } from 'lib/services/transfer-service/TransferService';
 import testData from './TransferService.data.json';
 import { AssetAdministrationShell, Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
@@ -11,7 +12,6 @@ describe('TransferService: Export AAS', function () {
 
     // Should include AAS repo, registry, thumbnail, discovery; submodel repo, registry, file
     it('All services given', async () => {
-
         const service = TransferService.createNull(
             ServiceReachable.Yes,
             ServiceReachable.Yes,
@@ -26,16 +26,23 @@ describe('TransferService: Export AAS', function () {
 
         const transferResult = await service.transferAasWithSubmodels(aas, [nameplate, technical], apikey);
 
-        expect(transferResult).length(9);
+        expect(transferResult).toHaveLength(7);
     });
 
     // Should have no errors; registries and discovery not in return list
     it('Only repositories given', async () => {
-        // const service = TransferService.createNull(ServiceReachable.Yes, ServiceReachable.Yes);
-        //
-        // const transferResult = await service.transferAasWithSubmodels(aas, [nameplate, technical], apikey);
-        //
-        // expect(transferResult).length(5);
+        const service = TransferService.createNull(
+            ServiceReachable.Yes,
+            ServiceReachable.Yes,
+            [aas],
+            ServiceReachable.Yes,
+            ServiceReachable.Yes,
+            [nameplate, technical],
+        );
+
+        const transferResult = await service.transferAasWithSubmodels(aas, [nameplate, technical], apikey);
+
+        expect(transferResult).toHaveLength(3);
     });
 
     it('Cannot reach aas repository service', function () {

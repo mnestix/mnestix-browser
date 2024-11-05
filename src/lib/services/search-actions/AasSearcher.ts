@@ -1,4 +1,4 @@
-import { Endpoint, SubmodelDescriptor } from 'lib/types/registryServiceTypes';
+import { AssetAdministrationShellDescriptor, Endpoint, SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
 import { Log } from 'lib/util/Log';
 import { IDiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApiInterface';
@@ -14,6 +14,8 @@ import {
     wrapErrorCode,
     wrapSuccess,
 } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
+import { AasRegistryEndpointEntryInMemory } from 'lib/api/registry-service-api/registryServiceApiInMemory';
+import { Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
 
 export type AasData = {
     submodelDescriptors: SubmodelDescriptor[] | undefined;
@@ -29,6 +31,15 @@ export type AasSearchResult = {
 export type RegistrySearchResult = {
     endpoints: URL[];
     submodelDescriptors: SubmodelDescriptor[];
+};
+
+export type AasSearcherNullParams = {
+    discoveryEntries?: { aasId: string; assetId: string }[];
+    shellsInRepositories?: AssetAdministrationShell[];
+    shellsOnRegistry?: AasRegistryEndpointEntryInMemory[];
+    submodelsInRepository?: Submodel[];
+    registryDescriptorEntries?: AssetAdministrationShellDescriptor[];
+    log?: Log;
 };
 
 export class AasSearcher {
@@ -51,22 +62,18 @@ export class AasSearcher {
         return new AasSearcher(multipleDataSource, discoveryServiceClient, registryServiceClient, log);
     }
 
-    static createNull(
+    static createNull({
         discoveryEntries = [],
-        registryShellDescriptorEntries = [],
-        shellsAvailableOnRegistryEndpoints = [],
-        shellsSavedInTheRepositories = [],
-        submodelsSavedInTheRepository = [],
-        log = null,
-    ): AasSearcher {
+        registryDescriptorEntries = [],
+        shellsOnRegistry = [],
+        shellsInRepositories = [],
+        submodelsInRepository = [],
+        log,
+    }: AasSearcherNullParams): AasSearcher {
         return new AasSearcher(
-            RepositorySearchService.createNull(shellsSavedInTheRepositories, submodelsSavedInTheRepository),
+            RepositorySearchService.createNull(shellsInRepositories, submodelsInRepository),
             DiscoveryServiceApi.createNull('https://testdiscovery.com', discoveryEntries),
-            RegistryServiceApi.createNull(
-                'https://testregistry.com',
-                registryShellDescriptorEntries,
-                shellsAvailableOnRegistryEndpoints,
-            ),
+            RegistryServiceApi.createNull('https://testregistry.com', registryDescriptorEntries, shellsOnRegistry),
             log ?? Log.createNull(),
         );
     }

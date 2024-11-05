@@ -10,10 +10,7 @@ export interface ISubmodelRegistryServiceApi {
 
     getSubmodelDescriptorById(submodelId: string): Promise<ApiResponseWrapper<SubmodelDescriptor>>;
 
-    putSubmodelDescriptorById(
-        submodelId: string,
-        submodelDescriptor: SubmodelDescriptor,
-    ): Promise<ApiResponseWrapper<SubmodelDescriptor>>;
+    putSubmodelDescriptorById(submodelDescriptor: SubmodelDescriptor): Promise<ApiResponseWrapper<SubmodelDescriptor>>;
 
     deleteSubmodelDescriptorById(submodelId: string): Promise<ApiResponseWrapper<void>>;
 

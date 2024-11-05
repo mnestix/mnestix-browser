@@ -49,13 +49,12 @@ export class RepositorySearchService {
     }
 
     static createNull(
-        repositoryUrls: string[] = [],
         shellsInRepository: AssetAdministrationShell[] = [],
         submodelsInRepository: Submodel[] = [],
         log = null,
     ): RepositorySearchService {
         return new RepositorySearchService(
-            PrismaConnector.createNull(repositoryUrls),
+            PrismaConnector.createNull(['https://testAasRepository.com'], ['https://testSubmodelRepository.com']),
             (baseUrl) => AssetAdministrationShellRepositoryApi.createNull(baseUrl, shellsInRepository),
             (baseUrl) => SubmodelRepositoryApi.createNull(baseUrl, submodelsInRepository),
             log ?? Log.createNull(),

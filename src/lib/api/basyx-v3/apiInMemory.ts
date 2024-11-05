@@ -78,11 +78,18 @@ export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdmi
 }
 
 export class SubmodelRepositoryApiInMemory implements ISubmodelRepositoryApi {
+    readonly submodelsInRepository: Map<string, Submodel>;
+
     constructor(
-        private baseUrl: string,
-        private readonly submodelsInRepository: Submodel[],
-        private reachable: ServiceReachable = ServiceReachable.Yes,
-    ) {}
+        readonly baseUrl: string,
+        submodelsInRepository: Submodel[],
+        readonly reachable: ServiceReachable = ServiceReachable.Yes,
+    ) {
+        this.submodelsInRepository = new Map<string, Submodel>();
+        submodelsInRepository.forEach((submodel) => {
+            this.submodelsInRepository.set(submodel.id, submodel);
+        });
+    }
 
     getBaseUrl(): string {
         return this.baseUrl;
@@ -96,23 +103,26 @@ export class SubmodelRepositoryApiInMemory implements ISubmodelRepositoryApi {
         throw new Error('Method not implemented.');
     }
 
-    postSubmodel(_submodel: Submodel, _options?: object): Promise<ApiResponseWrapper<Submodel>> {
-        throw new Error('Method not implemented.');
+    async postSubmodel(submodel: Submodel, _options?: object): Promise<ApiResponseWrapper<Submodel>> {
+        if (this.reachable !== ServiceReachable.Yes)
+            return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Service not reachable');
+
+        this.submodelsInRepository.delete(submodel.id);
+        this.submodelsInRepository.set(submodel.id, submodel);
+        return wrapSuccess(submodel);
     }
 
     async getSubmodelById(submodelId: string, _options?: object): Promise<ApiResponseWrapper<Submodel>> {
         if (this.reachable !== ServiceReachable.Yes)
-            return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Service no;t reachable');
-        const foundAas = this.submodelsInRepository.find((entry) => encodeBase64(entry.id) === submodelId);
+            return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Service not reachable');
+        const foundAas = this.submodelsInRepository.get(submodelId);
         if (foundAas) {
             const response = new Response(JSON.stringify(foundAas));
-            return await wrapResponse(response);
+            return wrapResponse(response);
         }
-        return Promise.resolve(
-            wrapErrorCode(
-                ApiResultStatus.NOT_FOUND,
-                `no submodel found in the repository: ${this.baseUrl} for submodelId: ${submodelId}`,
-            ),
+        return wrapErrorCode(
+            ApiResultStatus.NOT_FOUND,
+            `no submodel found in the repository: '${this.baseUrl}' for submodel: '${submodelId}'`,
         );
     }
 

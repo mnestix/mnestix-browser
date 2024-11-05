@@ -49,10 +49,9 @@ export class SubmodelRegistryServiceApi implements ISubmodelRegistryServiceApi {
     }
 
     async putSubmodelDescriptorById(
-        submodelId: string,
         submodelDescriptor: SubmodelDescriptor,
     ): Promise<ApiResponseWrapper<SubmodelDescriptor>> {
-        const b64_submodelId = encodeBase64(submodelId);
+        const b64_submodelId = encodeBase64(submodelDescriptor.id);
 
         const headers = {
             Accept: 'application/json',
@@ -124,11 +123,18 @@ export class SubmodelRegistryServiceApi implements ISubmodelRegistryServiceApi {
 }
 
 class SubmodelRegistryServiceApiInMemory implements ISubmodelRegistryServiceApi {
+    readonly registrySubmodelDescriptors: Map<string, SubmodelDescriptor>;
+
     constructor(
-        protected baseUrl: string,
-        protected registrySubmodelDescriptors: SubmodelDescriptor[],
-        protected reachable: ServiceReachable,
-    ) {}
+        readonly baseUrl: string,
+        registrySubmodelDescriptors: SubmodelDescriptor[],
+        readonly reachable: ServiceReachable,
+    ) {
+        this.registrySubmodelDescriptors = new Map<string, SubmodelDescriptor>();
+        registrySubmodelDescriptors.forEach((submodelDescriptor) => {
+            this.registrySubmodelDescriptors.set(submodelDescriptor.id, submodelDescriptor);
+        });
+    }
 
     getBasePath(): string {
         return this.baseUrl;
@@ -137,7 +143,7 @@ class SubmodelRegistryServiceApiInMemory implements ISubmodelRegistryServiceApi 
     async getSubmodelDescriptorById(submodelId: string): Promise<ApiResponseWrapper<SubmodelDescriptor>> {
         if (this.reachable !== ServiceReachable.Yes)
             return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Service not reachable');
-        const foundDescriptor = this.registrySubmodelDescriptors.find((descriptor) => descriptor.id === submodelId);
+        const foundDescriptor = this.registrySubmodelDescriptors.get(submodelId);
         if (foundDescriptor) return wrapSuccess(foundDescriptor);
         return wrapErrorCode(
             ApiResultStatus.NOT_FOUND,
@@ -145,29 +151,44 @@ class SubmodelRegistryServiceApiInMemory implements ISubmodelRegistryServiceApi 
         );
     }
 
-    putSubmodelDescriptorById(
-        _submodelId: string,
-        _submodelDescriptor: SubmodelDescriptor,
+    async putSubmodelDescriptorById(
+        submodelDescriptor: SubmodelDescriptor,
     ): Promise<ApiResponseWrapper<SubmodelDescriptor>> {
-        throw new Error('Method not implemented.');
+        if (this.reachable !== ServiceReachable.Yes)
+            return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Service not reachable');
+        this.registrySubmodelDescriptors.set(submodelDescriptor.id, submodelDescriptor);
+        return wrapSuccess(submodelDescriptor);
     }
 
-    deleteSubmodelDescriptorById(_submodelId: string): Promise<ApiResponseWrapper<void>> {
-        throw new Error('Method not implemented.');
+    async deleteSubmodelDescriptorById(submodelId: string): Promise<ApiResponseWrapper<void>> {
+        if (this.reachable !== ServiceReachable.Yes)
+            return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Service not reachable');
+        this.registrySubmodelDescriptors.delete(submodelId);
+        return wrapSuccess(undefined);
     }
 
     async getAllSubmodelDescriptors(): Promise<ApiResponseWrapper<SubmodelDescriptor[]>> {
         if (this.reachable !== ServiceReachable.Yes)
             return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Service not reachable');
-        return wrapSuccess(this.registrySubmodelDescriptors);
+        return wrapSuccess([...this.registrySubmodelDescriptors.values()]);
     }
 
-    postSubmodelDescriptor(_submodelDescriptor: SubmodelDescriptor): Promise<ApiResponseWrapper<SubmodelDescriptor>> {
-        throw new Error('Method not implemented.');
+    async postSubmodelDescriptor(
+        submodelDescriptor: SubmodelDescriptor,
+    ): Promise<ApiResponseWrapper<SubmodelDescriptor>> {
+        if (this.reachable !== ServiceReachable.Yes)
+            return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Service not reachable');
+        if (this.registrySubmodelDescriptors.has(submodelDescriptor.id))
+            return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, `Submodel registry '${this.getBasePath()}' already has a submodel descriptor for '${submodelDescriptor.id}'`);
+        this.registrySubmodelDescriptors.set(submodelDescriptor.id, submodelDescriptor);
+        return wrapSuccess(submodelDescriptor);
     }
 
-    deleteAllSubmodelDescriptors(): Promise<ApiResponseWrapper<void>> {
-        throw new Error('Method not implemented.');
+    async deleteAllSubmodelDescriptors(): Promise<ApiResponseWrapper<void>> {
+        if (this.reachable !== ServiceReachable.Yes)
+            return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Service not reachable');
+        this.registrySubmodelDescriptors.clear();
+        return wrapSuccess(undefined);
     }
 
     getSubmodelFromEndpoint(_endpoint: string): Promise<ApiResponseWrapper<Submodel>> {

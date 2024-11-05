@@ -158,7 +158,7 @@ export class TransferService {
     async transferAasWithSubmodels(
         aas: AssetAdministrationShell,
         submodels: Submodel[],
-        apikey: string,
+        apikey?: string,
     ): Promise<TransferResult[]> {
         const submodelDescriptors = submodels.map((submodel) =>
             this.createSubmodelDescriptorFromSubmodel(submodel, this.targetAasRepositoryClient.getBaseUrl()),

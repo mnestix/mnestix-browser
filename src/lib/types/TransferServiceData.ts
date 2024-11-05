@@ -1,14 +1,16 @@
 import { AssetAdministrationShell, Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
 
 export type TransferDto = {
-    targetAasRepositoryBaseUrl: string;
-    targetDiscoveryBaseUrl?: string;
-    targetAasRegistryBaseUrl?: string;
-    targetSubmodelRepositoryBaseUrl: string;
-    targetSubmodelRegistryBaseUrl?: string;
-    apikey?: string;
     aas: AssetAdministrationShell;
     submodels: Submodel[];
+    targetAasRepositoryBaseUrl: string;
+    sourceAasRepositoryBaseUrl?: string; // TODO change this to mandatory
+    targetSubmodelRepositoryBaseUrl: string;
+    sourceSubmodelRepositoryBaseUrl?: string; // TODO change this to mandatory
+    targetDiscoveryBaseUrl?: string;
+    targetAasRegistryBaseUrl?: string;
+    targetSubmodelRegistryBaseUrl?: string;
+    apikey?: string;
 };
 
 export type TransferResult = {
