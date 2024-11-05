@@ -6,6 +6,7 @@ import {
     ApiResultStatus,
     wrapErrorCode,
     wrapResponse,
+    wrapSuccess,
 } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 import { ServiceReachable } from 'lib/services/transfer-service/TransferService';
 
@@ -27,9 +28,14 @@ export class RegistryServiceApiInMemory implements IRegistryServiceApi {
     }
 
     async postAssetAdministrationShellDescriptor(
-        _shellDescriptor: AssetAdministrationShellDescriptor,
+        shellDescriptor: AssetAdministrationShellDescriptor,
     ): Promise<ApiResponseWrapper<void>> {
-        throw new Error('Method not implemented.');
+        if (this.reachable !== ServiceReachable.Yes)
+            return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Service not reachable');
+        if (this.registryShellDescriptors.find((desciptor) => desciptor.id === shellDescriptor.id))
+            return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, `Shell Descriptor for AAS '${shellDescriptor.id}' already registered at '${this.getBaseUrl()}'`);
+        this.registryShellDescriptors.push(shellDescriptor);
+        return wrapSuccess(undefined);
     }
 
     async getAssetAdministrationShellDescriptorById(
