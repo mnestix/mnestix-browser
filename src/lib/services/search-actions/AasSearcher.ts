@@ -14,6 +14,7 @@ import {
 import { INullableAasRepositoryEntries } from 'lib/api/basyx-v3/apiInMemory';
 import { mnestixFetch } from 'lib/api/infrastructure';
 import { ApiResponseWrapper, ApiResultStatus, wrapErrorCode, wrapSuccess } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
+import * as process from 'node:process';
 
 interface NullableSearchSetupParameters {
     discoveryEntries?: { assetId: string; aasIds: string[] }[];
@@ -27,7 +28,7 @@ interface NullableSearchSetupParameters {
 
 export type AasData = {
     submodelDescriptors: SubmodelDescriptor[] | undefined;
-    aasRegistryRepositoryOrigin: string | undefined;
+    aasRepositoryOrigin: string;
 };
 
 export type AasSearchResult = {
@@ -95,16 +96,26 @@ export class AasSearcher {
         if (aasRegistryResult.isSuccess) {
             return wrapSuccess(aasRegistryResult.result);
         }
-
-        const defaultResult = await this.getAasFromDefaultRepository(aasIdEncoded);
-        if (defaultResult.isSuccess) {
-            return wrapSuccess(this.createAasResult(defaultResult.result));
+        
+        if (process.env.AAS_REPO_API_URL){
+            const defaultResult = await this.getAasFromDefaultRepository(aasIdEncoded);
+            if (defaultResult.isSuccess) {
+                const data = {
+                    submodelDescriptors: undefined,
+                    aasRepositoryOrigin: process.env.AAS_REPO_API_URL,
+                };
+                return wrapSuccess(this.createAasResult(defaultResult.result, data));
+            }
         }
-
+        
         const potentiallyMultipleAas = await this.getAasFromAllRepositories(aasIdEncoded);
         if (potentiallyMultipleAas.isSuccess) {
             if (potentiallyMultipleAas.result!.length === 1) {
-                return wrapSuccess(this.createAasResult(potentiallyMultipleAas.result[0].aas));
+                const data = {
+                    submodelDescriptors: undefined,
+                    aasRepositoryOrigin: potentiallyMultipleAas.result[0].location,
+                };
+                return wrapSuccess(this.createAasResult(potentiallyMultipleAas.result[0].aas, data));
             }
             if (potentiallyMultipleAas.result!.length > 1) {
                 return wrapSuccess(this.createDiscoveryRedirectResult(searchInput));
@@ -127,7 +138,7 @@ export class AasSearcher {
         }
         const data = {
             submodelDescriptors: registrySearchResult.result.submodelDescriptors,
-            aasRegistryRepositoryOrigin: endpoint.origin,
+            aasRepositoryOrigin: endpoint.origin,
         };
         return wrapSuccess(this.createAasResult(aasSearchResult.result, data));
     }
@@ -153,11 +164,11 @@ export class AasSearcher {
         );
     }
 
-    private createAasResult(aas: AssetAdministrationShell, data?: AasData): AasSearchResult {
+    private createAasResult(aas: AssetAdministrationShell, data: AasData): AasSearchResult {
         return {
             redirectUrl: `/viewer/${encodeBase64(aas.id)}`,
             aas: aas,
-            aasData: data || null,
+            aasData: data,
         };
     }
 

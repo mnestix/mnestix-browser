@@ -5,13 +5,14 @@ import { FormattedMessage } from 'react-intl';
 import { ManualAasInput } from 'app/[locale]/_components/ManualAasInput';
 import { QrScanner } from 'app/[locale]/_components/QrScanner';
 import { useRouter } from 'next/navigation';
-import { useAasState, useRegistryAasState } from 'components/contexts/CurrentAasContext';
+import { useAasOriginSourceState, useAasState, useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { LocalizedError } from 'lib/util/LocalizedError';
 import { performFullAasSearch } from 'lib/services/search-actions/searchActions';
 
 export const DashboardInput = () => {
     const [, setAas] = useAasState();
     const [, setRegistryAasData] = useRegistryAasState();
+    const [, setAasOriginUrl] = useAasOriginSourceState();
     const navigate = useRouter();
 
     const browseAasUrl = async (searchString: string) => {
@@ -21,6 +22,7 @@ export const DashboardInput = () => {
         if (result.aas) {
             setAas(result.aas);
             setRegistryAasData(result.aasData);
+            setAasOriginUrl(result.aasData?.aasRepositoryOrigin ?? null);
         }
         navigate.push(result.redirectUrl);
     };

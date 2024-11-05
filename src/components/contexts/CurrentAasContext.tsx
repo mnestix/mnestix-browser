@@ -7,6 +7,7 @@ type CurrentAasContextType = {
     aasState: [AssetAdministrationShell | null, React.Dispatch<React.SetStateAction<AssetAdministrationShell | null>>];
     submodelState: [SubmodelOrIdReference[], React.Dispatch<React.SetStateAction<SubmodelOrIdReference[]>>];
     registryAasData: [RegistryAasData | null, React.Dispatch<React.SetStateAction<RegistryAasData | null>>];
+    aasOriginSource: [string | null, React.Dispatch<React.SetStateAction<string | null>>];
 };
 
 export type SubmodelOrIdReference = {
@@ -25,6 +26,14 @@ export const useAasState = () => {
         throw new Error('useAasState must be used within a CurrentAasContextProvider');
     }
     return context.aasState;
+};
+
+export const useAasOriginSourceState = () => {
+    const context = useContext(CurrentAasContext);
+    if (!context) {
+        throw new Error('useAasRepoSourceState must be used within a CurrentAasContextProvider');
+    }
+    return context.aasOriginSource;
 };
 
 export const useRegistryAasState = () => {
@@ -47,9 +56,10 @@ export const CurrentAasContextProvider = (props: PropsWithChildren) => {
     const aasState = useState<AssetAdministrationShell | null>(null);
     const registryAasData = useState<RegistryAasData | null>(null);
     const submodelState = useState<SubmodelOrIdReference[]>([]);
+    const aasOriginSource = useState<string | null>(null);
 
     return (
-        <CurrentAasContext.Provider value={{ aasState, registryAasData, submodelState }}>
+        <CurrentAasContext.Provider value={{ aasState, registryAasData, submodelState, aasOriginSource}}>
             {props.children}
         </CurrentAasContext.Provider>
     );

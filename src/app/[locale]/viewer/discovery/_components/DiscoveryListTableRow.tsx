@@ -1,7 +1,7 @@
 ﻿import { TableCell } from '@mui/material';
 import { IDiscoveryListEntry } from 'lib/types/DiscoveryListEntry';
 import PictureTableCell from 'components/basics/listBasics/PictureTableCell';
-import { useAasState } from 'components/contexts/CurrentAasContext';
+import { useAasOriginSourceState, useAasState } from 'components/contexts/CurrentAasContext';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { useRouter } from 'next/navigation';
 import { RoundedIconButton } from 'components/basics/Buttons';
@@ -21,11 +21,13 @@ const tableBodyText = {
 export const DiscoveryListTableRow = (props: DiscoveryListTableRowProps) => {
     const { aasListEntry } = props;
     const [, setAas] = useAasState();
+    const [, setAasOriginUrl] = useAasOriginSourceState();
     const navigate = useRouter();
     const intl = useIntl();
 
     const navigateToAas = (aasId: string, repoUrl?: string) => {
         setAas(null);
+        setAasOriginUrl(null)
         navigate.push(`/viewer/${encodeBase64(aasId)}${repoUrl ? `?repoUrl=${encodeURI(repoUrl)}` : ''}`);
     };
 
