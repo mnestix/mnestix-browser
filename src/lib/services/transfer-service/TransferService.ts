@@ -91,13 +91,14 @@ export class TransferService {
 
     async transferAasWithSubmodels({
         aas,
+        sourceAasId,
         submodels,
         apikey,
         targetAasRepositoryBaseUrl,
         targetSubmodelRepositoryBaseUrl,
     }: TransferDto): Promise<TransferResult[]> {
-        const submodelDescriptors = submodels.map((submodel) =>
-            this.createSubmodelDescriptorFromSubmodel(submodel, targetSubmodelRepositoryBaseUrl),
+        const submodelDescriptors = submodels.map((transferSubmodel) =>
+            this.createSubmodelDescriptorFromSubmodel(transferSubmodel.submodel, targetSubmodelRepositoryBaseUrl),
         );
         const shellDescriptor = this.createShellDescriptorFromAas(aas, targetAasRepositoryBaseUrl, submodelDescriptors);
 
@@ -106,7 +107,7 @@ export class TransferService {
         promises.push(this.postAasToRepository(aas, apikey));
 
         if (this.aasThumbnailImageIsFile(aas)) {
-            promises.push(this.putThumbnailImageToShell(aas, apikey));
+            promises.push(this.putThumbnailImageToShell(sourceAasId, aas.id, apikey));
         }
 
         if (this.targetAasDiscoveryClient && aas.assetInformation.globalAssetId) {
@@ -117,12 +118,12 @@ export class TransferService {
             promises.push(this.registerAasAtRegistry(shellDescriptor));
         }
 
-        for (const submodel of submodels) {
-            promises.push(this.postSubmodelToRepository(submodel, apikey));
+        for (const transferSubmodel of submodels) {
+            promises.push(this.postSubmodelToRepository(transferSubmodel.submodel, apikey));
 
-            if (submodel.submodelElements) {
-                const attachmentDetails = this.getSubmodelAttachmentsDetails(submodel.submodelElements);
-                const result = await this.processAttachments(submodel.id, attachmentDetails, apikey);
+            if (transferSubmodel.submodel.submodelElements) {
+                const attachmentDetails = this.getSubmodelAttachmentsDetails(transferSubmodel.submodel.submodelElements);
+                const result = await this.processAttachments(transferSubmodel.sourceSubmodelId, attachmentDetails, apikey);
                 promises.push(...result);
             }
         }
@@ -209,12 +210,12 @@ export class TransferService {
         }
     }
 
-    private async putThumbnailImageToShell(aas: AssetAdministrationShell, apikey?: string): Promise<TransferResult> {
-        const response = await this.sourceAasRepositoryClient.getThumbnailFromShell(aas.id);
+    private async putThumbnailImageToShell(sourceAasId: string, targetAasId: string, apikey?: string): Promise<TransferResult> {
+        const response = await this.sourceAasRepositoryClient.getThumbnailFromShell(sourceAasId);
         if (response.isSuccess) {
             const aasThumbnail = response.result;
             const fileName = ['thumbnail', generateRandomId()].join('');
-            await this.targetAasRepositoryClient.putThumbnailToShell(aas.id, aasThumbnail, fileName, {
+            await this.targetAasRepositoryClient.putThumbnailToShell(targetAasId, aasThumbnail, fileName, {
                 headers: {
                     Apikey: apikey,
                 },

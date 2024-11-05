@@ -20,7 +20,9 @@ import { useState } from 'react';
 import { useAasState, useSubmodelState } from 'components/contexts/CurrentAasContext';
 import { transferAasWithSubmodels } from 'lib/services/transfer-service/transferActions';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
-import { TransferDto, TransferResult } from 'lib/types/TransferServiceData';
+import { TransferDto, TransferResult, TransferSubmodel } from 'lib/types/TransferServiceData';
+import { useEnv } from 'app/env/provider';
+import { Key, KeyTypes, Reference, ReferenceTypes } from '@aas-core-works/aas-core3.0-typescript/types';
 
 export type TransferFormModel = {
     targetAasRepositoryFormModel: TargetRepositoryFormData;
@@ -34,6 +36,8 @@ export function TransferDialog(props: DialogProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const theme = useTheme();
     const intl = useIntl();
+    const env = useEnv();
+
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
     const handleSubmitRepositoryStep = async (values: TargetRepositoryFormData) => {
@@ -43,16 +47,37 @@ export function TransferDialog(props: DialogProps) {
 
         // This state can be used later to hold the data of multiple steps
         setTransferDto({ ...transferDto, targetAasRepositoryFormModel: values });
-
+        
+        // As long as we cannot adjust the IDs in the UI, we append '_copy' to every ID
+        const submodelsToTransfer = submodelsFromContext
+            .filter((sub) => sub.submodel)
+            .map((sub) => sub.submodel!)
+            .map((sub) => {
+                const submodelToTransfer: TransferSubmodel = { submodel: sub, sourceSubmodelId: sub.id };
+                submodelToTransfer.submodel.id = `${sub.id}_copy`;
+                return submodelToTransfer;
+            });
+        
+        const aasToTransfer = aasFromContext;
+        aasToTransfer.id =`${aasFromContext.id}_copy`;
+        
+        // Adapt Submodel References
+        const submodelReferencesToTransfer = []
+        submodelsToTransfer.forEach((transferSubmodel) => {
+            submodelReferencesToTransfer.push(new Reference(ReferenceTypes.ModelReference, [new Key(KeyTypes.Submodel, transferSubmodel.submodel.id)]))
+        })
+        
         const dtoToSubmit: TransferDto = {
-            submodels: submodelsFromContext.filter((sub) => sub.submodel).map((sub) => sub.submodel!),
-            aas: aasFromContext,
+            submodels: submodelsToTransfer,
+            aas: aasToTransfer,
+            sourceAasId: aasFromContext.id,
             targetAasRepositoryBaseUrl: values.repository,
             targetSubmodelRepositoryBaseUrl:
                 values.submodelRepository && values.submodelRepository !== '0'
                     ? values.submodelRepository
                     : values.repository,
             apikey: values.repositoryApiKey,
+            targetDiscoveryBaseUrl: env.DISCOVERY_API_URL
         };
 
         try {
@@ -69,7 +94,7 @@ export function TransferDialog(props: DialogProps) {
             setIsSubmitting(false);
         }
     };
-
+    
     /**
      * Shows success if all elements got transferred correctly.
      * Shows error if no element got transferred correctly.
