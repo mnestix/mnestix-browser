@@ -110,7 +110,6 @@ describe('Full Aas Search happy paths', () => {
         expect(search.result!.aas?.id).toEqual(aas.id);
     });
 
-    // We do not mock multiple repositories for now
     it('returns aas for given aasId from foreign repository if two are found', async () => {
         const aasId = 'dummy aasId';
         const searchString = aasId;

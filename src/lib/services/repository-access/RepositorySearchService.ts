@@ -43,23 +43,23 @@ export class RepositorySearchService {
     }
 
     static createNull(
-        shellsInRepository: RepoSearchResult<AssetAdministrationShell>[] = [],
-        submodelsInRepository: RepoSearchResult<Submodel>[] = [],
+        shellsInRepositories: RepoSearchResult<AssetAdministrationShell>[] = [],
+        submodelsInRepositories: RepoSearchResult<Submodel>[] = [],
         log = null,
     ): RepositorySearchService {
-        const shellUrls = new Set(shellsInRepository.map((value) => value.location));
-        const submodelUrls = new Set(submodelsInRepository.map((value) => value.location));
+        const shellUrls = new Set(shellsInRepositories.map((value) => value.location));
+        const submodelUrls = new Set(submodelsInRepositories.map((value) => value.location));
         return new RepositorySearchService(
             PrismaConnector.createNull([...shellUrls], [...submodelUrls]),
             (baseUrl) =>
                 AssetAdministrationShellRepositoryApi.createNull(
                     baseUrl,
-                    shellsInRepository.filter((value) => value.location == baseUrl).map((value) => value.searchResult),
+                    shellsInRepositories.filter((value) => value.location == baseUrl).map((value) => value.searchResult),
                 ),
             (baseUrl) =>
                 SubmodelRepositoryApi.createNull(
                     baseUrl,
-                    submodelsInRepository
+                    submodelsInRepositories
                         .filter((value) => value.location == baseUrl)
                         .map((value) => value.searchResult),
                 ),

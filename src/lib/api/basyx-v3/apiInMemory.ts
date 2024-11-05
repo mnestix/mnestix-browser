@@ -12,15 +12,15 @@ import { ServiceReachable } from 'lib/services/transfer-service/TransferService'
 import { encodeBase64 } from 'lib/util/Base64Util';
 
 export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdministrationShellRepositoryApi {
-    readonly shellsInRepositories: Map<string, AssetAdministrationShell>;
+    readonly shellsInRepository: Map<string, AssetAdministrationShell>;
 
     constructor(
         readonly baseUrl: string,
-        shellsInRepositories: AssetAdministrationShell[] = [],
+        shellsInRepository: AssetAdministrationShell[] = [],
         readonly reachable: ServiceReachable = ServiceReachable.Yes,
     ) {
-        this.shellsInRepositories = new Map<string, AssetAdministrationShell>();
-        shellsInRepositories.forEach((value) => this.shellsInRepositories.set(encodeBase64(value.id), value));
+        this.shellsInRepository = new Map<string, AssetAdministrationShell>();
+        shellsInRepository.forEach((value) => this.shellsInRepository.set(encodeBase64(value.id), value));
     }
 
     getBaseUrl(): string {
@@ -33,12 +33,12 @@ export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdmi
     ): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
         if (this.reachable !== ServiceReachable.Yes)
             return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Service not reachable');
-        if (this.shellsInRepositories.get(aas.id))
+        if (this.shellsInRepository.get(aas.id))
             return wrapErrorCode(
                 ApiResultStatus.INTERNAL_SERVER_ERROR,
                 `AAS repository already has an AAS with id '${aas.id}`,
             );
-        this.shellsInRepositories.set(aas.id, aas);
+        this.shellsInRepository.set(aas.id, aas);
         return wrapSuccess(aas);
     }
 
@@ -57,7 +57,7 @@ export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdmi
     ): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
         if (this.reachable !== ServiceReachable.Yes)
             return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Service not reachable');
-        const foundAas = this.shellsInRepositories.get(aasId);
+        const foundAas = this.shellsInRepository.get(aasId);
         if (foundAas) {
             const response = new Response(JSON.stringify(foundAas));
             return await wrapResponse(response);

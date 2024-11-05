@@ -34,20 +34,20 @@ export type RegistrySearchResult = {
 };
 
 export type AasSearcherNullParams = {
+    aasInRepositories?: RepoSearchResult<AssetAdministrationShell>[];
+    submodelsInRepositories?: RepoSearchResult<Submodel>[];
     discoveryEntries?: { aasId: string; assetId: string }[];
-    shellsInRepositories?: RepoSearchResult<AssetAdministrationShell>[];
-    shellsOnRegistry?: AasRegistryEndpointEntryInMemory[];
-    submodelsInRepository?: RepoSearchResult<Submodel>[];
-    registryDescriptorEntries?: AssetAdministrationShellDescriptor[];
+    aasRegistryDescriptors?: AssetAdministrationShellDescriptor[];
+    aasRegistryEndpoints?: AasRegistryEndpointEntryInMemory[];
     log?: Log;
 };
 
 export class AasSearcher {
     private constructor(
-        protected readonly multipleDataSource: RepositorySearchService,
-        protected readonly discoveryServiceClient: IDiscoveryServiceApi | null,
-        protected readonly registryService: IRegistryServiceApi | null,
-        protected readonly log: Log,
+        readonly multipleDataSource: RepositorySearchService,
+        readonly discoveryServiceClient: IDiscoveryServiceApi | null,
+        readonly registryService: IRegistryServiceApi | null,
+        readonly log: Log,
     ) {}
 
     static create(): AasSearcher {
@@ -63,17 +63,17 @@ export class AasSearcher {
     }
 
     static createNull({
+        aasInRepositories = [],
+        submodelsInRepositories = [],
         discoveryEntries = [],
-        registryDescriptorEntries = [],
-        shellsOnRegistry = [],
-        shellsInRepositories = [],
-        submodelsInRepository = [],
+        aasRegistryDescriptors = [],
+        aasRegistryEndpoints = [],
         log,
     }: AasSearcherNullParams): AasSearcher {
         return new AasSearcher(
-            RepositorySearchService.createNull(shellsInRepositories, submodelsInRepository),
+            RepositorySearchService.createNull(aasInRepositories, submodelsInRepositories),
             DiscoveryServiceApi.createNull('https://testdiscovery.com', discoveryEntries),
-            RegistryServiceApi.createNull('https://testregistry.com', registryDescriptorEntries, shellsOnRegistry),
+            RegistryServiceApi.createNull('https://testregistry.com', aasRegistryDescriptors, aasRegistryEndpoints),
             log ?? Log.createNull(),
         );
     }
