@@ -72,7 +72,7 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
             'Content-Type': 'application/json',
         };
 
-        const url = new URL(`lookup/shells`, this.baseUrl);
+        const url = new URL('lookup/shells', this.baseUrl);
 
         assetIds.forEach((obj) => {
             url.searchParams.append('assetIds', encodeBase64(JSON.stringify(obj)));

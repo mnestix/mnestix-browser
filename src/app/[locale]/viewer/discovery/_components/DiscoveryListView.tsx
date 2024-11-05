@@ -16,7 +16,8 @@ import { encodeBase64 } from 'lib/util/Base64Util';
 import ListHeader from 'components/basics/ListHeader';
 import { performDiscoveryAasSearch, performRegistryAasSearch } from 'lib/services/search-actions/searchActions';
 import { performSearchAasFromAllRepositories } from 'lib/services/repository-access/repositorySearchActions';
-import { AasRepoSearchResult } from 'lib/services/repository-access/RepositorySearchService';
+import { RepoSearchResult } from 'lib/services/repository-access/RepositorySearchService';
+import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/types';
 
 export const DiscoveryListView = () => {
     const [isLoadingList, setIsLoadingList] = useState(false);
@@ -70,12 +71,12 @@ export const DiscoveryListView = () => {
             );
         } else if (aasId) {
             const response = await performSearchAasFromAllRepositories(encodeBase64(aasId));
-            let searchResults: AasRepoSearchResult[] = [];
+            let searchResults: RepoSearchResult<AssetAdministrationShell>[] = [];
             if (response.isSuccess) searchResults = response.result;
             else setIsError(true);
             for (const searchResult of searchResults) {
                 entryList.push({
-                    aasId: searchResult.aas.id,
+                    aasId: searchResult.searchResult.id,
                     repositoryUrl: searchResult.location,
                 });
             }

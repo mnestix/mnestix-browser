@@ -5,7 +5,7 @@ import {
     ApiResponseWrapper,
     ApiResultStatus,
     wrapErrorCode,
-    wrapResponse
+    wrapResponse,
 } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 
 export type AasRegistryEndpointEntryInMemory = {
@@ -52,14 +52,14 @@ export class RegistryServiceApiInMemory implements IRegistryServiceApi {
         endpoint: URL,
     ): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
         const foundEndpoint = this.registryShellEndpoints.find(
-            (shellEndpoint) => shellEndpoint.endpoint.toString() === endpoint.toString),
+            (shellEndpoint) => shellEndpoint.endpoint.toString() === endpoint.toString(),
         );
         if (!foundEndpoint) {
             return Promise.resolve(
                 wrapErrorCode(
                     ApiResultStatus.NOT_FOUND,
                     `no shell for endpoint '${endpoint}' found in registry '${this.getBaseUrl()}`,
-               ),
+                ),
             );
         }
 

@@ -38,7 +38,7 @@ export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdmi
 
     async getAssetAdministrationShellById(
         aasId: string,
-        options?: objec,
+        _options?: object,
     ): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
         const foundAas = this.shellsInRepositories.find((entry) => encodeBase64(entry.id) === aasId);
         if (foundAas) {
@@ -104,7 +104,7 @@ export class SubmodelRepositoryApiInMemory implements ISubmodelRepositoryApi {
     async getAttachmentFromSubmodelElement(
         _submodelId: string,
         _submodelElementPath: string,
-        _options?: objec,
+        _options?: object,
     ): Promise<ApiResponseWrapper<Blob>> {
         throw new Error('Method not implemented.');
     }

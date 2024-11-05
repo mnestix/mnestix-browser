@@ -3,15 +3,14 @@ import {
     ApiResponseWrapper,
     ApiResultStatus,
     wrapErrorCode,
-    wrapSuccess
+    wrapSuccess,
 } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 
 export class DiscoveryServiceApiInMemory implements IDiscoveryServiceApi {
     constructor(
         protected baseUrl: string,
-        protected discoveryEntries: { assetId: string; aasIds: string[] }[,
-    ) {
-    }
+        protected discoveryEntries: { assetId: string; aasIds: string[] }[],
+    ) {}
 
     getBaseUrl(): string {
         return this.baseUrl;
@@ -29,16 +28,16 @@ export class DiscoveryServiceApiInMemory implements IDiscoveryServiceApi {
             return Promise.resolve(
                 wrapErrorCode(
                     ApiResultStatus.NOT_FOUND,
-                    `No AAS with ID '${assetId}' found in Discovery '${this.baseUrl}'`
-                )
+                    `No AAS with ID '${assetId}' found in Discovery '${this.baseUrl}'`,
+                ),
             );
         }
 
         return Promise.resolve(
             wrapSuccess({
                 paging_metadata: '',
-                result: foundEntry.aasIds
-            })
+                result: foundEntry.aasIds,
+            }),
         );
     }
 

@@ -22,13 +22,11 @@ import { encodeBase64 } from 'lib/util/Base64Util';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { useRouter } from 'next/navigation';
 import { useAasState, useRegistryAasState } from 'components/contexts/CurrentAasContext';
-import { AssetAdministrationShellRepositoryApi } from 'lib/api/basyx-v3/api';
 import { ImageWithFallback } from 'app/[locale]/list/_components/StyledImageWithFallBack';
 import {
     getThumbnailFromShell,
     performGetAasThumbnailFromAllRepos,
 } from 'lib/services/repository-access/repositorySearchActions';
-import { mnestixFetch } from 'lib/api/infrastructure';
 
 type AASOverviewCardProps = {
     readonly aas: AssetAdministrationShell | null;
@@ -72,12 +70,7 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
 
         let image: Blob;
         if (registryAasData) {
-            const registryRepository = AssetAdministrationShellRepositoryApi.create(
-                mnestixFetch(),
-                undefined,
-                registryAasData.aasRegistryRepositoryOrigin,
-            );
-            const response = await registryRepository.getThumbnailFromShell(props.aas.id);
+            const response = await getThumbnailFromShell(props.aas.id);
             if (response.isSuccess) {
                 image = response.result;
                 setProductImageUrl(URL.createObjectURL(image));

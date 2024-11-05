@@ -7,6 +7,7 @@ import { Reference, Submodel } from '@aas-core-works/aas-core3.0-typescript/type
 import { mnestixFetch } from 'lib/api/infrastructure';
 import { SubmodelSearcher } from 'lib/services/searchUtilActions/SubmodelSearcher';
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
+import { AssetAdministrationShellRepositoryApi } from 'lib/api/basyx-v3/api';
 
 export async function performFullAasSearch(searchInput: string): Promise<ApiResponseWrapper<AasSearchResult>> {
     const searcher = AasSearcher.create();
@@ -17,8 +18,8 @@ export async function getAasFromRepository(
     aasId: string,
     repositoryUrl: string,
 ): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
-    const searcher = AasSearcher.create();
-    return searcher.getAasFromRepository(aasId, repositoryUrl);
+    const api = AssetAdministrationShellRepositoryApi.create(repositoryUrl, mnestixFetch());
+    return api.getAssetAdministrationShellById(aasId);
 }
 
 export async function performRegistryAasSearch(searchInput: string): Promise<ApiResponseWrapper<AasSearchResult>> {

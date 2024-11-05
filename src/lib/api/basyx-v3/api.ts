@@ -55,7 +55,7 @@ export class AssetAdministrationShellRepositoryApi implements IAssetAdministrati
 
     static createNull(
         baseUrl: string,
-        shellsInRepositories: AssetAdministrationShell[,
+        shellsInRepositories: AssetAdministrationShell[],
     ): AssetAdministrationShellRepositoryApiInMemory {
         return new AssetAdministrationShellRepositoryApiInMemory(baseUrl, shellsInRepositories);
     }

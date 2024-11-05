@@ -69,7 +69,7 @@ export class SubmodelRegistryServiceApi implements ISubmodelRegistryServiceApiIn
             Accept: 'application/json',
         };
 
-        const url = new URL(`submodel-descriptors`, this.baseUrl);
+        const url = new URL('submodel-descriptors', this.baseUrl);
 
         return await this.http.fetch(url.toString(), {
             method: 'GET',
@@ -85,7 +85,7 @@ export class SubmodelRegistryServiceApi implements ISubmodelRegistryServiceApiIn
             'Content-Type': 'application/json',
         };
 
-        const url = new URL(`submodel-descriptors`, this.baseUrl);
+        const url = new URL('submodel-descriptors', this.baseUrl);
 
         return await this.http.fetch(url.toString(), {
             method: 'POST',
@@ -95,7 +95,7 @@ export class SubmodelRegistryServiceApi implements ISubmodelRegistryServiceApiIn
     }
 
     async deleteAllSubmodelDescriptors(): Promise<ApiResponseWrapper<void>> {
-        const url = new URL(`submodel-descriptors`, this.baseUrl);
+        const url = new URL('submodel-descriptors', this.baseUrl);
 
         return this.http.fetch(url.toString(), {
             method: 'DELETE',
@@ -104,7 +104,7 @@ export class SubmodelRegistryServiceApi implements ISubmodelRegistryServiceApiIn
 
     async getSubmodelFromEndpoint(endpoint: string): Promise<ApiResponseWrapper<Submodel>> {
         return this.http.fetch<Submodel>(endpoint.toString(), {
-            method: 'GET'
+            method: 'GET',
         });
     }
 }
