@@ -18,12 +18,6 @@ export type RepoSearchResult<T> = {
     location: string;
 };
 
-export interface NullableMultipleDataSourceSetupParameters {
-    shellsSavedInTheRepositories: AssetAdministrationShell[];
-    submodelsSavedInTheRepository: Submodel[];
-    log?: Log;
-}
-
 const noDefaultAasRepository = <T>() =>
     wrapErrorCode<T>(ApiResultStatus.INTERNAL_SERVER_ERROR, 'No default AAS repository configured');
 const noDefaultSubmodelRepository = <T>() =>
@@ -49,14 +43,26 @@ export class RepositorySearchService {
     }
 
     static createNull(
-        shellsInRepository: AssetAdministrationShell[] = [],
-        submodelsInRepository: Submodel[] = [],
+        shellsInRepository: RepoSearchResult<AssetAdministrationShell>[] = [],
+        submodelsInRepository: RepoSearchResult<Submodel>[] = [],
         log = null,
     ): RepositorySearchService {
+        const shellUrls = new Set(shellsInRepository.map((value) => value.location));
+        const submodelUrls = new Set(submodelsInRepository.map((value) => value.location));
         return new RepositorySearchService(
-            PrismaConnector.createNull(['https://testAasRepository.com'], ['https://testSubmodelRepository.com']),
-            (baseUrl) => AssetAdministrationShellRepositoryApi.createNull(baseUrl, shellsInRepository),
-            (baseUrl) => SubmodelRepositoryApi.createNull(baseUrl, submodelsInRepository),
+            PrismaConnector.createNull([...shellUrls], [...submodelUrls]),
+            (baseUrl) =>
+                AssetAdministrationShellRepositoryApi.createNull(
+                    baseUrl,
+                    shellsInRepository.filter((value) => value.location == baseUrl).map((value) => value.searchResult),
+                ),
+            (baseUrl) =>
+                SubmodelRepositoryApi.createNull(
+                    baseUrl,
+                    submodelsInRepository
+                        .filter((value) => value.location == baseUrl)
+                        .map((value) => value.searchResult),
+                ),
             log ?? Log.createNull(),
         );
     }
@@ -71,7 +77,7 @@ export class RepositorySearchService {
     async getSubmodelRepositories() {
         return this.prismaConnector.getConnectionDataByTypeAction({
             id: '2',
-            typeName: 'SUBMODEL_REPOSITORY'
+            typeName: 'SUBMODEL_REPOSITORY',
         });
     }
 
@@ -87,17 +93,17 @@ export class RepositorySearchService {
         return this.getFromAllRepos(
             await this.getAasRepositories(),
             (basePath) => this.getAasFromRepo(aasId, basePath),
-            `Could not find AAS ${aasId} in any Repository`
+            `Could not find AAS ${aasId} in any Repository`,
         );
     }
 
     async getFirstAasFromAllRepos(
-        aasId: string
+        aasId: string,
     ): Promise<ApiResponseWrapper<RepoSearchResult<AssetAdministrationShell>>> {
         return this.getFirstFromAllRepos(
             await this.getAasRepositories(),
             (basePath) => this.getAasFromRepo(aasId, basePath),
-            `Could not find AAS ${aasId} in any Repository`
+            `Could not find AAS ${aasId} in any Repository`,
         );
     }
 
@@ -105,7 +111,7 @@ export class RepositorySearchService {
         return this.getFromAllRepos(
             await this.getSubmodelRepositories(),
             (basePath) => this.getSubmodelFromRepo(submodelId, basePath),
-            `Could not find Submodel '${submodelId}' in any Repository`
+            `Could not find Submodel '${submodelId}' in any Repository`,
         );
     }
 
@@ -139,7 +145,7 @@ export class RepositorySearchService {
         return this.getFromAllRepos(
             await this.getSubmodelRepositories(),
             (basePath) => this.getAttachmentFromSubmodelElementFromRepo(submodelId, submodelElementPath, basePath),
-            `Attachment for Submodel with id ${submodelId} at path ${submodelElementPath} not found in any repository`
+            `Attachment for Submodel with id ${submodelId} at path ${submodelElementPath} not found in any repository`,
         );
     }
 
@@ -172,7 +178,7 @@ export class RepositorySearchService {
 
     async getFirstAttachmentFromSubmodelElementFromAllRepos(
         submodelId: string,
-        submodelElementPath: string
+        submodelElementPath: string,
     ): Promise<ApiResponseWrapper<RepoSearchResult<Blob>>> {
         return this.getFirstFromAllRepos(
             await this.getSubmodelRepositories(),
@@ -185,7 +191,7 @@ export class RepositorySearchService {
         return this.getFromAllRepos(
             await this.getAasRepositories(),
             (basePath) => this.getSubmodelReferencesFromShellFromRepo(basePath, aasId),
-            `Submodel references for '${aasId}' not found in any repository`
+            `Submodel references for '${aasId}' not found in any repository`,
         );
     }
 
@@ -219,7 +225,7 @@ export class RepositorySearchService {
         return this.getFromAllRepos(
             await this.getAasRepositories(),
             (basePath) => this.getAasThumbnailFromRepo(aasId, basePath),
-            `Thumbnail for '${aasId}' not found in any repository`
+            `Thumbnail for '${aasId}' not found in any repository`,
         );
     }
 
@@ -249,7 +255,7 @@ export class RepositorySearchService {
     async getFirstFromAllRepos<T>(
         basePathUrls: string[],
         kernel: (url: string) => Promise<ApiResponseWrapper<T>>,
-        errorMsg: string
+        errorMsg: string,
     ): Promise<ApiResponseWrapper<RepoSearchResult<T>>> {
         const promises = basePathUrls.map(async (url) =>
             kernel(url).then((response: ApiResponseWrapper<T>) => {
@@ -291,7 +297,7 @@ export class RepositorySearchService {
 
         const responses = await Promise.allSettled(promises);
         const fulfilledResponses = responses.filter(
-            (result) => result.status === 'fulfilled' && result.value.searchResult.isSuccess
+            (result) => result.status === 'fulfilled' && result.value.searchResult.isSuccess,
         );
 
         if (fulfilledResponses.length <= 0) {
@@ -312,7 +318,7 @@ export class RepositorySearchService {
 
     private async getAasFromRepo(
         aasId: string,
-        repoUrl: string
+        repoUrl: string,
     ): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
         const client = this.getAasRepositoryClient(repoUrl);
         const response = await client.getAssetAdministrationShellById(aasId);

@@ -35,9 +35,9 @@ export type RegistrySearchResult = {
 
 export type AasSearcherNullParams = {
     discoveryEntries?: { aasId: string; assetId: string }[];
-    shellsInRepositories?: AssetAdministrationShell[];
+    shellsInRepositories?: RepoSearchResult<AssetAdministrationShell>[];
     shellsOnRegistry?: AasRegistryEndpointEntryInMemory[];
-    submodelsInRepository?: Submodel[];
+    submodelsInRepository?: RepoSearchResult<Submodel>[];
     registryDescriptorEntries?: AssetAdministrationShellDescriptor[];
     log?: Log;
 };
