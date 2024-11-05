@@ -6,6 +6,11 @@ export type DiscoveryEntry = {
 };
 
 export interface IDiscoveryServiceApi {
+    /**
+     * Returns the base URL of this discovery endpoint.
+     */
+    getBaseUrl(): string;
+
     linkAasIdAndAssetId(aasId: string, assetId: string): Promise<ApiResponseWrapper<DiscoveryEntry[]>>;
 
     getAasIdsByAssetId(assetId: string): Promise<ApiResponseWrapper<{ paging_metadata: string; result: string[] }>>;
@@ -18,8 +23,5 @@ export interface IDiscoveryServiceApi {
 
     getAllAssetLinksById(aasId: string): Promise<ApiResponseWrapper<DiscoveryEntry[]>>;
 
-    postAllAssetLinksById(
-        aasId: string,
-        assetLinks: DiscoveryEntry[],
-    ): Promise<ApiResponseWrapper<DiscoveryEntry[]>>;
+    postAllAssetLinksById(aasId: string, assetLinks: DiscoveryEntry[]): Promise<ApiResponseWrapper<DiscoveryEntry[]>>;
 }

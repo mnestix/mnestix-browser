@@ -24,6 +24,12 @@ import { AttachmentDetails, TransferDto, TransferResult } from 'lib/types/Transf
 import { getKeyType } from 'lib/util/KeyTypeUtil';
 import { generateRandomId } from 'lib/util/RandomUtils';
 
+export enum ServiceReachable {
+    Yes = 'Yes',
+    No = 'No',
+    WrongEndpoint = 'WrongEndpoint',
+}
+
 export class TransferService {
     private constructor(
         protected readonly targetAasRepositoryClient: IAssetAdministrationShellRepositoryApi,
@@ -37,33 +43,31 @@ export class TransferService {
 
     static create(
         targetAasRepositoryBaseUrl: string,
+        sourceAasRepositoryBaseUrl: string,
         targetSubmodelRepositoryBaseUrl: string,
+        sourceSubmodelRepositoryBaseUrl: string,
         targetAasDiscoveryBaseUrl?: string,
         targetAasRegistryBaseUrl?: string,
         targetSubmodelRegistryBaseUrl?: string,
     ): TransferService {
         const targetAasRepositoryClient = AssetAdministrationShellRepositoryApi.create(
-            mnestixFetch(),
-            undefined,
             targetAasRepositoryBaseUrl,
+            mnestixFetch(),
         );
 
         const sourceAasRepositoryClient = AssetAdministrationShellRepositoryApi.create(
+            sourceAasRepositoryBaseUrl,
             mnestixFetch(),
-            undefined,
-            process.env.AAS_REPO_API_URL,
         );
 
         const targetSubmodelRepositoryClient = SubmodelRepositoryApi.create(
-            mnestixFetch(),
-            undefined,
             targetSubmodelRepositoryBaseUrl,
+            mnestixFetch(),
         );
 
         const sourceSubmodelRepositoryClient = SubmodelRepositoryApi.create(
+            sourceSubmodelRepositoryBaseUrl,
             mnestixFetch(),
-            undefined,
-            process.env.SUBMODEL_REPO_API_URL,
         );
 
         const targetAasDiscoveryClient = targetAasDiscoveryBaseUrl
@@ -86,6 +90,44 @@ export class TransferService {
             targetAasDiscoveryClient,
             targetAasRegistryClient,
             targetSubmodelRegistryClient,
+        );
+    }
+
+    static createNull(
+        targetAasRepository: ServiceReachable = ServiceReachable.Yes,
+        targetSubmodelRepository: ServiceReachable = ServiceReachable.Yes,
+        targetAasDiscovery?: ServiceReachable,
+        targetAasRegistry?: ServiceReachable,
+        targetSubmodelRegistry?: ServiceReachable
+    ): TransferService {
+        const targetAasRepositoryClient = AssetAdministrationShellRepositoryApi.createNull({
+            shellsSavedInTheRepositories: [],
+            reachable: targetAasRepository
+        });
+
+        const targetSubmodelRepositoryClient = SubmodelRepositoryApi.createNull({
+            submodelsSavedInTheRepository: [],
+            reachable: targetSubmodelRepositor
+        });
+
+        const targetAasDiscoveryClient = targetAasDiscoveryBaseUrl
+            ? DiscoveryServiceApi.create(targetAasDiscoveryBaseUrl, mnestixFetch())
+            : undefined;
+
+        const targetAasRegistryClient = targetAasRegistryBaseUrl
+            ? RegistryServiceApi.create(targetAasRegistryBaseUrl, mnestixFetch())
+            : undefined;
+
+        const targetSubmodelRegistryClient = targetSubmodelRegistryBaseUrl
+            ? SubmodelRegistryServiceApi.create(targetSubmodelRegistryBaseUrl, mnestixFetch())
+            : undefined;
+
+        return new TransferService(
+            targetAasRepositoryClient,
+            targetSubmodelRepositoryClient,
+            targetAasDiscoveryClient,
+            targetAasRegistryClient,
+            targetSubmodelRegistryClient
         );
     }
 
@@ -249,7 +291,7 @@ export class TransferService {
                 promises.push(
                     Promise.resolve({
                         success: false,
-                        operationKind: 'File transfer',
+                        operationKind: 'FileTransfer',
                         resourceId: [submodelId, attachmentDetail.idShortPath, ' not found in source repository'].join(
                             ': ',
                         ),
@@ -278,14 +320,14 @@ export class TransferService {
         if (response.isSuccess) {
             return {
                 success: true,
-                operationKind: 'File transfer',
+                operationKind: 'FileTransfer',
                 resourceId: [submodelId, attachment.idShortPath].join(': '),
                 error: '',
             };
         } else {
             return {
                 success: false,
-                operationKind: 'File transfer',
+                operationKind: 'FileTransfer',
                 resourceId: [submodelId, attachment.idShortPath].join(': '),
                 error: response.message,
             };

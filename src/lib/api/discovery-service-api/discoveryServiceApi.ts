@@ -4,30 +4,31 @@ import { DiscoveryServiceApiInMemory } from 'lib/api/discovery-service-api/disco
 import { ApiResponseWrapper } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 
 export class DiscoveryServiceApi implements IDiscoveryServiceApi {
-    baseUrl: string;
-
     private constructor(
-        protected _baseUrl: string = '',
+        protected baseUrl: string,
         protected http: {
             fetch<T>(url: RequestInfo, init?: RequestInit): Promise<ApiResponseWrapper<T>>;
         },
-    ) {
-        this.baseUrl = _baseUrl;
-    }
+    ) {}
 
     static create(
-        _baseUrl: string = '',
+        baseUrl: string,
         http: {
             fetch<T>(url: RequestInfo, init?: RequestInit): Promise<ApiResponseWrapper<T>>;
         },
     ): DiscoveryServiceApi {
-        return new DiscoveryServiceApi(_baseUrl, http);
+        return new DiscoveryServiceApi(baseUrl, http);
     }
 
-    static createNull(options: {
-        discoveryEntries: { assetId: string; aasIds: string[] }[];
-    }): DiscoveryServiceApiInMemory {
-        return new DiscoveryServiceApiInMemory(options);
+    static createNull(
+        baseUrl: string,
+        discoveryEntries: { assetId: string; aasIds: string[] }[],
+    ): DiscoveryServiceApiInMemory {
+        return new DiscoveryServiceApiInMemory(baseUrl, discoveryEntries);
+    }
+
+    getBaseUrl(): string {
+        return this.baseUrl;
     }
 
     async linkAasIdAndAssetId(aasId: string, assetId: string) {
@@ -56,7 +57,8 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
             'Content-Type': 'application/json',
         };
 
-        return this.http.fetch(`${this.baseUrl}/lookup/shells/${b64_aasId}`, {
+        const url = new URL(`lookup/shells/${b64_aasId}`, this.baseUrl);
+        return this.http.fetch(url.toString(), {
             method: 'DELETE',
             headers,
         });
@@ -70,7 +72,7 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
             'Content-Type': 'application/json',
         };
 
-        const url = new URL(`${this.baseUrl}/lookup/shells`);
+        const url = new URL(`lookup/shells`, this.baseUrl);
 
         assetIds.forEach((obj) => {
             url.searchParams.append('assetIds', encodeBase64(JSON.stringify(obj)));
@@ -90,13 +92,17 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
             'Content-Type': 'application/json',
         };
 
-        return this.http.fetch(`${this.baseUrl}/lookup/shells/${b64_aasId}`, {
+        const url = new URL(`lookup/shells/${b64_aasId}`, this.baseUrl);
+        return this.http.fetch(url.toString(), {
             method: 'GET',
             headers,
         });
     }
 
-    async postAllAssetLinksById(aasId: string, assetLinks: DiscoveryEntry[]) : Promise<ApiResponseWrapper<DiscoveryEntry[]>> {
+    async postAllAssetLinksById(
+        aasId: string,
+        assetLinks: DiscoveryEntry[],
+    ): Promise<ApiResponseWrapper<DiscoveryEntry[]>> {
         const b64_aasId = encodeBase64(aasId);
 
         const headers = {
@@ -104,7 +110,8 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
             'Content-Type': 'application/json',
         };
 
-        return this.http.fetch(`${this.baseUrl}/lookup/shells/${b64_aasId}`, {
+        const url = new URL(`lookup/shells/${b64_aasId}`, this.baseUrl);
+        return this.http.fetch(url.toString(), {
             method: 'POST',
             headers,
             body: JSON.stringify(assetLinks),

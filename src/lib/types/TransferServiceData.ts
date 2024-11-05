@@ -18,8 +18,9 @@ export type TransferResult = {
         | 'AasRegistry'
         | 'SubmodelRepository'
         | 'SubmodelRegistry'
-        | 'File transfer';
+        | 'FileTransfer';
     success: boolean;
+    // status: 'Success' | 'Failed' | 'Ignored' | 'Skipped';
     resourceId: string;
     error: string;
 };

@@ -1,10 +1,50 @@
+import { ServiceReachable, TransferService } from 'lib/services/transfer-service/TransferService';
+import testData from './TransferService.data.json';
+import { AssetAdministrationShell, Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
+
+const aas = testData.transferAas as unknown as AssetAdministrationShell;
+const nameplate = testData.transferSubmodelNameplate as unknown as Submodel;
+const technical = testData.transferSubmodelTechnicalData as unknown as Submodel;
+
 describe('TransferService: Export AAS', function () {
-    it('All services given', () => {
-        // Should have no errors
+    const apikey = 'superduperkey';
+
+    it('All services given', async () => {
+        // Should include AAS repo, registry, thumbnail, discovery; submodel repo, registry, file
+
+        const service = TransferService.createNull(
+            ServiceReachable.Yes,
+            ServiceReachable.Yes,
+            ServiceReachable.Yes,
+            ServiceReachable.Yes,
+            ServiceReachable.Yes,
+        );
+
+        const transferResult = await service.transferAasWithSubmodels({
+            aas: aas,
+            submodels: [nameplate, technical],
+            apikey: apikey,
+            targetAasRepositoryBaseUrl: 'test',
+            targetSubmodelRepositoryBaseUrl: 'test',
+        });
+
+        expect(transferResult).length(9);
     });
 
-    it('Only repositories given', function () {
+    it('Only repositories given', async () => {
         // Should have no errors; registries and discovery not in return list
+
+        const service = TransferService.createNull(ServiceReachable.Yes, ServiceReachable.Yes);
+
+        const transferResult = await service.transferAasWithSubmodels({
+            aas: aas,
+            submodels: [nameplate, technical],
+            apikey: apikey,
+            targetAasRepositoryBaseUrl: 'test',
+            targetSubmodelRepositoryBaseUrl: 'test',
+        });
+
+        expect(transferResult).length(5);
     });
 
     it('Cannot reach aas repository service', function () {

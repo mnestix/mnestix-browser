@@ -3,7 +3,10 @@ import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript
 import { ApiResponseWrapper } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 
 export interface IRegistryServiceApi {
-    baseUrl: string;
+    /**
+     * Returns the base URL of this AAS registry endpoint.
+     */
+    getBaseUrl(): string;
 
     getAssetAdministrationShellDescriptorById(
         aasId: string,
@@ -16,5 +19,7 @@ export interface IRegistryServiceApi {
 
     getAssetAdministrationShellFromEndpoint(endpoint: URL): Promise<ApiResponseWrapper<AssetAdministrationShell>>;
 
-    postAssetAdministrationShellDescriptor(shellDescriptor: AssetAdministrationShellDescriptor): Promise<ApiResponseWrapper<void>>;
+    postAssetAdministrationShellDescriptor(
+        shellDescriptor: AssetAdministrationShellDescriptor,
+    ): Promise<ApiResponseWrapper<void>>;
 }

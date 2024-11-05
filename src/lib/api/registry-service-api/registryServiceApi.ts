@@ -2,38 +2,39 @@ import { encodeBase64 } from 'lib/util/Base64Util';
 import { AssetAdministrationShellDescriptor } from 'lib/types/registryServiceTypes';
 import { IRegistryServiceApi } from 'lib/api/registry-service-api/registryServiceApiInterface';
 import {
-    INullableAasRegistryEndpointEntries,
-    RegistryServiceApiInMemory,
+    AasRegistryEndpointEntryInMemory,
+    RegistryServiceApiInMemory
 } from 'lib/api/registry-service-api/registryServiceApiInMemory';
 import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/types';
 import { ApiResponseWrapper } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 
 export class RegistryServiceApi implements IRegistryServiceApi {
-    baseUrl: string;
-
     constructor(
+        protected baseUrl: string = '',
         protected http: {
             fetch<T>(url: RequestInfo | URL, init?: RequestInit): Promise<ApiResponseWrapper<T>>;
         },
-        protected _baseUrl: string = '',
-    ) {
-        this.baseUrl = _baseUrl;
-    }
+    ) {}
 
     static create(
-        _baseUrl: string | undefined,
+        baseUrl: string,
         mnestixFetch: {
-            fetch<T>(url: RequestInfo, init?: RequestInit | undefined): Promise<ApiResponseWrapper<T>>;
+            fetch<T>(url: RequestInfo, init?: RequestInit): Promise<ApiResponseWrapper<T>>;
         },
     ) {
-        return new RegistryServiceApi(mnestixFetch, _baseUrl);
+        return new RegistryServiceApi(baseUrl, mnestixFetch);
     }
 
-    static createNull(options: {
-        registryShellDescriptorEntries: AssetAdministrationShellDescriptor[] | null;
-        shellsAvailableOnEndpoints: INullableAasRegistryEndpointEntries[] | null;
-    }) {
-        return new RegistryServiceApiInMemory(options);
+    static createNull(
+        baseUrl: string,
+        registryShellDescriptors: AssetAdministrationShellDescriptor[],
+        registryShellEndpoints: AasRegistryEndpointEntryInMemory[],
+    ) {
+        return new RegistryServiceApiInMemory(baseUrl, registryShellDescriptors, registryShellEndpoints);
+    }
+
+    getBaseUrl(): string {
+        return this.baseUrl;
     }
 
     async getAssetAdministrationShellDescriptorById(
@@ -71,14 +72,6 @@ export class RegistryServiceApi implements IRegistryServiceApi {
         });
     }
 
-    async getAssetAdministrationShellFromEndpoint(
-        endpoint: URL,
-    ): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
-        return this.http.fetch(endpoint.toString(), {
-            method: 'GET',
-        });
-    }
-
     async putAssetAdministrationShellDescriptorById(
         aasId: string,
         shellDescriptor: AssetAdministrationShellDescriptor,
@@ -96,6 +89,14 @@ export class RegistryServiceApi implements IRegistryServiceApi {
             method: 'PUT',
             headers,
             body: JSON.stringify(shellDescriptor),
+        });
+    }
+
+    async getAssetAdministrationShellFromEndpoint(
+        endpoint: UR,
+    ): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
+        return this.http.fetch<AssetAdministrationShell>(endpoint.toString(), {
+            method: 'GET,
         });
     }
 }

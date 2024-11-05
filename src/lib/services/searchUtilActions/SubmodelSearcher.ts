@@ -1,6 +1,5 @@
 import { Reference, Submodel } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
-import { ISubmodelRepositoryApi } from 'lib/api/basyx-v3/apiInterface';
 import { SubmodelRepositoryApi } from 'lib/api/basyx-v3/api';
 import { mnestixFetch } from 'lib/api/infrastructure';
 import { ISubmodelRegistryServiceApiInterface } from 'lib/api/submodel-registry-service/ISubmodelRegistryServiceApiInterface';
@@ -10,24 +9,16 @@ import { RepositorySearchService } from 'lib/services/repository-access/Reposito
 
 export class SubmodelSearcher {
     private constructor(
-        protected readonly submodelRepositoryClient: ISubmodelRepositoryApi,
-        protected readonly submodelRegistryClient: ISubmodelRegistryServiceApiInterface,
+        protected readonly getSubmodelRegistryClient: (basePath: string) => ISubmodelRegistryServiceApiInterface,
         protected readonly multipleDataSource: RepositorySearchService,
     ) {}
 
     static create(): SubmodelSearcher {
+        const getRepositoryClient = (baseUrl: string) => SubmodelRepositoryApi.create(baseUrl, mnestixFetch());
+        const getRegistryClient = (baseUrl: string) => SubmodelRegistryServiceApi.create(baseUrl, mnestixFetch());
         const multipleDataSource = RepositorySearchService.create();
-        const submodelRepositoryClient = SubmodelRepositoryApi.create(
-            mnestixFetch(),
-            undefined,
-            process.env.SUBMODEL_REPO_API_URL ?? process.env.AAS_REPO_API_URL,
-        );
-        const submodelRegistryClient = SubmodelRegistryServiceApi.create(
-            process.env.SUBMODEL_REGISTRY_API_URL ?? process.env.REGISTRY_API_URL,
-            mnestixFetch(),
-        );
 
-        return new SubmodelSearcher(submodelRepositoryClient, submodelRegistryClient, multipleDataSource);
+        return new SubmodelSearcher(getRepositoryClient, getRegistryClient, multipleDataSource);
     }
 
     private readonly failureMessage = 'Submodel not found';
@@ -73,18 +64,6 @@ export class SubmodelSearcher {
         }
     }
 
-    async getSubmodelFromEndpoint(endpoint: string): Promise<ApiResponseWrapper<Submodel>> {
-        const response = await mnestixFetch().fetch<Submodel>(endpoint);
-        if (response.isSuccess) {
-            return response;
-        } else {
-            if (response.errorCode === ApiResultStatus.NOT_FOUND) {
-                console.error(response.message);
-            }
-            return wrapErrorCode<Submodel>(ApiResultStatus.NOT_FOUND, 'Submodel not found');
-        }
-    }
-
     async getSubmodelById(submodelId: string): Promise<ApiResponseWrapper<Submodel>> {
         const response = await this.submodelRepositoryClient.getSubmodelById(submodelId);
         if (response.isSuccess) return response;
@@ -105,5 +84,14 @@ export class SubmodelSearcher {
             }
             return wrapErrorCode<Submodel>(ApiResultStatus.NOT_FOUND, 'Submodel not found');
         }
+    }
+
+    async getSubmodelFromEndpoint(endpoint: string): Promise<ApiResponseWrapper<Submodel>> {
+        const response = await this.getSubmodelRegistryClient('').getSubmodelFromEndpoint(endpoint);
+        if (response.isSuccess) return response;
+        if (response.errorCode === ApiResultStatus.NOT_FOUND) {
+            console.error(response.message);
+        }
+        return wrapErrorCode<Submodel>(ApiResultStatus.NOT_FOUND, `Submodel not found at endpoint '${endpoint}'`);
     }
 }

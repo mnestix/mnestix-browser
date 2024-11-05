@@ -5,17 +5,20 @@ import { ApiResponseWrapper } from 'lib/util/apiResponseWrapper/apiResponseWrapp
 
 export interface IAssetAdministrationShellRepositoryApi {
     /**
+     * Returns the base URL of this repository endpoint.
+     */
+    getBaseUrl(): string;
+
+    /**
      * @summary Retrieves a specific Asset Administration Shell from the Asset Administration Shell repository
      * @param {string} aasId The Asset Administration Shell&#x27;s unique id
      * @param {*} [options] Override http request option.
-     * @param {string} [basePath] The URL for the current repository endpoint.
      * @throws {RequiredError}
      * @memberof AssetAdministrationShellRepositoryApi
      */
     getAssetAdministrationShellById(
         aasId: string,
         options?: object,
-        basePath?: string,
     ): Promise<ApiResponseWrapper<AssetAdministrationShell>>;
 
     /**
@@ -32,11 +35,10 @@ export interface IAssetAdministrationShellRepositoryApi {
      * @summary Retrieves the thumbnail from the Asset Administration Shell.
      * @param aasId aasId The ID of the Asset Administration Shell.
      * @param options {*} [options] Override http request option.
-     * @param {string} [basePath] The URL for the current repository endpoint.
      * @returns The thumbnail retrieved from the Asset Administration Shell.
      * @memberof AssetAdministrationShellRepositoryApi
      */
-    getThumbnailFromShell(aasId: string, options?: object, basePath?: string): Promise<ApiResponseWrapper<Blob>>;
+    getThumbnailFromShell(aasId: string, options?: object): Promise<ApiResponseWrapper<Blob>>;
 
     /**
      * @summary Uploads a thumbnail to the specified Asset Administration Shell (AAS).
@@ -44,7 +46,6 @@ export interface IAssetAdministrationShellRepositoryApi {
      * @param {Blob} image - The image file to be uploaded as the thumbnail.
      * @param fileName - Name of the image file to be uploaded.
      * @param {object} [options] - Optional. Override HTTP request options.
-     * @param {string} [basePath] - Optional. The base URL of the repository endpoint.
      * @returns {Promise<ApiResponseWrapper<>Response>} A promise that resolves to the server's response after the thumbnail uploa>d.
      * @memberof AssetAdministrationShellRepositoryApi
      */
@@ -53,7 +54,6 @@ export interface IAssetAdministrationShellRepositoryApi {
         image: Blob,
         fileName: string,
         options?: object,
-        basePath?: string,
     ): Promise<ApiResponseWrapper<Response>>;
 
     /**
@@ -71,18 +71,22 @@ export interface IAssetAdministrationShellRepositoryApi {
 
 export interface ISubmodelRepositoryApi {
     /**
+     * Returns the base URL of this repository.
+     */
+    getBaseUrl(): string;
+
+    /**
      * @summary Retrieves the submodel
      * @param {string} submodelId The Submodels unique id
      * @param {*} [options] Override http request option
-     * @param {string} [basePath] The URL for the current repository endpoint.
      * @throws {RequiredError}
      * @memberof SubmodelRepositoryApi
      */
-    getSubmodelById(submodelId: string, options?: object, basePath?: string): Promise<ApiResponseWrapper<Submodel>>;
+    getSubmodelById(submodelId: string, options?: object): Promise<ApiResponseWrapper<Submodel>>;
 
     /**
      * @summary Retrieves the attachment from a submodel element
-     * @param submodelId The id of the submodel the submodel element is part of
+     * @param submodelId The id of the submodel element is part of
      * @param submodelElementPath The path to the submodel element
      * @param {*} [options] Override http request option
      * @memberof SubmodelRepositoryApi
@@ -97,7 +101,7 @@ export interface ISubmodelRepositoryApi {
      * @summary Creates a new submodel in the Submodel repository.
      * @param {Submodel} submodel - The submodel object to be created.
      * @param {object} [options] - Optional. Additional options to override default HTTP request settings.
-     * @returns {Promise<ApiResponseWrapper<>Submodel>} A promise that resolves to the newly created submode>l.
+     * @returns {Promise<ApiResponseWrapper<>Submodel>} A promise that resolves to the newly created submodel.
      * @memberof SubmodelRepositoryApi
      */
     postSubmodel(submodel: Submodel, options?: object): Promise<ApiResponseWrapper<Submodel>>;

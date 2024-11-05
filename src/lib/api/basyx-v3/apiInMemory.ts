@@ -1,6 +1,6 @@
 import { IAssetAdministrationShellRepositoryApi, ISubmodelRepositoryApi } from 'lib/api/basyx-v3/apiInterface';
 import { AssetAdministrationShell, Reference, Submodel } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
-import { decodeBase64, encodeBase64 } from 'lib/util/Base64Util';
+import { encodeBase64 } from 'lib/util/Base64Util';
 import {
     ApiResponseWrapper,
     ApiResultStatus,
@@ -9,16 +9,15 @@ import {
 } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 import { AttachmentDetails } from 'lib/types/TransferServiceData';
 
-export interface INullableAasRepositoryEntries {
-    repositoryUrl: string;
-    aas: AssetAdministrationShell;
-}
-
 export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdministrationShellRepositoryApi {
-    private shellsSavedInTheRepositories: INullableAasRepositoryEntries[] | null | undefined;
+    constructor(
+        private baseUrl: string,
+        private shellsInRepositories: AssetAdministrationShell[] = [],
+        private reachable: boolean = true,
+    ) {}
 
-    constructor(options: { shellsSavedInTheRepositories: INullableAasRepositoryEntries[] | null }) {
-        this.shellsSavedInTheRepositories = options.shellsSavedInTheRepositories;
+    getBaseUrl(): string {
+        return this.baseUrl;
     }
 
     postAssetAdministrationShell(
@@ -32,44 +31,24 @@ export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdmi
         _aasId: string,
         _image: Blob,
         _fileName: string,
-        _options?: object | undefined,
-        _basePath?: string | undefined,
+        _options?: object,
     ): Promise<ApiResponseWrapper<Response>> {
         throw new Error('Method not implemented.');
     }
 
-    static getDefaultRepositoryUrl(): string {
-        return 'www.aas.default.com/repository';
-    }
-
     async getAssetAdministrationShellById(
         aasId: string,
-        _options?: object | undefined,
-        _basePath?: string | undefined,
+        options?: objec,
     ): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
-        if (!this.shellsSavedInTheRepositories) return Promise.reject('no repository configuration');
-        const defaultRepositoryUrl = AssetAdministrationShellRepositoryApiInMemory.getDefaultRepositoryUrl();
-        const isSearchingInDefaultRepository = _basePath === defaultRepositoryUrl || _basePath === undefined;
-        for (const entry of this.shellsSavedInTheRepositories) {
-            if (encodeBase64(entry.aas.id) === aasId) {
-                const isInDefaultRepository = entry.repositoryUrl === defaultRepositoryUrl;
-                if (isInDefaultRepository || !isSearchingInDefaultRepository) {
-                    const response = new Response(JSON.stringify(entry.aas));
-                    return await wrapResponse<AssetAdministrationShell>(response);
-                }
-            }
+        const foundAas = this.shellsInRepositories.find((entry) => encodeBase64(entry.id) === aasId);
+        if (foundAas) {
+            const response = new Response(JSON.stringify(foundAas));
+            return await wrapResponse(response);
         }
-        const targetRepositoryKind = isSearchingInDefaultRepository ? 'default' : 'foreign';
         return Promise.resolve(
             wrapErrorCode(
                 ApiResultStatus.NOT_FOUND,
-                'no aas found in the ' +
-                    targetRepositoryKind +
-                    ' repository for aasId: ' +
-                    aasId +
-                    ', which is :' +
-                    decodeBase64(aasId) +
-                    ' encoded in base64',
+                `no aas found in the repository: ${this.baseUrl} for aasId: ${aasId}`,
             ),
         );
     }
@@ -81,50 +60,43 @@ export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdmi
         throw new Error('Method not implemented.');
     }
 
-    async getThumbnailFromShell(
-        _aasId: string,
-        _options?: object | undefined,
-        _basePath?: string | undefined,
-    ): Promise<ApiResponseWrapper<Blob>> {
+    async getThumbnailFromShell(_aasId: string, _options?: object): Promise<ApiResponseWrapper<Blob>> {
         throw new Error('Method not implemented.');
     }
 }
 
 export class SubmodelRepositoryApiInMemory implements ISubmodelRepositoryApi {
-    private submodelsSavedInTheRepository: Submodel[] | null | undefined;
+    constructor(
+        private baseUrl: string,
+        private readonly submodelsInRepository: Submodel[],
+    ) {}
 
-    constructor(options: { submodelsSavedInTheRepository: Submodel[] | null }) {
-        this.submodelsSavedInTheRepository = options.submodelsSavedInTheRepository;
+    getBaseUrl(): string {
+        return this.baseUrl;
     }
 
     putAttachmentToSubmodelElement(
         _submodelId: string,
         _attachmentData: AttachmentDetails,
-        _options?: object | undefined,
+        _options?: object,
     ): Promise<ApiResponseWrapper<Response>> {
         throw new Error('Method not implemented.');
     }
 
-    postSubmodel(_submodel: Submodel, _options?: object | undefined): Promise<ApiResponseWrapper<Submodel>> {
+    postSubmodel(_submodel: Submodel, _options?: object): Promise<ApiResponseWrapper<Submodel>> {
         throw new Error('Method not implemented.');
     }
 
-    async getSubmodelById(
-        submodelId: string,
-        _options?: object | undefined,
-        _basePath?: string | undefined,
-    ): Promise<ApiResponseWrapper<Submodel>> {
-        if (!this.submodelsSavedInTheRepository) return Promise.reject('no repository configuration');
-        for (const submodel of this.submodelsSavedInTheRepository) {
-            if (encodeBase64(submodel.id) === submodelId) {
-                const response = new Response(JSON.stringify(submodel));
-                return await wrapResponse<Submodel>(response);
-            }
+    async getSubmodelById(submodelId: string, _options?: object): Promise<ApiResponseWrapper<Submodel>> {
+        const foundAas = this.submodelsInRepository.find((entry) => encodeBase64(entry.id) === submodelId);
+        if (foundAas) {
+            const response = new Response(JSON.stringify(foundAas));
+            return await wrapResponse(response);
         }
         return Promise.resolve(
             wrapErrorCode(
                 ApiResultStatus.NOT_FOUND,
-                'no submodel found in the default repository for submodelId: ' + submodelId,
+                `no submodel found in the repository: ${this.baseUrl} for submodelId: ${submodelId}`,
             ),
         );
     }
@@ -132,7 +104,7 @@ export class SubmodelRepositoryApiInMemory implements ISubmodelRepositoryApi {
     async getAttachmentFromSubmodelElement(
         _submodelId: string,
         _submodelElementPath: string,
-        _options?: object | undefined,
+        _options?: objec,
     ): Promise<ApiResponseWrapper<Blob>> {
         throw new Error('Method not implemented.');
     }

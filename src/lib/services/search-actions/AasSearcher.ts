@@ -7,13 +7,18 @@ import { RegistryServiceApi } from 'lib/api/registry-service-api/registryService
 import { DiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApi';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import {
+    AasRepoSearchResult,
     NullableMultipleDataSourceSetupParameters,
-    RepoSearchResult,
     RepositorySearchService,
 } from 'lib/services/repository-access/RepositorySearchService';
 import { INullableAasRepositoryEntries } from 'lib/api/basyx-v3/apiInMemory';
 import { mnestixFetch } from 'lib/api/infrastructure';
-import { ApiResponseWrapper, ApiResultStatus, wrapErrorCode, wrapSuccess } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
+import {
+    ApiResponseWrapper,
+    ApiResultStatus,
+    wrapErrorCode,
+    wrapSuccess,
+} from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 
 interface NullableSearchSetupParameters {
     discoveryEntries?: { assetId: string; aasIds: string[] }[];
@@ -67,14 +72,8 @@ export class AasSearcher {
     }: NullableSearchSetupParameters = {}): AasSearcher {
         return new AasSearcher(
             DiscoveryServiceApi.createNull({ discoveryEntries: discoveryEntries }),
-            RegistryServiceApi.createNull({
-                registryShellDescriptorEntries: registryShellDescriptorEntries,
-                shellsAvailableOnEndpoints: shellsAvailableOnRegistryEndpoints,
-            }),
-            RepositorySearchService.createNull({
-                shellsSavedInTheRepositories: shellsSavedInTheRepositories,
-                submodelsSavedInTheRepository,
-            }),
+            RegistryServiceApi.createNull(registryShellDescriptorEntries, shellsAvailableOnRegistryEndpoints),
+            RepositorySearchService.createNull(shellsSavedInTheRepositories, submodelsSavedInTheRepository),
             log ?? Log.createNull(),
         );
     }
@@ -198,7 +197,7 @@ export class AasSearcher {
         return wrapErrorCode(ApiResultStatus.NOT_FOUND, message);
     }
 
-    private async getAasFromAllRepositories(aasId: string): Promise<ApiResponseWrapper<RepoSearchResult[]>> {
+    private async getAasFromAllRepositories(aasId: string): Promise<ApiResponseWrapper<AasRepoSearchResult[]>> {
         const response = await this.multipleDataSource.getAasFromAllRepos(aasId);
         if (response.isSuccess) return response;
         const message = `Could not find the AAS '${aasId}' in any configured repository`;

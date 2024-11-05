@@ -1,11 +1,20 @@
 import { DiscoveryEntry, IDiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApiInterface';
-import { ApiResponseWrapper, ApiResultStatus, wrapErrorCode, wrapSuccess } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
+import {
+    ApiResponseWrapper,
+    ApiResultStatus,
+    wrapErrorCode,
+    wrapSuccess
+} from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 
 export class DiscoveryServiceApiInMemory implements IDiscoveryServiceApi {
-    private discoveryEntries: { assetId: string; aasIds: string[] }[];
+    constructor(
+        protected baseUrl: string,
+        protected discoveryEntries: { assetId: string; aasIds: string[] }[,
+    ) {
+    }
 
-    constructor(options: { discoveryEntries: { assetId: string; aasIds: string[] }[] }) {
-        this.discoveryEntries = options.discoveryEntries;
+    getBaseUrl(): string {
+        return this.baseUrl;
     }
 
     async linkAasIdAndAssetId(_aasId: string, _assetId: string): Promise<ApiResponseWrapper<DiscoveryEntry[]>> {
@@ -15,16 +24,22 @@ export class DiscoveryServiceApiInMemory implements IDiscoveryServiceApi {
     async getAasIdsByAssetId(
         assetId: string,
     ): Promise<ApiResponseWrapper<{ paging_metadata: string; result: string[] }>> {
-        for (const discoveryEntry of this.discoveryEntries) {
-            if (discoveryEntry.assetId === assetId)
-                return Promise.resolve(
-                    wrapSuccess({
-                        paging_metadata: '',
-                        result: discoveryEntry.aasIds,
-                    }),
-                );
+        const foundEntry = this.discoveryEntries.find((entry) => entry.assetId === assetId);
+        if (!foundEntry) {
+            return Promise.resolve(
+                wrapErrorCode(
+                    ApiResultStatus.NOT_FOUND,
+                    `No AAS with ID '${assetId}' found in Discovery '${this.baseUrl}'`
+                )
+            );
         }
-        return Promise.resolve(wrapErrorCode(ApiResultStatus.NOT_FOUND, 'not found'));
+
+        return Promise.resolve(
+            wrapSuccess({
+                paging_metadata: '',
+                result: foundEntry.aasIds
+            })
+        );
     }
 
     async deleteAllAssetLinksById(_aasId: string): Promise<ApiResponseWrapper<void>> {
