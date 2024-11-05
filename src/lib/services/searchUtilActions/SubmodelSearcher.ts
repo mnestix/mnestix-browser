@@ -37,13 +37,12 @@ export class SubmodelSearcher {
         submodelDescriptor?: SubmodelDescriptor,
     ): Promise<ApiResponseWrapper<Submodel>> {
         const submodelId = submodelReference.keys[0].value;
-
-        const descriptorById = await this.getSubmodelDescriptorById(submodelId);
-        const descriptor =
-            submodelDescriptor || (process.env.SUBMODEL_REGISTRY_API_URL && descriptorById.isSuccess)
-                ? descriptorById.result
-                : null;
-        const endpoint = descriptor?.endpoints[0].protocolInformation.href;
+        if (!submodelDescriptor && process.env.SUBMODEL_REGISTRY_API_URL) {
+            const response = await this.getSubmodelDescriptorById(submodelId);
+            if(response.isSuccess) submodelDescriptor = response.result;
+        }
+        
+        const endpoint = submodelDescriptor?.endpoints[0].protocolInformation.href;
 
         if (endpoint) {
             return await this.getSubmodelFromEndpoint(endpoint);
