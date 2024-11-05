@@ -19,8 +19,28 @@ export class DiscoveryServiceApiInMemory implements IDiscoveryServiceApi {
         return this.baseUrl;
     }
 
-    async linkAasIdAndAssetId(_aasId: string, _assetId: string): Promise<ApiResponseWrapper<DiscoveryEntry>> {
-        throw new Error('Method not implemented.');
+    async linkAasIdAndAssetId(aasId: string, assetId: string): Promise<ApiResponseWrapper<DiscoveryEntry>> {
+        if (this.reachable !== ServiceReachable.Yes)
+            return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Service not reachable');
+        const newEntry = {
+            aasId: aasId,
+            assetId: assetId,
+        };
+        if (this.discoveryEntries.includes(newEntry)) {
+            return wrapErrorCode(
+                ApiResultStatus.UNKNOWN_ERROR,
+                `Link for AAS '${aasId}' and asset '${assetId}' already in Discovery '${this.baseUrl}'`,
+            );
+        }
+        this.discoveryEntries.push(newEntry);
+        const discoveryEntry = {
+            aasId: aasId,
+            asset: {
+                name: 'globalAssetId',
+                value: assetId,
+            },
+        } as DiscoveryEntry;
+        return wrapSuccess(discoveryEntry);
     }
 
     async getAasIdsByAssetId(assetId: string): Promise<ApiResponseWrapper<string[]>> {
@@ -46,6 +66,8 @@ export class DiscoveryServiceApiInMemory implements IDiscoveryServiceApi {
     async getAllAssetAdministrationShellIdsByAssetLink(
         assetIds: SpecificAssetId[],
     ): Promise<ApiResponseWrapper<string[]>> {
+        if (this.reachable !== ServiceReachable.Yes)
+            return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Service not reachable');
         const ids = assetIds.map((id) => id.value);
         const foundEntries = this.discoveryEntries.filter((entry) => ids.includes(entry.assetId));
         if (foundEntries.length <= 0) {
