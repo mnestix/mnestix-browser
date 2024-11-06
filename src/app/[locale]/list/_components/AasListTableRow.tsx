@@ -6,7 +6,7 @@ import LabelOffIcon from '@mui/icons-material/LabelOff';
 import { AasListEntry } from 'lib/api/generated-api/clients.g';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { useRouter } from 'next/navigation';
-import { useAasState } from 'components/contexts/CurrentAasContext';
+import { useAasOriginSourceState, useAasState } from 'components/contexts/CurrentAasContext';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { ImageWithFallback } from './StyledImageWithFallBack';
 import { ProductClassChip } from 'app/[locale]/list/_components/ProductClassChip';
@@ -33,9 +33,11 @@ export const AasListTableRow = (props: AasTableRowProps) => {
     const navigate = useRouter();
     const intl = useIntl();
     const [, setAas] = useAasState();
+    const [, setAasOriginUrl] = useAasOriginSourceState();
     const notificationSpawner = useNotificationSpawner();
     const navigateToAas = (listEntry: AasListEntry) => {
         setAas(null);
+        setAasOriginUrl(null)
         if (listEntry.aasId) navigate.push(`/viewer/${encodeBase64(listEntry.aasId)}`);
     };
 

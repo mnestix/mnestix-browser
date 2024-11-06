@@ -63,13 +63,13 @@ export function CompareView() {
             throw new LocalizedError(messages.mnestix.compare.moreAasFound);
         }
 
-        const aasExists = compareAas.find((aas) => aas.id === result.aas!.id);
+        const aasExists = compareAas.find((compareAas) => compareAas.aas.id === result.aas!.id);
         if (aasExists) {
             throw new LocalizedError(messages.mnestix.compare.aasAlreadyAdded);
         }
 
         try {
-            await addAas(result.aas, result.aasData?.submodelDescriptors);
+            await addAas(result.aas, result.aasData);
         } catch (e) {
             throw new LocalizedError(messages.mnestix.compare.aasAddError);
         }
@@ -86,11 +86,11 @@ export function CompareView() {
                 {compareAas.length !== 0 || isLoadingAas ? (
                     <Box display="flex" flexDirection="column" gap="20px">
                         <Box display="flex" flexDirection="row" gap="20px">
-                            {compareAas.map((aas, index) => (
+                            {compareAas.map((compareAas, index) => (
                                 <Box position="relative" key={index} width={1 / 3} data-testid={`compare-aas-${index}`}>
                                     <IconButton
                                         aria-label="close"
-                                        onClick={() => handleDeleteAas(aas.id)}
+                                        onClick={() => handleDeleteAas(compareAas.aas.id)}
                                         sx={{
                                             position: 'absolute',
                                             right: 8,
@@ -104,11 +104,12 @@ export function CompareView() {
                                     </IconButton>
                                     <AASOverviewCard
                                         key={index}
-                                        aas={aas ?? null}
-                                        productImage={aas?.assetInformation?.defaultThumbnail?.path}
+                                        aas={compareAas.aas ?? null}
+                                        productImage={compareAas.aas?.assetInformation?.defaultThumbnail?.path}
                                         isLoading={isLoadingAas}
                                         isAccordion={true}
                                         imageLinksToDetail={true}
+                                        repositoryURL={compareAas.aasOrigin}
                                     />
                                 </Box>
                             ))}

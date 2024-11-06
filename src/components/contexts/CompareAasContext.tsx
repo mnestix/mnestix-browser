@@ -6,14 +6,20 @@ import { getSubmodelFromSubmodelDescriptor, performFullAasSearch } from 'lib/ser
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 import { getSubmodelDescriptorsById } from 'lib/services/submodelRegistryApiActions';
 import { getSubmodelById } from 'lib/services/repository-access/repositorySearchActions';
+import { AasData } from 'lib/services/search-actions/AasSearcher';
 
 type CompareAasContextType = {
-    compareAas: AssetAdministrationShell[];
+    compareAas: CompareAAS[];
     compareData: SubmodelCompareData[];
-    addAas: (aas: AssetAdministrationShell, submodelDescriptors?: SubmodelDescriptor[]) => Promise<void>;
+    addAas: (aas: AssetAdministrationShell, data: AasData | null) => Promise<void>;
     addSeveralAas: (aas: string[]) => void;
     deleteAas: (aasId: string) => void;
 };
+
+type CompareAAS = {
+    aas: AssetAdministrationShell;
+    aasOrigin: string | null;
+}
 
 const aasCompareStorage = 'aas';
 const compareDataStorage = 'compareData';
@@ -23,7 +29,7 @@ const CompareAasContext = createContext<CompareAasContextType | undefined>(undef
 export const useCompareAasContext = () => useContext(CompareAasContext) as CompareAasContextType;
 
 export const CompareAasContextProvider = (props: PropsWithChildren) => {
-    const [compareAas, setCompareAas] = useState<AssetAdministrationShell[]>(() => {
+    const [compareAas, setCompareAas] = useState<CompareAAS[]>(() => {
         const storedList = localStorage.getItem(aasCompareStorage);
         return storedList ? JSON.parse(storedList) : [];
     });
@@ -47,15 +53,19 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
      * Add an aas to the existing compare data state.
      * Hint: Don't use this within a loop, the react useState hook won't be updated.
      */
-    const addAas = async (inputAas: AssetAdministrationShell, submodelDescriptors?: SubmodelDescriptor[]) => {
+    const addAas = async (inputAas: AssetAdministrationShell, data: AasData) => {
         if (compareAas.length < 3) {
-            setCompareAas((prevList) => [...prevList, inputAas]);
+            const newAas ={
+                aas: inputAas,
+                aasOrigin: data.aasRepositoryOrigin
+            }
+            setCompareAas((prevList) => [...prevList, newAas]);
             if (inputAas.submodels) {
                 const compareDataTemp = await loadSubmodelDataIntoState(
                     compareData,
                     inputAas.submodels,
                     compareAas.length,
-                    submodelDescriptors,
+                    data.submodelDescriptors,
                 );
                 setCompareData(compareDataTemp);
             }
@@ -68,12 +78,16 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
      * Fills the empty context with a list of aas.
      */
     const addSeveralAas = async (input: string[]) => {
-        const aasList: AssetAdministrationShell[] = [];
+        const aasList: CompareAAS[] = [];
         let compareDataTemp: SubmodelCompareData[] = [];
         for (const aasId of input as string[]) {
             const { isSuccess, result } = await performFullAasSearch(aasId);
             if (isSuccess && result.aas) {
-                aasList.push(result.aas);
+                const aas = {
+                    aas: result.aas, 
+                    aasOrigin: result.aasData?.aasRepositoryOrigin ?? null
+                }
+                aasList.push(aas);
                 if (result.aas.submodels) {
                     compareDataTemp = await loadSubmodelDataIntoState(
                         compareDataTemp,
@@ -95,7 +109,7 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
             if (cData.dataRecords?.length === 0) compareData.splice(i, 1);
         }
 
-        const updatedAas = compareAas.filter((aas) => aas.id !== aasId);
+        const updatedAas = compareAas.filter((compareAas) => compareAas.aas.id !== aasId);
         setCompareAas(updatedAas);
         localStorage.setItem(aasCompareStorage, JSON.stringify(compareAas));
         if (compareAas.length === 1) {
@@ -104,7 +118,7 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
     };
 
     const handleDeleteData = (existingData: SubmodelCompareData, aasId: string) => {
-        const aasIndex = compareAas.findIndex((aas) => aas.id === aasId);
+        const aasIndex = compareAas.findIndex((compareAas) => compareAas.aas.id === aasId);
         if (existingData.dataRecords) {
             for (let i = existingData.dataRecords?.length - 1; i >= 0; --i) {
                 const record = existingData.dataRecords[i];
