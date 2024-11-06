@@ -117,7 +117,6 @@ export function TransferDialog(props: DialogProps) {
      * @param result List of all transfer Results.
      */
     const processResult = (result: TransferResult[]) => {
-        console.log(result);
         if (result.every((result) => result.success)) {
             notificationSpawner.spawn({
                 message: intl.formatMessage(messages.mnestix.transfer.successfullToast),
