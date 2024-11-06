@@ -91,7 +91,7 @@ export class TransferService {
 
     async transferAasWithSubmodels({
         aas,
-        sourceAasId,
+        originalAasId,
         submodels,
         apikey,
         targetAasRepositoryBaseUrl,
@@ -107,7 +107,7 @@ export class TransferService {
         promises.push(this.postAasToRepository(aas, apikey));
 
         if (this.aasThumbnailImageIsFile(aas)) {
-            promises.push(this.putThumbnailImageToShell(sourceAasId, aas.id, apikey));
+            promises.push(this.putThumbnailImageToShell(originalAasId, aas.id, apikey));
         }
 
         if (this.targetAasDiscoveryClient && aas.assetInformation.globalAssetId) {
@@ -123,7 +123,7 @@ export class TransferService {
 
             if (transferSubmodel.submodel.submodelElements) {
                 const attachmentDetails = this.getSubmodelAttachmentsDetails(transferSubmodel.submodel.submodelElements);
-                const result = await this.processAttachments(transferSubmodel.sourceSubmodelId, attachmentDetails, apikey);
+                const result = await this.processAttachments(transferSubmodel.originalSubmodelId, transferSubmodel.submodel.id, attachmentDetails, apikey);
                 promises.push(...result);
             }
         }
@@ -231,12 +231,12 @@ export class TransferService {
         }
     }
 
-    private async processAttachments(submodelId: string, attachmentDetails: AttachmentDetails[], apikey?: string) {
+    private async processAttachments(originalSubmodelId: string, targetSubmodelId: string, attachmentDetails: AttachmentDetails[], apikey?: string) {
         const promises = [];
 
         for (const attachmentDetail of attachmentDetails) {
             const response = await this.sourceSubmodelRepositoryClient.getAttachmentFromSubmodelElement(
-                submodelId,
+                originalSubmodelId,
                 attachmentDetail.idShortPath,
             );
             if (response.isSuccess) {
@@ -245,13 +245,13 @@ export class TransferService {
                     attachmentDetail.fileName,
                     this.getExtensionFromFileType(attachmentDetail.file.type),
                 ].join('.');
-                promises.push(this.putAttachmentToSubmodelElement(submodelId, attachmentDetail, apikey));
+                promises.push(this.putAttachmentToSubmodelElement(targetSubmodelId, attachmentDetail, apikey));
             } else {
                 promises.push(
                     Promise.resolve({
                         success: false,
                         operationKind: 'File transfer',
-                        resourceId: [submodelId, attachmentDetail.idShortPath, ' not found in source repository'].join(
+                        resourceId: [originalSubmodelId, attachmentDetail.idShortPath, ' not found in source repository'].join(
                             ': ',
                         ),
                         error: response.message,

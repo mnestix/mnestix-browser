@@ -22,7 +22,7 @@ import { transferAasWithSubmodels } from 'lib/services/transfer-service/transfer
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { TransferDto, TransferResult, TransferSubmodel } from 'lib/types/TransferServiceData';
 import { useEnv } from 'app/env/provider';
-import { Key, KeyTypes, Reference, ReferenceTypes } from '@aas-core-works/aas-core3.0-typescript/types';
+import { Reference } from '@aas-core-works/aas-core3.0-typescript/types';
 
 export type TransferFormModel = {
     targetAasRepositoryFormModel: TargetRepositoryFormData;
@@ -50,7 +50,7 @@ export function TransferDialog(props: DialogProps) {
             .filter((sub) => sub.submodel)
             .map((sub) => sub.submodel!)
             .map((sub) => {
-                const submodelToTransfer: TransferSubmodel = { submodel: sub, sourceSubmodelId: sub.id };
+                const submodelToTransfer: TransferSubmodel = { submodel: sub, originalSubmodelId: sub.id };
                 submodelToTransfer.submodel.id = `${sub.id}_copy`;
                 return submodelToTransfer;
             });
@@ -62,7 +62,7 @@ export function TransferDialog(props: DialogProps) {
         const submodelReferencesToTransfer: Reference[] = [];
         aasFromContext.submodels?.forEach((sourceSubmodel) => {
             const matchingSubmodel = submodelsToTransfer.find((submodelToTransfer) => 
-                submodelToTransfer.sourceSubmodelId === sourceSubmodel.keys[0].value
+                submodelToTransfer.originalSubmodelId === sourceSubmodel.keys[0].value
             )
             if(matchingSubmodel) {
                 const newSubmodelReference = sourceSubmodel;
@@ -75,7 +75,7 @@ export function TransferDialog(props: DialogProps) {
         const dtoToSubmit: TransferDto = {
             submodels: submodelsToTransfer,
             aas: aasToTransfer,
-            sourceAasId: aasFromContext.id,
+            originalAasId: aasFromContext.id,
             targetAasRepositoryBaseUrl: values.repository,
             targetSubmodelRepositoryBaseUrl:
                 values.submodelRepository && values.submodelRepository !== '0'
