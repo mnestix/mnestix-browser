@@ -21,14 +21,9 @@ import { isValidUrl } from 'lib/util/UrlUtil';
 import { base64ToBlob, encodeBase64 } from 'lib/util/Base64Util';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { useRouter } from 'next/navigation';
-import { useAasState, useRegistryAasState } from 'components/contexts/CurrentAasContext';
-import { AssetAdministrationShellRepositoryApi } from 'lib/api/basyx-v3/api';
+import { useAasOriginSourceState, useAasState } from 'components/contexts/CurrentAasContext';
 import { ImageWithFallback } from 'app/[locale]/list/_components/StyledImageWithFallBack';
-import {
-    getThumbnailFromShell,
-    performGetAasThumbnailFromAllRepos,
-} from 'lib/services/repository-access/repositorySearchActions';
-import { mnestixFetch } from 'lib/api/infrastructure';
+import { getThumbnailFromShell } from 'lib/services/repository-access/repositorySearchActions';
 import { isSuccessWithFile } from 'lib/util/apiResponseWrapper/apiResponseWrapperUtil';
 
 type AASOverviewCardProps = {
@@ -66,39 +61,20 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
     const specificAssetIds = props.aas?.assetInformation?.specificAssetIds as SpecificAssetId[];
     const navigate = useRouter();
     const [productImageUrl, setProductImageUrl] = useState<string | undefined>('');
-    const [registryAasData] = useRegistryAasState();
     const [, setAasState] = useAasState();
+    const [aasOriginUrl] = useAasOriginSourceState();
 
     async function createAndSetUrlForImageFile() {
         if (!props.aas) return;
 
         let image: Blob;
-        if (registryAasData) {
-            const registryRepository = AssetAdministrationShellRepositoryApi.create(
-                mnestixFetch(),
-                undefined,
-                registryAasData.aasRegistryRepositoryOrigin,
-            );
-            const response = await registryRepository.getThumbnailFromShell(props.aas.id);
-            if (isSuccessWithFile(response)) {
-                image = base64ToBlob(response.result, response.fileType);
-                setProductImageUrl(URL.createObjectURL(image));
-            }
-        } else {
-            const response = await getThumbnailFromShell(props.aas.id);
-
-            if (isSuccessWithFile(response)) {
-                image = base64ToBlob(response.result, response.fileType);
-            } else {
-                const response = await performGetAasThumbnailFromAllRepos(props.aas.id);
-                if (isSuccessWithFile(response)) image = base64ToBlob(response.result, response.fileType);
-                else {
-                    console.error('Image not found');
-                    return;
-                }
-            }
-            setProductImageUrl(URL.createObjectURL(image));
+        const response = await getThumbnailFromShell(props.aas.id, aasOriginUrl);
+        if (isSuccessWithFile(response)) image = base64ToBlob(response.result, response.fileType);
+        else {
+            console.error('Image not found');
+            return;
         }
+        setProductImageUrl(URL.createObjectURL(image));
     }
 
     useAsyncEffect(async () => {

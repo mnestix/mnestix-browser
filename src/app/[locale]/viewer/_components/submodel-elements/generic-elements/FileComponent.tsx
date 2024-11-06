@@ -9,6 +9,7 @@ import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { getAttachmentFromSubmodelElement } from 'lib/services/repository-access/repositorySearchActions';
 import { base64ToBlob } from 'lib/util/Base64Util';
 import { isSuccessWithFile } from 'lib/util/apiResponseWrapper/apiResponseWrapperUtil';
+import { useAasOriginSourceState } from 'components/contexts/CurrentAasContext';
 
 const StyledFileImg = styled('img')(() => ({
     objectFit: 'contain',
@@ -26,6 +27,7 @@ type FileComponentProps = {
 export function FileComponent(props: FileComponentProps) {
     const [image, setImage] = useState<string | null>(null);
     const { file } = props;
+    const [aasOriginUrl] = useAasOriginSourceState();
 
     async function getImage() {
         if (file.contentType?.startsWith('image')) {
@@ -35,6 +37,7 @@ export function FileComponent(props: FileComponentProps) {
                 const imageResponse = await getAttachmentFromSubmodelElement(
                     props.submodelId,
                     props.submodelElementPath,
+                    aasOriginUrl,
                 );
                 if (!imageResponse.isSuccess) {
                     console.error('Image not found' + imageResponse.message);

@@ -17,7 +17,7 @@ import {
 import { FormattedMessage, useIntl } from 'react-intl';
 import { messages } from 'lib/i18n/localization';
 import { useState } from 'react';
-import { useAasState, useSubmodelState } from 'components/contexts/CurrentAasContext';
+import { useAasOriginSourceState, useAasState, useSubmodelState } from 'components/contexts/CurrentAasContext';
 import { transferAasWithSubmodels } from 'lib/services/transfer-service/transferActions';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { TransferDto, TransferResult, TransferSubmodel } from 'lib/types/TransferServiceData';
@@ -34,6 +34,7 @@ export function TransferDialog(props: DialogProps) {
     const [aasFromContext] = useAasState();
     const notificationSpawner = useNotificationSpawner();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [aasOriginUrl] = useAasOriginSourceState();
     const theme = useTheme();
     const intl = useIntl();
     const env = useEnv();
@@ -44,7 +45,7 @@ export function TransferDialog(props: DialogProps) {
         if (!values.repository || !aasFromContext) {
             return;
         }
-        
+
         // As long as we cannot adjust the IDs in the UI, we append '_copy' to every ID
         const submodelsToTransfer = submodelsFromContext
             .filter((sub) => sub.submodel)
@@ -54,22 +55,22 @@ export function TransferDialog(props: DialogProps) {
                 submodelToTransfer.submodel.id = `${sub.id}_copy`;
                 return submodelToTransfer;
             });
+        const aasToTransfer = structuredClone(aasFromContext);
 
-        const aasToTransfer = aasFromContext;
         aasToTransfer.id = `${aasFromContext.id}_copy`;
 
         // Adapt Submodel References of the AAS
         const submodelReferencesToTransfer: Reference[] = [];
         aasFromContext.submodels?.forEach((sourceSubmodel) => {
-            const matchingSubmodel = submodelsToTransfer.find((submodelToTransfer) => 
-                submodelToTransfer.originalSubmodelId === sourceSubmodel.keys[0].value
-            )
-            if(matchingSubmodel) {
+            const matchingSubmodel = submodelsToTransfer.find(
+                (submodelToTransfer) => submodelToTransfer.originalSubmodelId === sourceSubmodel.keys[0].value,
+            );
+            if (matchingSubmodel) {
                 const newSubmodelReference = sourceSubmodel;
                 newSubmodelReference.keys[0].value = matchingSubmodel?.submodel.id;
-                submodelReferencesToTransfer.push(newSubmodelReference)
+                submodelReferencesToTransfer.push(newSubmodelReference);
             }
-        })
+        });
         aasToTransfer.submodels = submodelReferencesToTransfer;
 
         const dtoToSubmit: TransferDto = {
@@ -77,12 +78,13 @@ export function TransferDialog(props: DialogProps) {
             aas: aasToTransfer,
             originalAasId: aasFromContext.id,
             targetAasRepositoryBaseUrl: values.repository,
+            sourceAasRepositoryBaseUrl: aasOriginUrl,
             targetSubmodelRepositoryBaseUrl:
                 values.submodelRepository && values.submodelRepository !== '0'
                     ? values.submodelRepository
                     : values.repository,
             apikey: values.repositoryApiKey,
-            targetDiscoveryBaseUrl: env.DISCOVERY_API_URL
+            targetDiscoveryBaseUrl: env.DISCOVERY_API_URL,
         };
         return dtoToSubmit;
     }
@@ -92,11 +94,12 @@ export function TransferDialog(props: DialogProps) {
         setTransferDto({ ...transferDto, targetAasRepositoryFormModel: values });
 
         const dtoToSubmit = buildTransferDto(values);
-        if(!dtoToSubmit) return
-        
+        if (!dtoToSubmit) return;
+
         try {
             setIsSubmitting(true);
             const response = await transferAasWithSubmodels(dtoToSubmit);
+            console.log(response);
             processResult(response);
         } catch (error) {
             notificationSpawner.spawn({
@@ -108,7 +111,7 @@ export function TransferDialog(props: DialogProps) {
             setIsSubmitting(false);
         }
     };
-    
+
     /**
      * Shows success if all elements got transferred correctly.
      * Shows error if no element got transferred correctly.

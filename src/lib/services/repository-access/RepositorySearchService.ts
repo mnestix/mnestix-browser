@@ -33,16 +33,16 @@ export class RepositorySearchService {
         protected readonly log: Log,
     ) {}
 
-    static create(): RepositorySearchService {
+    static create(baseRepositoryUrl?: string | null): RepositorySearchService {
         const repositoryClient = AssetAdministrationShellRepositoryApi.create(
             mnestixFetch(),
             undefined,
-            process.env.AAS_REPO_API_URL,
+            baseRepositoryUrl ?? process.env.AAS_REPO_API_URL,
         );
         const submodelRepositoryClient = SubmodelRepositoryApi.create(
             mnestixFetch(),
             undefined,
-            process.env.SUBMODEL_REPO_API_URL ?? process.env.AAS_REPO_API_URL,
+            baseRepositoryUrl ?? process.env.SUBMODEL_REPO_API_URL ?? process.env.AAS_REPO_API_URL,
         );
         const log = Log.create();
         const prismaConnector = PrismaConnector.create();

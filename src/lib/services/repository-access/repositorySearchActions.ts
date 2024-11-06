@@ -27,8 +27,12 @@ export async function getAssetAdministrationShellById(
     return await searcher.getAasFromDefaultRepository(searchInput);
 }
 
-export async function getThumbnailFromShell(searchInput: string): Promise<ApiResponseWrapper<Blob>> {
-    return await searcher.getThumbnailFromShell(searchInput);
+export async function getThumbnailFromShell(
+    searchInput: string,
+    baseRepositoryUrl?: string | null,
+): Promise<ApiResponseWrapper<Blob>> {
+    const fileSearcher = RepositorySearchService.create(baseRepositoryUrl);
+    return await fileSearcher.getThumbnailFromShell(searchInput);
 }
 
 export async function getSubmodelReferencesFromShell(searchInput: string): Promise<ApiResponseWrapper<Reference[]>> {
@@ -42,6 +46,8 @@ export async function getSubmodelById(id: string): Promise<ApiResponseWrapper<Su
 export async function getAttachmentFromSubmodelElement(
     submodelId: string,
     submodelElementPath: string,
+    baseRepositoryUrl?: string | null,
 ): Promise<ApiResponseWrapper<Blob>> {
-    return await searcher.getAttachmentFromSubmodelElement(submodelId, submodelElementPath);
+    const fileSearcher = RepositorySearchService.create(baseRepositoryUrl);
+    return await fileSearcher.getAttachmentFromSubmodelElement(submodelId, submodelElementPath);
 }

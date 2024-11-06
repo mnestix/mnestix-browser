@@ -6,6 +6,7 @@ export type TransferDto = {
     targetAasRegistryBaseUrl?: string;
     targetSubmodelRepositoryBaseUrl: string;
     targetSubmodelRegistryBaseUrl?: string;
+    sourceAasRepositoryBaseUrl?: string | null;
     apikey?: string;
     aas: AssetAdministrationShell;
     originalAasId: string;
@@ -15,7 +16,7 @@ export type TransferDto = {
 export type TransferSubmodel = {
     originalSubmodelId: string;
     submodel: Submodel;
-}
+};
 
 export type TransferResult = {
     operationKind:
