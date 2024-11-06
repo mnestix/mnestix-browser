@@ -5,10 +5,13 @@ import { authOptions } from 'authConfig';
 
 const initializeRequestOptions = async (bearerToken: string, init?: RequestInit) => {
     init = init || {};
-    init.headers = {
-        ...init.headers,
-        Authorization: `Bearer ${bearerToken}`,
-    };
+
+    if (bearerToken) {
+        init.headers = {
+            ...init.headers,
+            Authorization: `Bearer ${bearerToken}`,
+        };
+    }
 
     return init;
 };

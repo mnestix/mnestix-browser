@@ -34,6 +34,22 @@ export function safeBase64Decode(str: string): string {
     }
 }
 
+export async function blobToBase64(blob: Blob): Promise<string> {
+    const arrayBuffer = await blob.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    return buffer.toString('base64');
+}
+
+export function base64ToBlob(base64: string, blobType: string): Blob {
+    const bytesCharacters = atob(base64);
+    const byteNumbers = new Array(bytesCharacters.length);
+    for (let i = 0; i < bytesCharacters.length; i++) {
+        byteNumbers[i] = bytesCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    return new Blob([byteArray], { type: blobType });
+}
+
 /**
  * use this to make a Base64 encoded string URL friendly,
  * i.e. '+' and '/' are replaced with '-' and '_' also any trailing '='

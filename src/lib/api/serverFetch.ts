@@ -4,6 +4,7 @@ import {
     ApiResponseWrapper,
     ApiResultStatus,
     wrapErrorCode,
+    wrapFileResponse,
     wrapResponse,
 } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 
@@ -26,7 +27,13 @@ export async function performServerFetch<T>(
 ): Promise<ApiResponseWrapper<T>> {
     try {
         const response = await fetch(input, init);
-        console.log('fetching ' + input.toString());
+
+        const contentType = response.headers.get('Content-Type') || '';
+
+        if (contentType && !contentType.includes('application/json')) {
+            return wrapFileResponse(response);
+        }
+
         return wrapResponse<T>(response);
     } catch (e) {
         const message = 'this could be a network error';

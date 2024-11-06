@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { isValidUrl } from 'lib/util/UrlUtil';
 import { getAttachmentFromSubmodelElement } from 'lib/services/repository-access/repositorySearchActions';
+import { base64ToBlob } from 'lib/util/Base64Util';
+import { isSuccessWithFile } from 'lib/util/apiResponseWrapper/apiResponseWrapperUtil';
 
 type SingleMarkingsComponentProps = {
     readonly file?: File;
@@ -40,8 +42,8 @@ export function SingleMarkingsComponent(props: SingleMarkingsComponentProps) {
             const fileIdShort = idShortPath + '.' + file?.idShort;
             const response = await getAttachmentFromSubmodelElement(submodelId!, fileIdShort);
             let image: Blob;
-            if (response.isSuccess) {
-                image = response.result;
+            if (isSuccessWithFile(response)) {
+                image = base64ToBlob(response.result, response.fileType);
                 setMarkingImage(URL.createObjectURL(image));
             } else {
                 console.error('Image not found for file ID: ' + fileIdShort);
