@@ -40,10 +40,10 @@ export const AasListTableRow = (props: AasTableRowProps) => {
     const [, setAas] = useAasState();
     const [, setAasOriginUrl] = useAasOriginSourceState();
     const notificationSpawner = useNotificationSpawner();
-    const [thumbnailUrl, setThumbnailUrl] = useState<string | undefined>('');
+    const [thumbnailUrl, setThumbnailUrl] = useState<string>('');
     const navigateToAas = (listEntry: AasListEntry) => {
         setAas(null);
-        setAasOriginUrl(null)
+        setAasOriginUrl(null);
         if (listEntry.aasId) navigate.push(`/viewer/${encodeBase64(listEntry.aasId)}`);
     };
 
@@ -54,7 +54,7 @@ export const AasListTableRow = (props: AasTableRowProps) => {
 
     useAsyncEffect(async () => {
         if (isValidUrl(aasListEntry.thumbnailUrl ?? '')) {
-            setThumbnailUrl(aasListEntry.thumbnailUrl);
+            setThumbnailUrl(aasListEntry.thumbnailUrl ?? '');
         } else if (aasListEntry.aasId) {
             const response = await getThumbnailFromShell(aasListEntry.aasId);
             if (isSuccessWithFile(response)) {
