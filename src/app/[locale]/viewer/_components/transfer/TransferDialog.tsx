@@ -58,11 +58,19 @@ export function TransferDialog(props: DialogProps) {
         const aasToTransfer = aasFromContext;
         aasToTransfer.id = `${aasFromContext.id}_copy`;
 
-        // Adapt Submodel References
-        const submodelReferencesToTransfer = []
-        submodelsToTransfer.forEach((transferSubmodel) => {
-            submodelReferencesToTransfer.push(new Reference(ReferenceTypes.ModelReference, [new Key(KeyTypes.Submodel, transferSubmodel.submodel.id)]))
+        // Adapt Submodel References of the AAS
+        const submodelReferencesToTransfer: Reference[] = [];
+        aasFromContext.submodels?.forEach((sourceSubmodel) => {
+            const matchingSubmodel = submodelsToTransfer.find((submodelToTransfer) => 
+                submodelToTransfer.sourceSubmodelId === sourceSubmodel.keys[0].value
+            )
+            if(matchingSubmodel) {
+                const newSubmodelReference = sourceSubmodel;
+                newSubmodelReference.keys[0].value = matchingSubmodel?.submodel.id;
+                submodelReferencesToTransfer.push(newSubmodelReference)
+            }
         })
+        aasToTransfer.submodels = submodelReferencesToTransfer;
 
         const dtoToSubmit: TransferDto = {
             submodels: submodelsToTransfer,
@@ -109,6 +117,7 @@ export function TransferDialog(props: DialogProps) {
      * @param result List of all transfer Results.
      */
     const processResult = (result: TransferResult[]) => {
+        console.log(result);
         if (result.every((result) => result.success)) {
             notificationSpawner.spawn({
                 message: intl.formatMessage(messages.mnestix.transfer.successfullToast),
