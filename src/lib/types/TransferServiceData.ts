@@ -8,8 +8,14 @@ export type TransferDto = {
     targetSubmodelRegistryBaseUrl?: string;
     apikey?: string;
     aas: AssetAdministrationShell;
-    submodels: Submodel[];
+    originalAasId: string;
+    submodels: TransferSubmodel[];
 };
+
+export type TransferSubmodel = {
+    originalSubmodelId: string;
+    submodel: Submodel;
+}
 
 export type TransferResult = {
     operationKind:
