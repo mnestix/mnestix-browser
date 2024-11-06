@@ -169,7 +169,7 @@ export class RepositorySearchService {
 
         const promises = basePathUrls.map((url) => {
             return this.repositoryClient.getThumbnailFromShell(aasId, undefined, url).then((response) => {
-                if (response.isSuccess && response.result.size === 0) {
+                if (response.isSuccess && response.result instanceof Blob && response.result.size === 0) {
                     return Promise.reject('Empty image');
                 }
                 return response;

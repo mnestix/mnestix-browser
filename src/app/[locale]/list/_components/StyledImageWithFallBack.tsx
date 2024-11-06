@@ -44,7 +44,7 @@ export const ImageWithFallback = ({ src, alt, size, onClickHandler }: StyledImag
                 height: size,
                 width: size,
             }}
-            data-testid='image-with-fallback'
+            data-testid="image-with-fallback"
         />
     );
 
@@ -66,6 +66,7 @@ export const ImageWithFallback = ({ src, alt, size, onClickHandler }: StyledImag
             }}
             alt={alt}
             onClick={() => onClickHandler?.call(this)}
+            data-testid="default-thumbnail-image-with-fallback"
         />
     );
 
