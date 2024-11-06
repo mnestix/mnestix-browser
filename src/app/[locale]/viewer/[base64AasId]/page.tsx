@@ -23,10 +23,10 @@ import {
 } from 'lib/services/search-actions/searchActions';
 import { LocalizedError } from 'lib/util/LocalizedError';
 import {
-    SubmodelOrIdReference,
+    SubmodelOrIdReference, useAasOriginSourceState,
     useAasState,
     useRegistryAasState,
-    useSubmodelState,
+    useSubmodelState
 } from 'components/contexts/CurrentAasContext';
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 import { TransferButton } from 'app/[locale]/viewer/_components/transfer/TransferButton';
@@ -43,6 +43,7 @@ export default function Page() {
     const env = useEnv();
     const encodedRepoUrl = useSearchParams().get('repoUrl');
     const repoUrl = encodedRepoUrl ? decodeURI(encodedRepoUrl) : undefined;
+    const [aasOriginUrl, setAasOriginUrl] = useAasOriginSourceState();
     const [aasFromContext, setAasFromContext] = useAasState();
     const [submodels, setSubmodels] = useSubmodelState();
     const [isSubmodelsLoading, setIsSubmodelsLoading] = useState(true);
@@ -71,6 +72,7 @@ export default function Page() {
         if (repoUrl) {
             const response = await getAasFromRepository(aasIdDecoded, repoUrl);
             if (response.isSuccess) {
+                setAasOriginUrl(repoUrl);
                 setAasFromContext(response.result);
                 return;
             }
@@ -80,6 +82,7 @@ export default function Page() {
         if (!isSuccess) {
             showError(new LocalizedError(messages.mnestix.aasUrlNotFound), notificationSpawner);
         } else if (result.aas) {
+            setAasOriginUrl(result.aasData?.aasRepositoryOrigin ?? null);
             setAasFromContext(result.aas);
         } else {
             navigate.push(result.redirectUrl);
@@ -185,6 +188,7 @@ export default function Page() {
                         productImage={aasFromContext?.assetInformation?.defaultThumbnail?.path}
                         isLoading={isLoadingAas}
                         isAccordion={isMobile}
+                        repositoryURL={aasOriginUrl}
                     />
                     {aasFromContext?.submodels && aasFromContext.submodels.length > 0 && (
                         <SubmodelsOverviewCard submodelIds={submodels} submodelsLoading={isSubmodelsLoading} />

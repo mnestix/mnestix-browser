@@ -36,6 +36,7 @@ type AASOverviewCardProps = {
     readonly isLoading?: boolean;
     readonly isAccordion: boolean;
     readonly imageLinksToDetail?: boolean;
+    readonly repositoryURL: string | null;
 };
 
 type MobileAccordionProps = {
@@ -148,6 +149,7 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
             )}
             <DataRow title="id" value={props.aas?.id} />
             <DataRow title="idShort" value={props.aas?.idShort ?? '-'} />
+            <DataRow title="repositoryURL" value={props.repositoryURL ?? '-'} />
             {props.aas?.derivedFrom?.keys?.[0] && (
                 <DataRow
                     title="derivedFrom"
