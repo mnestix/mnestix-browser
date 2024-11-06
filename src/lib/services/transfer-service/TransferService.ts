@@ -210,8 +210,8 @@ export class TransferService {
         }
     }
 
-    private async putThumbnailImageToShell(sourceAasId: string, targetAasId: string, apikey?: string): Promise<TransferResult> {
-        const response = await this.sourceAasRepositoryClient.getThumbnailFromShell(sourceAasId);
+    private async putThumbnailImageToShell(originalAasId: string, targetAasId: string, apikey?: string): Promise<TransferResult> {
+        const response = await this.sourceAasRepositoryClient.getThumbnailFromShell(originalAasId);
         if (response.isSuccess) {
             const aasThumbnail = response.result;
             const fileName = ['thumbnail', generateRandomId()].join('');
