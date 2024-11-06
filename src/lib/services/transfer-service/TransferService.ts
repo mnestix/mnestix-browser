@@ -147,12 +147,12 @@ export class TransferService {
 
         const mainResults = await Promise.all(promises);
         // Ensure AAS and submodels are fully transferred before initiating file uploads to prevent 'not-found' errors.
-        // Azure’s hosted repository requires time to process newly uploaded AAS and submodels, so a temporary 2-second delay is applied.
-        // TODO: Implement a dynamic readiness check to replace the fixed 2-second delay.
+        // Azure’s hosted repository requires time to process newly uploaded AAS and submodels, so a temporary 5-second delay is applied.
+        // TODO: Implement a dynamic readiness check to replace the fixed 5-second delay.
         const attachmentResults: TransferResult[] = await new Promise((resolve) => {
             setTimeout(() => {
                 resolve(Promise.all(attachmentPromises));
-            }, 2000);
+            }, 5000);
         });
 
         return [...mainResults, ...attachmentResults];
