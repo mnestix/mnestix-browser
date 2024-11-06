@@ -59,7 +59,7 @@ export const DiscoveryListView = () => {
                             });
                         }
                     } else {
-                        aasRepositoryUrl = registrySearchResult?.result.aasData?.aasRegistryRepositoryOrigin;
+                        aasRepositoryUrl = registrySearchResult?.result.aasData?.aasRepositoryOrigin;
                     }
 
                     entryList.push({

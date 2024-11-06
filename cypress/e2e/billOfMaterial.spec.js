@@ -23,11 +23,7 @@ describe('Test the Bill-of-Material', function () {
         describe('test on resolution: ' + res, function () {
             beforeEach(function () {
                 cy.setResolution(res);
-                if (res === 'iphone-6') {
-                    cy.visit('/viewer/' + btoa(testAAS.aasId).replace(/=+$/g, ''));
-                } else {
-                    cy.visitViewer(testAAS.aasId);
-                }
+                cy.visitViewer(testAAS.aasId);
                 cy.getByTestId('submodel-tab').contains(testdata.bomSubmodelName).click();
             });
 

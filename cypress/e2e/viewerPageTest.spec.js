@@ -1,6 +1,6 @@
 ﻿import testAAS from '../fixtures/testAAS.json';
 import resolutions from '../fixtures/resolutions.json';
-
+import toBase64 from '../support/base64-conversion';
 const testMobileResolution = 'iphone-6';
 
 const testData = {
@@ -102,7 +102,7 @@ describe('Test the viewer page', function () {
     describe('Mobile-only tests', function () {
         before(function () {
             cy.viewport(testMobileResolution);
-            cy.visit('/viewer/' + btoa(testAAS.aasId).replace(/=+$/g, ''));
+            cy.visit('/viewer/' + toBase64(testAAS.aasId));
         });
 
         it('tests whether the dropdown menus at the top of the page work for mobile users', function () {

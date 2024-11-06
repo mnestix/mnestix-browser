@@ -1,18 +1,17 @@
-import {
-    MultiLanguageProperty,
-    Property,
-    SubmodelElementCollection,
-} from '@aas-core-works/aas-core3.0-typescript/types';
+import { Property, SubmodelElementCollection } from '@aas-core-works/aas-core3.0-typescript/types';
 import { Box, Typography } from '@mui/material';
 import { StyledDataRow } from 'components/basics/StyledDataRow';
 import { InfluxTimeSeriesDiagram } from './InfluxTimeSeriesDiagram';
 import { useEffect, useState } from 'react';
 import { TimeFrameSelection as TimeFrameSelection } from './TimeFrameSelection';
-import { getTranslationText, hasSemanticId } from 'lib/util/SubmodelResolverUtil';
-import { IntlShape, useIntl } from 'react-intl';
+import { useIntl } from 'react-intl';
 import { SubmodelElementSemanticId } from 'lib/enums/SubmodelElementSemanticId.enum';
 import { isValidUrl } from 'lib/util/UrlUtil';
 import { useEnv } from 'app/env/provider';
+import {
+    extractIntlValueBySemanticId,
+    extractValueBySemanticId,
+} from 'app/[locale]/viewer/_components/submodel/time-series/TimeSeriesUtil';
 
 export function InfluxTimeSeries(props: { submodelElement: SubmodelElementCollection }) {
     const intl = useIntl();
@@ -54,8 +53,9 @@ export function InfluxTimeSeries(props: { submodelElement: SubmodelElementCollec
     useEffect(() => {
         setQuery(replaceTimeFrameInQuery(queryInAas, selectedTimeFrame));
     }, [queryInAas, selectedTimeFrame]);
+
     return endpoint && query ? (
-        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column' }} data-testid="timeseries-influx-wrapper">
             <StyledDataRow title={name}>
                 <Box sx={{ marginTop: 1 }} />
                 <Box sx={{ display: 'flex', justifyContent: 'left' }}>
@@ -83,25 +83,6 @@ export function InfluxTimeSeries(props: { submodelElement: SubmodelElementCollec
     ) : (
         <></>
     );
-}
-
-function extractValueBySemanticId(
-    submodelElementCollection: SubmodelElementCollection,
-    semanticId: SubmodelElementSemanticId,
-) {
-    return submodelElementCollection.value?.find((v) => hasSemanticId(v, semanticId));
-}
-
-function extractIntlValueBySemanticId(
-    submodelElementCollection: SubmodelElementCollection,
-    semanticId: SubmodelElementSemanticId,
-    intl: IntlShape,
-) {
-    const multiLanguageProperty: MultiLanguageProperty | undefined = extractValueBySemanticId(
-        submodelElementCollection,
-        semanticId,
-    ) as MultiLanguageProperty;
-    return multiLanguageProperty ? getTranslationText(multiLanguageProperty, intl) : '';
 }
 
 const influxDbRangeParamRegEx = new RegExp(/range\([A-z]+: -?\d+[A-z]+\)/);
