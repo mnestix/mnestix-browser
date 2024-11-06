@@ -40,13 +40,10 @@ export function TransferDialog(props: DialogProps) {
 
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
-    const handleSubmitRepositoryStep = async (values: TargetRepositoryFormData) => {
+    function buildTransferDto(values: TargetRepositoryFormData) {
         if (!values.repository || !aasFromContext) {
             return;
         }
-
-        // This state can be used later to hold the data of multiple steps
-        setTransferDto({ ...transferDto, targetAasRepositoryFormModel: values });
         
         // As long as we cannot adjust the IDs in the UI, we append '_copy' to every ID
         const submodelsToTransfer = submodelsFromContext
@@ -57,16 +54,16 @@ export function TransferDialog(props: DialogProps) {
                 submodelToTransfer.submodel.id = `${sub.id}_copy`;
                 return submodelToTransfer;
             });
-        
+
         const aasToTransfer = aasFromContext;
-        aasToTransfer.id =`${aasFromContext.id}_copy`;
-        
+        aasToTransfer.id = `${aasFromContext.id}_copy`;
+
         // Adapt Submodel References
         const submodelReferencesToTransfer = []
         submodelsToTransfer.forEach((transferSubmodel) => {
             submodelReferencesToTransfer.push(new Reference(ReferenceTypes.ModelReference, [new Key(KeyTypes.Submodel, transferSubmodel.submodel.id)]))
         })
-        
+
         const dtoToSubmit: TransferDto = {
             submodels: submodelsToTransfer,
             aas: aasToTransfer,
@@ -79,7 +76,16 @@ export function TransferDialog(props: DialogProps) {
             apikey: values.repositoryApiKey,
             targetDiscoveryBaseUrl: env.DISCOVERY_API_URL
         };
+        return dtoToSubmit;
+    }
 
+    const handleSubmitRepositoryStep = async (values: TargetRepositoryFormData) => {
+        // This state can be used later to hold the data of multiple steps
+        setTransferDto({ ...transferDto, targetAasRepositoryFormModel: values });
+
+        const dtoToSubmit = buildTransferDto(values);
+        if(!dtoToSubmit) return
+        
         try {
             setIsSubmitting(true);
             const response = await transferAasWithSubmodels(dtoToSubmit);
