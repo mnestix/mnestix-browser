@@ -56,7 +56,6 @@ export function TargetRepositories(props: TargetRepositoryProps) {
                 typeName: ConnectionTypeEnum.SUBMODEL_REPOSITORY
             });
             if (env.SUBMODEL_REPO_API_URL) submodelRepositories.push(env.SUBMODEL_REPO_API_URL)
-            
             setSubmodelRepositories(submodelRepositories);
         } catch (error) {
             notificationSpawner.spawn({
@@ -72,6 +71,7 @@ export function TargetRepositories(props: TargetRepositoryProps) {
     const defaultValues = {
         repository: '',
         submodelRepository: '0',
+        // TODO Remove after SPS Fair 2024
         repositoryApiKey: localStorage.getItem('TransferApiKey') || ''
     }
 
@@ -83,6 +83,10 @@ export function TargetRepositories(props: TargetRepositoryProps) {
 
     const handleClickShowApikey = () => setShowApikey((show) => !show);
 
+    /**
+     * TODO Remove after SPS Fair 2024
+     * @param event
+     */
     const saveApiKeyToLocalStorage = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         localStorage.setItem('TransferApiKey', event.target.value);
     }
