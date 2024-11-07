@@ -25,7 +25,7 @@ export function CarbonFootprintVisualizations(props: { submodel: Submodel }) {
         hasSemanticId(
             el,
             SubmodelElementSemanticId.ProductCarbonFootprint,
-            SubmodelElementSemanticId.ProductCarbonFootprintIRDI,
+            SubmodelElementSemanticId.ProductCarbonFootprintIrdi,
         ),
     ) as Array<SubmodelElementCollection> | undefined;
 

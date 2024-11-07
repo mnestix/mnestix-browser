@@ -7,7 +7,7 @@ import { TimeSeriesDetail } from './time-series/TimeSeriesDetail';
 
 export const submodelCustomVisualizationMap = {
     [SubmodelSemanticId.CarbonFootprint]: CarbonFootprintDetail,
-    [SubmodelSemanticId.CarbonFootprintIRDI]: CarbonFootprintDetail,
+    [SubmodelSemanticId.CarbonFootprintIrdi]: CarbonFootprintDetail,
     [SubmodelSemanticId.ReferenceCounterContainer]: ReferenceCounterDetail,
     [SubmodelSemanticId.TimeSeries]: TimeSeriesDetail,
     [SubmodelSemanticId.HierarchicalStructuresV10]: HierarchicalStructuresDetail,
