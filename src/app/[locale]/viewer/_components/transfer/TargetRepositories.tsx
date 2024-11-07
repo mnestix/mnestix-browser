@@ -2,7 +2,7 @@ import {
     Box,
     DialogActions,
     Divider,
-    FormControl,
+    FormControl, IconButton, InputAdornment,
     MenuItem,
     Skeleton,
     TextField,
@@ -20,6 +20,7 @@ import { ConnectionTypeEnum } from 'lib/services/database/ConnectionTypeEnum';
 import { Controller, useForm } from 'react-hook-form';
 import { LoadingButton } from '@mui/lab';
 import { useEnv } from 'app/env/provider';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 export type TargetRepositoryFormData = {
     repository?: string;
@@ -37,6 +38,7 @@ export function TargetRepositories(props: TargetRepositoryProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [aasRepositories, setAasRepositories] = useState<string[]>([]);
     const [submodelRepositories, setSubmodelRepositories] = useState<string[]>([]);
+    const [showApikey, setShowApikey] = useState(false);
     const intl = useIntl();
     const env = useEnv();
 
@@ -65,6 +67,8 @@ export function TargetRepositories(props: TargetRepositoryProps) {
     const onSubmit = (data: TargetRepositoryFormData) => {
         props.onSubmitStep(data);
     }
+
+    const handleClickShowApikey = () => setShowApikey((show) => !show);
 
     return(
         <>
@@ -107,7 +111,19 @@ export function TargetRepositories(props: TargetRepositoryProps) {
                                     control={control}
                                     defaultValue=""
                                     render={({ field }) => (
-                                        <TextField type="password" label={intl.formatMessage(messages.mnestix.transfer.repositoryApiKey)}
+                                        <TextField type={showApikey ? 'text' : 'password'}
+                                                   InputProps={{
+                                                           endAdornment:
+                                                           <InputAdornment position="end">
+                                                               <IconButton
+                                                               onClick={handleClickShowApikey}
+                                                               edge="end"
+                                                                >
+                                                                    {showApikey ? <VisibilityOff/> : <Visibility/>}
+                                                                </IconButton>
+                                                            </InputAdornment>
+                                                    }}
+                                                   label={intl.formatMessage(messages.mnestix.transfer.repositoryApiKey)}
                                                    {...field}/>)}
                                 />
                             </FormControl>
