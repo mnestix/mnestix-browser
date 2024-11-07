@@ -11,6 +11,7 @@ export const getEnv = async (): Promise<EnvironmentalVariables> => {
         AUTHENTICATION_FEATURE_FLAG: false,
         COMPARISON_FEATURE_FLAG: process.env.COMPARISON_FEATURE_FLAG?.toLowerCase() === 'true'.toLowerCase(),
         AAS_LIST_FEATURE_FLAG: false,
+        TRANSFER_FEATURE_FLAG: process.env.TRANSFER_FEATURE_FLAG?.toLowerCase() === 'true'.toLowerCase(),
     };
 
     // If BackendAPI is present evaluate the FeatureFlags else they stay the default value
@@ -30,7 +31,7 @@ export const getEnv = async (): Promise<EnvironmentalVariables> => {
         AAS_REPO_API_URL: process.env.AAS_REPO_API_URL,
         SUBMODEL_REPO_API_URL: process.env.SUBMODEL_REPO_API_URL,
         MNESTIX_BACKEND_API_URL: process.env.MNESTIX_BACKEND_API_URL,
-        KEYCLOAK_ENABLED: process.env.KEYCLOAK_ENABLED?.toLowerCase() === 'true'.toLowerCase()
+        KEYCLOAK_ENABLED: process.env.KEYCLOAK_ENABLED?.toLowerCase() === 'true'.toLowerCase(),
     };
 
     const themingVariables = {
@@ -64,6 +65,7 @@ export type EnvironmentalVariables = {
     AUTHENTICATION_FEATURE_FLAG: boolean;
     COMPARISON_FEATURE_FLAG: boolean;
     AAS_LIST_FEATURE_FLAG: boolean;
+    TRANSFER_FEATURE_FLAG: boolean;
     DISCOVERY_API_URL: string | undefined;
     REGISTRY_API_URL: string | undefined;
     SUBMODEL_REGISTRY_API_URL: string | undefined;
