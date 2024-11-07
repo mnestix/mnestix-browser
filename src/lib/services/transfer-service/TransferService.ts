@@ -244,16 +244,30 @@ export class TransferService {
         if (isSuccessWithFile(response)) {
             const aasThumbnail = base64ToBlob(response.result, response.fileType);
             const fileName = ['thumbnail', generateRandomId()].join('');
-            await this.targetAasRepositoryClient.putThumbnailToShell(targetAasId, aasThumbnail, fileName, {
-                headers: {
-                    Apikey: apikey,
+            const pushResponse = await this.targetAasRepositoryClient.putThumbnailToShell(
+                targetAasId,
+                aasThumbnail,
+                fileName,
+                {
+                    headers: {
+                        Apikey: apikey,
+                    },
                 },
-            });
-            return { success: true, operationKind: 'AasRepository', resourceId: 'Thumbnail transfer.', error: '' };
+            );
+            if (pushResponse.isSuccess) {
+                return { success: true, operationKind: 'File transfer', resourceId: 'Thumbnail transfer.', error: '' };
+            } else {
+                return {
+                    success: false,
+                    operationKind: 'File transfer',
+                    resourceId: 'Thumbnail transfer.',
+                    error: pushResponse.message,
+                };
+            }
         } else {
             return {
                 success: false,
-                operationKind: 'AasRepository',
+                operationKind: 'File transfer',
                 resourceId: 'Thumbnail transfer.',
                 error: (response as ApiResponseWrapperError<Blob>).message,
             };
