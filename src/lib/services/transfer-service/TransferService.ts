@@ -114,7 +114,7 @@ export class TransferService {
         }
 
         if (this.targetAasDiscoveryClient && aas.assetInformation.globalAssetId) {
-            promises.push(this.registerAasAtDiscovery(aas));
+            promises.push(this.registerAasAtDiscovery(aas, apikey));
         }
 
         if (this.targetAasRegistryClient) {
@@ -125,8 +125,15 @@ export class TransferService {
             promises.push(this.postSubmodelToRepository(transferSubmodel.submodel, apikey));
 
             if (transferSubmodel.submodel.submodelElements) {
-                const attachmentDetails = this.getSubmodelAttachmentsDetails(transferSubmodel.submodel.submodelElements);
-                const result = await this.processAttachments(transferSubmodel.originalSubmodelId, transferSubmodel.submodel.id, attachmentDetails, apikey);
+                const attachmentDetails = this.getSubmodelAttachmentsDetails(
+                    transferSubmodel.submodel.submodelElements,
+                );
+                const result = await this.processAttachments(
+                    transferSubmodel.originalSubmodelId,
+                    transferSubmodel.submodel.id,
+                    attachmentDetails,
+                    apikey,
+                );
                 attachmentPromises.push(...result);
             }
         }
@@ -163,13 +170,17 @@ export class TransferService {
         }
     }
 
-    private async registerAasAtDiscovery(aas: AssetAdministrationShell): Promise<TransferResult> {
-        const response = await this.targetAasDiscoveryClient!.postAllAssetLinksById(aas.id, [
-            {
-                name: 'globalAssetId',
-                value: aas.assetInformation.globalAssetId!,
-            },
-        ]);
+    private async registerAasAtDiscovery(aas: AssetAdministrationShell, apikey?: string): Promise<TransferResult> {
+        const response = await this.targetAasDiscoveryClient!.postAllAssetLinksById(
+            aas.id,
+            [
+                {
+                    name: 'globalAssetId',
+                    value: aas.assetInformation.globalAssetId!,
+                },
+            ],
+            apikey,
+        );
         if (response.isSuccess) {
             return { success: true, operationKind: 'Discovery', resourceId: aas.id, error: '' };
         } else {
@@ -223,7 +234,11 @@ export class TransferService {
         }
     }
 
-    private async putThumbnailImageToShell(originalAasId: string, targetAasId: string, apikey?: string): Promise<TransferResult> {
+    private async putThumbnailImageToShell(
+        originalAasId: string,
+        targetAasId: string,
+        apikey?: string,
+    ): Promise<TransferResult> {
         const response = await this.sourceAasRepositoryClient.getThumbnailFromShell(originalAasId);
         if (isSuccessWithFile(response)) {
             const aasThumbnail = base64ToBlob(response.result, response.fileType);
@@ -244,7 +259,12 @@ export class TransferService {
         }
     }
 
-    private async processAttachments(originalSubmodelId: string, targetSubmodelId: string, attachmentDetails: AttachmentDetails[], apikey?: string) {
+    private async processAttachments(
+        originalSubmodelId: string,
+        targetSubmodelId: string,
+        attachmentDetails: AttachmentDetails[],
+        apikey?: string,
+    ) {
         const promises = [];
 
         for (const attachmentDetail of attachmentDetails) {
@@ -264,9 +284,11 @@ export class TransferService {
                     Promise.resolve({
                         success: false,
                         operationKind: 'File transfer',
-                        resourceId: [originalSubmodelId, attachmentDetail.idShortPath, ' not found in source repository'].join(
-                            ': ',
-                        ),
+                        resourceId: [
+                            originalSubmodelId,
+                            attachmentDetail.idShortPath,
+                            ' not found in source repository',
+                        ].join(': '),
                         error: (response as ApiResponseWrapperError<Blob>).message,
                     } as TransferResult),
                 );

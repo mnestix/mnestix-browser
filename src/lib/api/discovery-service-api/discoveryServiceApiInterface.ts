@@ -21,5 +21,6 @@ export interface IDiscoveryServiceApi {
     postAllAssetLinksById(
         aasId: string,
         assetLinks: DiscoveryEntry[],
+        apiKey?: string,
     ): Promise<ApiResponseWrapper<DiscoveryEntry[]>>;
 }
