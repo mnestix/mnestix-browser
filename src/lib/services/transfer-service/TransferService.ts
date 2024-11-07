@@ -115,7 +115,7 @@ export class TransferService {
         }
 
         if (this.targetAasDiscoveryClient && aas.assetInformation.globalAssetId) {
-            promises.push(this.registerAasAtDiscovery(aas));
+            promises.push(this.registerAasAtDiscovery(aas, apikey));
         }
 
         if (this.targetAasRegistryClient) {
@@ -171,13 +171,17 @@ export class TransferService {
         }
     }
 
-    private async registerAasAtDiscovery(aas: AssetAdministrationShell): Promise<TransferResult> {
-        const response = await this.targetAasDiscoveryClient!.postAllAssetLinksById(aas.id, [
-            {
-                name: 'globalAssetId',
-                value: aas.assetInformation.globalAssetId!,
-            },
-        ]);
+    private async registerAasAtDiscovery(aas: AssetAdministrationShell, apikey?: string): Promise<TransferResult> {
+        const response = await this.targetAasDiscoveryClient!.postAllAssetLinksById(
+            aas.id,
+            [
+                {
+                    name: 'globalAssetId',
+                    value: aas.assetInformation.globalAssetId!,
+                },
+            ],
+            apikey,
+        );
         if (response.isSuccess) {
             return { success: true, operationKind: 'Discovery', resourceId: aas.id, error: '' };
         } else {

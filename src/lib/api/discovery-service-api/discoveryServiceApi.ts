@@ -96,12 +96,17 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
         });
     }
 
-    async postAllAssetLinksById(aasId: string, assetLinks: DiscoveryEntry[]) : Promise<ApiResponseWrapper<DiscoveryEntry[]>> {
+    async postAllAssetLinksById(
+        aasId: string,
+        assetLinks: DiscoveryEntry[],
+        apiKey?: string,
+    ): Promise<ApiResponseWrapper<DiscoveryEntry[]>> {
         const b64_aasId = encodeBase64(aasId);
 
         const headers = {
             Accept: 'application/json',
             'Content-Type': 'application/json',
+            ...(apiKey && { ApiKey: apiKey }),
         };
 
         return this.http.fetch(`${this.baseUrl}/lookup/shells/${b64_aasId}`, {
