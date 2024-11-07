@@ -10,6 +10,7 @@ export async function transferAasWithSubmodels(transferDto: TransferDto): Promis
         transferDto.targetDiscoveryBaseUrl,
         transferDto.targetAasRegistryBaseUrl,
         transferDto.targetSubmodelRegistryBaseUrl,
+        transferDto.sourceAasRepositoryBaseUrl,
     );
     return transfer.transferAasWithSubmodels(transferDto);
 }

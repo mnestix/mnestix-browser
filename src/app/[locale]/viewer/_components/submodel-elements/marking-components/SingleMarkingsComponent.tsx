@@ -6,6 +6,7 @@ import { isValidUrl } from 'lib/util/UrlUtil';
 import { getAttachmentFromSubmodelElement } from 'lib/services/repository-access/repositorySearchActions';
 import { base64ToBlob } from 'lib/util/Base64Util';
 import { isSuccessWithFile } from 'lib/util/apiResponseWrapper/apiResponseWrapperUtil';
+import { useAasOriginSourceState } from 'components/contexts/CurrentAasContext';
 
 type SingleMarkingsComponentProps = {
     readonly file?: File;
@@ -36,11 +37,12 @@ const StyledMarkingWrapper = styled(Box)(() => ({
 export function SingleMarkingsComponent(props: SingleMarkingsComponentProps) {
     const { file, name, additionalText, submodelId, idShortPath } = props;
     const [markingImage, setMarkingImage] = useState<string>();
+    const [aasOriginUrl] = useAasOriginSourceState();
 
     useAsyncEffect(async () => {
         if (!isValidUrl(file!.value)) {
             const fileIdShort = idShortPath + '.' + file?.idShort;
-            const response = await getAttachmentFromSubmodelElement(submodelId!, fileIdShort);
+            const response = await getAttachmentFromSubmodelElement(submodelId!, fileIdShort, aasOriginUrl);
             let image: Blob;
             if (isSuccessWithFile(response)) {
                 image = base64ToBlob(response.result, response.fileType);

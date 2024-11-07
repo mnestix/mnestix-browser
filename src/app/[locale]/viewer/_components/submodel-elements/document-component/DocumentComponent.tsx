@@ -19,6 +19,7 @@ import { base64ToBlob, encodeBase64 } from 'lib/util/Base64Util';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { getAttachmentFromSubmodelElement } from 'lib/services/repository-access/repositorySearchActions';
 import { isSuccessWithFile } from 'lib/util/apiResponseWrapper/apiResponseWrapperUtil';
+import { useAasOriginSourceState } from 'components/contexts/CurrentAasContext';
 
 enum DocumentSpecificSemanticId {
     DocumentVersion = 'https://admin-shell.io/vdi/2770/1/0/DocumentVersion',
@@ -82,6 +83,7 @@ export function DocumentComponent(props: MarkingsComponentProps) {
     const intl = useIntl();
     const [fileViewObject, setFileViewObject] = useState<FileViewObject>();
     const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+    const [aasOriginUrl] = useAasOriginSourceState();
 
     useAsyncEffect(async () => {
         setFileViewObject(await getFileViewObject());
@@ -172,7 +174,11 @@ export function DocumentComponent(props: MarkingsComponentProps) {
                 '/attachment';
             digitalFile.mimeType = (versionSubmodelEl as File).contentType;
 
-            const imageResponse = await getAttachmentFromSubmodelElement(props.submodelId, submodelElementPath);
+            const imageResponse = await getAttachmentFromSubmodelElement(
+                props.submodelId,
+                submodelElementPath,
+                aasOriginUrl,
+            );
             if (!imageResponse.isSuccess) {
                 console.error('Image not found' + imageResponse.message);
             } else if (isSuccessWithFile(imageResponse)) {
@@ -206,7 +212,11 @@ export function DocumentComponent(props: MarkingsComponentProps) {
                 submodelElementPath +
                 '/attachment';
 
-            const imageResponse = await getAttachmentFromSubmodelElement(props.submodelId, submodelElementPath);
+            const imageResponse = await getAttachmentFromSubmodelElement(
+                props.submodelId,
+                submodelElementPath,
+                aasOriginUrl,
+            );
             if (!imageResponse.isSuccess) {
                 console.error('Image not found' + imageResponse.message);
             } else if (isSuccessWithFile(imageResponse)) {

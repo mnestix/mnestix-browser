@@ -13,7 +13,12 @@ import {
 } from 'lib/services/repository-access/RepositorySearchService';
 import { INullableAasRepositoryEntries } from 'lib/api/basyx-v3/apiInMemory';
 import { mnestixFetch } from 'lib/api/infrastructure';
-import { ApiResponseWrapper, ApiResultStatus, wrapErrorCode, wrapSuccess } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
+import {
+    ApiResponseWrapper,
+    ApiResultStatus,
+    wrapErrorCode,
+    wrapSuccess,
+} from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 import * as process from 'node:process';
 
 interface NullableSearchSetupParameters {
@@ -96,8 +101,8 @@ export class AasSearcher {
         if (aasRegistryResult.isSuccess) {
             return wrapSuccess(aasRegistryResult.result);
         }
-        
-        if (process.env.AAS_REPO_API_URL){
+
+        if (process.env.AAS_REPO_API_URL) {
             const defaultResult = await this.getAasFromDefaultRepository(aasIdEncoded);
             if (defaultResult.isSuccess) {
                 const data = {
@@ -107,7 +112,7 @@ export class AasSearcher {
                 return wrapSuccess(this.createAasResult(defaultResult.result, data));
             }
         }
-        
+
         const potentiallyMultipleAas = await this.getAasFromAllRepositories(aasIdEncoded);
         if (potentiallyMultipleAas.isSuccess) {
             if (potentiallyMultipleAas.result!.length === 1) {
