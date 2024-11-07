@@ -22,7 +22,11 @@ export function CarbonFootprintVisualizations(props: { submodel: Submodel }) {
     const intl = useIntl();
 
     const pcfSubmodelElements = props.submodel.submodelElements?.filter((el) =>
-        hasSemanticId(el, SubmodelElementSemanticId.ProductCarbonFootprint),
+        hasSemanticId(
+            el,
+            SubmodelElementSemanticId.ProductCarbonFootprint,
+            SubmodelElementSemanticId.ProductCarbonFootprintIRDI,
+        ),
     ) as Array<SubmodelElementCollection> | undefined;
 
     if (pcfSubmodelElements === undefined || !pcfSubmodelElements.length) return <></>;

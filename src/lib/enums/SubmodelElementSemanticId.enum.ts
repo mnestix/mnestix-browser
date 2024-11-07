@@ -6,6 +6,7 @@ export enum SubmodelElementSemanticId {
     Document = 'https://admin-shell.io/vdi/2770/1/0/Document',
     DocumentIrdi = '0173-1#02-ABI500#001/0173-1#01-AHF579#001',
     ProductCarbonFootprint = '0173-1#01-AHE716#001',
+    ProductCarbonFootprintIRDI = 'https://admin-shell.io/idta/CarbonFootprint/ProductCarbonFootprint/0/9',
     TransportCarbonFootprint = '0173-1#01-AHE717#001',
     PCFLiveCyclePhase = '0173-1#02-ABG858#001',
     PCFQuantityOfMeasureForCalculation = '0173-1#02-ABG857#001',
