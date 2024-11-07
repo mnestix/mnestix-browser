@@ -23,10 +23,11 @@ import {
 } from 'lib/services/search-actions/searchActions';
 import { LocalizedError } from 'lib/util/LocalizedError';
 import {
-    SubmodelOrIdReference, useAasOriginSourceState,
+    SubmodelOrIdReference,
+    useAasOriginSourceState,
     useAasState,
     useRegistryAasState,
-    useSubmodelState
+    useSubmodelState,
 } from 'components/contexts/CurrentAasContext';
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 import { TransferButton } from 'app/[locale]/viewer/_components/transfer/TransferButton';
@@ -181,7 +182,7 @@ export default function Page() {
                                 <FormattedMessage {...messages.mnestix.compareButton} />
                             </Button>
                         )}
-                        <TransferButton />
+                        {env.TRANSFER_FEATURE_FLAG && <TransferButton />}
                     </Box>
                     <AASOverviewCard
                         aas={aasFromContext ?? null}

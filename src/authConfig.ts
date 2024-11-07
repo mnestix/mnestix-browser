@@ -3,32 +3,18 @@ import KeycloakProvider from 'next-auth/providers/keycloak';
 import AzureADProvider from 'next-auth/providers/azure-ad';
 import type { JWT } from 'next-auth/jwt';
 
-declare global {
-    interface Window {
-        _env_: {
-            NEXT_PUBLIC_AD_CLIENT_ID: string;
-            NEXT_PUBLIC_AD_TENANT_ID: string;
-            NEXT_PUBLIC_APPLICATION_ID_URI: string;
-            NEXT_PUBLIC_LOCK_TIMESERIES_PERIOD_FEATURE_FLAG: boolean;
-            NEXT_PUBLIC_USE_AUTHENTICATION_FEATURE_FLAG: boolean;
-            NEXT_PUBLIC_USE_COMPARISON_FEATURE_FLAG: boolean;
-            NEXT_PUBLIC_USE_AAS_LIST_FEATURE_FLAG: boolean;
-            NEXT_PUBLIC_BASYX_API_URL: string;
-            NEXT_PUBLIC_BACKEND_API_URL: string;
-        };
-    }
-}
-
 const isEmptyOrWhiteSpace = (input: string | undefined) => {
     return !input || input.trim() === '';
-}
+};
 
 const keycloakEnabled = (process.env.KEYCLOAK_ENABLED || 'false').toLowerCase() === 'true'.toLowerCase();
 const keycloakLocalUrl = process.env.KEYCLOAK_LOCAL_URL;
 const keycloakIssuer = process.env.KEYCLOAK_ISSUER;
 const serverUrlFromConfig = isEmptyOrWhiteSpace(keycloakLocalUrl) ? keycloakIssuer : keycloakLocalUrl;
 const realm = process.env.KEYCLOAK_REALM;
-const requestedResource = process.env.APPLICATION_ID_URI?.endsWith('/') ? process.env.APPLICATION_ID_URI : `${process.env.APPLICATION_ID_URI}/`;
+const requestedResource = process.env.APPLICATION_ID_URI?.endsWith('/')
+    ? process.env.APPLICATION_ID_URI
+    : `${process.env.APPLICATION_ID_URI}/`;
 
 export const authOptions: AuthOptions = {
     providers: [
@@ -72,7 +58,7 @@ export const authOptions: AuthOptions = {
                 return token;
             } else if (nowTimeStamp < (token.expires_at as number)) {
                 return token;
-            } 
+            }
 
             if (!keycloakEnabled) return token;
 
@@ -91,7 +77,6 @@ export const authOptions: AuthOptions = {
         },
     },
 };
-
 
 const refreshAccessToken = async (token: JWT) => {
     const resp = await fetch(`${keycloakIssuer}/realms/${realm}/protocol/openid-connect/token`, {
@@ -114,4 +99,4 @@ const refreshAccessToken = async (token: JWT) => {
         expires_at: Math.floor(Date.now() / 1000) + refreshToken.expires_in,
         refresh_token: refreshToken.refresh_token,
     };
-}
+};
