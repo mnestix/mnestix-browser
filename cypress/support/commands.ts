@@ -169,6 +169,9 @@ Cypress.Commands.add('uploadThumbnailToAas', (aasId: string) => {
                     '/asset-information/thumbnail?fileName=test_thumbnail.png',
                 body: formData,
                 encoding: 'binary',
+                headers: {
+                    ApiKey: Cypress.env('MNESTIX_API_KEY'),
+                }
             });
         });
 });
