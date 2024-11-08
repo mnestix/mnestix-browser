@@ -1,103 +1,131 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, Button, Skeleton, Typography } from '@mui/material';
-import { useAasState, useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { messages } from 'lib/i18n/localization';
 import { decodeBase64, safeBase64Decode } from 'lib/util/Base64Util';
 import { ArrowForward } from '@mui/icons-material';
 import { showError } from 'lib/util/ErrorHandlerUtil';
-import { AssetAdministrationShell, LangStringNameType, Reference } from '@aas-core-works/aas-core3.0-typescript/types';
+import { LangStringNameType, Reference } from '@aas-core-works/aas-core3.0-typescript/types';
 import { useIsMobile } from 'lib/hooks/UseBreakpoints';
 import { getTranslationText } from 'lib/util/SubmodelResolverUtil';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { SubmodelsOverviewCard } from '../_components/SubmodelsOverviewCard';
 import { AASOverviewCard } from 'app/[locale]/viewer/_components/AASOverviewCard';
-import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useEnv } from 'app/env/provider';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
-import { performRegistryAasSearch } from 'lib/services/searchUtilActions/searchActions';
-import { performSearchAasFromAllRepositories } from 'lib/services/MultipleRepositorySearch/MultipleRepositorySearchActions';
+import {
+    getAasFromRepository,
+    performFullAasSearch,
+    performSubmodelFullSearch,
+} from 'lib/services/search-actions/searchActions';
+import { LocalizedError } from 'lib/util/LocalizedError';
+import {
+    SubmodelOrIdReference,
+    useAasOriginSourceState,
+    useAasState,
+    useRegistryAasState,
+    useSubmodelState,
+} from 'components/contexts/CurrentAasContext';
+import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
+import { TransferButton } from 'app/[locale]/viewer/_components/transfer/TransferButton';
 
 export default function Page() {
     const navigate = useRouter();
     const searchParams = useParams<{ base64AasId: string }>();
     const base64AasId = searchParams.base64AasId;
-    const [submodelReferences, setSubmodelReferences] = useState<Reference[]>();
-    const [productImage, setProductImage] = useState<string>();
+    const aasIdDecoded = safeBase64Decode(base64AasId);
     const [isLoadingAas, setIsLoadingAas] = useState(false);
     const notificationSpawner = useNotificationSpawner();
     const isMobile = useIsMobile();
     const intl = useIntl();
     const env = useEnv();
-    const { repositoryClient } = useApis();
-    const [aas, setAas] = useAasState();
-    const [, setRegistryAasData] = useRegistryAasState();
     const encodedRepoUrl = useSearchParams().get('repoUrl');
     const repoUrl = encodedRepoUrl ? decodeURI(encodedRepoUrl) : undefined;
+    const [aasOriginUrl, setAasOriginUrl] = useAasOriginSourceState();
+    const [aasFromContext, setAasFromContext] = useAasState();
+    const [submodels, setSubmodels] = useSubmodelState();
+    const [isSubmodelsLoading, setIsSubmodelsLoading] = useState(true);
+    const [registryAasData] = useRegistryAasState();
 
     useAsyncEffect(async () => {
-        await fetchAas();
-    }, [base64AasId, env]);
+        await fetchSubmodels();
+    }, [aasFromContext]);
 
-    async function fetchAas() {
-        setIsLoadingAas(true);
+    useEffect(() => {
+        return () => {
+            setSubmodels(new Array<SubmodelOrIdReference>());
+        };
+    }, []);
 
-        if (aas) {
-            setAasData(aas);
-            setIsLoadingAas(false);
+    useAsyncEffect(async () => {
+        if (aasFromContext) {
             return;
         }
+        setIsLoadingAas(true);
+        await loadAasContent();
+        setIsLoadingAas(false);
+    }, [base64AasId, env]);
 
-        try {
-            const aasIdDecoded = safeBase64Decode(base64AasId);
-            const registrySearchResult = await performRegistryAasSearch(aasIdDecoded);
-
-            if (registrySearchResult) {
-                setAas(registrySearchResult.registryAas as AssetAdministrationShell);
-                setRegistryAasData({
-                    submodelDescriptors: registrySearchResult?.registryAasData?.submodelDescriptors,
-                    aasRegistryRepositoryOrigin: registrySearchResult?.registryAasData?.aasRegistryRepositoryOrigin,
-                });
-                setAasData(registrySearchResult.registryAas as AssetAdministrationShell);
-            } else {
-                let fetchedAas;
-                try {
-                    fetchedAas = await repositoryClient.getAssetAdministrationShellById(
-                        base64AasId,
-                        undefined,
-                        repoUrl,
-                    );
-                } catch (e) {
-                    const repoSearchResults = await performSearchAasFromAllRepositories(base64AasId);
-                    if (repoSearchResults.length > 1) {
-                        navigate.push(`/viewer/discovery?aasId=${encodeURI(decodeBase64(base64AasId))}`);
-                    }
-                    fetchedAas = repoSearchResults[0].aas;
-                }
-
-                setAas(fetchedAas);
-                setAasData(fetchedAas);
+    async function loadAasContent() {
+        if (repoUrl) {
+            const response = await getAasFromRepository(aasIdDecoded, repoUrl);
+            if (response.isSuccess) {
+                setAasOriginUrl(repoUrl);
+                setAasFromContext(response.result);
+                return;
             }
-        } catch (e) {
-            showError(e, notificationSpawner);
         }
 
-        setIsLoadingAas(false);
+        const { isSuccess, result } = await performFullAasSearch(aasIdDecoded);
+        if (!isSuccess) {
+            showError(new LocalizedError(messages.mnestix.aasUrlNotFound), notificationSpawner);
+        } else if (result.aas) {
+            setAasOriginUrl(result.aasData?.aasRepositoryOrigin ?? null);
+            setAasFromContext(result.aas);
+        } else {
+            navigate.push(result.redirectUrl);
+        }
     }
 
-    const setAasData = (shell: AssetAdministrationShell) => {
-        const productImageString = shell.assetInformation?.defaultThumbnail?.path;
-        if (productImageString) {
-            setProductImage(productImageString);
+    async function fetchSubmodels() {
+        setIsSubmodelsLoading(true);
+        if (aasFromContext?.submodels) {
+            await Promise.all(
+                aasFromContext.submodels.map(async (smRef, i) => {
+                    const newSm = await fetchSingleSubmodel(smRef, registryAasData?.submodelDescriptors?.[i]);
+                    setSubmodels((submodels) => {
+                        const exists = submodels.some((sm) => sm.id === newSm.id);
+                        if (exists) return submodels;
+                        return [...submodels, newSm];
+                    });
+                }),
+            );
         }
-        setSubmodelReferences(shell.submodels ?? undefined);
-    };
+        setIsSubmodelsLoading(false);
+    }
+
+    async function fetchSingleSubmodel(
+        reference: Reference,
+        smDescriptor?: SubmodelDescriptor,
+    ): Promise<SubmodelOrIdReference> {
+        const submodelResponse = await performSubmodelFullSearch(reference, smDescriptor);
+        if (!submodelResponse.isSuccess)
+            return {
+                id: reference.keys[0].value,
+                error: 'Submodel failed to load', // TODO error localization
+            };
+
+        return {
+            id: submodelResponse.result.id,
+            submodel: submodelResponse.result,
+        };
+    }
 
     const startComparison = () => {
-        navigate.push(`/compare?aasId=${encodeURIComponent(aas?.id ?? '')}`);
+        navigate.push(`/compare?aasId=${encodeURIComponent(aasIdDecoded)}`);
     };
 
     const pageStyles = {
@@ -121,7 +149,7 @@ export default function Page() {
 
     return (
         <Box sx={pageStyles}>
-            {aas || isLoadingAas ? (
+            {aasFromContext || isLoadingAas ? (
                 <Box sx={viewerStyles}>
                     <Box display="flex" flexDirection="row" alignContent="flex-end">
                         <Typography
@@ -138,25 +166,34 @@ export default function Page() {
                         >
                             {isLoadingAas ? (
                                 <Skeleton width="40%" sx={{ margin: '0 auto' }} />
-                            ) : aas?.displayName ? (
-                                getTranslationText(aas?.displayName as LangStringNameType[], intl)
+                            ) : aasFromContext?.displayName ? (
+                                getTranslationText(aasFromContext?.displayName as LangStringNameType[], intl)
                             ) : (
                                 ''
                             )}
                         </Typography>
                         {env.COMPARISON_FEATURE_FLAG && !isMobile && (
-                            <Button variant="contained" onClick={startComparison} data-testid="detail-compare-button">
+                            <Button
+                                sx={{ mr: 2 }}
+                                variant="contained"
+                                onClick={startComparison}
+                                data-testid="detail-compare-button"
+                            >
                                 <FormattedMessage {...messages.mnestix.compareButton} />
                             </Button>
                         )}
+                        {env.TRANSFER_FEATURE_FLAG && <TransferButton />}
                     </Box>
                     <AASOverviewCard
-                        aas={aas}
-                        productImage={productImage}
+                        aas={aasFromContext ?? null}
+                        productImage={aasFromContext?.assetInformation?.defaultThumbnail?.path}
                         isLoading={isLoadingAas}
                         isAccordion={isMobile}
+                        repositoryURL={aasOriginUrl}
                     />
-                    <SubmodelsOverviewCard smReferences={submodelReferences} />
+                    {aasFromContext?.submodels && aasFromContext.submodels.length > 0 && (
+                        <SubmodelsOverviewCard submodelIds={submodels} submodelsLoading={isSubmodelsLoading} />
+                    )}
                 </Box>
             ) : (
                 <>

@@ -7,8 +7,12 @@ import { useEffect, useState } from 'react';
 import { showError } from 'lib/util/ErrorHandlerUtil';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { useParams } from 'next/navigation';
-import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useEnv } from 'app/env/provider';
+import {
+    getSubmodelById,
+    getSubmodelReferencesFromShell,
+} from 'lib/services/repository-access/repositorySearchActions';
+import { getSubmodelDescriptorsById } from 'lib/services/submodelRegistryApiActions';
 
 type RelationShipDetailsModalProps = {
     readonly relationship: RelationshipElement;
@@ -25,28 +29,33 @@ export function RelationShipDetailsDialog(props: RelationShipDetailsModalProps) 
     const submodelId = relationship.second.keys[0]?.value;
 
     const [subIdShort, setSubIdShort] = useState<string>();
-    const { repositoryClient, submodelClient, submodelRegistryServiceClient } = useApis();
     const env = useEnv();
 
     useEffect(() => {
         async function _fetchSubmodels() {
             try {
-                const submodelRefs = (await repositoryClient.getSubmodelReferencesFromShell(
-                    base64AasId as string,
-                )) as Reference[];
+                const response = await getSubmodelReferencesFromShell(base64AasId as string);
+                let submodelRefs: Reference[];
+                if (response.isSuccess) submodelRefs = response.result;
+                else throw Error(response.message);
                 const submodels = [] as Submodel[];
-
                 for (const reference of submodelRefs) {
                     const id = reference.keys[0].value;
                     try {
-                        const submodelFromRegistry = env.SUBMODEL_REGISTRY_API_URL
-                            ? await submodelRegistryServiceClient.getSubmodelDescriptorsById(reference.keys[0].value)
-                            : null;
-                        submodels.push(submodelFromRegistry);
+                        if (env.SUBMODEL_REGISTRY_API_URL) {
+                            const response = await getSubmodelDescriptorsById(reference.keys[0].value);
+                            if (response.isSuccess) {
+                                if (response.result.id) {
+                                    const submodelResult = await getSubmodelById(response.result.id);
+                                    if (submodelResult.isSuccess) submodels.push(submodelResult.result);
+                                }
+                            } else throw new Error(response.message);
+                        }
                     } catch (e) {
                         // Submodel registry is not available or submodel not found there -> search in repo
                         if (e instanceof TypeError || (e instanceof Response && e.status === 404)) {
-                            submodels.push(await submodelClient.getSubmodelById(id));
+                            const submodelResult = await getSubmodelById(id);
+                            if (submodelResult.isSuccess) submodels.push(submodelResult.result);
                         } else {
                             console.error(e);
                         }

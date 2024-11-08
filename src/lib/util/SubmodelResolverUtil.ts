@@ -44,7 +44,7 @@ export function getArrayFromString(v: string): Array<string> {
 
 export function hasSemanticId(el: Submodel | ISubmodelElement, ...semanticIds: string[]) {
     for (const id of semanticIds) {
-        if (el.semanticId?.keys?.some((key) => idEquals(key.value, id))) return true;
+        if (el.semanticId?.keys?.some((key) => idEquals(key.value.trim(), id.trim()))) return true;
     }
     return false;
 }

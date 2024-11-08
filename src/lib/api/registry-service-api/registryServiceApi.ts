@@ -1,55 +1,44 @@
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { AssetAdministrationShellDescriptor } from 'lib/types/registryServiceTypes';
 import { IRegistryServiceApi } from 'lib/api/registry-service-api/registryServiceApiInterface';
-import { RegistryServiceApiInMemory } from 'lib/api/registry-service-api/registryServiceApiInMemory';
+import {
+    INullableAasRegistryEndpointEntries,
+    RegistryServiceApiInMemory,
+} from 'lib/api/registry-service-api/registryServiceApiInMemory';
+import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/types';
+import { ApiResponseWrapper } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 
 export class RegistryServiceApi implements IRegistryServiceApi {
     baseUrl: string;
 
     constructor(
-        protected _baseUrl: string = '',
         protected http: {
-            fetch(url: RequestInfo, init?: RequestInit): Promise<Response>;
+            fetch<T>(url: RequestInfo | URL, init?: RequestInit): Promise<ApiResponseWrapper<T>>;
         },
+        protected _baseUrl: string = '',
     ) {
         this.baseUrl = _baseUrl;
     }
 
     static create(
         _baseUrl: string | undefined,
-        mnestixFetch:
-            | {
-                  fetch(url: RequestInfo, init?: RequestInit | undefined): Promise<Response>;
-              }
-            | undefined,
+        mnestixFetch: {
+            fetch<T>(url: RequestInfo, init?: RequestInit | undefined): Promise<ApiResponseWrapper<T>>;
+        },
     ) {
-        return new RegistryServiceApi(_baseUrl, mnestixFetch ?? window);
+        return new RegistryServiceApi(mnestixFetch, _baseUrl);
     }
 
-    static createNull(options: { registryShellDescriptorEntries: AssetAdministrationShellDescriptor[] | null }) {
+    static createNull(options: {
+        registryShellDescriptorEntries: AssetAdministrationShellDescriptor[] | null;
+        shellsAvailableOnEndpoints: INullableAasRegistryEndpointEntries[] | null;
+    }) {
         return new RegistryServiceApiInMemory(options);
     }
 
-    async getAllAssetAdministrationShellDescriptors() {
-        const headers = {
-            Accept: 'application/json',
-        };
-
-        const url = new URL(`${this.baseUrl}/shell-descriptors`);
-
-        const response = await this.http.fetch(url.toString(), {
-            method: 'GET',
-            headers,
-        });
-
-        if (response.ok) {
-            return response.json();
-        } else {
-            throw response;
-        }
-    }
-
-    async getAssetAdministrationShellDescriptorById(aasId: string) {
+    async getAssetAdministrationShellDescriptorById(
+        aasId: string,
+    ): Promise<ApiResponseWrapper<AssetAdministrationShellDescriptor>> {
         const b64_aasId = encodeBase64(aasId);
 
         const headers = {
@@ -57,45 +46,43 @@ export class RegistryServiceApi implements IRegistryServiceApi {
             'Content-Type': 'application/json',
         };
 
-        const url = new URL(`${this.baseUrl}/shell-descriptors/${b64_aasId}`);
+        const url = new URL(`/shell-descriptors/${b64_aasId}`, this.baseUrl);
 
-        const response = await this.http.fetch(url.toString(), {
+        return this.http.fetch(url, {
             method: 'GET',
             headers,
         });
-
-        if (response.ok) {
-            return response.json();
-        } else {
-            throw response;
-        }
     }
 
-    async postAssetAdministrationShellDescriptor(shellDescriptor: AssetAdministrationShellDescriptor) {
+    async postAssetAdministrationShellDescriptor(
+        shellDescriptor: AssetAdministrationShellDescriptor,
+    ): Promise<ApiResponseWrapper<void>> {
         const headers = {
             Accept: 'application/json',
             'Content-Type': 'application/json',
         };
 
-        const url = new URL(`${this.baseUrl}/shell-descriptors`);
+        const url = new URL('/shell-descriptors', this.baseUrl);
 
-        const response = await this.http.fetch(url.toString(), {
+        return await this.http.fetch(url.toString(), {
             method: 'POST',
             headers,
             body: JSON.stringify(shellDescriptor),
         });
+    }
 
-        if (response.ok) {
-            return response.json();
-        } else {
-            throw response;
-        }
+    async getAssetAdministrationShellFromEndpoint(
+        endpoint: URL,
+    ): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
+        return this.http.fetch(endpoint.toString(), {
+            method: 'GET',
+        });
     }
 
     async putAssetAdministrationShellDescriptorById(
         aasId: string,
         shellDescriptor: AssetAdministrationShellDescriptor,
-    ) {
+    ): Promise<ApiResponseWrapper<AssetAdministrationShellDescriptor>> {
         const b64_aasId = encodeBase64(aasId);
 
         const headers = {
@@ -103,34 +90,12 @@ export class RegistryServiceApi implements IRegistryServiceApi {
             'Content-Type': 'application/json',
         };
 
-        const url = new URL(`${this.baseUrl}/shell-descriptors/${b64_aasId}`);
+        const url = new URL(`/shell-descriptors/${b64_aasId}`, this.baseUrl);
 
-        const response = await this.http.fetch(url.toString(), {
+        return this.http.fetch(url, {
             method: 'PUT',
             headers,
             body: JSON.stringify(shellDescriptor),
         });
-
-        if (response.ok) {
-            return response.json();
-        } else {
-            throw response;
-        }
-    }
-
-    async deleteAssetAdministrationShellDescriptorById(aasId: string) {
-        const b64_aasId = encodeBase64(aasId);
-
-        const url = new URL(`${this.baseUrl}/shell-descriptors/${b64_aasId}`);
-
-        const response = await this.http.fetch(url.toString(), {
-            method: 'DELETE',
-        });
-
-        if (response.ok) {
-            return response;
-        } else {
-            throw response;
-        }
     }
 }

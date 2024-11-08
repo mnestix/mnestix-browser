@@ -1,5 +1,4 @@
 'use client';
-import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
@@ -8,19 +7,23 @@ import { showError } from 'lib/util/ErrorHandlerUtil';
 import { NotFoundError } from 'lib/errors/NotFoundError';
 import { useState } from 'react';
 import { CenteredLoadingSpinner } from 'components/basics/CenteredLoadingSpinner';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import AssetNotFound from 'components/basics/AssetNotFound';
-import { useAasState } from 'components/contexts/CurrentAasContext';
+import { useAasOriginSourceState, useAasState } from 'components/contexts/CurrentAasContext';
+import { performDiscoveryAasSearch } from 'lib/services/search-actions/searchActions';
+import { wrapSuccess } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
+import { LocalizedError } from 'lib/util/LocalizedError';
+import { messages } from 'lib/i18n/localization';
 
 export const RedirectToViewer = () => {
-    const { discoveryServiceClient } = useApis();
     const navigate = useRouter();
     const searchParams = useSearchParams();
     const assetIdParam = searchParams.get('assetId')?.toString();
     const notificationSpawner = useNotificationSpawner();
     const [isLoading, setIsLoading] = useState(false);
     const [isError, setIsError] = useState(false);
-    const [ ,setAas] = useAasState();
+    const [, setAas] = useAasState();
+    const [, setAasOriginUrl] = useAasOriginSourceState();
 
     useAsyncEffect(async () => {
         try {
@@ -34,10 +37,14 @@ export const RedirectToViewer = () => {
     }, []);
 
     async function navigateToViewerOfAsset(assetId: string | undefined): Promise<void> {
-        const aasIds = await getAasIdsOfAsset(assetId);
-        assertAnAasIdExists(aasIds);
+        const { isSuccess, result: aasIds } = await getAasIdsOfAsset(assetId);
+
+        if (!isSuccess) throw new LocalizedError(messages.mnestix.aasUrlNotFound);
+
+        assertAtLeastOneAasIdExists(aasIds);
         const targetUrl = determineViewerTargetUrl(aasIds);
         setAas(null);
+        setAasOriginUrl(null)
         navigate.replace(targetUrl);
     }
 
@@ -45,10 +52,12 @@ export const RedirectToViewer = () => {
         if (!assetId) {
             throw new NotFoundError();
         }
-        return (await discoveryServiceClient.getAasIdsByAssetId(assetId)).result;
+        const response = await performDiscoveryAasSearch(assetId);
+        if (response.isSuccess) return response;
+        return wrapSuccess([]);
     }
 
-    function assertAnAasIdExists(aasIds: string[]) {
+    function assertAtLeastOneAasIdExists(aasIds: string[]) {
         if (aasIds.length === 0) {
             throw new NotFoundError();
         }
