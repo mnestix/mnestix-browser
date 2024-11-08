@@ -1,3 +1,6 @@
+/**
+ * @deprecated Please use t() of useTranslations(... instead as shown in TimeSeriesVisualizations.tsx
+ */
 export const enMnestix = {
     welcome: 'Welcome to Mnestix',
     digitalTwinMadeEasy: 'Digital Twin made easy.',
@@ -19,7 +22,7 @@ export const enMnestix = {
     unexpectedError: 'Unexpected error',
     unauthorizedError: {
         title: 'Unauthorized access',
-        content: 'You don\'t have access to this AAS. You may login or contact your administrator to get access.',
+        content: 'You don`t have access to this AAS. You may login or contact your administrator to get access.',
     },
     settings: 'Settings',
     idStructure: 'ID structure',
@@ -200,6 +203,24 @@ export const enMnestix = {
     compareCollection: {
         show: '{idShort}',
         hide: 'Hide',
+    },
+    transfer: {
+        title: 'Import',
+        subtitle: 'To import this AAS to another repository, fill out the following steps.',
+        aasRepository: 'AAS Repository',
+        submodelRepository: 'Submodel Repository',
+        chooseRepository: 'Choose AAS Repository',
+        repositoryRequired: 'AAS Repository is required',
+        repositoryLabel: 'List of AAS Repositories',
+        repositoryApiKey: 'AAS Repository ApiKey',
+        submodelRepositoryApiKey: 'Submodel Repository ApiKey',
+        chooseSubmodelRepository: 'Choose Submodel Repository (optional)',
+        submodelRepositoryLabel: 'List of Submodel Repositories',
+        useAasRepository: 'Use AAS Repository',
+        successfullToast: 'Transfer of AAS successful',
+        errorToast: 'Transfer of AAS not successful',
+        partiallyFailedToast: 'Failed to transfer element',
+        warningToast: 'AAS was only partially transferred.'
     },
     aasList: {
         header: 'AAS List',

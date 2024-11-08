@@ -10,6 +10,7 @@ services:
       CYPRESS_SUBMODEL_REPO_API_URL: 'http://mnestix-api:5064/repo'
       CYPRESS_MNESTIX_BACKEND_API_URL: 'http://mnestix-api:5064'
       CYPRESS_AAS_DISCOVERY_API_URL: 'http://mnestix-api:5064/discovery'
+      MNESTIX_BACKEND_API_KEY: ${MNESTIX_BACKEND_API_KEY:-verySecureApiKey}
       ELECTRON_ENABLE_LOGGING: 1
     volumes:
       - ./cypress-artifacts/screenshots:/cypress_Tests/cypress/screenshots

@@ -10,13 +10,22 @@ import { Typography } from '@mui/material';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { IDiscoveryListEntry } from 'lib/types/DiscoveryListEntry';
 import AssetNotFound from 'components/basics/AssetNotFound';
-import { isAasAvailableInRepo } from 'lib/util/checkAasAvailabilityUtil';
-import { useEnv } from 'app/env/provider';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import ListHeader from 'components/basics/ListHeader';
-import { performDiscoveryAasSearch, performRegistryAasSearch } from 'lib/services/searchUtilActions/searchActions';
-import { performSearchAasFromAllRepositories } from 'lib/services/MultipleRepositorySearch/MultipleRepositorySearchActions';
-import { RepoSearchResult } from 'lib/services/MultipleRepositorySearch/MultipleRepositorySearchService';
+import { performDiscoveryAasSearch, performRegistryAasSearch } from 'lib/services/search-actions/searchActions';
+import { performSearchAasFromAllRepositories } from 'lib/services/repository-access/repositorySearchActions';
+import { RepoSearchResult } from 'lib/services/repository-access/RepositorySearchService';
+
+async function getRepositoryUrl(aasId: string): Promise<string | undefined> {
+    const registrySearchResult = await performRegistryAasSearch(aasId);
+    if (registrySearchResult.isSuccess) return registrySearchResult?.result.aasData?.aasRepositoryOrigin;
+
+    const allRepositorySearchResult = await performSearchAasFromAllRepositories(encodeBase64(aasId));
+    if (allRepositorySearchResult.isSuccess) return allRepositorySearchResult.result[0].location;
+
+    console.warn('Did not find the URL of the AAS');
+    return undefined;
+}
 
 export const DiscoveryListView = () => {
     const [isLoadingList, setIsLoadingList] = useState(false);
@@ -28,53 +37,33 @@ export const DiscoveryListView = () => {
     const assetId = encodedAssetId ? decodeURI(encodedAssetId) : undefined;
     const encodedAasId = searchParams.get('aasId');
     const aasId = encodedAasId ? decodeURI(encodedAasId) : undefined;
-    const env = useEnv();
 
     useAsyncEffect(async () => {
         setIsLoadingList(true);
         const entryList: IDiscoveryListEntry[] = [];
 
         if (assetId) {
-            const aasIds = await performDiscoveryAasSearch(assetId);
+            const response = await performDiscoveryAasSearch(assetId);
 
-            if (!aasIds || aasIds.length === 0) {
+            if (!response.isSuccess || response.result.length === 0) {
                 setIsLoadingList(false);
                 return;
             }
-
+            const aasIds = response.result!;
             await Promise.all(
                 aasIds.map(async (aasId) => {
-                    try {
-                        const registrySearchResult = await performRegistryAasSearch(aasId);
-
-                        let aasRepositoryUrl = registrySearchResult?.registryAasData?.aasRegistryRepositoryOrigin;
-                        if (!aasRepositoryUrl) {
-                            aasRepositoryUrl = (await isAasAvailableInRepo(aasId, env.AAS_REPO_API_URL))
-                                ? env.AAS_REPO_API_URL
-                                : undefined;
-                        }
-
-                        entryList.push({
-                            aasId: aasId,
-                            repositoryUrl: aasRepositoryUrl,
-                        });
-                    } catch (e) {
-                        console.warn(e);
-                        entryList.push({
-                            aasId: aasId,
-                            repositoryUrl: undefined,
-                        });
-                    }
+                    const repositoryUrl = await getRepositoryUrl(aasId);
+                    entryList.push({
+                        aasId: aasId,
+                        repositoryUrl: repositoryUrl,
+                    });
                 }),
             );
         } else if (aasId) {
+            const response = await performSearchAasFromAllRepositories(encodeBase64(aasId));
             let searchResults: RepoSearchResult[] = [];
-            try {
-                searchResults = await performSearchAasFromAllRepositories(encodeBase64(aasId));
-            } catch (e) {
-                setIsError(true);
-            }
-
+            if (response.isSuccess) searchResults = response.result;
+            else setIsError(true);
             for (const searchResult of searchResults) {
                 entryList.push({
                     aasId: searchResult.aas.id,

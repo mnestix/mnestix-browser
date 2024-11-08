@@ -5,27 +5,26 @@ import { FormattedMessage } from 'react-intl';
 import { ManualAasInput } from 'app/[locale]/_components/ManualAasInput';
 import { QrScanner } from 'app/[locale]/_components/QrScanner';
 import { useRouter } from 'next/navigation';
-import { useAasState, useRegistryAasState } from 'components/contexts/CurrentAasContext';
+import { useAasOriginSourceState, useAasState, useRegistryAasState } from 'components/contexts/CurrentAasContext';
 import { LocalizedError } from 'lib/util/LocalizedError';
-import { performFullAasSearch } from 'lib/services/searchUtilActions/searchActions';
+import { performFullAasSearch } from 'lib/services/search-actions/searchActions';
 
 export const DashboardInput = () => {
     const [, setAas] = useAasState();
     const [, setRegistryAasData] = useRegistryAasState();
+    const [, setAasOriginUrl] = useAasOriginSourceState();
     const navigate = useRouter();
 
-    const browseAasUrl = async (val: string) => {
-        try {
-            const aasSearch = await performFullAasSearch(val);
+    const browseAasUrl = async (searchString: string) => {
+        const { isSuccess, result }  = await performFullAasSearch(searchString.trim());
+        if (!isSuccess) throw new LocalizedError(messages.mnestix.aasUrlNotFound);
 
-            if (aasSearch.aas) {
-                setAas(aasSearch.aas);
-                setRegistryAasData(aasSearch.aasData);
-            }
-            navigate.push(aasSearch.redirectUrl);
-        } catch (e) {
-            throw new LocalizedError(messages.mnestix.aasUrlNotFound);
+        if (result.aas) {
+            setAas(result.aas);
+            setRegistryAasData(result.aasData);
+            setAasOriginUrl(result.aasData?.aasRepositoryOrigin ?? null);
         }
+        navigate.push(result.redirectUrl);
     };
 
     return (

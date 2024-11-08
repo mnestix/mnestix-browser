@@ -7,6 +7,7 @@ import { CenteredLoadingSpinner } from 'components/basics/CenteredLoadingSpinner
 const initialValues: EnvironmentalVariables = {
     AAS_LIST_FEATURE_FLAG: false,
     COMPARISON_FEATURE_FLAG: false,
+    TRANSFER_FEATURE_FLAG: false,
     AUTHENTICATION_FEATURE_FLAG: false,
     LOCK_TIMESERIES_PERIOD_FEATURE_FLAG: false,
     AD_CLIENT_ID: '',
@@ -22,7 +23,7 @@ const initialValues: EnvironmentalVariables = {
     THEME_SECONDARY_COLOR: undefined,
     THEME_BASE64_LOGO: undefined,
     THEME_LOGO_URL: undefined,
-    KEYCLOAK_ENABLED: false
+    KEYCLOAK_ENABLED: false,
 };
 
 export const EnvContext = createContext(initialValues);

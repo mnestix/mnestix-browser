@@ -15,12 +15,13 @@ import { showError } from 'lib/util/ErrorHandlerUtil';
 import TemplatesInfoGraphic from 'assets/templates_infographic.svg';
 import EmptyDefaultTemplate from 'assets/submodels/defaultEmptySubmodel.json';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
-import { useApis } from 'components/azureAuthentication/ApiProvider';
 import { useAuth } from 'lib/hooks/UseAuth';
 import { Qualifier, Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
 import { sortWithNullableValues } from 'lib/util/SortingUtil';
 import { useEnv } from 'app/env/provider';
 import { useRouter } from 'next/navigation';
+import { createCustomSubmodelTemplate } from 'lib/services/templateApiWithAuthActions';
+import { deleteCustomTemplateById, getCustomTemplates, getDefaultTemplates } from 'lib/services/templatesApiActions';
 
 enum SpecialDefaultTabIds {
     All = 'all',
@@ -28,7 +29,6 @@ enum SpecialDefaultTabIds {
 }
 
 export default function Page() {
-    const { templateClientWithAuth, templatesClient } = useApis();
     const env = useEnv();
     const intl = useIntl();
     const navigate = useRouter();
@@ -49,7 +49,7 @@ export default function Page() {
     const bearerToken = auth.getBearerToken();
     const fetchAll = async () => {
         // fetching defaults first
-        const _defaults = await templatesClient.getDefaults(bearerToken);
+        const _defaults = await getDefaultTemplates(bearerToken);
         _defaults.sort((a: Submodel, b: Submodel) => sortWithNullableValues(a.idShort, b.idShort));
         setDefaults(_defaults);
         const _defaultItems: TabSelectorItem[] = [
@@ -80,7 +80,7 @@ export default function Page() {
 
     const fetchCustoms = async (_defaultItems: Array<TabSelectorItem>) => {
         const _customTemplateItems: CustomTemplateItemType[] = [];
-        const customs = (await templatesClient.getCustoms(bearerToken)) as Submodel[];
+        const customs = (await getCustomTemplates(bearerToken)) as Submodel[];
         customs?.forEach((customSubmodel: Submodel) => {
             // get displayName out of Qualifiers or use idShort of Submodel
             const displayName =
@@ -173,7 +173,7 @@ export default function Page() {
     const handleCreateTemplateClick = async (template?: Submodel) => {
         setIsCreatingTemplate(true);
         try {
-            const newId = await templateClientWithAuth.createCustomSubmodel(template || EmptyDefaultTemplate);
+            const newId = await createCustomSubmodelTemplate(template || EmptyDefaultTemplate);
             setIsCreatingTemplate(false);
             navigate.push(`/templates/${encodeURIComponent(newId)}`);
         } catch (e) {
@@ -185,7 +185,7 @@ export default function Page() {
     const deleteTemplate = async (item: CustomTemplateItemType) => {
         if (!item.id) return;
         try {
-            await templatesClient.deleteCustomById(bearerToken, item.id);
+            await deleteCustomTemplateById(bearerToken, item.id);
             notificationSpawner.spawn({
                 message: intl.formatMessage(messages.mnestix.templateDeletedSuccessfully),
                 severity: 'success',

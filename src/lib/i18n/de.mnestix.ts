@@ -1,3 +1,6 @@
+/**
+ * @deprecated Please use t() of useTranslations(... instead as shown in TimeSeriesVisualizations.tsx
+ */
 export const deMnestix = {
     welcome: 'Willkommen bei Mnestix',
     digitalTwinMadeEasy: 'Digitaler Zwilling leicht gemacht.',
@@ -203,6 +206,24 @@ export const deMnestix = {
     compareCollection: {
         show: '{idShort}',
         hide: 'Verbergen',
+    },
+    transfer: {
+        title: 'Import',
+        subtitle: 'Füllen sie die folgenden Schritte aus, um eine Verwaltungsschale in ein anderes Repository zu importieren',
+        aasRepository: 'AAS Repository',
+        submodelRepository: 'Submodel Repository',
+        chooseRepository: 'AAS Repository auswählen',
+        repositoryLabel: 'Liste der AAS Repositories',
+        repositoryRequired: 'AAS Repository wird benötigt',
+        repositoryApiKey: 'AAS Repository ApiKey',
+        submodelRepositoryApiKey: 'Submodel Repository ApiKey',
+        chooseSubmodelRepository: 'Submodel Repository auswählen (optional)',
+        submodelRepositoryLabel: 'Liste der Submodel Repositories',
+        useAasRepository: 'AAS Repository verwenden',
+        successfullToast: 'Transfer der AAS erfolgreich',
+        errorToast: 'Transfer der AAS nicht erfolgreich',
+        partiallyFailedToast: 'Teil des Transfers fehlgeschlagen',
+        warningToast: 'Transfer der AAS nur teilweise erfolgreich.'
     },
     aasList: {
         header: 'AAS List',

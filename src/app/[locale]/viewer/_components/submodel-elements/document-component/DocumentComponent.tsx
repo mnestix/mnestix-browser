@@ -15,10 +15,11 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { getTranslationText, hasSemanticId } from 'lib/util/SubmodelResolverUtil';
 import { DocumentDetailsDialog } from './DocumentDetailsDialog';
 import { isValidUrl } from 'lib/util/UrlUtil';
-import { encodeBase64 } from 'lib/util/Base64Util';
+import { base64ToBlob, encodeBase64 } from 'lib/util/Base64Util';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
-import { useApis } from 'components/azureAuthentication/ApiProvider';
-import { SubmodelRepositoryApi } from 'lib/api/basyx-v3/api';
+import { getAttachmentFromSubmodelElement } from 'lib/services/repository-access/repositorySearchActions';
+import { isSuccessWithFile } from 'lib/util/apiResponseWrapper/apiResponseWrapperUtil';
+import { useAasOriginSourceState } from 'components/contexts/CurrentAasContext';
 
 enum DocumentSpecificSemanticId {
     DocumentVersion = 'https://admin-shell.io/vdi/2770/1/0/DocumentVersion',
@@ -82,10 +83,10 @@ export function DocumentComponent(props: MarkingsComponentProps) {
     const intl = useIntl();
     const [fileViewObject, setFileViewObject] = useState<FileViewObject>();
     const [detailsModalOpen, setDetailsModalOpen] = useState(false);
-    const { submodelClient } = useApis();
+    const [aasOriginUrl] = useAasOriginSourceState();
 
     useAsyncEffect(async () => {
-        setFileViewObject(await getFileViewObject(submodelClient));
+        setFileViewObject(await getFileViewObject());
     }, [props.submodelElement]);
 
     const handleDetailsClick = () => {
@@ -149,11 +150,7 @@ export function DocumentComponent(props: MarkingsComponentProps) {
         );
     }
 
-    async function getDigitalFile(
-        versionSubmodelEl: ISubmodelElement,
-        submodelElement: ISubmodelElement,
-        submodelClient: SubmodelRepositoryApi,
-    ) {
+    async function getDigitalFile(versionSubmodelEl: ISubmodelElement, submodelElement: ISubmodelElement) {
         const digitalFile = {
             digitalFileUrl: '',
             mimeType: '',
@@ -177,26 +174,25 @@ export function DocumentComponent(props: MarkingsComponentProps) {
                 '/attachment';
             digitalFile.mimeType = (versionSubmodelEl as File).contentType;
 
-            try {
-                const image = await submodelClient.getAttachmentFromSubmodelElement(
-                    props.submodelId,
-                    submodelElementPath,
+            const imageResponse = await getAttachmentFromSubmodelElement(
+                props.submodelId,
+                submodelElementPath,
+                aasOriginUrl,
+            );
+            if (!imageResponse.isSuccess) {
+                console.error('Image not found' + imageResponse.message);
+            } else if (isSuccessWithFile(imageResponse)) {
+                digitalFile.digitalFileUrl = URL.createObjectURL(
+                    base64ToBlob(imageResponse.result, imageResponse.fileType),
                 );
-                digitalFile.digitalFileUrl = URL.createObjectURL(image);
                 digitalFile.mimeType = (versionSubmodelEl as File).contentType;
-            } catch (e) {
-                console.error('Image not found', e);
             }
         }
 
         return digitalFile;
     }
 
-    async function getPreviewImageUrl(
-        versionSubmodelEl: ISubmodelElement,
-        submodelElement: ISubmodelElement,
-        submodelClient: SubmodelRepositoryApi,
-    ) {
+    async function getPreviewImageUrl(versionSubmodelEl: ISubmodelElement, submodelElement: ISubmodelElement) {
         let previewImgUrl;
 
         if (isValidUrl((versionSubmodelEl as File).value)) {
@@ -208,7 +204,7 @@ export function DocumentComponent(props: MarkingsComponentProps) {
                 submodelElement.idShort +
                 '.' +
                 findIdShortForLatestPreviewImage(submodelElement as SubmodelElementCollection);
-            
+
             previewImgUrl =
                 '/submodels/' +
                 encodeBase64(props.submodelId) +
@@ -216,21 +212,22 @@ export function DocumentComponent(props: MarkingsComponentProps) {
                 submodelElementPath +
                 '/attachment';
 
-            try {
-                const image = await submodelClient.getAttachmentFromSubmodelElement(
-                    props.submodelId,
-                    submodelElementPath,
-                );
-                previewImgUrl = URL.createObjectURL(image);
-            } catch (e) {
-                console.error('Image not found', e);
+            const imageResponse = await getAttachmentFromSubmodelElement(
+                props.submodelId,
+                submodelElementPath,
+                aasOriginUrl,
+            );
+            if (!imageResponse.isSuccess) {
+                console.error('Image not found' + imageResponse.message);
+            } else if (isSuccessWithFile(imageResponse)) {
+                previewImgUrl = URL.createObjectURL(base64ToBlob(imageResponse.result, imageResponse.fileType));
             }
         }
-        
+
         return previewImgUrl ?? '';
     }
 
-    async function getFileViewObject(submodelClient: SubmodelRepositoryApi): Promise<FileViewObject> {
+    async function getFileViewObject(): Promise<FileViewObject> {
         let fileViewObject: FileViewObject = {
             mimeType: '',
             title: props.submodelElement?.idShort ?? '',
@@ -285,7 +282,7 @@ export function DocumentComponent(props: MarkingsComponentProps) {
                 ) {
                     fileViewObject = {
                         ...fileViewObject,
-                        ...(await getDigitalFile(versionSubmodelEl, submodelElement, submodelClient)),
+                        ...(await getDigitalFile(versionSubmodelEl, submodelElement)),
                     };
                 }
                 // preview
@@ -297,11 +294,7 @@ export function DocumentComponent(props: MarkingsComponentProps) {
                         DocumentSpecificSemanticIdIrdiV2.PreviewFile,
                     )
                 ) {
-                    fileViewObject.previewImgUrl = await getPreviewImageUrl(
-                        versionSubmodelEl,
-                        submodelElement,
-                        submodelClient,
-                    );
+                    fileViewObject.previewImgUrl = await getPreviewImageUrl(versionSubmodelEl, submodelElement);
                 }
                 // organization name
                 if (

@@ -10,6 +10,8 @@ import qrAAS from '../fixtures/cypress_e2e/QrScannerMockData/cy_qrScannerAas.jso
 import qrSubmodels from '../fixtures/cypress_e2e/QrScannerMockData/cy_qrScannerNameplateSubmodel.json';
 import listAasMockData from '../fixtures/cypress_e2e/AasListMockData/cyListAasMockData.json';
 import listAasSubmodelMockData from '../fixtures/cypress_e2e/AasListMockData/cyListAasTechnicalDataSubmodel.json';
+import thumbnailAasMockData from '../fixtures/cypress_e2e/ThumbnailFileMockData/thumbnailAasMockData.json';
+import toBase64 from './base64-conversion';
 
 Cypress.Commands.add('setResolution', (res) => {
     if (Array.isArray(res)) {
@@ -20,11 +22,11 @@ Cypress.Commands.add('setResolution', (res) => {
 });
 
 Cypress.Commands.add('visitViewer', (aasId) => {
-    cy.visit('/viewer/' + btoa(aasId).replace(/=+$/g, ''));
+    cy.visit('/viewer/' + toBase64(aasId));
 });
 
-Cypress.Commands.add('getByTestId', (dataTestId) => {
-    cy.get('[data-testid=' + dataTestId + ']');
+Cypress.Commands.add('getByTestId', (dataTestId, option?) => {
+    cy.get('[data-testid=' + dataTestId + ']', option);
 });
 
 Cypress.Commands.add('findByTestId', { prevSubject: true }, (subject, dataTestId) => {
@@ -39,6 +41,7 @@ Cypress.Commands.add('repoRequest', (requestMethod, urlPath, requestBody) => {
             ApiKey: Cypress.env('MNESTIX_API_KEY'),
         },
         body: requestBody,
+        failOnStatusCode: false,
     });
 });
 
@@ -83,7 +86,7 @@ Cypress.Commands.add('deleteQrScannerMockData', () => {
 });
 
 Cypress.Commands.add('postTestAas', () => {
-    const encodedAasId = btoa(testAAS.id).replace(/=+$/g, '');
+    const encodedAasId = toBase64(testAAS.id);
     cy.repoRequest('POST', '/shells', testAAS);
     cy.postSubmodelToAas(encodedAasId, testDropdown, testDropdownSubRef);
     cy.postSubmodelToAas(encodedAasId, testBom, testBomSubRef);
@@ -104,7 +107,7 @@ Cypress.Commands.add('postSubmodelToAas', (base64EncodedAasId, submodelBody, sub
 });
 
 Cypress.Commands.add('deleteTestAasBomComponent', () => {
-    const encodedAasBomId = btoa(AASBomComponent.id).replace(/=+$/g, '');
+    const encodedAasBomId = toBase64(AASBomComponent.id);
     cy.repoRequest('DELETE', '/shells/' + encodedAasBomId, null);
 });
 
@@ -139,4 +142,41 @@ Cypress.Commands.add('callScannerCallback', (value: string) => {
 
 Cypress.Commands.add('isNotificationSent', (msg: string) => {
     cy.get('.MuiAlert-message').should('contain.text', msg);
+});
+
+Cypress.Commands.add('postTestThumbnailAas', () => {
+    cy.repoRequest('POST', '/shells', thumbnailAasMockData);
+});
+
+Cypress.Commands.add('deleteTestThumbnailAas', () => {
+    const encodedAasThumbnailMockData = btoa(thumbnailAasMockData.id).replace(/=+$/g, '');
+    cy.repoRequest('DELETE', '/shells/' + encodedAasThumbnailMockData, null);
+});
+
+Cypress.Commands.add('uploadThumbnailToAas', (aasId: string) => {
+    const encodedAasId = btoa(aasId).replace(/=+$/g, '');
+    cy.fixture('cypress_e2e/ThumbnailFileMockData/test_thumbnail.png', 'binary')
+        .then((binary) => Cypress.Blob.binaryStringToBlob(binary, 'image/png'))
+        .then((file: Blob) => {
+            const formData = new FormData();
+            formData.append('file', file);
+            cy.request({
+                method: 'PUT',
+                url:
+                    `${Cypress.env('AAS_REPO_API_URL')}` +
+                    '/shells/' +
+                    encodedAasId +
+                    '/asset-information/thumbnail?fileName=test_thumbnail.png',
+                body: formData,
+                encoding: 'binary',
+                headers: {
+                    ApiKey: Cypress.env('MNESTIX_API_KEY'),
+                }
+            });
+        });
+});
+
+Cypress.Commands.add('deleteThumbnailFromAas', (aasId: string) => {
+    const encodedAasId = btoa(aasId).replace(/=+$/g, '');
+    cy.repoRequest('DELETE', '/shells/' + encodedAasId + '/asset-information/thumbnail', null);
 });

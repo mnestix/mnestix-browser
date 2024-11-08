@@ -3,7 +3,10 @@ import { File, Property } from '@aas-core-works/aas-core3.0-typescript/types';
 import { useState } from 'react';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { isValidUrl } from 'lib/util/UrlUtil';
-import { useApis } from 'components/azureAuthentication/ApiProvider';
+import { getAttachmentFromSubmodelElement } from 'lib/services/repository-access/repositorySearchActions';
+import { base64ToBlob } from 'lib/util/Base64Util';
+import { isSuccessWithFile } from 'lib/util/apiResponseWrapper/apiResponseWrapperUtil';
+import { useAasOriginSourceState } from 'components/contexts/CurrentAasContext';
 
 type SingleMarkingsComponentProps = {
     readonly file?: File;
@@ -34,16 +37,18 @@ const StyledMarkingWrapper = styled(Box)(() => ({
 export function SingleMarkingsComponent(props: SingleMarkingsComponentProps) {
     const { file, name, additionalText, submodelId, idShortPath } = props;
     const [markingImage, setMarkingImage] = useState<string>();
-    const { submodelClient } = useApis();
+    const [aasOriginUrl] = useAasOriginSourceState();
 
     useAsyncEffect(async () => {
         if (!isValidUrl(file!.value)) {
-            try {
-                const fileIdShort = idShortPath + '.' + file?.idShort;
-                const image = await submodelClient.getAttachmentFromSubmodelElement(submodelId!, fileIdShort);
+            const fileIdShort = idShortPath + '.' + file?.idShort;
+            const response = await getAttachmentFromSubmodelElement(submodelId!, fileIdShort, aasOriginUrl);
+            let image: Blob;
+            if (isSuccessWithFile(response)) {
+                image = base64ToBlob(response.result, response.fileType);
                 setMarkingImage(URL.createObjectURL(image));
-            } catch (e) {
-                console.error('Image not found', e);
+            } else {
+                console.error('Image not found for file ID: ' + fileIdShort);
             }
         } else {
             if (file?.value) setMarkingImage(file.value);

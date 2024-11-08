@@ -18,10 +18,13 @@ type SubmodelElementComponentProps = {
     readonly submodelElementCollection: SubmodelElementCollection;
 };
 
-export function SubmodelElementCollectionComponent(props: SubmodelElementComponentProps) {
+export function SubmodelElementCollectionComponent({
+    submodelId,
+    submodelElementPath,
+    submodelElementCollection,
+}: SubmodelElementComponentProps) {
     const [isExpanded, setIsExpanded] = useState(false);
     const componentList: ReactNode[] = [];
-    const { submodelElementCollection } = props;
 
     if (
         !submodelElementCollection.value ||
@@ -36,8 +39,8 @@ export function SubmodelElementCollectionComponent(props: SubmodelElementCompone
                 key={index}
                 submodelElement={val}
                 hasDivider={!(index === 0)}
-                submodelId={props.submodelId}
-                submodelElementPath={props.submodelElementPath}
+                submodelId={submodelId}
+                submodelElementPath={submodelElementPath}
             />,
         );
     });

@@ -2,9 +2,7 @@ import { Entity, SubmodelElementCollection } from '@aas-core-works/aas-core3.0-t
 import { idEquals } from 'lib/util/IdValidationUtil';
 import { submodelElementCustomVisualizationMap } from '../../submodel-elements/SubmodelElementCustomVisualizationMap';
 import { Fragment } from 'react';
-import {
-    GenericSubmodelElementComponent
-} from '../../submodel-elements/generic-elements/GenericSubmodelElementComponent';
+import { GenericSubmodelElementComponent } from '../../submodel-elements/generic-elements/GenericSubmodelElementComponent';
 import { SubmodelDetailComponentProps } from 'app/[locale]/viewer/_components/submodel/SubmodelDetailComponentProps';
 
 export function GenericSubmodelDetailComponent(props: SubmodelDetailComponentProps) {

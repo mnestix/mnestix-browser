@@ -5,6 +5,8 @@ import 'cypress-msal-login';
 declare global {
     // eslint-disable-next-line @typescript-eslint/no-namespace
     namespace Cypress {
+        export type Options = Partial<Loggable & Timeoutable & Withinable & Shadow>;
+
         interface Chainable {
             /**
              * @description Set viewport size of the test.
@@ -21,8 +23,9 @@ declare global {
             /**
              * @description Get an element by its data-testid value.
              * @param {string} dataTestId - The data-testid of the element we want to get.
+             * @param option - Options passed to internal get method.
              */
-            getByTestId(dataTestId: string): Chainable;
+            getByTestId(dataTestId: string, option?: Options): Chainable;
 
             /**
              * @description Find an element by its data-testid value.
@@ -33,14 +36,10 @@ declare global {
             /**
              * @description Make a request to /repo/shells/base64EncodedAasId
              * @param requestMethod - The request method. For example PUT, GET, DELETE, ...
-             * @param base64EncodedAasId - The AAS to send the request to
+             * @param urlPath - Url path where the request will be sent
              * @param requestBody - The request body
              */
-            repoRequest(
-                requestMethod: string,
-                base64EncodedAasId: string,
-                requestBody: string | object | null,
-            ): Chainable;
+            repoRequest(requestMethod: string, urlPath: string, requestBody: string | object | null): Chainable;
 
             /**
              * @description Put the test AAS found under cypress/fixtures/ to the repo
@@ -88,7 +87,7 @@ declare global {
              * @description Deletes compare mock data into the repository
              */
             deleteCompareMockData(): Chainable;
-            
+
             /**
              * @description Posts compare mock data into the repository
              */
@@ -112,6 +111,14 @@ declare global {
              * @param msg The message to search for.
              */
             isNotificationSent(msg: string): Chainable;
+
+            postTestThumbnailAas(): Chainable;
+
+            deleteTestThumbnailAas(): Chainable;
+
+            uploadThumbnailToAas(aasId: string): Chainable;
+
+            deleteThumbnailFromAas(aasId: string): Chainable;
         }
     }
 }

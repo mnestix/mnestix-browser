@@ -1,8 +1,8 @@
 ﻿import { SubmodelSemanticId } from 'lib/enums/SubmodelSemanticId.enum';
-import { NameplateSorting } from './NameplateSorting';
+import { NameplateSorting } from 'app/[locale]/viewer/_components/submodel/sorting/NameplateSorting';
 import { ISubmodelElement, Submodel, SubmodelElementCollection } from '@aas-core-works/aas-core3.0-typescript/types';
 
-export function SubmodelSorting(submodel: Submodel | SubmodelElementCollection | undefined) {
+export function SortNameplateElements(submodel: Submodel | SubmodelElementCollection | undefined) {
     if (!submodel) {
         return;
     }
@@ -22,18 +22,18 @@ export function SubmodelSorting(submodel: Submodel | SubmodelElementCollection |
 
     // Sorting
     if (key === SubmodelSemanticId.Nameplate) {
-        SortSubmodels(submodels, NameplateSorting);
+        SortSubmodelElements(submodels, NameplateSorting);
     }
 
     // Recursive
     submodels.forEach((submodel) => {
         if (submodel instanceof SubmodelElementCollection) {
-            SubmodelSorting(submodel as SubmodelElementCollection);
+            SortNameplateElements(submodel as SubmodelElementCollection);
         }
     });
 }
 
-function SortSubmodels(submodels: ISubmodelElement[], idShortOrder: string[]) {
+function SortSubmodelElements(submodels: ISubmodelElement[], idShortOrder: string[]) {
     submodels.sort((a, b) => {
         const aIndex = idShortOrder.indexOf(a.idShort as string);
         const bIndex = idShortOrder.indexOf(b.idShort as string);

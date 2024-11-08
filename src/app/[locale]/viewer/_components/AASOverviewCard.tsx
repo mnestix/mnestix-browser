@@ -18,15 +18,13 @@ import { IconCircleWrapper } from 'components/basics/IconCircleWrapper';
 import { AssetIcon } from 'components/custom-icons/AssetIcon';
 import { ShellIcon } from 'components/custom-icons/ShellIcon';
 import { isValidUrl } from 'lib/util/UrlUtil';
-import { encodeBase64 } from 'lib/util/Base64Util';
+import { base64ToBlob, encodeBase64 } from 'lib/util/Base64Util';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { useRouter } from 'next/navigation';
-import { useApis } from 'components/azureAuthentication/ApiProvider';
-import { useAasState, useRegistryAasState } from 'components/contexts/CurrentAasContext';
-import { AssetAdministrationShellRepositoryApi } from 'lib/api/basyx-v3/api';
+import { useAasOriginSourceState, useAasState } from 'components/contexts/CurrentAasContext';
 import { ImageWithFallback } from 'app/[locale]/list/_components/StyledImageWithFallBack';
-import { performgetAasThumbnailFromAllRepos } from 'lib/services/MultipleRepositorySearch/MultipleRepositorySearchActions';
-
+import { getThumbnailFromShell } from 'lib/services/repository-access/repositorySearchActions';
+import { isSuccessWithFile } from 'lib/util/apiResponseWrapper/apiResponseWrapperUtil';
 
 type AASOverviewCardProps = {
     readonly aas: AssetAdministrationShell | null;
@@ -34,6 +32,7 @@ type AASOverviewCardProps = {
     readonly isLoading?: boolean;
     readonly isAccordion: boolean;
     readonly imageLinksToDetail?: boolean;
+    readonly repositoryURL: string | null;
 };
 
 type MobileAccordionProps = {
@@ -62,33 +61,20 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
     const specificAssetIds = props.aas?.assetInformation?.specificAssetIds as SpecificAssetId[];
     const navigate = useRouter();
     const [productImageUrl, setProductImageUrl] = useState<string | undefined>('');
-    const { repositoryClient } = useApis();
-    const [registryAasData] = useRegistryAasState();
     const [, setAasState] = useAasState();
+    const [aasOriginUrl] = useAasOriginSourceState();
 
     async function createAndSetUrlForImageFile() {
         if (!props.aas) return;
 
-        try {
-            let image: Blob;
-            if (registryAasData) {
-                const registryRepository = AssetAdministrationShellRepositoryApi.create({
-                    basePath: registryAasData.aasRegistryRepositoryOrigin,
-                });
-                image = await registryRepository.getThumbnailFromShell(props.aas.id);
-                setProductImageUrl(URL.createObjectURL(image));
-            } else {
-                try {
-                    image = await repositoryClient.getThumbnailFromShell(props.aas.id);
-                } catch (e) {
-                    image = await performgetAasThumbnailFromAllRepos(props.aas.id);
-                }
-
-                setProductImageUrl(URL.createObjectURL(image));
-            }
-        } catch (e) {
-            console.error('Image not found', e);
+        let image: Blob;
+        const response = await getThumbnailFromShell(props.aas.id, aasOriginUrl);
+        if (isSuccessWithFile(response)) image = base64ToBlob(response.result, response.fileType);
+        else {
+            console.error('Image not found');
+            return;
         }
+        setProductImageUrl(URL.createObjectURL(image));
     }
 
     useAsyncEffect(async () => {
@@ -122,7 +108,7 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
 
     const navigateToAas = () => {
         if (props.imageLinksToDetail && props.aas) {
-            setAasState(props.aas)
+            setAasState(props.aas);
             const url = `/viewer/${encodeBase64(props.aas.id)}`;
             navigate.push(url);
         }
@@ -142,6 +128,7 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
             )}
             <DataRow title="id" value={props.aas?.id} />
             <DataRow title="idShort" value={props.aas?.idShort ?? '-'} />
+            <DataRow title="repositoryURL" value={props.repositoryURL ?? '-'} />
             {props.aas?.derivedFrom?.keys?.[0] && (
                 <DataRow
                     title="derivedFrom"
@@ -187,6 +174,7 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
                         <Skeleton
                             variant="rectangular"
                             sx={{ height: '300px', maxWidth: '300px', width: '100%' }}
+                            data-testid="aas-loading-skeleton"
                         ></Skeleton>
                         <Box width="100%">
                             {isAccordion ? (
