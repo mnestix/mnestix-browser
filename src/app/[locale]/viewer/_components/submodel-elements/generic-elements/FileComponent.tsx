@@ -7,6 +7,9 @@ import { getSanitizedHref } from 'lib/util/HrefUtil';
 import { isValidUrl } from 'lib/util/UrlUtil';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { getAttachmentFromSubmodelElement } from 'lib/services/repository-access/repositorySearchActions';
+import { base64ToBlob } from 'lib/util/Base64Util';
+import { isSuccessWithFile } from 'lib/util/apiResponseWrapper/apiResponseWrapperUtil';
+import { useAasOriginSourceState } from 'components/contexts/CurrentAasContext';
 
 const StyledFileImg = styled('img')(() => ({
     objectFit: 'contain',
@@ -24,19 +27,25 @@ type FileComponentProps = {
 export function FileComponent(props: FileComponentProps) {
     const [image, setImage] = useState<string | null>(null);
     const { file } = props;
+    const [aasOriginUrl] = useAasOriginSourceState();
 
     async function getImage() {
         if (file.contentType?.startsWith('image')) {
             if (isValidUrl(file.value)) {
                 setImage(file.value);
             } else if (props.submodelId && props.submodelElementPath) {
-                const imageResponse = 
-                    await getAttachmentFromSubmodelElement(props.submodelId, props.submodelElementPath);
-                if (imageResponse.isSuccess) {
-                    const imageObjectURL = URL.createObjectURL(imageResponse.result);
-                    setImage(imageObjectURL);
-                } else {
+                const imageResponse = await getAttachmentFromSubmodelElement(
+                    props.submodelId,
+                    props.submodelElementPath,
+                    aasOriginUrl,
+                );
+                if (!imageResponse.isSuccess) {
                     console.error('Image not found' + imageResponse.message);
+                } else if (isSuccessWithFile(imageResponse)) {
+                    const imageObjectURL = URL.createObjectURL(
+                        base64ToBlob(imageResponse.result, imageResponse.fileType),
+                    );
+                    setImage(imageObjectURL);
                 }
             }
         }

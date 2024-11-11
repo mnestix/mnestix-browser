@@ -24,6 +24,7 @@ import {
 import { LocalizedError } from 'lib/util/LocalizedError';
 import {
     SubmodelOrIdReference,
+    useAasOriginSourceState,
     useAasState,
     useRegistryAasState,
     useSubmodelState,
@@ -43,6 +44,7 @@ export default function Page() {
     const env = useEnv();
     const encodedRepoUrl = useSearchParams().get('repoUrl');
     const repoUrl = encodedRepoUrl ? decodeURI(encodedRepoUrl) : undefined;
+    const [aasOriginUrl, setAasOriginUrl] = useAasOriginSourceState();
     const [aasFromContext, setAasFromContext] = useAasState();
     const [submodels, setSubmodels] = useSubmodelState();
     const [isSubmodelsLoading, setIsSubmodelsLoading] = useState(true);
@@ -71,6 +73,7 @@ export default function Page() {
         if (repoUrl) {
             const response = await getAasFromRepository(aasIdDecoded, repoUrl);
             if (response.isSuccess) {
+                setAasOriginUrl(repoUrl);
                 setAasFromContext(response.result);
                 return;
             }
@@ -80,6 +83,7 @@ export default function Page() {
         if (!isSuccess) {
             showError(new LocalizedError(messages.mnestix.aasUrlNotFound), notificationSpawner);
         } else if (result.aas) {
+            setAasOriginUrl(result.aasData?.aasRepositoryOrigin ?? null);
             setAasFromContext(result.aas);
         } else {
             navigate.push(result.redirectUrl);
@@ -178,13 +182,14 @@ export default function Page() {
                                 <FormattedMessage {...messages.mnestix.compareButton} />
                             </Button>
                         )}
-                        <TransferButton />
+                        {env.TRANSFER_FEATURE_FLAG && <TransferButton />}
                     </Box>
                     <AASOverviewCard
                         aas={aasFromContext ?? null}
                         productImage={aasFromContext?.assetInformation?.defaultThumbnail?.path}
                         isLoading={isLoadingAas}
                         isAccordion={isMobile}
+                        repositoryURL={aasOriginUrl}
                     />
                     {aasFromContext?.submodels && aasFromContext.submodels.length > 0 && (
                         <SubmodelsOverviewCard submodelIds={submodels} submodelsLoading={isSubmodelsLoading} />

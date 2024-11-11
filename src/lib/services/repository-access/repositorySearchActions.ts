@@ -25,8 +25,15 @@ export async function performGetAasThumbnailFromAllRepos(searchInput: string): P
     return wrapSuccess(response.result.searchResult);
 }
 
-export async function getThumbnailFromShell(searchInput: string): Promise<ApiResponseWrapper<Blob>> {
+// TODO merge
+export async function getThumbnailFromShell(searchInput: string,                                            baseRepositoryUrl?: string | null,): Promise<ApiResponseWrapper<Blob>> {
+    if (baseRepositoryUrl) {
+        const fileSearcher = RepositorySearchService.create(baseRepositoryUrl);
+        return await fileSearcher.getThumbnailFromShell(searchInput);
+    }
+    
     const response = await searcher.getFirstAasThumbnailFromAllRepos(searchInput);
+    
     if (!response.isSuccess) return wrapErrorCode(response.errorCode, response.message);
     return wrapSuccess(response.result.searchResult);
 }
@@ -43,10 +50,17 @@ export async function getSubmodelById(id: string): Promise<ApiResponseWrapper<Su
     return wrapSuccess(response.result.searchResult);
 }
 
+// TODO merge
 export async function getAttachmentFromSubmodelElement(
     submodelId: string,
     submodelElementPath: string,
+    baseRepositoryUrl?: string | null,
 ): Promise<ApiResponseWrapper<Blob>> {
+    if (baseRepositoryUrl) {
+        const fileSearcher = RepositorySearchService.create(baseRepositoryUrl);
+        return await fileSearcher.getAttachmentFromSubmodelElement(submodelId, submodelElementPath);
+    }
+    
     const response = await searcher.getFirstAttachmentFromSubmodelElementFromAllRepos(submodelId, submodelElementPath);
     if (!response.isSuccess) return wrapErrorCode(response.errorCode, response.message);
     return wrapSuccess(response.result.searchResult);

@@ -10,14 +10,23 @@ import { Typography } from '@mui/material';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { IDiscoveryListEntry } from 'lib/types/DiscoveryListEntry';
 import AssetNotFound from 'components/basics/AssetNotFound';
-import { isAasAvailableInRepo } from 'lib/util/checkAasAvailabilityUtil';
-import { useEnv } from 'app/env/provider';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import ListHeader from 'components/basics/ListHeader';
 import { performDiscoveryAasSearch, performRegistryAasSearch } from 'lib/services/search-actions/searchActions';
 import { performSearchAasFromAllRepositories } from 'lib/services/repository-access/repositorySearchActions';
 import { RepoSearchResult } from 'lib/services/repository-access/RepositorySearchService';
 import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/types';
+
+async function getRepositoryUrl(aasId: string): Promise<string | undefined> {
+    const registrySearchResult = await performRegistryAasSearch(aasId);
+    if (registrySearchResult.isSuccess) return registrySearchResult?.result.aasData?.aasRepositoryOrigin;
+
+    const allRepositorySearchResult = await performSearchAasFromAllRepositories(encodeBase64(aasId));
+    if (allRepositorySearchResult.isSuccess) return allRepositorySearchResult.result[0].location;
+
+    console.warn('Did not find the URL of the AAS');
+    return undefined;
+}
 
 export const DiscoveryListView = () => {
     const [isLoadingList, setIsLoadingList] = useState(false);
@@ -29,7 +38,6 @@ export const DiscoveryListView = () => {
     const assetId = encodedAssetId ? decodeURI(encodedAssetId) : undefined;
     const encodedAasId = searchParams.get('aasId');
     const aasId = encodedAasId ? decodeURI(encodedAasId) : undefined;
-    const env = useEnv();
 
     useAsyncEffect(async () => {
         setIsLoadingList(true);
@@ -45,27 +53,10 @@ export const DiscoveryListView = () => {
             const aasIds = response.result!;
             await Promise.all(
                 aasIds.map(async (aasId) => {
-                    const registrySearchResult = await performRegistryAasSearch(aasId);
-                    let aasRepositoryUrl;
-                    if (!registrySearchResult.isSuccess) {
-                        if (env.AAS_REPO_API_URL)
-                            aasRepositoryUrl = (await isAasAvailableInRepo(aasId, env.AAS_REPO_API_URL))
-                                ? env.AAS_REPO_API_URL
-                                : undefined;
-                        if (!aasRepositoryUrl) {
-                            console.warn('Did not find the URL of the AAS');
-                            entryList.push({
-                                aasId: aasId,
-                                repositoryUrl: undefined,
-                            });
-                        }
-                    } else {
-                        aasRepositoryUrl = registrySearchResult?.result.aasData?.aasRegistryRepositoryOrigin;
-                    }
-
+                    const repositoryUrl = await getRepositoryUrl(aasId);
                     entryList.push({
                         aasId: aasId,
-                        repositoryUrl: aasRepositoryUrl,
+                        repositoryUrl: repositoryUrl,
                     });
                 }),
             );

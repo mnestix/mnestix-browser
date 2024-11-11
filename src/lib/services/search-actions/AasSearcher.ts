@@ -16,10 +16,11 @@ import {
 } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 import { AasRegistryEndpointEntryInMemory } from 'lib/api/registry-service-api/registryServiceApiInMemory';
 import { Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
+import * as process from 'node:process';
 
 export type AasData = {
     submodelDescriptors: SubmodelDescriptor[] | undefined;
-    aasRegistryRepositoryOrigin: string | undefined;
+    aasRepositoryOrigin: string;
 };
 
 export type AasSearchResult = {
@@ -95,15 +96,25 @@ export class AasSearcher {
             return wrapSuccess(aasRegistryResult.result);
         }
 
-        const defaultResult = await this.getAasFromDefaultRepository(aasIdEncoded);
-        if (defaultResult.isSuccess) {
-            return wrapSuccess(this.createAasResult(defaultResult.result));
+        if (process.env.AAS_REPO_API_URL) {
+            const defaultResult = await this.getAasFromDefaultRepository(aasIdEncoded);
+            if (defaultResult.isSuccess) {
+                const data = {
+                    submodelDescriptors: undefined,
+                    aasRepositoryOrigin: process.env.AAS_REPO_API_URL,
+                };
+                return wrapSuccess(this.createAasResult(defaultResult.result, data));
+            }
         }
 
         const potentiallyMultipleAas = await this.getAasFromAllRepositories(aasIdEncoded);
         if (potentiallyMultipleAas.isSuccess) {
             if (potentiallyMultipleAas.result!.length === 1) {
-                return wrapSuccess(this.createAasResult(potentiallyMultipleAas.result[0].searchResult));
+                const data = {
+                    submodelDescriptors: undefined,
+                    aasRepositoryOrigin: potentiallyMultipleAas.result[0].location,
+                };
+                return wrapSuccess(this.createAasResult(potentiallyMultipleAas.result[0].searchResult, data));
             }
             if (potentiallyMultipleAas.result!.length > 1) {
                 return wrapSuccess(this.createDiscoveryRedirectResult(searchInput));
@@ -126,7 +137,7 @@ export class AasSearcher {
         }
         const data = {
             submodelDescriptors: registrySearchResult.result.submodelDescriptors,
-            aasRegistryRepositoryOrigin: endpoint.origin,
+            aasRepositoryOrigin: endpoint.origin,
         };
         return wrapSuccess(this.createAasResult(aasSearchResult.result, data));
     }
@@ -142,11 +153,23 @@ export class AasSearcher {
         );
     }
 
-    private createAasResult(aas: AssetAdministrationShell, data?: AasData): AasSearchResult {
+    public async getAasFromRepository(
+        aasId: string,
+        repoUrl: string,
+    ): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
+        const response = await this.multipleDataSource.getAasFromRepo(aasId, repoUrl);
+        if (response.isSuccess) return response;
+        return wrapErrorCode(
+            ApiResultStatus.NOT_FOUND,
+            `Could not find an AAS '${aasId}' in the repository '${repoUrl}'`,
+        );
+    }
+
+    private createAasResult(aas: AssetAdministrationShell, data: AasData): AasSearchResult {
         return {
             redirectUrl: `/viewer/${encodeBase64(aas.id)}`,
             aas: aas,
-            aasData: data || null,
+            aasData: data,
         };
     }
 

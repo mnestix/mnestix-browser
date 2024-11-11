@@ -18,15 +18,13 @@ import { IconCircleWrapper } from 'components/basics/IconCircleWrapper';
 import { AssetIcon } from 'components/custom-icons/AssetIcon';
 import { ShellIcon } from 'components/custom-icons/ShellIcon';
 import { isValidUrl } from 'lib/util/UrlUtil';
-import { encodeBase64 } from 'lib/util/Base64Util';
+import { base64ToBlob, encodeBase64 } from 'lib/util/Base64Util';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { useRouter } from 'next/navigation';
-import { useAasState, useRegistryAasState } from 'components/contexts/CurrentAasContext';
+import { useAasState } from 'components/contexts/CurrentAasContext';
 import { ImageWithFallback } from 'app/[locale]/list/_components/StyledImageWithFallBack';
-import {
-    getThumbnailFromShell,
-    performGetAasThumbnailFromAllRepos,
-} from 'lib/services/repository-access/repositorySearchActions';
+import { getThumbnailFromShell } from 'lib/services/repository-access/repositorySearchActions';
+import { isSuccessWithFile } from 'lib/util/apiResponseWrapper/apiResponseWrapperUtil';
 
 type AASOverviewCardProps = {
     readonly aas: AssetAdministrationShell | null;
@@ -34,6 +32,7 @@ type AASOverviewCardProps = {
     readonly isLoading?: boolean;
     readonly isAccordion: boolean;
     readonly imageLinksToDetail?: boolean;
+    readonly repositoryURL: string | null;
 };
 
 type MobileAccordionProps = {
@@ -62,32 +61,19 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
     const specificAssetIds = props.aas?.assetInformation?.specificAssetIds as SpecificAssetId[];
     const navigate = useRouter();
     const [productImageUrl, setProductImageUrl] = useState<string | undefined>('');
-    const [registryAasData] = useRegistryAasState();
     const [, setAasState] = useAasState();
 
     async function createAndSetUrlForImageFile() {
         if (!props.aas) return;
 
         let image: Blob;
-        if (registryAasData) {
-            const response = await getThumbnailFromShell(props.aas.id);
-            if (response.isSuccess) {
-                image = response.result;
-                setProductImageUrl(URL.createObjectURL(image));
-            }
-        } else {
-            const response = await getThumbnailFromShell(props.aas.id);
-            if (response.isSuccess) image = response.result;
-            else {
-                const response = await performGetAasThumbnailFromAllRepos(props.aas.id);
-                if (response.isSuccess) image = response.result;
-                else {
-                    console.error('Image not found');
-                    return;
-                }
-            }
-            setProductImageUrl(URL.createObjectURL(image));
+        const response = await getThumbnailFromShell(props.aas.id, props.repositoryURL);
+        if (isSuccessWithFile(response)) image = base64ToBlob(response.result, response.fileType);
+        else {
+            console.error('Image not found');
+            return;
         }
+        setProductImageUrl(URL.createObjectURL(image));
     }
 
     useAsyncEffect(async () => {
@@ -141,6 +127,7 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
             )}
             <DataRow title="id" value={props.aas?.id} />
             <DataRow title="idShort" value={props.aas?.idShort ?? '-'} />
+            <DataRow title="repositoryURL" value={props.repositoryURL ?? '-'} />
             {props.aas?.derivedFrom?.keys?.[0] && (
                 <DataRow
                     title="derivedFrom"
@@ -186,6 +173,7 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
                         <Skeleton
                             variant="rectangular"
                             sx={{ height: '300px', maxWidth: '300px', width: '100%' }}
+                            data-testid="aas-loading-skeleton"
                         ></Skeleton>
                         <Box width="100%">
                             {isAccordion ? (

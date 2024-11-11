@@ -7,7 +7,8 @@ import { IDiscoveryServiceApi } from 'lib/api/discovery-service-api/discoverySer
 import { RegistryServiceApi } from 'lib/api/registry-service-api/registryServiceApi';
 import { DiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApi';
 import { SubmodelRegistryServiceApi } from 'lib/api/submodel-registry-service/submodelRegistryServiceApi';
-import { AssetAdministrationShellDescriptor, SubmodelDescriptor } from 'lib/types/registryServiceTypes';
+import { AssetAdministrationShellDescriptor, Endpoint, SubmodelDescriptor } from 'lib/types/registryServiceTypes';
+import { base64ToBlob, encodeBase64 } from 'lib/util/Base64Util';
 import {
     AssetAdministrationShell,
     Blob,
@@ -25,6 +26,8 @@ import {
     createShellDescriptorFromAas,
     createSubmodelDescriptorFromSubmodel,
 } from 'lib/util/TransferUtil';
+import { isSuccessWithFile } from 'lib/util/apiResponseWrapper/apiResponseWrapperUtil';
+import { ApiResponseWrapperError } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 
 export enum ServiceReachable {
     Yes = 'Yes',
@@ -139,10 +142,10 @@ export class TransferService {
 
         const targetSubmodelRegistryClient = targetSubmodelRegistry
             ? SubmodelRegistryServiceApi.createNull(
-                  'https://targetSubmodelRegistryClient.com',
-                  [],
-                  targetSubmodelRegistry,
-              )
+                'https://targetSubmodelRegistryClient.com',
+                [],
+                targetSubmodelRegistry,
+            )
             : undefined;
 
         return new TransferService(
@@ -171,28 +174,37 @@ export class TransferService {
         );
 
         const promises = [];
+        const attachmentPromises: Promise<TransferResult>[] = [];
 
         promises.push(this.postAasToRepository(aas, apikey));
 
         if (aasThumbnailImageIsFile(aas)) {
-            promises.push(this.putThumbnailImageToShell(aas, apikey));
+            attachmentPromises.push(this.putThumbnailImageToShell(originalAasId, aas.id, apikey));
         }
 
         if (this.targetAasDiscoveryClient && aas.assetInformation.globalAssetId) {
-            promises.push(this.registerAasAtDiscovery(aas));
+            promises.push(this.registerAasAtDiscovery(aas, apikey));
         }
 
         if (this.targetAasRegistryClient) {
             promises.push(this.registerAasAtRegistry(shellDescriptor));
         }
 
-        for (const submodel of submodels) {
-            promises.push(this.postSubmodelToRepository(submodel, apikey));
+        // TODO submodels should be of type TransferSubmodel[]
+        for (const transferSubmodel of submodels) {
+            promises.push(this.postSubmodelToRepository(transferSubmodel.submodel, apikey));
 
-            if (submodel.submodelElements) {
-                const attachmentDetails = this.getSubmodelAttachmentsDetails(submodel.submodelElements);
-                const result = await this.processAttachments(submodel.id, attachmentDetails, apikey);
-                promises.push(...result);
+            if (transferSubmodel.submodel.submodelElements) {
+                const attachmentDetails = this.getSubmodelAttachmentsDetails(
+                    transferSubmodel.submodel.submodelElements,
+                );
+                const result = await this.processAttachments(
+                    transferSubmodel.originalSubmodelId,
+                    transferSubmodel.submodel.id,
+                    attachmentDetails,
+                    apikey,
+                );
+                attachmentPromises.push(...result);
             }
         }
 
@@ -202,7 +214,17 @@ export class TransferService {
             });
         }
 
-        return await Promise.all(promises);
+        const mainResults = await Promise.all(promises);
+        // Ensure AAS and submodels are fully transferred before initiating file uploads to prevent 'not-found' errors.
+        // Azure’s hosted repository requires time to process newly uploaded AAS and submodels, so a temporary 5-second delay is applied.
+        // TODO: Implement a dynamic readiness check to replace the fixed 5-second delay.
+        const attachmentResults: TransferResult[] = await new Promise((resolve) => {
+            setTimeout(() => {
+                resolve(Promise.all(attachmentPromises));
+            }, 5000);
+        });
+
+        return [...mainResults, ...attachmentResults];
     }
 
     private async postAasToRepository(aas: AssetAdministrationShell, apikey?: string): Promise<TransferResult> {
@@ -264,51 +286,76 @@ export class TransferService {
         }
     }
 
-    private async putThumbnailImageToShell(aas: AssetAdministrationShell, apikey?: string): Promise<TransferResult> {
-        const response = await this.sourceAasRepositoryClient.getThumbnailFromShell(aas.id);
-        if (response.isSuccess) {
-            const aasThumbnail = response.result;
+    private async putThumbnailImageToShell(
+        originalAasId: string,
+        targetAasId: string,
+        apikey?: string,
+    ): Promise<TransferResult> {
+        const response = await this.sourceAasRepositoryClient.getThumbnailFromShell(originalAasId);
+        if (isSuccessWithFile(response)) {
+            const aasThumbnail = base64ToBlob(response.result, response.fileType);
             const fileName = ['thumbnail', generateRandomId()].join('');
-            await this.targetAasRepositoryClient.putThumbnailToShell(aas.id, aasThumbnail, fileName, {
-                headers: {
-                    Apikey: apikey,
+            const pushResponse = await this.targetAasRepositoryClient.putThumbnailToShell(
+                targetAasId,
+                aasThumbnail,
+                fileName,
+                {
+                    headers: {
+                        Apikey: apikey,
+                    },
                 },
-            });
-            return { success: true, operationKind: 'AasRepository', resourceId: 'Thumbnail transfer.', error: '' };
+            );
+            if (pushResponse.isSuccess) {
+                return { success: true, operationKind: 'FileTransfer', resourceId: 'Thumbnail transfer.', error: '' };
+            } else {
+                return {
+                    success: false,
+                    operationKind: 'FileTransfer',
+                    resourceId: 'Thumbnail transfer.',
+                    error: pushResponse.message,
+                };
+            }
         } else {
             return {
                 success: false,
-                operationKind: 'AasRepository',
+                operationKind: 'FileTransfer',
                 resourceId: 'Thumbnail transfer.',
-                error: response.message,
+                error: (response as ApiResponseWrapperError<Blob>).message,
             };
         }
     }
 
-    private async processAttachments(submodelId: string, attachmentDetails: AttachmentDetails[], apikey?: string) {
+    private async processAttachments(
+        originalSubmodelId: string,
+        targetSubmodelId: string,
+        attachmentDetails: AttachmentDetails[],
+        apikey?: string,
+    ) {
         const promises = [];
 
         for (const attachmentDetail of attachmentDetails) {
             const response = await this.sourceSubmodelRepositoryClient.getAttachmentFromSubmodelElement(
-                submodelId,
+                originalSubmodelId,
                 attachmentDetail.idShortPath,
             );
-            if (response.isSuccess) {
-                attachmentDetail.file = response.result;
+            if (isSuccessWithFile(response)) {
+                attachmentDetail.file = base64ToBlob(response.result, response.fileType);
                 attachmentDetail.fileName = [
                     attachmentDetail.fileName,
                     this.getExtensionFromFileType(attachmentDetail.file.type),
                 ].join('.');
-                promises.push(this.putAttachmentToSubmodelElement(submodelId, attachmentDetail, apikey));
+                promises.push(this.putAttachmentToSubmodelElement(targetSubmodelId, attachmentDetail, apikey));
             } else {
                 promises.push(
                     Promise.resolve({
                         success: false,
                         operationKind: 'FileTransfer',
-                        resourceId: [submodelId, attachmentDetail.idShortPath, ' not found in source repository'].join(
-                            ': ',
-                        ),
-                        error: response.message,
+                        resourceId: [
+                            originalSubmodelId,
+                            attachmentDetail.idShortPath,
+                            ' not found in source repository',
+                        ].join(': '),
+                        error: (response as ApiResponseWrapperError<Blob>).message,
                     } as TransferResult),
                 );
             }
@@ -386,9 +433,9 @@ export class TransferService {
         idShortPath: string,
         submodelAttachmentsDetails: AttachmentDetails[],
     ) {
-        if (!(subEl as SubmodelElementCollection).value) return;
         const modelType = getKeyType(subEl);
         if (modelType === KeyTypes.SubmodelElementCollection) {
+            if (!(subEl as SubmodelElementCollection).value) return;
             submodelAttachmentsDetails.push(
                 ...this.getAttachmentsDetailsFromCollection(subEl as SubmodelElementCollection, idShortPath),
             );
@@ -411,6 +458,6 @@ export class TransferService {
 
     private getExtensionFromFileType(fileType: string) {
         if (fileType === 'application/octet-stream') return '';
-        return fileType.split('/')[1];
+        return fileType.split(/[+/]/)[1];
     }
 }

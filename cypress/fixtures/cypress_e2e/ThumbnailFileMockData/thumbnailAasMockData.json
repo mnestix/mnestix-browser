@@ -1,0 +1,13 @@
+{
+  "modelType": "AssetAdministrationShell",
+  "assetInformation": {
+    "assetKind": "Instance",
+    "defaultThumbnail": {
+      "contentType": "image/x-png",
+      "path": "test_thumbnail.png"
+    },
+    "globalAssetId": "https://mnestix.io/asset/thumbnail_1"
+  },
+  "submodels": [],
+  "id": "https://mnestix.io/aas/thumbnail_1"
+}

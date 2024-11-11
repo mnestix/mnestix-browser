@@ -91,15 +91,18 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
         });
     }
 
+    // TODO merge add apiKey to interface as well
     async postAllAssetLinksById(
         aasId: string,
         assetLinks: SpecificAssetId, // this is NOT a list in the specification
+        apiKey?: string,
     ): Promise<ApiResponseWrapper<SpecificAssetId>> {
         const b64_aasId = encodeBase64(aasId);
 
         const headers = {
             Accept: 'application/json',
             'Content-Type': 'application/json',
+            ...(apiKey && { ApiKey: apiKey }),
         };
 
         const url = new URL(`lookup/shells/${b64_aasId}`, this.baseUrl);

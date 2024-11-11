@@ -10,6 +10,7 @@ import qrAAS from '../fixtures/cypress_e2e/QrScannerMockData/cy_qrScannerAas.jso
 import qrSubmodels from '../fixtures/cypress_e2e/QrScannerMockData/cy_qrScannerNameplateSubmodel.json';
 import listAasMockData from '../fixtures/cypress_e2e/AasListMockData/cyListAasMockData.json';
 import listAasSubmodelMockData from '../fixtures/cypress_e2e/AasListMockData/cyListAasTechnicalDataSubmodel.json';
+import thumbnailAasMockData from '../fixtures/cypress_e2e/ThumbnailFileMockData/thumbnailAasMockData.json';
 import toBase64 from './base64-conversion';
 
 Cypress.Commands.add('setResolution', (res) => {
@@ -141,4 +142,41 @@ Cypress.Commands.add('callScannerCallback', (value: string) => {
 
 Cypress.Commands.add('isNotificationSent', (msg: string) => {
     cy.get('.MuiAlert-message').should('contain.text', msg);
+});
+
+Cypress.Commands.add('postTestThumbnailAas', () => {
+    cy.repoRequest('POST', '/shells', thumbnailAasMockData);
+});
+
+Cypress.Commands.add('deleteTestThumbnailAas', () => {
+    const encodedAasThumbnailMockData = btoa(thumbnailAasMockData.id).replace(/=+$/g, '');
+    cy.repoRequest('DELETE', '/shells/' + encodedAasThumbnailMockData, null);
+});
+
+Cypress.Commands.add('uploadThumbnailToAas', (aasId: string) => {
+    const encodedAasId = btoa(aasId).replace(/=+$/g, '');
+    cy.fixture('cypress_e2e/ThumbnailFileMockData/test_thumbnail.png', 'binary')
+        .then((binary) => Cypress.Blob.binaryStringToBlob(binary, 'image/png'))
+        .then((file: Blob) => {
+            const formData = new FormData();
+            formData.append('file', file);
+            cy.request({
+                method: 'PUT',
+                url:
+                    `${Cypress.env('AAS_REPO_API_URL')}` +
+                    '/shells/' +
+                    encodedAasId +
+                    '/asset-information/thumbnail?fileName=test_thumbnail.png',
+                body: formData,
+                encoding: 'binary',
+                headers: {
+                    ApiKey: Cypress.env('MNESTIX_API_KEY'),
+                }
+            });
+        });
+});
+
+Cypress.Commands.add('deleteThumbnailFromAas', (aasId: string) => {
+    const encodedAasId = btoa(aasId).replace(/=+$/g, '');
+    cy.repoRequest('DELETE', '/shells/' + encodedAasId + '/asset-information/thumbnail', null);
 });

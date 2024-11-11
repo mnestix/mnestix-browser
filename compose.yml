@@ -24,6 +24,7 @@ services:
       SUBMODEL_REPO_API_URL: 'http://mnestix-api:5064/repo'
       MNESTIX_BACKEND_API_URL: 'http://mnestix-api:5064'
       AAS_LIST_FEATURE_FLAG: "true"
+      TRANSFER_FEATURE_FLAG: "false"
       COMPARISON_FEATURE_FLAG: "true"
       AUTHENTICATION_FEATURE_FLAG: "false"
       LOCK_TIMESERIES_PERIOD_FEATURE_FLAG: "true"
@@ -37,7 +38,7 @@ services:
       - mnestix-database:/app/prisma/database
 
   mnestix-api:
-    image: mnestix/mnestix-api:1.2.1
+    image: mnestix/mnestix-api:1.2.3
     container_name: mnestix-api
     profiles: [ "", "backend", "tests" ]
     ports:

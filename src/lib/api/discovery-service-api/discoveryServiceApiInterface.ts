@@ -54,4 +54,22 @@ export interface IDiscoveryServiceApi {
      * @param aasId The Asset Administration Shell’s unique id.
      */
     deleteAllAssetLinksById(aasId: string): Promise<ApiResponseWrapper<void>>;
+    
+    // TODO merge
+    /* whats with these deleted methods
+    
+    getAllAssetAdministrationShellIdsByAssetLink(
+        assetIds: DiscoveryEntry[],
+    ): Promise<ApiResponseWrapper<{ paging_metadata: string; result: string[] }>>;
+
+    getAllAssetLinksById(aasId: string): Promise<ApiResponseWrapper<DiscoveryEntry[]>>;
+
+    postAllAssetLinksById(
+        aasId: string,
+        assetLinks: DiscoveryEntry[],
+        apiKey?: string,
+    ): Promise<ApiResponseWrapper<DiscoveryEntry[]>>;
+         
+         
+    */
 }

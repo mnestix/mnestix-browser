@@ -31,6 +31,27 @@ export class RepositorySearchService {
         protected readonly log: Log,
     ) {}
 
+    // TODO merge
+     /*
+     
+     
+    static create(baseRepositoryUrl?: string | null): RepositorySearchService {
+        const repositoryClient = AssetAdministrationShellRepositoryApi.create(
+            mnestixFetch(),
+            undefined,
+            baseRepositoryUrl ?? process.env.AAS_REPO_API_URL,
+        );
+        const submodelRepositoryClient = SubmodelRepositoryApi.create(
+            mnestixFetch(),
+            undefined,
+            baseRepositoryUrl ?? process.env.SUBMODEL_REPO_API_URL ?? process.env.AAS_REPO_API_URL,
+        );
+        const log = Log.create();
+        const prismaConnector = PrismaConnector.create();
+        return new RepositorySearchService(repositoryClient, submodelRepositoryClient, prismaConnector, log);
+    }
+      */
+    
     static create(): RepositorySearchService {
         const log = Log.create();
         const prismaConnector = PrismaConnector.create();
@@ -240,8 +261,13 @@ export class RepositorySearchService {
     private async getAasThumbnailFromRepo(aasId: string, repoUrl: string) {
         const client = this.getAasRepositoryClient(repoUrl);
         const response = await client.getThumbnailFromShell(aasId);
-        if (response.isSuccess) return response;
-        return Promise.reject(`Unable to fetch thumbnail for AAS '${aasId}' from '${repoUrl}'`);
+        if (!response.isSuccess) {
+            return Promise.reject(`Unable to fetch thumbnail for AAS '${aasId}' from '${repoUrl}'`);
+        }
+        if (response.result instanceof Blob && response.result.size === 0) {
+            return Promise.reject(`Empty thumbnail image in AAS '${aasId}' from '${repoUrl}'`);
+        }
+        return response;
     }
 
     async getFirstAasThumbnailFromAllRepos(aasId: string): Promise<ApiResponseWrapper<RepoSearchResult<Blob>>> {

@@ -15,9 +15,11 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { getTranslationText, hasSemanticId } from 'lib/util/SubmodelResolverUtil';
 import { DocumentDetailsDialog } from './DocumentDetailsDialog';
 import { isValidUrl } from 'lib/util/UrlUtil';
-import { encodeBase64 } from 'lib/util/Base64Util';
+import { base64ToBlob, encodeBase64 } from 'lib/util/Base64Util';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { getAttachmentFromSubmodelElement } from 'lib/services/repository-access/repositorySearchActions';
+import { isSuccessWithFile } from 'lib/util/apiResponseWrapper/apiResponseWrapperUtil';
+import { useAasOriginSourceState } from 'components/contexts/CurrentAasContext';
 
 enum DocumentSpecificSemanticId {
     DocumentVersion = 'https://admin-shell.io/vdi/2770/1/0/DocumentVersion',
@@ -81,6 +83,7 @@ export function DocumentComponent(props: MarkingsComponentProps) {
     const intl = useIntl();
     const [fileViewObject, setFileViewObject] = useState<FileViewObject>();
     const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+    const [aasOriginUrl] = useAasOriginSourceState();
 
     useAsyncEffect(async () => {
         setFileViewObject(await getFileViewObject());
@@ -171,12 +174,18 @@ export function DocumentComponent(props: MarkingsComponentProps) {
                 '/attachment';
             digitalFile.mimeType = (versionSubmodelEl as File).contentType;
 
-            const imageRespone = await getAttachmentFromSubmodelElement(props.submodelId, submodelElementPath);
-            if (imageRespone.isSuccess) {
-                digitalFile.digitalFileUrl = URL.createObjectURL(imageRespone.result);
+            const imageResponse = await getAttachmentFromSubmodelElement(
+                props.submodelId,
+                submodelElementPath,
+                aasOriginUrl,
+            );
+            if (!imageResponse.isSuccess) {
+                console.error('Image not found' + imageResponse.message);
+            } else if (isSuccessWithFile(imageResponse)) {
+                digitalFile.digitalFileUrl = URL.createObjectURL(
+                    base64ToBlob(imageResponse.result, imageResponse.fileType),
+                );
                 digitalFile.mimeType = (versionSubmodelEl as File).contentType;
-            } else {
-                console.error('Image not found' + imageRespone.message);
             }
         }
 
@@ -203,14 +212,18 @@ export function DocumentComponent(props: MarkingsComponentProps) {
                 submodelElementPath +
                 '/attachment';
 
-            const imageResponse = await getAttachmentFromSubmodelElement(props.submodelId, submodelElementPath);
-            if (imageResponse.isSuccess) {
-                previewImgUrl = URL.createObjectURL(imageResponse.result);
-            } else {
+            const imageResponse = await getAttachmentFromSubmodelElement(
+                props.submodelId,
+                submodelElementPath,
+                aasOriginUrl,
+            );
+            if (!imageResponse.isSuccess) {
                 console.error('Image not found' + imageResponse.message);
+            } else if (isSuccessWithFile(imageResponse)) {
+                previewImgUrl = URL.createObjectURL(base64ToBlob(imageResponse.result, imageResponse.fileType));
             }
         }
-        
+
         return previewImgUrl ?? '';
     }
 

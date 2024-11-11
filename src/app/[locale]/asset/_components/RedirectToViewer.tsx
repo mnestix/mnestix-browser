@@ -9,7 +9,7 @@ import { useState } from 'react';
 import { CenteredLoadingSpinner } from 'components/basics/CenteredLoadingSpinner';
 import { useRouter, useSearchParams } from 'next/navigation';
 import AssetNotFound from 'components/basics/AssetNotFound';
-import { useAasState } from 'components/contexts/CurrentAasContext';
+import { useAasOriginSourceState, useAasState } from 'components/contexts/CurrentAasContext';
 import { performDiscoveryAasSearch } from 'lib/services/search-actions/searchActions';
 import { wrapSuccess } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 import { LocalizedError } from 'lib/util/LocalizedError';
@@ -23,6 +23,7 @@ export const RedirectToViewer = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [isError, setIsError] = useState(false);
     const [, setAas] = useAasState();
+    const [, setAasOriginUrl] = useAasOriginSourceState();
 
     useAsyncEffect(async () => {
         try {
@@ -43,6 +44,7 @@ export const RedirectToViewer = () => {
         assertAtLeastOneAasIdExists(aasIds);
         const targetUrl = determineViewerTargetUrl(aasIds);
         setAas(null);
+        setAasOriginUrl(null)
         navigate.replace(targetUrl);
     }
 
