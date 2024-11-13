@@ -1,16 +1,5 @@
-import nextJest from 'next/jest';
-import { Config } from 'jest';
-
+/**
+ * Unit tests for nextjs frontend and backend need different configurations.
+ */
 export {};
-const createJestConfig = nextJest({
-    // Provide the path to your Next.js app to load next.config.js and .env files in your test environment
-    dir: './',
-})
-
-const config: Config = {
-    setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
-    testEnvironment: 'jsdom',
-    modulePathIgnorePatterns: ['cypress']
-};
-
-module.exports = createJestConfig(config);
+module.exports = { projects: ['<rootDir>/jest.frontend.config.ts', '<rootDir>/jest.backend.config.ts'] };
