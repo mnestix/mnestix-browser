@@ -1,7 +1,13 @@
 'use client'
 
+import { Box } from '@mui/material';
+import { useTranslations } from 'next-intl';
+
+
 export function DummyComponent() {
+    const t = useTranslations('submodels.timeSeries');
+
     return (
-        <div>Test</div>
+        <Box>{t('linkedSegments')}</Box>
     )
 }
