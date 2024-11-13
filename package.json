@@ -86,8 +86,7 @@
         "string-width": "4.2.3"
     },
     "scripts": {
-        "dev": "yarn prisma migrate deploy && yarn prisma generate && next dev",
-        "turbo": "yarn prisma migrate deploy && yarn prisma generate && next dev --turbo",
+        "dev": "yarn prisma migrate deploy && yarn prisma generate && next dev --turbo",
         "build": "next build",
         "start": "yarn prisma migrate deploy && yarn prisma generate && next start",
         "prettier": "prettier --check ./",

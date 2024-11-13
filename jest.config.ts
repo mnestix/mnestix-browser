@@ -1,11 +1,16 @@
+import nextJest from 'next/jest';
+import { Config } from 'jest';
+
 export {};
-module.exports = {
-    moduleDirectories: ['node_modules', 'src'],
-    transform: {
-        '^.+\\.(t|j)sx?$': '@swc/jest',
-    },
-    preset: 'ts-jest',
-    testEnvironment: 'node',
-    testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
+const createJestConfig = nextJest({
+    // Provide the path to your Next.js app to load next.config.js and .env files in your test environment
+    dir: './',
+})
+
+const config: Config = {
+    setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+    testEnvironment: 'jsdom',
     modulePathIgnorePatterns: ['cypress']
 };
+
+module.exports = createJestConfig(config);
