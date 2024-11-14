@@ -9,6 +9,7 @@ interface WrapperProps {
 /**
  * Custom Render method for UI Component testing.
  * Wraps the component with needed Providers.
+ * This can be removed when all localization is handled by next-intl.
  * @param ui
  * @param locale
  * @param renderOptions

@@ -11,20 +11,21 @@ const config: Config = {
     setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
     testEnvironment: 'jsdom',
     modulePathIgnorePatterns: ['cypress'],
+    // mock all svg files
     moduleNameMapper: {
         '^.+\\.(svg)$': '<rootDir>/__mocks__/svg.tsx',
     },
     testMatch: ['**/__tests__/**/*.tsx', '**/?(*.)+(spec|test).tsx'],
 };
 
-// @ts-expect-error test
+// @ts-expect-error We don't know the type
 const jestConfigWithOverrides = async (...args) => {
     const fn = createJestConfig(config);
-    // @ts-expect-error test
+    // @ts-expect-error We don't know the type
     const res = await fn(...args);
 
-    // @ts-expect-error test
-    res.transformIgnorePatterns = res.transformIgnorePatterns.map((pattern) => {
+    // Ignore specific node_modules during transformation
+    res.transformIgnorePatterns = res.transformIgnorePatterns!.map((pattern) => {
         if (pattern === '/node_modules/') {
             return '/node_modules(?!/flat)/';
         }
