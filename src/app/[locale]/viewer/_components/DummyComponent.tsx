@@ -7,7 +7,7 @@ export function DummyComponent() {
     const t = useTranslations('submodels.timeSeries');
 
     return (
-        <Box>
+        <Box data-testid="test-text">
             {t('linkedSegments')}
         </Box>
     )
