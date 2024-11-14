@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 import { NextIntlClientProvider } from 'next-intl';
 import { render } from '@testing-library/react';
 import enMessages from 'locale/en.json';
@@ -10,7 +10,7 @@ interface WrapperProps {
 
 const messages = {
     en: enMessages,
-    es: deMessages
+    es: deMessages,
 };
 
 const loadMessages = (locale: string) => {
@@ -25,13 +25,12 @@ const loadMessages = (locale: string) => {
  * @param renderOptions
  */
 export const CustomRender = (ui: ReactNode, { locale = 'en', ...renderOptions } = {}) => {
-    const messages = loadMessages(locale)
-    // eslint-disable-next-line react/prop-types
+    const messages = loadMessages(locale);
     const Wrapper: React.FC<WrapperProps> = ({ children }) => (
         <NextIntlClientProvider locale={locale} messages={messages}>
-        {children}
+            {children}
         </NextIntlClientProvider>
-);
+    );
 
     return render(ui, { wrapper: Wrapper, ...renderOptions });
 };
