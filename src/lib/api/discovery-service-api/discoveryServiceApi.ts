@@ -4,6 +4,7 @@ import { DiscoveryServiceApiInMemory } from 'lib/api/discovery-service-api/disco
 import { ApiResponseWrapper, wrapErrorCode, wrapSuccess } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 import { ServiceReachable } from 'lib/services/transfer-service/TransferService';
 import { SpecificAssetId } from '@aas-core-works/aas-core3.0-typescript/types';
+import * as path from 'node:path';
 
 export class DiscoveryServiceApi implements IDiscoveryServiceApi {
     private constructor(
@@ -34,7 +35,11 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
         return this.baseUrl;
     }
 
-    async linkAasIdAndAssetId(aasId: string, assetId: string, apikey?: string): Promise<ApiResponseWrapper<DiscoveryEntry>> {
+    async linkAasIdAndAssetId(
+        aasId: string,
+        assetId: string,
+        apikey?: string,
+    ): Promise<ApiResponseWrapper<DiscoveryEntry>> {
         const assetLink = {
             name: 'globalAssetId',
             value: assetId,
@@ -67,7 +72,7 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
             ...options,
         };
 
-        const url = new URL('lookup/shells', this.baseUrl);
+        const url = new URL(path.posix.join(this.baseUrl, 'lookup/shells'));
 
         assetIds.forEach((obj) => {
             url.searchParams.append('assetIds', encodeBase64(JSON.stringify(obj)));
@@ -89,14 +94,13 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
             ...options,
         };
 
-        const url = new URL(`lookup/shells/${b64_aasId}`, this.baseUrl);
-        return this.http.fetch<SpecificAssetId[]>(url.toString(), {
+        const url = path.posix.join(this.baseUrl, 'lookup/shells', b64_aasId);
+        return this.http.fetch<SpecificAssetId[]>(url, {
             method: 'GET',
             headers,
         });
     }
 
-    // TODO merge add apiKey to interface as well
     async postAllAssetLinksById(
         aasId: string,
         assetLinks: SpecificAssetId, // this is NOT a list in the specification
@@ -110,8 +114,8 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
             ...options,
         };
 
-        const url = new URL(`lookup/shells/${b64_aasId}`, this.baseUrl);
-        return this.http.fetch<SpecificAssetId>(url.toString(), {
+        const url = path.posix.join(this.baseUrl, 'lookup/shells', b64_aasId);
+        return this.http.fetch<SpecificAssetId>(url, {
             method: 'POST',
             headers,
             body: JSON.stringify(assetLinks),
@@ -127,10 +131,10 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
             ...options,
         };
 
-        const url = new URL(`lookup/shells/${b64_aasId}`, this.baseUrl);
-        return this.http.fetch(url.toString(), {
+        const url = path.posix.join(this.baseUrl, 'lookup/shells', b64_aasId);
+        return this.http.fetch(url, {
             method: 'DELETE',
-            headers
+            headers,
         });
     }
 }
