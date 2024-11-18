@@ -24,10 +24,10 @@ const jestConfigWithOverrides = async (...args) => {
     // @ts-expect-error We don't know the type
     const res = await fn(...args);
 
-    // Ignore specific node_modules during transformation
+    // Don't ignore specific node_modules during transformation. This is needed if a node_module doesn't return valid JavaScript files.
     res.transformIgnorePatterns = res.transformIgnorePatterns!.map((pattern) => {
         if (pattern === '/node_modules/') {
-            return '/node_modules(?!/flat)/';
+            return '/node_modules(?!/(flat|jose))/';
         }
         return pattern;
     });
