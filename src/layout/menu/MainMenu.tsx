@@ -1,16 +1,14 @@
 import MenuIcon from '@mui/icons-material/Menu';
 import { alpha, Box, Divider, Drawer, IconButton, List, styled, Typography } from '@mui/material';
-import { Dashboard, Home, Login, Logout, OpenInNew, Settings } from '@mui/icons-material';
+import { Dashboard, Login, Logout, OpenInNew, Settings } from '@mui/icons-material';
 import React, { useState } from 'react';
 import { useAuth } from 'lib/hooks/UseAuth';
 import { FormattedMessage } from 'react-intl';
 import { messages } from 'lib/i18n/localization';
 import { TemplateIcon } from 'components/custom-icons/TemplateIcon';
 import { MenuHeading } from './MenuHeading';
-import { useIsTablet } from 'lib/hooks/UseBreakpoints';
 import { MenuListItem, MenuListItemProps } from './MenuListItem';
 import ListIcon from '@mui/icons-material/List';
-import { HeaderLogo } from 'layout/HeaderLogo';
 import packageJson from '../../../package.json';
 import { useEnv } from 'app/env/provider';
 
@@ -19,6 +17,7 @@ const StyledDrawer = styled(Drawer)(({ theme }) => ({
         color: theme.palette.primary.contrastText,
         background: theme.palette.primary.main,
         width: '275px',
+        paddingTop: theme.mixins.toolbar.minHeight,
         '.MuiListItem-root, .MuiListItemButton-root': {
             '.MuiTypography-root': {
                 textOverflow: 'ellipsis',
@@ -44,6 +43,9 @@ const StyledDrawer = styled(Drawer)(({ theme }) => ({
             marginTop: 'auto',
         },
     },
+    '.MuiBackdrop-root': {
+        background: 'none',
+    },
 }));
 
 const StyledDivider = styled(Divider)(({ theme }) => ({
@@ -51,23 +53,9 @@ const StyledDivider = styled(Divider)(({ theme }) => ({
     opacity: 0.3,
 }));
 
-const StyledLogoWrapper = styled(Box)(({ theme }) => ({
-    width: '100%',
-    display: 'flex',
-    justifyContent: 'center',
-    alignContent: 'center',
-    padding: theme.spacing(3),
-    paddingTop: theme.spacing(5),
-    '.logo': {
-        maxWidth: 240,
-        height: 32,
-    },
-}));
-
 export default function MainMenu() {
     const [drawerOpen, setDrawerOpen] = useState(false);
     const auth = useAuth();
-    const isTablet = useIsTablet();
     const env = useEnv();
     const useAuthentication = env.AUTHENTICATION_FEATURE_FLAG;
     const versionString = 'Version ' + packageJson.version;
@@ -110,14 +98,9 @@ export default function MainMenu() {
 
     const guestMainMenu: MenuListItemProps[] = [
         {
-            label: <FormattedMessage {...messages.mnestix.login} />,
-            icon: <Login />,
-            onClick: () => auth.login(),
-        },
-        {
-            label: <FormattedMessage {...messages.mnestix.home} />,
+            label: <FormattedMessage {...messages.mnestix.dashboard} />,
             to: '/',
-            icon: <Home />,
+            icon: <Dashboard />,
         },
     ];
 
@@ -128,6 +111,14 @@ export default function MainMenu() {
             target: '_blank',
             external: true,
             icon: <OpenInNew />,
+        },
+    ];
+
+    const guestBottomMenu: MenuListItemProps[] = [
+        {
+            label: <FormattedMessage {...messages.mnestix.login} />,
+            icon: <Login />,
+            onClick: () => auth.login(),
         },
     ];
 
@@ -148,31 +139,19 @@ export default function MainMenu() {
             <IconButton
                 color={'inherit'}
                 sx={{ m: 1, zIndex: 1 }}
-                onClick={handleMenuInteraction(true)}
+                onClick={drawerOpen ? handleMenuInteraction(false) : handleMenuInteraction(true)}
                 data-testid="header-burgermenu"
             >
                 <MenuIcon />
             </IconButton>
-            <StyledDrawer
-                anchor="left"
-                open={drawerOpen}
-                onClose={handleMenuInteraction(false)}
-                variant={auth.isLoggedIn && !isTablet ? 'permanent' : 'temporary'}
-            >
-                {(!useAuthentication || auth.isLoggedIn) && (
-                    <StyledLogoWrapper display="flex" alignItems="center" justifyContent="center" width="100%">
-                        <Box className="logo">
-                            <HeaderLogo />
-                        </Box>
-                    </StyledLogoWrapper>
-                )}
+            <StyledDrawer anchor="left" open={drawerOpen} onClose={handleMenuInteraction(false)}>
                 <Box onClick={handleMenuInteraction(false)} onKeyDown={handleMenuInteraction(false)}>
                     <List>
-                        {!useAuthentication || auth.isLoggedIn ? (
+                        <MenuHeading>
+                            <FormattedMessage {...messages.mnestix.repository} />
+                        </MenuHeading>
+                        {(!useAuthentication || auth.isLoggedIn) ? (
                             <>
-                                <MenuHeading>
-                                    <FormattedMessage {...messages.mnestix.repository} />
-                                </MenuHeading>
                                 {adminMainMenu.map((props, i) => (
                                     <MenuListItem {...props} key={'adminMainMenu' + i} />
                                 ))}
@@ -192,6 +171,7 @@ export default function MainMenu() {
                             </>
                         )}
                     </List>
+
                 </Box>
                 <Typography
                     className="bottom-menu"
@@ -202,25 +182,29 @@ export default function MainMenu() {
                 >
                     {`Copyright © ${new Date().getFullYear()} XITASO GmbH`}
                 </Typography>
-                {(!useAuthentication || !auth.isLoggedIn) && (
+                <List>
                     <Typography align="left" paddingLeft="16px" paddingBottom="10px" style={{ opacity: '0.6' }}>
                         {versionString}
                     </Typography>
-                )}
-                {useAuthentication && auth.isLoggedIn && (
-                    <Box>
-                        <List>
-                            <Typography align="left" paddingLeft="16px" paddingBottom="10px" style={{ opacity: '0.6' }}>
-                                {versionString}
-                            </Typography>
-                            <StyledDivider />
-                            <MenuHeading>{auth.getAccount()?.user?.email}</MenuHeading>
+                    {useAuthentication && <StyledDivider />}
+                    {useAuthentication && auth.isLoggedIn && (
+                        <>
+                            {auth.getAccount()?.user?.email && (
+                                <MenuHeading>{auth.getAccount()?.user?.email}</MenuHeading>
+                            )}
                             {adminBottomMenu.map((props, i) => (
                                 <MenuListItem {...props} key={'adminBottomMenu' + i} />
                             ))}
-                        </List>
-                    </Box>
-                )}
+                        </>
+                    )}
+                    {useAuthentication && !auth.isLoggedIn && (
+                        <>
+                            {guestBottomMenu.map((props, i) => (
+                                <MenuListItem {...props} key={'guestBottomMenu' + i} />
+                            ))}
+                        </>
+                    )}
+                </List>
             </StyledDrawer>
         </>
     );
