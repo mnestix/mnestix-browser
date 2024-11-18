@@ -195,7 +195,7 @@ describe('TransferService: Export AAS', function () {
         expect(targetSubmodelRepo.getSubmodelById(technical.id)).toBeUndefined();
 
         const targetAas = (await service.targetAasRepositoryClient.getAssetAdministrationShellById(aas.id)).result!;
-        const targetSubmodels = targetAas.submodels;
+        const targetSubmodels = targetAas.submodels; // TODO is an empty list
         expect(targetSubmodels).toBeUndefined();
     });
 

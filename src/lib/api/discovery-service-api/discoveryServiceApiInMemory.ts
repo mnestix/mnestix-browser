@@ -20,7 +20,7 @@ export class DiscoveryServiceApiInMemory implements IDiscoveryServiceApi {
         return this.baseUrl;
     }
 
-    async linkAasIdAndAssetId(aasId: string, assetId: string): Promise<ApiResponseWrapper<DiscoveryEntry>> {
+    async linkAasIdAndAssetId(aasId: string, assetId: string, _apikey?: string): Promise<ApiResponseWrapper<DiscoveryEntry>> {
         if (this.reachable !== ServiceReachable.Yes)
             return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Service not reachable');
         const newEntry = {

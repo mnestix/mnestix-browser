@@ -7,8 +7,8 @@ import { IDiscoveryServiceApi } from 'lib/api/discovery-service-api/discoverySer
 import { RegistryServiceApi } from 'lib/api/registry-service-api/registryServiceApi';
 import { DiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApi';
 import { SubmodelRegistryServiceApi } from 'lib/api/submodel-registry-service/submodelRegistryServiceApi';
-import { AssetAdministrationShellDescriptor, Endpoint, SubmodelDescriptor } from 'lib/types/registryServiceTypes';
-import { base64ToBlob, encodeBase64 } from 'lib/util/Base64Util';
+import { AssetAdministrationShellDescriptor, SubmodelDescriptor } from 'lib/types/registryServiceTypes';
+import { base64ToBlob } from 'lib/util/Base64Util';
 import {
     AssetAdministrationShell,
     Blob,
@@ -18,7 +18,7 @@ import {
     Submodel,
     SubmodelElementCollection,
 } from '@aas-core-works/aas-core3.0-typescript/types';
-import { AttachmentDetails, TransferResult } from 'lib/types/TransferServiceData';
+import { AttachmentDetails, TransferAas, TransferResult, TransferSubmodel } from 'lib/types/TransferServiceData';
 import { getKeyType } from 'lib/util/KeyTypeUtil';
 import { generateRandomId } from 'lib/util/RandomUtils';
 import {
@@ -43,6 +43,7 @@ export class TransferService {
         readonly targetAasDiscoveryClient?: IDiscoveryServiceApi,
         readonly targetAasRegistryClient?: IRegistryServiceApi,
         readonly targetSubmodelRegistryClient?: ISubmodelRegistryServiceApi,
+        readonly apikey?: string,
     ) {}
 
     static create(
@@ -53,6 +54,7 @@ export class TransferService {
         targetAasDiscoveryBaseUrl?: string,
         targetAasRegistryBaseUrl?: string,
         targetSubmodelRegistryBaseUrl?: string,
+        apikey?: string,
     ): TransferService {
         const targetAasRepositoryClient = AssetAdministrationShellRepositoryApi.create(
             targetAasRepositoryBaseUrl,
@@ -94,6 +96,7 @@ export class TransferService {
             targetAasDiscoveryClient,
             targetAasRegistryClient,
             targetSubmodelRegistryClient,
+            apikey,
         );
     }
 
@@ -142,10 +145,10 @@ export class TransferService {
 
         const targetSubmodelRegistryClient = targetSubmodelRegistry
             ? SubmodelRegistryServiceApi.createNull(
-                'https://targetSubmodelRegistryClient.com',
-                [],
-                targetSubmodelRegistry,
-            )
+                  'https://targetSubmodelRegistryClient.com',
+                  [],
+                  targetSubmodelRegistry,
+              )
             : undefined;
 
         return new TransferService(
@@ -160,15 +163,17 @@ export class TransferService {
     }
 
     async transferAasWithSubmodels(
-        aas: AssetAdministrationShell,
-        submodels: Submodel[],
-        apikey?: string,
+        transferAas: TransferAas,
+        transferSubmodels: TransferSubmodel[],
     ): Promise<TransferResult[]> {
-        const submodelDescriptors = submodels.map((submodel) =>
-            createSubmodelDescriptorFromSubmodel(submodel, this.targetAasRepositoryClient.getBaseUrl()),
+        const submodelDescriptors = transferSubmodels.map((transferSubmodel) =>
+            createSubmodelDescriptorFromSubmodel(
+                transferSubmodel.submodel,
+                this.targetAasRepositoryClient.getBaseUrl(),
+            ),
         );
         const shellDescriptor = createShellDescriptorFromAas(
-            aas,
+            transferAas.aas,
             this.targetAasRepositoryClient.getBaseUrl(),
             submodelDescriptors,
         );
@@ -176,14 +181,16 @@ export class TransferService {
         const promises = [];
         const attachmentPromises: Promise<TransferResult>[] = [];
 
-        promises.push(this.postAasToRepository(aas, apikey));
+        promises.push(this.postAasToRepository(transferAas.aas, this.apikey));
 
-        if (aasThumbnailImageIsFile(aas)) {
-            attachmentPromises.push(this.putThumbnailImageToShell(originalAasId, aas.id, apikey));
+        if (aasThumbnailImageIsFile(transferAas.aas)) {
+            attachmentPromises.push(
+                this.transferThumbnailImageToShell(transferAas.originalAasId, transferAas.aas.id, this.apikey),
+            );
         }
 
-        if (this.targetAasDiscoveryClient && aas.assetInformation.globalAssetId) {
-            promises.push(this.registerAasAtDiscovery(aas, apikey));
+        if (this.targetAasDiscoveryClient && transferAas.aas.assetInformation.globalAssetId) {
+            promises.push(this.registerAasAtDiscovery(transferAas.aas, this.apikey));
         }
 
         if (this.targetAasRegistryClient) {
@@ -191,8 +198,8 @@ export class TransferService {
         }
 
         // TODO submodels should be of type TransferSubmodel[]
-        for (const transferSubmodel of submodels) {
-            promises.push(this.postSubmodelToRepository(transferSubmodel.submodel, apikey));
+        for (const transferSubmodel of transferSubmodels) {
+            promises.push(this.postSubmodelToRepository(transferSubmodel.submodel, this.apikey));
 
             if (transferSubmodel.submodel.submodelElements) {
                 const attachmentDetails = this.getSubmodelAttachmentsDetails(
@@ -202,7 +209,7 @@ export class TransferService {
                     transferSubmodel.originalSubmodelId,
                     transferSubmodel.submodel.id,
                     attachmentDetails,
-                    apikey,
+                    this.apikey,
                 );
                 attachmentPromises.push(...result);
             }
@@ -286,7 +293,7 @@ export class TransferService {
         }
     }
 
-    private async putThumbnailImageToShell(
+    private async transferThumbnailImageToShell(
         originalAasId: string,
         targetAasId: string,
         apikey?: string,
@@ -394,10 +401,11 @@ export class TransferService {
         }
     }
 
-    private async registerAasAtDiscovery(aas: AssetAdministrationShell): Promise<TransferResult> {
+    private async registerAasAtDiscovery(aas: AssetAdministrationShell, apikey?: string): Promise<TransferResult> {
         const response = await this.targetAasDiscoveryClient!.linkAasIdAndAssetId(
             aas.id,
             aas.assetInformation.globalAssetId!,
+            apikey,
         );
         if (response.isSuccess) {
             return { success: true, operationKind: 'Discovery', resourceId: aas.id, error: '' };

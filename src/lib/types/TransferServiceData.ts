@@ -4,9 +4,9 @@ export type TransferDto = {
     aas: TransferAas;
     submodels: TransferSubmodel[];
     targetAasRepositoryBaseUrl: string;
-    sourceAasRepositoryBaseUrl?: string; // TODO change this to mandatory
+    sourceAasRepositoryBaseUrl: string;
     targetSubmodelRepositoryBaseUrl: string;
-    sourceSubmodelRepositoryBaseUrl?: string; // TODO change this to mandatory
+    sourceSubmodelRepositoryBaseUrl: string;
     targetDiscoveryBaseUrl?: string;
     targetAasRegistryBaseUrl?: string;
     targetSubmodelRegistryBaseUrl?: string;
