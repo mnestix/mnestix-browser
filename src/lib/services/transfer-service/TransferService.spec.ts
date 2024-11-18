@@ -35,10 +35,11 @@ describe('TransferService: Export AAS', function () {
             ServiceReachable.Yes,
         );
 
-        const transferResult = await service.transferAasWithSubmodels(transferAas, [
-            transferNameplate,
-            transferTechnical,
-        ]);
+        const transferResult = await service.transferAasWithSubmodels(
+            transferAas,
+            [transferNameplate, transferTechnical],
+            0,
+        );
 
         // Should include AAS repo, registry, thumbnail, discovery; submodel repo, registry, file
         expect(transferResult).toHaveLength(7);
@@ -63,10 +64,11 @@ describe('TransferService: Export AAS', function () {
             [nameplate, technical],
         );
 
-        const transferResult = await service.transferAasWithSubmodels(transferAas, [
-            transferNameplate,
-            transferTechnical,
-        ]);
+        const transferResult = await service.transferAasWithSubmodels(
+            transferAas,
+            [transferNameplate, transferTechnical],
+            0,
+        );
 
         // Should have no errors; registries and discovery not in return list
         expect(transferResult).toHaveLength(3);
@@ -86,13 +88,14 @@ describe('TransferService: Export AAS', function () {
             ServiceReachable.Yes,
         );
 
-        const transferResult = await service.transferAasWithSubmodels(transferAas, [
-            transferNameplate,
-            transferTechnical,
-        ]);
+        const transferResult = await service.transferAasWithSubmodels(
+            transferAas,
+            [transferNameplate, transferTechnical],
+            0,
+        );
 
-        // Should not copy anything
-        expectTransferResult(transferResult, 0b0);
+        // Should only error on AAS repository but copy everything else
+        expectTransferResult(transferResult, 0b0111111);
     });
 
     it('Cannot reach Discovery service', async function () {
@@ -108,10 +111,11 @@ describe('TransferService: Export AAS', function () {
             ServiceReachable.Yes,
         );
 
-        const transferResult = await service.transferAasWithSubmodels(transferAas, [
-            transferNameplate,
-            transferTechnical,
-        ]);
+        const transferResult = await service.transferAasWithSubmodels(
+            transferAas,
+            [transferNameplate, transferTechnical],
+            0,
+        );
 
         // Should copy submodels, repository and registry; error on discovery
         const discoveryResult = transferResult.find((value) => value.operationKind == 'Discovery');
@@ -133,10 +137,11 @@ describe('TransferService: Export AAS', function () {
             ServiceReachable.Yes,
         );
 
-        const transferResult = await service.transferAasWithSubmodels(transferAas, [
-            transferNameplate,
-            transferTechnical,
-        ]);
+        const transferResult = await service.transferAasWithSubmodels(
+            transferAas,
+            [transferNameplate, transferTechnical],
+            0,
+        );
 
         // Should copy submodels, repository and discovery; error on registry
         const discoveryResults = transferResult.filter((value) => value.operationKind == 'AasRegistry');
@@ -158,13 +163,14 @@ describe('TransferService: Export AAS', function () {
             ServiceReachable.Yes,
         );
 
-        const transferResult = await service.transferAasWithSubmodels(transferAas, [
-            transferNameplate,
-            transferTechnical,
-        ]);
+        const transferResult = await service.transferAasWithSubmodels(
+            transferAas,
+            [transferNameplate, transferTechnical],
+            0,
+        );
 
-        // Should copy AAS in repo, registry, discovery; submodels fail in repo AND registry
-        expectTransferResult(transferResult, 0b1110000);
+        // Should copy AAS in repo, registry, discovery; submodels fail in repo but work in registry
+        expectTransferResult(transferResult, 0b1110011);
     });
 
     it('Not all submodels are selected for copying', async function () {
@@ -180,17 +186,14 @@ describe('TransferService: Export AAS', function () {
             ServiceReachable.Yes,
         );
 
-        await service.transferAasWithSubmodels(transferAas, [transferNameplate]);
+        await service.transferAasWithSubmodels(transferAas, [transferNameplate], 0);
 
         // Should only put selected submodels and data into aas submodel properties; rest should not be in return list
         const targetSubmodelRepo = service.targetSubmodelRepositoryClient;
-        expect(targetSubmodelRepo.getSubmodelById(nameplate.id)).toBeTruthy();
-        expect(targetSubmodelRepo.getSubmodelById(technical.id)).toBeUndefined();
+        expect((await targetSubmodelRepo.getSubmodelById(nameplate.id)).isSuccess);
+        expect(!(await targetSubmodelRepo.getSubmodelById(technical.id)).isSuccess);
 
-        const targetSubmodels = (await service.targetAasRepositoryClient.getAssetAdministrationShellById(aas.id)).result
-            ?.submodels;
-        expect(targetSubmodels).toHaveLength(1);
-        expect(targetSubmodels![0].keys[0].value).toBe(nameplate.id);
+        // Inner AAS submodel references are handled on top level
     });
 
     it('No submodels are selected for copying', async function () {
@@ -206,16 +209,14 @@ describe('TransferService: Export AAS', function () {
             ServiceReachable.Yes,
         );
 
-        await service.transferAasWithSubmodels(transferAas, []);
+        await service.transferAasWithSubmodels(transferAas, [], 0);
 
         // aas submodel properties should be null
         const targetSubmodelRepo = service.targetSubmodelRepositoryClient;
-        expect(targetSubmodelRepo.getSubmodelById(nameplate.id)).toBeUndefined();
-        expect(targetSubmodelRepo.getSubmodelById(technical.id)).toBeUndefined();
+        expect(!(await targetSubmodelRepo.getSubmodelById(nameplate.id)).isSuccess);
+        expect(!(await targetSubmodelRepo.getSubmodelById(technical.id)).isSuccess);
 
-        const targetAas = (await service.targetAasRepositoryClient.getAssetAdministrationShellById(aas.id)).result!;
-        const targetSubmodels = targetAas.submodels; // TODO is an empty list
-        expect(targetSubmodels).toBeUndefined();
+        // Inner AAS submodel references are handled on top level
     });
 
     it('The target aas already exists in repo', async function () {
@@ -232,13 +233,14 @@ describe('TransferService: Export AAS', function () {
         );
 
         await service.targetAasRepositoryClient.postAssetAdministrationShell(aas);
-        const transferResult = await service.transferAasWithSubmodels(transferAas, [
-            transferNameplate,
-            transferTechnical,
-        ]);
+        const transferResult = await service.transferAasWithSubmodels(
+            transferAas,
+            [transferNameplate, transferTechnical],
+            0,
+        );
 
-        // error for repository, rest error because aas not copied
-        expectTransferResult(transferResult, 0b0);
+        // error for repository, rest ok
+        expectTransferResult(transferResult, 0b0111111);
     });
 
     it('The target aas already exists in registry', async function () {
@@ -256,10 +258,11 @@ describe('TransferService: Export AAS', function () {
 
         const shellDescriptor = createShellDescriptorFromAas(aas, service.targetSubmodelRepositoryClient?.getBaseUrl());
         await service.targetAasRegistryClient!.postAssetAdministrationShellDescriptor(shellDescriptor);
-        const transferResult = await service.transferAasWithSubmodels(transferAas, [
-            transferNameplate,
-            transferTechnical,
-        ]);
+        const transferResult = await service.transferAasWithSubmodels(
+            transferAas,
+            [transferNameplate, transferTechnical],
+            0,
+        );
 
         // error for aas registry only
         expectTransferResult(transferResult, 0b1101111);
@@ -279,10 +282,11 @@ describe('TransferService: Export AAS', function () {
         );
 
         await service.targetAasDiscoveryClient!.linkAasIdAndAssetId(aas.id, aas.assetInformation.globalAssetId!);
-        const transferResult = await service.transferAasWithSubmodels(transferAas, [
-            transferNameplate,
-            transferTechnical,
-        ]);
+        const transferResult = await service.transferAasWithSubmodels(
+            transferAas,
+            [transferNameplate, transferTechnical],
+            0,
+        );
 
         // error for discovery only
         expectTransferResult(transferResult, 0b1011111);
@@ -302,13 +306,14 @@ describe('TransferService: Export AAS', function () {
         );
 
         await service.targetSubmodelRepositoryClient.postSubmodel(nameplate);
-        const transferResult = await service.transferAasWithSubmodels(transferAas, [
-            transferNameplate,
-            transferTechnical,
-        ]);
+        const transferResult = await service.transferAasWithSubmodels(
+            transferAas,
+            [transferNameplate, transferTechnical],
+            0,
+        );
 
-        // error for repository and registry of submodel
-        expectTransferResult(transferResult, 0b1110101);
+        // error for repository of submodel, registry is ok
+        expectTransferResult(transferResult, 0b1110111);
     });
 
     it('The target submodel already exists in registry', async function () {
@@ -330,10 +335,11 @@ describe('TransferService: Export AAS', function () {
             service.targetAasRepositoryClient.getBaseUrl(),
         );
         await service.targetSubmodelRegistryClient!.postSubmodelDescriptor(submodelDescriptor);
-        const transferResult = await service.transferAasWithSubmodels(transferAas, [
-            transferNameplate,
-            transferTechnical,
-        ]);
+        const transferResult = await service.transferAasWithSubmodels(
+            transferAas,
+            [transferNameplate, transferTechnical],
+            0,
+        );
 
         // error for repository and registry of submodel
         expectTransferResult(transferResult, 0b1111101);

@@ -165,6 +165,7 @@ export class TransferService {
     async transferAasWithSubmodels(
         transferAas: TransferAas,
         transferSubmodels: TransferSubmodel[],
+        attachmentTimeout: number = 5000,
     ): Promise<TransferResult[]> {
         const submodelDescriptors = transferSubmodels.map((transferSubmodel) =>
             createSubmodelDescriptorFromSubmodel(
@@ -197,7 +198,6 @@ export class TransferService {
             promises.push(this.registerAasAtRegistry(shellDescriptor));
         }
 
-        // TODO submodels should be of type TransferSubmodel[]
         for (const transferSubmodel of transferSubmodels) {
             promises.push(this.postSubmodelToRepository(transferSubmodel.submodel, this.apikey));
 
@@ -228,7 +228,7 @@ export class TransferService {
         const attachmentResults: TransferResult[] = await new Promise((resolve) => {
             setTimeout(() => {
                 resolve(Promise.all(attachmentPromises));
-            }, 5000);
+            }, attachmentTimeout);
         });
 
         return [...mainResults, ...attachmentResults];
