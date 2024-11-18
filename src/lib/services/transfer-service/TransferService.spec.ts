@@ -3,11 +3,14 @@ import { ServiceReachable, TransferService } from 'lib/services/transfer-service
 import testData from './TransferService.data.json';
 import { AssetAdministrationShell, Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
 import { createShellDescriptorFromAas, createSubmodelDescriptorFromSubmodel } from 'lib/util/TransferUtil';
-import { TransferResult } from 'lib/types/TransferServiceData';
+import { TransferAas, TransferResult, TransferSubmodel } from 'lib/types/TransferServiceData';
 
 const aas = testData.transferAas as unknown as AssetAdministrationShell;
+const transferAas = { aas: aas, originalAasId: aas.id } as TransferAas;
 const nameplate = testData.transferSubmodelNameplate as unknown as Submodel;
+const transferNameplate = { submodel: nameplate, originalSubmodelId: nameplate.id } as TransferSubmodel;
 const technical = testData.transferSubmodelTechnicalData as unknown as Submodel;
+const transferTechnical = { submodel: technical, originalSubmodelId: technical.id } as TransferSubmodel;
 
 const checkNthBinaryDigit = (number: number, digit: number) => ((number >>> digit) & 1) == 1;
 
@@ -19,8 +22,6 @@ function expectTransferResult(result: TransferResult[], successMask: number = 0x
 }
 
 describe('TransferService: Export AAS', function () {
-    const apikey = 'superduperkey';
-
     it('All services given', async () => {
         const service = TransferService.createNull(
             ServiceReachable.Yes,
@@ -34,7 +35,10 @@ describe('TransferService: Export AAS', function () {
             ServiceReachable.Yes,
         );
 
-        const transferResult = await service.transferAasWithSubmodels(aas, [nameplate, technical], apikey);
+        const transferResult = await service.transferAasWithSubmodels(transferAas, [
+            transferNameplate,
+            transferTechnical,
+        ]);
 
         // Should include AAS repo, registry, thumbnail, discovery; submodel repo, registry, file
         expect(transferResult).toHaveLength(7);
@@ -59,7 +63,10 @@ describe('TransferService: Export AAS', function () {
             [nameplate, technical],
         );
 
-        const transferResult = await service.transferAasWithSubmodels(aas, [nameplate, technical], apikey);
+        const transferResult = await service.transferAasWithSubmodels(transferAas, [
+            transferNameplate,
+            transferTechnical,
+        ]);
 
         // Should have no errors; registries and discovery not in return list
         expect(transferResult).toHaveLength(3);
@@ -79,7 +86,10 @@ describe('TransferService: Export AAS', function () {
             ServiceReachable.Yes,
         );
 
-        const transferResult = await service.transferAasWithSubmodels(aas, [nameplate, technical], apikey);
+        const transferResult = await service.transferAasWithSubmodels(transferAas, [
+            transferNameplate,
+            transferTechnical,
+        ]);
 
         // Should not copy anything
         expectTransferResult(transferResult, 0b0);
@@ -98,7 +108,10 @@ describe('TransferService: Export AAS', function () {
             ServiceReachable.Yes,
         );
 
-        const transferResult = await service.transferAasWithSubmodels(aas, [nameplate, technical], apikey);
+        const transferResult = await service.transferAasWithSubmodels(transferAas, [
+            transferNameplate,
+            transferTechnical,
+        ]);
 
         // Should copy submodels, repository and registry; error on discovery
         const discoveryResult = transferResult.find((value) => value.operationKind == 'Discovery');
@@ -120,7 +133,10 @@ describe('TransferService: Export AAS', function () {
             ServiceReachable.Yes,
         );
 
-        const transferResult = await service.transferAasWithSubmodels(aas, [nameplate, technical], apikey);
+        const transferResult = await service.transferAasWithSubmodels(transferAas, [
+            transferNameplate,
+            transferTechnical,
+        ]);
 
         // Should copy submodels, repository and discovery; error on registry
         const discoveryResults = transferResult.filter((value) => value.operationKind == 'AasRegistry');
@@ -142,7 +158,10 @@ describe('TransferService: Export AAS', function () {
             ServiceReachable.Yes,
         );
 
-        const transferResult = await service.transferAasWithSubmodels(aas, [nameplate, technical], apikey);
+        const transferResult = await service.transferAasWithSubmodels(transferAas, [
+            transferNameplate,
+            transferTechnical,
+        ]);
 
         // Should copy AAS in repo, registry, discovery; submodels fail in repo AND registry
         expectTransferResult(transferResult, 0b1110000);
@@ -161,7 +180,7 @@ describe('TransferService: Export AAS', function () {
             ServiceReachable.Yes,
         );
 
-        await service.transferAasWithSubmodels(aas, [nameplate], apikey);
+        await service.transferAasWithSubmodels(transferAas, [transferNameplate]);
 
         // Should only put selected submodels and data into aas submodel properties; rest should not be in return list
         const targetSubmodelRepo = service.targetSubmodelRepositoryClient;
@@ -187,7 +206,7 @@ describe('TransferService: Export AAS', function () {
             ServiceReachable.Yes,
         );
 
-        await service.transferAasWithSubmodels(aas, [], apikey);
+        await service.transferAasWithSubmodels(transferAas, []);
 
         // aas submodel properties should be null
         const targetSubmodelRepo = service.targetSubmodelRepositoryClient;
@@ -213,7 +232,10 @@ describe('TransferService: Export AAS', function () {
         );
 
         await service.targetAasRepositoryClient.postAssetAdministrationShell(aas);
-        const transferResult = await service.transferAasWithSubmodels(aas, [nameplate, technical], apikey);
+        const transferResult = await service.transferAasWithSubmodels(transferAas, [
+            transferNameplate,
+            transferTechnical,
+        ]);
 
         // error for repository, rest error because aas not copied
         expectTransferResult(transferResult, 0b0);
@@ -234,7 +256,10 @@ describe('TransferService: Export AAS', function () {
 
         const shellDescriptor = createShellDescriptorFromAas(aas, service.targetSubmodelRepositoryClient?.getBaseUrl());
         await service.targetAasRegistryClient!.postAssetAdministrationShellDescriptor(shellDescriptor);
-        const transferResult = await service.transferAasWithSubmodels(aas, [nameplate, technical], apikey);
+        const transferResult = await service.transferAasWithSubmodels(transferAas, [
+            transferNameplate,
+            transferTechnical,
+        ]);
 
         // error for aas registry only
         expectTransferResult(transferResult, 0b1101111);
@@ -254,7 +279,10 @@ describe('TransferService: Export AAS', function () {
         );
 
         await service.targetAasDiscoveryClient!.linkAasIdAndAssetId(aas.id, aas.assetInformation.globalAssetId!);
-        const transferResult = await service.transferAasWithSubmodels(aas, [nameplate, technical], apikey);
+        const transferResult = await service.transferAasWithSubmodels(transferAas, [
+            transferNameplate,
+            transferTechnical,
+        ]);
 
         // error for discovery only
         expectTransferResult(transferResult, 0b1011111);
@@ -274,7 +302,10 @@ describe('TransferService: Export AAS', function () {
         );
 
         await service.targetSubmodelRepositoryClient.postSubmodel(nameplate);
-        const transferResult = await service.transferAasWithSubmodels(aas, [nameplate, technical], apikey);
+        const transferResult = await service.transferAasWithSubmodels(transferAas, [
+            transferNameplate,
+            transferTechnical,
+        ]);
 
         // error for repository and registry of submodel
         expectTransferResult(transferResult, 0b1110101);
@@ -299,7 +330,10 @@ describe('TransferService: Export AAS', function () {
             service.targetAasRepositoryClient.getBaseUrl(),
         );
         await service.targetSubmodelRegistryClient!.postSubmodelDescriptor(submodelDescriptor);
-        const transferResult = await service.transferAasWithSubmodels(aas, [nameplate, technical], apikey);
+        const transferResult = await service.transferAasWithSubmodels(transferAas, [
+            transferNameplate,
+            transferTechnical,
+        ]);
 
         // error for repository and registry of submodel
         expectTransferResult(transferResult, 0b1111101);
