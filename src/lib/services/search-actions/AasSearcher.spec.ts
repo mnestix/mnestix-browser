@@ -34,8 +34,8 @@ describe('Full Aas Search happy paths', () => {
         const aas = createDummyAas(aasId);
         const searcher = AasSearcher.createNull({
             discoveryEntries: [{ assetId: searchString, aasId: aasId }],
-            registryDescriptorEntries: [createDummyShellDescriptor(AAS_ENDPOINT, aasId)],
-            shellsOnRegistry: [{ endpoint: AAS_ENDPOINT, aas: aas }],
+            aasRegistryDescriptors: [createDummyShellDescriptor(AAS_ENDPOINT, aasId)],
+            aasRegistryEndpoints: [{ endpoint: AAS_ENDPOINT, aas: aas }],
         });
 
         const search = await searcher.performFullSearch(searchString);
@@ -52,7 +52,7 @@ describe('Full Aas Search happy paths', () => {
         const aas = createDummyAas(aasId);
         const searcher = AasSearcher.createNull({
             discoveryEntries: [{ assetId: searchString, aasId: aasId }],
-            shellsInRepositories: [{ searchResult: aas, location: testUrl }],
+            aasInRepositories: [{ searchResult: aas, location: testUrl }],
         });
 
         const search = await searcher.performFullSearch(searchString);
@@ -67,8 +67,8 @@ describe('Full Aas Search happy paths', () => {
         const searchString = aasId;
         const aas = createDummyAas(aasId);
         const searcher = AasSearcher.createNull({
-            registryDescriptorEntries: [createDummyShellDescriptor(AAS_ENDPOINT, aasId)],
-            shellsOnRegistry: [{ endpoint: AAS_ENDPOINT, aas: aas }],
+            aasRegistryDescriptors: [createDummyShellDescriptor(AAS_ENDPOINT, aasId)],
+            aasRegistryEndpoints: [{ endpoint: AAS_ENDPOINT, aas: aas }],
         });
 
         const search = await searcher.performFullSearch(searchString);
@@ -84,7 +84,7 @@ describe('Full Aas Search happy paths', () => {
         const testUrl = 'https://testrepo.com';
         const aas = createDummyAas(aasId);
         const searcher = AasSearcher.createNull({
-            shellsInRepositories: [{ searchResult: aas, location: testUrl }],
+            aasInRepositories: [{ searchResult: aas, location: testUrl }],
         });
 
         const search = await searcher.performFullSearch(searchString);
@@ -100,7 +100,7 @@ describe('Full Aas Search happy paths', () => {
         const testUrl = 'https://testrepo.com';
         const aas = createDummyAas(aasId);
         const searcher = AasSearcher.createNull({
-            shellsInRepositories: [{ searchResult: aas, location: testUrl }],
+            aasInRepositories: [{ searchResult: aas, location: testUrl }],
         });
 
         const search = await searcher.performFullSearch(searchString);
@@ -114,7 +114,7 @@ describe('Full Aas Search happy paths', () => {
         const aasId = 'dummy aasId';
         const searchString = aasId;
         const searcher = AasSearcher.createNull({
-            shellsInRepositories: [
+            aasInRepositories: [
                 { searchResult: createDummyAas(aasId), location: 'https://testrepo1.com' },
                 { searchResult: createDummyAas(aasId), location: 'https://testrepo2.com' },
             ],
@@ -144,11 +144,11 @@ describe('Full Aas Search edge cases', () => {
         const log = Log.createNull();
         const searcher = AasSearcher.createNull({
             discoveryEntries: [{ assetId: searchString, aasId: aasId }],
-            registryDescriptorEntries: [createDummyShellDescriptor(AAS_ENDPOINT, aasId)],
-            shellsOnRegistry: [
+            aasRegistryDescriptors: [createDummyShellDescriptor(AAS_ENDPOINT, aasId)],
+            aasInRepositories: [
                 {
-                    endpoint: new URL(AAS_ENDPOINT + 'wrong path'),
-                    aas: createDummyAas(aasId),
+                    searchResult: createDummyAas(aasId),
+                    location: AAS_ENDPOINT + 'wrong path',
                 },
             ],
             log: log,
@@ -163,11 +163,11 @@ describe('Full Aas Search edge cases', () => {
         const log = Log.createNull();
         const searcher = AasSearcher.createNull({
             discoveryEntries: [{ assetId: 'wrong asset Id', aasId: aasId }],
-            registryDescriptorEntries: [createDummyShellDescriptor(AAS_ENDPOINT, aasId)],
-            shellsOnRegistry: [
+            aasRegistryDescriptors: [createDummyShellDescriptor(AAS_ENDPOINT, aasId)],
+            aasInRepositories: [
                 {
-                    endpoint: new URL(AAS_ENDPOINT + 'wrong path'),
-                    aas: createDummyAas(aasId),
+                    searchResult: createDummyAas(aasId),
+                    location: AAS_ENDPOINT + 'wrong path',
                 },
             ],
             log: log,
