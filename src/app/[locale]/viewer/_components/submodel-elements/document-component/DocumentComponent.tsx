@@ -15,10 +15,9 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { getTranslationText, hasSemanticId } from 'lib/util/SubmodelResolverUtil';
 import { DocumentDetailsDialog } from './DocumentDetailsDialog';
 import { isValidUrl } from 'lib/util/UrlUtil';
-import { base64ToBlob, encodeBase64 } from 'lib/util/Base64Util';
+import { encodeBase64 } from 'lib/util/Base64Util';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { getAttachmentFromSubmodelElement } from 'lib/services/repository-access/repositorySearchActions';
-import { isSuccessWithFile } from 'lib/util/apiResponseWrapper/apiResponseWrapperUtil';
 import { useAasOriginSourceState } from 'components/contexts/CurrentAasContext';
 
 enum DocumentSpecificSemanticId {
@@ -177,15 +176,12 @@ export function DocumentComponent(props: MarkingsComponentProps) {
             const imageResponse = await getAttachmentFromSubmodelElement(
                 props.submodelId,
                 submodelElementPath,
-                aasOriginUrl,
+                aasOriginUrl ?? undefined,
             );
             if (!imageResponse.isSuccess) {
                 console.error('Image not found' + imageResponse.message);
-            } else if (isSuccessWithFile(imageResponse)) {
-                digitalFile.digitalFileUrl = URL.createObjectURL(
-                    base64ToBlob(imageResponse.result, imageResponse.fileType),
-                );
-                digitalFile.mimeType = (versionSubmodelEl as File).contentType;
+            } else {
+                digitalFile.digitalFileUrl = URL.createObjectURL(imageResponse.result);
             }
         }
 
@@ -215,12 +211,12 @@ export function DocumentComponent(props: MarkingsComponentProps) {
             const imageResponse = await getAttachmentFromSubmodelElement(
                 props.submodelId,
                 submodelElementPath,
-                aasOriginUrl,
+                aasOriginUrl ?? undefined,
             );
             if (!imageResponse.isSuccess) {
                 console.error('Image not found' + imageResponse.message);
-            } else if (isSuccessWithFile(imageResponse)) {
-                previewImgUrl = URL.createObjectURL(base64ToBlob(imageResponse.result, imageResponse.fileType));
+            } else {
+                previewImgUrl = URL.createObjectURL(imageResponse.result);
             }
         }
 

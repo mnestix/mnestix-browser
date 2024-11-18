@@ -4,8 +4,6 @@ import { useState } from 'react';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { isValidUrl } from 'lib/util/UrlUtil';
 import { getAttachmentFromSubmodelElement } from 'lib/services/repository-access/repositorySearchActions';
-import { base64ToBlob } from 'lib/util/Base64Util';
-import { isSuccessWithFile } from 'lib/util/apiResponseWrapper/apiResponseWrapperUtil';
 import { useAasOriginSourceState } from 'components/contexts/CurrentAasContext';
 
 type SingleMarkingsComponentProps = {
@@ -42,13 +40,15 @@ export function SingleMarkingsComponent(props: SingleMarkingsComponentProps) {
     useAsyncEffect(async () => {
         if (!isValidUrl(file!.value)) {
             const fileIdShort = idShortPath + '.' + file?.idShort;
-            const response = await getAttachmentFromSubmodelElement(submodelId!, fileIdShort, aasOriginUrl);
-            let image: Blob;
-            if (isSuccessWithFile(response)) {
-                image = base64ToBlob(response.result, response.fileType);
-                setMarkingImage(URL.createObjectURL(image));
-            } else {
+            const response = await getAttachmentFromSubmodelElement(
+                submodelId!,
+                fileIdShort,
+                aasOriginUrl ?? undefined,
+            );
+            if (!response.isSuccess) {
                 console.error('Image not found for file ID: ' + fileIdShort);
+            } else {
+                setMarkingImage(URL.createObjectURL(response.result));
             }
         } else {
             if (file?.value) setMarkingImage(file.value);

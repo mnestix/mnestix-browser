@@ -1,4 +1,4 @@
-import { blobToBase64 } from 'lib/util/Base64Util';
+import { base64ToBlob, blobToBase64 } from 'lib/util/Base64Util';
 
 export const ApiResultStatus = {
     SUCCESS: 'SUCCESS',
@@ -36,7 +36,8 @@ export type ApiResponseWrapperSuccess<T> = {
 
 export type ApiResponseWrapperSuccessWithFile<T> = {
     isSuccess: true;
-    result: T extends Blob ? string : T;
+    get result(): T;
+    fileContent: string;
     fileType: string;
 };
 
@@ -86,9 +87,12 @@ export async function wrapFileResponse<T>(response: Response): Promise<ApiRespon
     if (status === ApiResultStatus.SUCCESS) {
         return {
             isSuccess: true,
-            result: (await blobToBase64(fileFromResponse)) as ApiResponseWrapperSuccessWithFile<T>['result'],
+            fileContent: await blobToBase64(fileFromResponse),
             fileType: fileFromResponse.type,
-        };
+            get result(): T {
+                return base64ToBlob(this.fileContent, this.fileType) as T;
+            },
+        } as ApiResponseWrapperSuccessWithFile<T>;
     } else {
         return {
             isSuccess: false,

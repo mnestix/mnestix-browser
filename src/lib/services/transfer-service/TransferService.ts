@@ -8,11 +8,10 @@ import { RegistryServiceApi } from 'lib/api/registry-service-api/registryService
 import { DiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApi';
 import { SubmodelRegistryServiceApi } from 'lib/api/submodel-registry-service/submodelRegistryServiceApi';
 import { AssetAdministrationShellDescriptor, SubmodelDescriptor } from 'lib/types/registryServiceTypes';
-import { base64ToBlob } from 'lib/util/Base64Util';
 import {
     AssetAdministrationShell,
-    Blob,
-    File,
+    Blob as aasCoreBlob,
+    File as aasCoreFile,
     ISubmodelElement,
     KeyTypes,
     Submodel,
@@ -26,7 +25,6 @@ import {
     createShellDescriptorFromAas,
     createSubmodelDescriptorFromSubmodel,
 } from 'lib/util/TransferUtil';
-import { isSuccessWithFile } from 'lib/util/apiResponseWrapper/apiResponseWrapperUtil';
 import { ApiResponseWrapperError } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 
 export enum ServiceReachable {
@@ -299,35 +297,35 @@ export class TransferService {
         apikey?: string,
     ): Promise<TransferResult> {
         const response = await this.sourceAasRepositoryClient.getThumbnailFromShell(originalAasId);
-        if (isSuccessWithFile(response)) {
-            const aasThumbnail = base64ToBlob(response.result, response.fileType);
-            const fileName = ['thumbnail', generateRandomId()].join('');
-            const pushResponse = await this.targetAasRepositoryClient.putThumbnailToShell(
-                targetAasId,
-                aasThumbnail,
-                fileName,
-                {
-                    headers: {
-                        Apikey: apikey,
-                    },
-                },
-            );
-            if (pushResponse.isSuccess) {
-                return { success: true, operationKind: 'FileTransfer', resourceId: 'Thumbnail transfer.', error: '' };
-            } else {
-                return {
-                    success: false,
-                    operationKind: 'FileTransfer',
-                    resourceId: 'Thumbnail transfer.',
-                    error: pushResponse.message,
-                };
-            }
-        } else {
+        if (!response.isSuccess) {
             return {
                 success: false,
                 operationKind: 'FileTransfer',
                 resourceId: 'Thumbnail transfer.',
                 error: (response as ApiResponseWrapperError<Blob>).message,
+            };
+        }
+
+        const aasThumbnail = response.result;
+        const fileName = ['thumbnail', generateRandomId()].join('');
+        const pushResponse = await this.targetAasRepositoryClient.putThumbnailToShell(
+            targetAasId,
+            aasThumbnail,
+            fileName,
+            {
+                headers: {
+                    Apikey: apikey,
+                },
+            },
+        );
+        if (pushResponse.isSuccess) {
+            return { success: true, operationKind: 'FileTransfer', resourceId: 'Thumbnail transfer.', error: '' };
+        } else {
+            return {
+                success: false,
+                operationKind: 'FileTransfer',
+                resourceId: 'Thumbnail transfer.',
+                error: pushResponse.message,
             };
         }
     }
@@ -345,14 +343,7 @@ export class TransferService {
                 originalSubmodelId,
                 attachmentDetail.idShortPath,
             );
-            if (isSuccessWithFile(response)) {
-                attachmentDetail.file = base64ToBlob(response.result, response.fileType);
-                attachmentDetail.fileName = [
-                    attachmentDetail.fileName,
-                    this.getExtensionFromFileType(attachmentDetail.file.type),
-                ].join('.');
-                promises.push(this.putAttachmentToSubmodelElement(targetSubmodelId, attachmentDetail, apikey));
-            } else {
+            if (!response.isSuccess) {
                 promises.push(
                     Promise.resolve({
                         success: false,
@@ -365,6 +356,13 @@ export class TransferService {
                         error: (response as ApiResponseWrapperError<Blob>).message,
                     } as TransferResult),
                 );
+            } else {
+                attachmentDetail.file = response.result;
+                attachmentDetail.fileName = [
+                    attachmentDetail.fileName,
+                    this.getExtensionFromFileType(attachmentDetail.file.type),
+                ].join('.');
+                promises.push(this.putAttachmentToSubmodelElement(targetSubmodelId, attachmentDetail, apikey));
             }
         }
         return promises;
@@ -452,14 +450,14 @@ export class TransferService {
         if (modelType === KeyTypes.Blob) {
             submodelAttachmentsDetails.push({
                 idShortPath: idShortPath,
-                fileName: [(subEl as Blob).idShort, generateRandomId()].join(''),
+                fileName: [(subEl as aasCoreBlob).idShort, generateRandomId()].join(''),
             });
         }
 
         if (modelType === KeyTypes.File) {
             submodelAttachmentsDetails.push({
                 idShortPath: idShortPath,
-                fileName: [(subEl as File).idShort, generateRandomId()].join(''),
+                fileName: [(subEl as aasCoreFile).idShort, generateRandomId()].join(''),
             });
         }
     }

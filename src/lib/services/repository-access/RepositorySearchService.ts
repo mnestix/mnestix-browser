@@ -31,27 +31,6 @@ export class RepositorySearchService {
         protected readonly log: Log,
     ) {}
 
-    // TODO merge
-     /*
-     
-     
-    static create(baseRepositoryUrl?: string | null): RepositorySearchService {
-        const repositoryClient = AssetAdministrationShellRepositoryApi.create(
-            mnestixFetch(),
-            undefined,
-            baseRepositoryUrl ?? process.env.AAS_REPO_API_URL,
-        );
-        const submodelRepositoryClient = SubmodelRepositoryApi.create(
-            mnestixFetch(),
-            undefined,
-            baseRepositoryUrl ?? process.env.SUBMODEL_REPO_API_URL ?? process.env.AAS_REPO_API_URL,
-        );
-        const log = Log.create();
-        const prismaConnector = PrismaConnector.create();
-        return new RepositorySearchService(repositoryClient, submodelRepositoryClient, prismaConnector, log);
-    }
-      */
-    
     static create(): RepositorySearchService {
         const log = Log.create();
         const prismaConnector = PrismaConnector.create();
@@ -75,7 +54,9 @@ export class RepositorySearchService {
             (baseUrl) =>
                 AssetAdministrationShellRepositoryApi.createNull(
                     baseUrl,
-                    shellsInRepositories.filter((value) => value.location == baseUrl).map((value) => value.searchResult),
+                    shellsInRepositories
+                        .filter((value) => value.location == baseUrl)
+                        .map((value) => value.searchResult),
                 ),
             (baseUrl) =>
                 SubmodelRepositoryApi.createNull(

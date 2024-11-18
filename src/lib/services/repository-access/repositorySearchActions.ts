@@ -4,6 +4,8 @@ import { AssetAdministrationShell, Submodel } from '@aas-core-works/aas-core3.0-
 import { RepoSearchResult, RepositorySearchService } from 'lib/services/repository-access/RepositorySearchService';
 import { Reference } from '@aas-core-works/aas-core3.0-typescript/types';
 import { ApiResponseWrapper, wrapErrorCode, wrapSuccess } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
+import { AssetAdministrationShellRepositoryApi, SubmodelRepositoryApi } from 'lib/api/basyx-v3/api';
+import { mnestixFetch } from 'lib/api/infrastructure';
 
 const searcher = RepositorySearchService.create();
 
@@ -25,15 +27,17 @@ export async function performGetAasThumbnailFromAllRepos(searchInput: string): P
     return wrapSuccess(response.result.searchResult);
 }
 
-// TODO merge
-export async function getThumbnailFromShell(searchInput: string,                                            baseRepositoryUrl?: string | null,): Promise<ApiResponseWrapper<Blob>> {
+export async function getThumbnailFromShell(
+    aasId: string,
+    baseRepositoryUrl?: string,
+): Promise<ApiResponseWrapper<Blob>> {
     if (baseRepositoryUrl) {
-        const fileSearcher = RepositorySearchService.create(baseRepositoryUrl);
-        return await fileSearcher.getThumbnailFromShell(searchInput);
+        const fileSearcher = AssetAdministrationShellRepositoryApi.create(baseRepositoryUrl, mnestixFetch());
+        return await fileSearcher.getThumbnailFromShell(aasId);
     }
-    
-    const response = await searcher.getFirstAasThumbnailFromAllRepos(searchInput);
-    
+
+    const response = await searcher.getFirstAasThumbnailFromAllRepos(aasId);
+
     if (!response.isSuccess) return wrapErrorCode(response.errorCode, response.message);
     return wrapSuccess(response.result.searchResult);
 }
@@ -50,17 +54,16 @@ export async function getSubmodelById(id: string): Promise<ApiResponseWrapper<Su
     return wrapSuccess(response.result.searchResult);
 }
 
-// TODO merge
 export async function getAttachmentFromSubmodelElement(
     submodelId: string,
     submodelElementPath: string,
-    baseRepositoryUrl?: string | null,
+    baseRepositoryUrl?: string,
 ): Promise<ApiResponseWrapper<Blob>> {
     if (baseRepositoryUrl) {
-        const fileSearcher = RepositorySearchService.create(baseRepositoryUrl);
+        const fileSearcher = SubmodelRepositoryApi.create(baseRepositoryUrl, mnestixFetch());
         return await fileSearcher.getAttachmentFromSubmodelElement(submodelId, submodelElementPath);
     }
-    
+
     const response = await searcher.getFirstAttachmentFromSubmodelElementFromAllRepos(submodelId, submodelElementPath);
     if (!response.isSuccess) return wrapErrorCode(response.errorCode, response.message);
     return wrapSuccess(response.result.searchResult);

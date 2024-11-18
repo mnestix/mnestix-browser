@@ -18,13 +18,12 @@ import { IconCircleWrapper } from 'components/basics/IconCircleWrapper';
 import { AssetIcon } from 'components/custom-icons/AssetIcon';
 import { ShellIcon } from 'components/custom-icons/ShellIcon';
 import { isValidUrl } from 'lib/util/UrlUtil';
-import { base64ToBlob, encodeBase64 } from 'lib/util/Base64Util';
+import { encodeBase64 } from 'lib/util/Base64Util';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { useRouter } from 'next/navigation';
 import { useAasState } from 'components/contexts/CurrentAasContext';
 import { ImageWithFallback } from 'app/[locale]/list/_components/StyledImageWithFallBack';
 import { getThumbnailFromShell } from 'lib/services/repository-access/repositorySearchActions';
-import { isSuccessWithFile } from 'lib/util/apiResponseWrapper/apiResponseWrapperUtil';
 
 type AASOverviewCardProps = {
     readonly aas: AssetAdministrationShell | null;
@@ -66,14 +65,12 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
     async function createAndSetUrlForImageFile() {
         if (!props.aas) return;
 
-        let image: Blob;
-        const response = await getThumbnailFromShell(props.aas.id, props.repositoryURL);
-        if (isSuccessWithFile(response)) image = base64ToBlob(response.result, response.fileType);
-        else {
+        const response = await getThumbnailFromShell(props.aas.id, props.repositoryURL ?? undefined);
+        if (!response.isSuccess) {
             console.error('Image not found');
             return;
         }
-        setProductImageUrl(URL.createObjectURL(image));
+        setProductImageUrl(URL.createObjectURL(response.result));
     }
 
     useAsyncEffect(async () => {
