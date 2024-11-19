@@ -15,6 +15,10 @@ export type AasRegistryEndpointEntryInMemory = {
     aas: AssetAdministrationShell;
 };
 
+const options = {
+    headers: { 'Content-type': 'application/json; charset=utf-8' },
+};
+
 export class RegistryServiceApiInMemory implements IRegistryServiceApi {
     constructor(
         readonly baseUrl: string,
@@ -33,7 +37,10 @@ export class RegistryServiceApiInMemory implements IRegistryServiceApi {
         if (this.reachable !== ServiceReachable.Yes)
             return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Service not reachable');
         if (this.registryShellDescriptors.find((descriptor) => descriptor.id === shellDescriptor.id))
-            return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, `Shell Descriptor for AAS '${shellDescriptor.id}' already registered at '${this.getBaseUrl()}'`);
+            return wrapErrorCode(
+                ApiResultStatus.UNKNOWN_ERROR,
+                `Shell Descriptor for AAS '${shellDescriptor.id}' already registered at '${this.getBaseUrl()}'`,
+            );
         this.registryShellDescriptors.push(shellDescriptor);
         return wrapSuccess(undefined);
     }
@@ -53,7 +60,7 @@ export class RegistryServiceApiInMemory implements IRegistryServiceApi {
             );
         }
 
-        const response = new Response(JSON.stringify(foundDescriptor));
+        const response = new Response(JSON.stringify(foundDescriptor), options);
         const value = await wrapResponse<AssetAdministrationShellDescriptor>(response);
         return Promise.resolve(value);
     }
@@ -75,7 +82,8 @@ export class RegistryServiceApiInMemory implements IRegistryServiceApi {
             );
         }
 
-        const value = await wrapResponse<AssetAdministrationShell>(new Response(JSON.stringify(foundEndpoint.aas)));
+        const response = new Response(JSON.stringify(foundEndpoint.aas), options)
+        const value = await wrapResponse<AssetAdministrationShell>(response);
         return Promise.resolve(value);
     }
 

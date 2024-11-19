@@ -11,6 +11,10 @@ import { AttachmentDetails } from 'lib/types/TransferServiceData';
 import { ServiceReachable } from 'lib/services/transfer-service/TransferService';
 import { encodeBase64 } from 'lib/util/Base64Util';
 
+const options = {
+    headers: { 'Content-type': 'application/json; charset=utf-8' },
+};
+
 export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdministrationShellRepositoryApi {
     readonly shellsInRepository: Map<string, AssetAdministrationShell>;
 
@@ -59,7 +63,7 @@ export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdmi
             return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Service not reachable');
         const foundAas = this.shellsInRepository.get(aasId);
         if (foundAas) {
-            const response = new Response(JSON.stringify(foundAas));
+            const response = new Response(JSON.stringify(foundAas), options);
             return await wrapResponse(response);
         }
         return Promise.resolve(
@@ -122,7 +126,7 @@ export class SubmodelRepositoryApiInMemory implements ISubmodelRepositoryApi {
             return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Service not reachable');
         const foundAas = this.submodelsInRepository.get(submodelId);
         if (foundAas) {
-            const response = new Response(JSON.stringify(foundAas));
+            const response = new Response(JSON.stringify(foundAas), options);
             return wrapResponse(response);
         }
         return wrapErrorCode(
