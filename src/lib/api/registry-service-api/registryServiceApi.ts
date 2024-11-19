@@ -8,6 +8,7 @@ import {
 import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/types';
 import { ApiResponseWrapper } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 import { ServiceReachable } from 'lib/services/transfer-service/TransferService';
+import path from 'node:path';
 
 export class RegistryServiceApi implements IRegistryServiceApi {
     constructor(
@@ -49,7 +50,7 @@ export class RegistryServiceApi implements IRegistryServiceApi {
             'Content-Type': 'application/json',
         };
 
-        const url = new URL(`/shell-descriptors/${b64_aasId}`, this.baseUrl);
+        const url = new URL(path.posix.join(this.baseUrl, 'shell-descriptors', b64_aasId));
 
         return this.http.fetch(url, {
             method: 'GET',
@@ -65,7 +66,7 @@ export class RegistryServiceApi implements IRegistryServiceApi {
             'Content-Type': 'application/json',
         };
 
-        const url = new URL('/shell-descriptors', this.baseUrl);
+        const url = new URL(path.posix.join(this.baseUrl, 'shell-descriptors'));
 
         return await this.http.fetch(url.toString(), {
             method: 'POST',
@@ -85,7 +86,7 @@ export class RegistryServiceApi implements IRegistryServiceApi {
             'Content-Type': 'application/json',
         };
 
-        const url = new URL(`/shell-descriptors/${b64_aasId}`, this.baseUrl);
+        const url = new URL(path.posix.join(this.baseUrl, 'shell-descriptors', b64_aasId));
 
         return this.http.fetch(url, {
             method: 'PUT',

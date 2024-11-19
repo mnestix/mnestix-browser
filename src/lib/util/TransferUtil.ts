@@ -2,10 +2,11 @@ import { AssetAdministrationShell, AssetKind, Submodel } from '@aas-core-works/a
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { isValidUrl } from 'lib/util/UrlUtil';
 import { AssetAdministrationShellDescriptor, Endpoint, SubmodelDescriptor } from 'lib/types/registryServiceTypes';
+import path from 'node:path';
 
 export function getEndpointUrl(target: AssetAdministrationShell | Submodel, targetBaseUrl: string) {
     const subpath = target instanceof AssetAdministrationShell ? 'shells' : 'submodels';
-    return new URL(`${subpath}/${encodeBase64(target.id)}`, targetBaseUrl);
+    return new URL(path.posix.join(targetBaseUrl, subpath, encodeBase64(target.id)));
 }
 
 export function createEndpointForDescriptor(target: AssetAdministrationShell | Submodel, baseUrl: string): Endpoint {

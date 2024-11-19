@@ -10,6 +10,7 @@ import {
 } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 import { Submodel } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
 import { ServiceReachable } from 'lib/services/transfer-service/TransferService';
+import path from 'node:path';
 
 export class SubmodelRegistryServiceApi implements ISubmodelRegistryServiceApi {
     constructor(
@@ -40,7 +41,7 @@ export class SubmodelRegistryServiceApi implements ISubmodelRegistryServiceApi {
             Accept: 'application/json',
         };
 
-        const url = new URL(`submodel-descriptors/${b64_submodelId}`, this.baseUrl);
+        const url = new URL(path.posix.join(this.baseUrl, 'submodel-descriptors', b64_submodelId));
 
         return await this.http.fetch(url.toString(), {
             method: 'GET',
@@ -58,7 +59,7 @@ export class SubmodelRegistryServiceApi implements ISubmodelRegistryServiceApi {
             'Content-Type': 'application/json',
         };
 
-        const url = new URL(`submodel-descriptors/${b64_submodelId}`, this.baseUrl);
+        const url = new URL(path.posix.join(this.baseUrl, 'submodel-descriptors', b64_submodelId));
 
         return await this.http.fetch(url.toString(), {
             method: 'PUT',
@@ -70,7 +71,7 @@ export class SubmodelRegistryServiceApi implements ISubmodelRegistryServiceApi {
     async deleteSubmodelDescriptorById(submodelId: string): Promise<ApiResponseWrapper<void>> {
         const b64_submodelId = encodeBase64(submodelId);
 
-        const url = new URL(`submodel-descriptors/${b64_submodelId}`, this.baseUrl);
+        const url = new URL(path.posix.join(this.baseUrl, 'submodel-descriptors', b64_submodelId));
 
         return await this.http.fetch(url.toString(), {
             method: 'DELETE',
@@ -82,7 +83,7 @@ export class SubmodelRegistryServiceApi implements ISubmodelRegistryServiceApi {
             Accept: 'application/json',
         };
 
-        const url = new URL('submodel-descriptors', this.baseUrl);
+        const url = new URL(path.posix.join(this.baseUrl, 'submodel-descriptors'));
 
         return await this.http.fetch(url.toString(), {
             method: 'GET',
@@ -98,7 +99,7 @@ export class SubmodelRegistryServiceApi implements ISubmodelRegistryServiceApi {
             'Content-Type': 'application/json',
         };
 
-        const url = new URL('submodel-descriptors', this.baseUrl);
+        const url = new URL(path.posix.join(this.baseUrl, 'submodel-descriptors'));
 
         return await this.http.fetch(url.toString(), {
             method: 'POST',
@@ -108,7 +109,7 @@ export class SubmodelRegistryServiceApi implements ISubmodelRegistryServiceApi {
     }
 
     async deleteAllSubmodelDescriptors(): Promise<ApiResponseWrapper<void>> {
-        const url = new URL('submodel-descriptors', this.baseUrl);
+        const url = new URL(path.posix.join(this.baseUrl, 'submodel-descriptors'));
 
         return this.http.fetch(url.toString(), {
             method: 'DELETE',
