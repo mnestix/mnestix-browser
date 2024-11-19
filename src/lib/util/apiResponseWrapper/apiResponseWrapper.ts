@@ -19,8 +19,8 @@ const httpStatusMessage: Record<number, ApiResultStatus> = {
 
 const getStatus = (statusCode: number): ApiResultStatus => {
     if (statusCode in httpStatusMessage) return httpStatusMessage[statusCode];
-    if (statusCode > 400 && statusCode < 500) return ApiResultStatus.UNKNOWN_ERROR;
-    if (statusCode > 500) return ApiResultStatus.INTERNAL_SERVER_ERROR;
+    if (statusCode >= 400 && statusCode < 500) return ApiResultStatus.UNKNOWN_ERROR;
+    if (statusCode >= 500) return ApiResultStatus.INTERNAL_SERVER_ERROR;
     return ApiResultStatus.SUCCESS;
 };
 
@@ -48,57 +48,48 @@ export type ApiResponseWrapperError<T> = {
     message: string;
 };
 
-export function wrapErrorCode<T>(error: ApiResultStatus, message: string): ApiResponseWrapperError<T> {
-    return {
-        isSuccess: false,
-        result: undefined,
-        errorCode: error,
-        message: message,
-    };
-}
-
-export async function wrapResponse<T>(response: Response): Promise<ApiResponseWrapper<T>> {
-    const status = getStatus(response.status);
-    if (status === ApiResultStatus.SUCCESS) {
-        return {
-            isSuccess: true,
-            result: await response.json().catch((e) => console.warn(e.message)),
-        };
-    } else {
-        return {
-            isSuccess: false,
-            result: await response.json().catch((e) => console.warn(e.message)),
-            errorCode: status,
-            message: response.statusText,
-        };
-    }
-}
-
 export function wrapSuccess<T>(result: T): ApiResponseWrapper<T> {
     return {
         isSuccess: true,
         result: result,
-    };
+    } as ApiResponseWrapperSuccess<T>;
 }
 
-export async function wrapFileResponse<T>(response: Response): Promise<ApiResponseWrapper<T>> {
-    const fileFromResponse = await response.blob();
+export function wrapErrorCode<T>(error: ApiResultStatus, message: string, result?: T): ApiResponseWrapper<T> {
+    return {
+        isSuccess: false,
+        result: result,
+        errorCode: error,
+        message: message,
+    } as ApiResponseWrapperError<T>;
+}
+
+export async function wrapFile<T>(content: Blob): Promise<ApiResponseWrapper<T>> {
+    return {
+        isSuccess: true,
+        fileContent: await blobToBase64(content),
+        fileType: content.type,
+        get result(): Blob {
+            return base64ToBlob(this.fileContent, this.fileType);
+        },
+    } as ApiResponseWrapperSuccessWithFile<T>;
+}
+
+
+export async function wrapResponse<T>(response: Response): Promise<ApiResponseWrapper<T>> {
     const status = getStatus(response.status);
-    if (status === ApiResultStatus.SUCCESS) {
-        return {
-            isSuccess: true,
-            fileContent: await blobToBase64(fileFromResponse),
-            fileType: fileFromResponse.type,
-            get result(): T {
-                return base64ToBlob(this.fileContent, this.fileType) as T;
-            },
-        } as ApiResponseWrapperSuccessWithFile<T>;
-    } else {
-        return {
-            isSuccess: false,
-            result: await response.json().catch((e) => console.warn(e.message)),
-            errorCode: status,
-            message: response.statusText,
-        };
+    if (status !== ApiResultStatus.SUCCESS) {
+        const result = await response.json().catch((e) => console.warn(e.message));
+        return wrapErrorCode(status,  response.statusText, result);
     }
+
+    const contentType = response.headers.get('Content-Type') || '';
+
+    if (!(contentType && !contentType.includes('application/json'))) {
+        const result = await response.json().catch((e) => console.warn(e.message));
+        return wrapSuccess(result);
+    }
+    
+    const fileFromResponse = await response.blob();
+    return await wrapFile(fileFromResponse);
 }
