@@ -90,6 +90,7 @@ export function ProductJourney(props: { addressesPerLifeCyclePhase: AddressPerLi
         <>
             <Box
                 id="map"
+                data-testid="test-map"
                 sx={{
                     height: '320px',
                     width: '100%',
@@ -99,7 +100,9 @@ export function ProductJourney(props: { addressesPerLifeCyclePhase: AddressPerLi
                 ref={mapElement}
                 className="map-container"
             />
-            <ProductJourneyAddressList addressesPerLifeCyclePhase={props.addressesPerLifeCyclePhase} />
+            <ProductJourneyAddressList
+                addressesPerLifeCyclePhase={props.addressesPerLifeCyclePhase}
+            />
         </>
     );
 }

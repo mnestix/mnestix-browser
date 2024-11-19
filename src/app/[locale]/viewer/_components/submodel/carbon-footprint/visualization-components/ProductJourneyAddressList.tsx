@@ -6,7 +6,7 @@ export function ProductJourneyAddressList(props: { addressesPerLifeCyclePhase: A
         .filter((v) => v.address.street && v.address.houseNumber && v.address.zipCode && v.address.cityTown)
         .map((phase, index) => {
             return (
-                <Typography key={index} variant="body1" sx={{ color: 'primary.main' }}>
+                <Typography data-testid="test-address-list" key={index} variant="body1" sx={{ color: 'primary.main' }}>
                     <Typography key={index} sx={{ color: 'inherit', fontWeight: 600 }} component="span">
                         {`${phase.lifeCyclePhase}:`}{' '}
                     </Typography>

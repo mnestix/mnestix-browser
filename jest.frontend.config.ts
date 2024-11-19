@@ -16,6 +16,7 @@ const config: Config = {
         '^.+\\.(svg)$': '<rootDir>/__mocks__/svg.tsx',
     },
     testMatch: ['**/__tests__/**/*.tsx', '**/?(*.)+(spec|test).tsx'],
+    moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx'],
 };
 
 // @ts-expect-error We don't know the type
@@ -27,7 +28,7 @@ const jestConfigWithOverrides = async (...args) => {
     // Don't ignore specific node_modules during transformation. This is needed if a node_module doesn't return valid JavaScript files.
     res.transformIgnorePatterns = res.transformIgnorePatterns!.map((pattern) => {
         if (pattern === '/node_modules/') {
-            return '/node_modules(?!/(flat|jose))/';
+            return '/node_modules/(?!flat|jose|ol|color-space|color-rgba|color-parse|color-name|jose|quick-lru)';
         }
         return pattern;
     });
