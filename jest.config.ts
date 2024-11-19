@@ -1,11 +1,5 @@
+/**
+ * Unit tests for nextjs frontend and backend need different configurations.
+ */
 export {};
-module.exports = {
-    moduleDirectories: ['node_modules', 'src'],
-    transform: {
-        '^.+\\.(t|j)sx?$': '@swc/jest',
-    },
-    preset: 'ts-jest',
-    testEnvironment: 'node',
-    testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
-    modulePathIgnorePatterns: ['cypress']
-};
+module.exports = { projects: ['<rootDir>/jest.frontend.config.ts', '<rootDir>/jest.backend.config.ts'] };
