@@ -18,14 +18,10 @@ type Props = {
 };
 
 export function LayoutRoot({ children }: Props) {
-
     return (
         <Box display="flex" height="100%" flexDirection="column">
             <Box display="flex" flex={1} flexDirection="column">
-                <StyledBox
-                    flex={1}
-                    display="flex"
-                >
+                <StyledBox flex={1} display="flex">
                     <Header />
                     {children}
                 </StyledBox>

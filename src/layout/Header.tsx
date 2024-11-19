@@ -21,7 +21,7 @@ export function Header() {
     return (
         <>
             <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-                <Toolbar>
+                <Toolbar disableGutters>
                     <MainMenu />
                     <StyledLogoWrapper
                         display="flex"
