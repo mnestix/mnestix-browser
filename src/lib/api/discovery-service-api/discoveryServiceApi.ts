@@ -6,6 +6,11 @@ import { ServiceReachable } from 'lib/services/transfer-service/TransferService'
 import { SpecificAssetId } from '@aas-core-works/aas-core3.0-typescript/types';
 import * as path from 'node:path';
 
+type DiscoveryEntryResponse = {
+    paging_metadata: object;
+    result: string[];
+};
+
 export class DiscoveryServiceApi implements IDiscoveryServiceApi {
     private constructor(
         protected baseUrl: string,
@@ -78,11 +83,15 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
             url.searchParams.append('assetIds', encodeBase64(JSON.stringify(obj)));
         });
 
-        const response = await this.http.fetch<string[]>(url.toString(), {
+        const response = await this.http.fetch<DiscoveryEntryResponse>(url.toString(), {
             method: 'GET',
             headers,
         });
-        return response;
+        
+        if (!response.isSuccess)
+            return wrapErrorCode(response.errorCode, response.message);
+        
+        return wrapSuccess(response.result.result);
     }
 
     async getAllAssetLinksById(aasId: string, options?: object): Promise<ApiResponseWrapper<SpecificAssetId[]>> {
