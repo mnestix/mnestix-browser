@@ -1,6 +1,6 @@
 import { IAssetAdministrationShellRepositoryApi, ISubmodelRepositoryApi } from 'lib/api/basyx-v3/apiInterface';
 import { AssetAdministrationShell, Reference, Submodel } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
-import { decodeBase64, encodeBase64 } from 'lib/util/Base64Util';
+import { safeBase64Decode, encodeBase64 } from 'lib/util/Base64Util';
 import {
     ApiResponseWrapper,
     ApiResultStatus,
@@ -68,7 +68,7 @@ export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdmi
                     ' repository for aasId: ' +
                     aasId +
                     ', which is :' +
-                    decodeBase64(aasId) +
+                    safeBase64Decode(aasId) +
                     ' encoded in base64',
             ),
         );
