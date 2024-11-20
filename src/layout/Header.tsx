@@ -1,7 +1,5 @@
 import { AppBar, Box, styled, Toolbar } from '@mui/material';
 import MainMenu from './menu/MainMenu';
-import { useAuth } from 'lib/hooks/UseAuth';
-import { useIsTablet } from 'lib/hooks/UseBreakpoints';
 import { HeaderLogo } from './HeaderLogo';
 
 const Offset = styled(Box)(({ theme }) => theme.mixins.toolbar);
@@ -18,22 +16,12 @@ const StyledLogoWrapper = styled(Box)(() => ({
     },
 }));
 
-const StyledToolbar = styled(Toolbar)(() => ({
-    '&.hidden': {
-        minHeight: 0,
-        height: 0,
-        overflow: 'hidden',
-    },
-}));
-
 export function Header() {
-    const auth = useAuth();
-    const isTablet = useIsTablet();
 
     return (
         <>
-            <AppBar position="fixed">
-                <StyledToolbar disableGutters className={auth.isLoggedIn && !isTablet ? 'hidden' : ''}>
+            <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+                <Toolbar disableGutters>
                     <MainMenu />
                     <StyledLogoWrapper
                         display="flex"
@@ -48,7 +36,7 @@ export function Header() {
                             <HeaderLogo />
                         </Box>
                     </StyledLogoWrapper>
-                </StyledToolbar>
+                </Toolbar>
             </AppBar>
             <Offset />
         </>
