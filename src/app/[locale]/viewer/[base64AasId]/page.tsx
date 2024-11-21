@@ -5,7 +5,7 @@ import { Box, Button, Skeleton, Typography } from '@mui/material';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { messages } from 'lib/i18n/localization';
-import { decodeBase64, safeBase64Decode } from 'lib/util/Base64Util';
+import { safeBase64Decode } from 'lib/util/Base64Util';
 import { ArrowForward } from '@mui/icons-material';
 import { showError } from 'lib/util/ErrorHandlerUtil';
 import { LangStringNameType, Reference } from '@aas-core-works/aas-core3.0-typescript/types';
@@ -214,7 +214,7 @@ export default function Page() {
                     <Typography color="text.secondary">
                         <FormattedMessage
                             {...messages.mnestix.noDataFoundFor}
-                            values={{ name: decodeBase64(base64AasId) }}
+                            values={{ name: safeBase64Decode(base64AasId) }}
                         />
                     </Typography>
                     <Button variant="contained" startIcon={<ArrowForward />} href="/">
