@@ -47,7 +47,7 @@ export function TransferDialog(props: DialogProps) {
         }
 
         // As long as we cannot adjust the IDs in the UI, we append '_copy' to every ID
-        const submodelsToTransfer = submodelsFromContext
+        const submodelsToTransfer = structuredClone(submodelsFromContext)
             .filter((sub) => sub.submodel)
             .map((sub) => sub.submodel!)
             .map((sub) => {
