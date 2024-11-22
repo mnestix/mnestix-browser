@@ -1,7 +1,7 @@
 import { AssetAdministrationShell, Reference } from '@aas-core-works/aas-core3.0-typescript/types';
 import { Submodel } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
 import { AttachmentDetails } from 'lib/types/TransferServiceData';
-import { ApiResponseWrapper } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
+import { ApiFileResponseWrapper, ApiResponseWrapper } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 
 export interface IAssetAdministrationShellRepositoryApi {
     /**
@@ -38,7 +38,7 @@ export interface IAssetAdministrationShellRepositoryApi {
      * @returns The thumbnail retrieved from the Asset Administration Shell.
      * @memberof AssetAdministrationShellRepositoryApi
      */
-    getThumbnailFromShell(aasId: string, options?: object): Promise<ApiResponseWrapper<Blob>>;
+    getThumbnailFromShell(aasId: string, options?: object): Promise<ApiFileResponseWrapper>;
 
     /**
      * @summary Uploads a thumbnail to the specified Asset Administration Shell (AAS).
@@ -95,7 +95,7 @@ export interface ISubmodelRepositoryApi {
         submodelId: string,
         submodelElementPath: string,
         options?: object,
-    ): Promise<ApiResponseWrapper<Blob>>;
+    ): Promise<ApiFileResponseWrapper>;
 
     /**
      * @summary Creates a new submodel in the Submodel repository.

@@ -239,7 +239,7 @@ export class RepositorySearchService {
         return wrapErrorCode(ApiResultStatus.NOT_FOUND, `Thumbnail for '${aasId}' not found in default repository`);
     }
 
-    private async getAasThumbnailFromRepo(aasId: string, repoUrl: string) {
+    private async getAasThumbnailFromRepo(aasId: string, repoUrl: string): Promise<ApiResponseWrapper<Blob>> {
         const client = this.getAasRepositoryClient(repoUrl);
         const response = await client.getThumbnailFromShell(aasId);
         if (!response.isSuccess) {

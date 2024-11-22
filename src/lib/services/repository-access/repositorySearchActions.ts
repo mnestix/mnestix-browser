@@ -4,7 +4,7 @@ import { AssetAdministrationShell, Submodel } from '@aas-core-works/aas-core3.0-
 import { RepoSearchResult, RepositorySearchService } from 'lib/services/repository-access/RepositorySearchService';
 import { Reference } from '@aas-core-works/aas-core3.0-typescript/types';
 import {
-    ApiFileResponseWrapper,
+    ApiFileDto,
     ApiResponseWrapper,
     wrapErrorCode,
     wrapFile,
@@ -36,7 +36,7 @@ export async function performGetAasThumbnailFromAllRepos(searchInput: string): P
 export async function getThumbnailFromShell(
     aasId: string,
     baseRepositoryUrl?: string,
-): Promise<ApiFileResponseWrapper> {
+): Promise<ApiResponseWrapper<ApiFileDto>> {
     if (baseRepositoryUrl) {
         const fileSearcher = AssetAdministrationShellRepositoryApi.create(baseRepositoryUrl, mnestixFetch());
         const searchResponse = await fileSearcher.getThumbnailFromShell(aasId);
@@ -66,11 +66,11 @@ export async function getAttachmentFromSubmodelElement(
     submodelId: string,
     submodelElementPath: string,
     baseRepositoryUrl?: string,
-): Promise<ApiFileResponseWrapper> {
+): Promise<ApiResponseWrapper<ApiFileDto>> {
     if (baseRepositoryUrl) {
         const fileSearcher = SubmodelRepositoryApi.create(baseRepositoryUrl, mnestixFetch());
         const searchResponse = await fileSearcher.getAttachmentFromSubmodelElement(submodelId, submodelElementPath);
-        if (!searchResponse.isSuccess) return wrapErrorCode<Blob>(searchResponse.errorCode, searchResponse.message);
+        if (!searchResponse.isSuccess) return wrapErrorCode(searchResponse.errorCode, searchResponse.message);
         return wrapFile(searchResponse.result);
     }
 

@@ -18,7 +18,7 @@ import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { getThumbnailFromShell } from 'lib/services/repository-access/repositorySearchActions';
 import { isValidUrl } from 'lib/util/UrlUtil';
 import { useState } from 'react';
-import { getFileFromResponse } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
+import { mapFileDtoToBlob } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 
 type AasTableRowProps = {
     aasListEntry: AasListEntry;
@@ -58,7 +58,7 @@ export const AasListTableRow = (props: AasTableRowProps) => {
         } else if (aasListEntry.aasId) {
             const response = await getThumbnailFromShell(aasListEntry.aasId);
             if (response.isSuccess) {
-                const blob = getFileFromResponse(response);
+                const blob = mapFileDtoToBlob(response.result);
                 const blobUrl = URL.createObjectURL(blob);
                 setThumbnailUrl(blobUrl);
             }

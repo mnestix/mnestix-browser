@@ -19,7 +19,7 @@ import { encodeBase64 } from 'lib/util/Base64Util';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { getAttachmentFromSubmodelElement } from 'lib/services/repository-access/repositorySearchActions';
 import { useAasOriginSourceState } from 'components/contexts/CurrentAasContext';
-import { getFileFromResponse } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
+import { mapFileDtoToBlob } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 
 enum DocumentSpecificSemanticId {
     DocumentVersion = 'https://admin-shell.io/vdi/2770/1/0/DocumentVersion',
@@ -182,7 +182,7 @@ export function DocumentComponent(props: MarkingsComponentProps) {
             if (!imageResponse.isSuccess) {
                 console.error('Image not found' + imageResponse.message);
             } else {
-                const image = getFileFromResponse(imageResponse);
+                const image = mapFileDtoToBlob(imageResponse.result);
                 digitalFile.digitalFileUrl = URL.createObjectURL(image);
             }
         }
@@ -218,7 +218,7 @@ export function DocumentComponent(props: MarkingsComponentProps) {
             if (!imageResponse.isSuccess) {
                 console.error('Image not found' + imageResponse.message);
             } else {
-                const image = getFileFromResponse(imageResponse);
+                const image = mapFileDtoToBlob(imageResponse.result);
                 previewImgUrl = URL.createObjectURL(image);
             }
         }

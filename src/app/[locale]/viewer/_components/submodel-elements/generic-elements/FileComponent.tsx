@@ -8,7 +8,7 @@ import { isValidUrl } from 'lib/util/UrlUtil';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { getAttachmentFromSubmodelElement } from 'lib/services/repository-access/repositorySearchActions';
 import { useAasOriginSourceState } from 'components/contexts/CurrentAasContext';
-import { getFileFromResponse } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
+import { mapFileDtoToBlob } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 
 const StyledFileImg = styled('img')(() => ({
     objectFit: 'contain',
@@ -41,7 +41,7 @@ export function FileComponent(props: FileComponentProps) {
                 if (!imageResponse.isSuccess) {
                     console.error('Image not found' + imageResponse.message);
                 } else {
-                    const image = getFileFromResponse(imageResponse);
+                    const image = mapFileDtoToBlob(imageResponse.result);
                     setImage(URL.createObjectURL(image));
                 }
             }
