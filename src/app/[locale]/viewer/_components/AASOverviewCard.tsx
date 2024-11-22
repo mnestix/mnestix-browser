@@ -24,6 +24,7 @@ import { useRouter } from 'next/navigation';
 import { useAasState } from 'components/contexts/CurrentAasContext';
 import { ImageWithFallback } from 'app/[locale]/list/_components/StyledImageWithFallBack';
 import { getThumbnailFromShell } from 'lib/services/repository-access/repositorySearchActions';
+import { getFileFromResponse } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 
 type AASOverviewCardProps = {
     readonly aas: AssetAdministrationShell | null;
@@ -70,7 +71,8 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
             console.error('Image not found');
             return;
         }
-        setProductImageUrl(URL.createObjectURL(response.result));
+        const blob = getFileFromResponse(response);
+        setProductImageUrl(URL.createObjectURL(blob));
     }
 
     useAsyncEffect(async () => {
