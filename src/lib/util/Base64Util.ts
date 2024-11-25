@@ -32,7 +32,7 @@ export function safeBase64Decode(str: string): string {
     } catch (error) {
         throw new Error('Failed to decode base64 input');
     }
-}
+}   
 
 export async function blobToBase64(blob: Blob): Promise<string> {
     const arrayBuffer = await blob.arrayBuffer();

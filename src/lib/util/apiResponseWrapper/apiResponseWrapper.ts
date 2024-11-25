@@ -70,19 +70,20 @@ export async function wrapFile<T>(content: Blob): Promise<ApiResponseWrapperSucc
 
 export async function wrapResponse<T>(response: Response): Promise<ApiResponseWrapper<T>> {
     const status = getStatus(response.status);
-    const result = await response.json().catch((e) => console.warn(e.message));
     
     if (status !== ApiResultStatus.SUCCESS) {
+        const result = await response.json().catch((e) => console.warn(e.message));
         return wrapErrorCode(status, response.statusText, result);
     }
     
     const contentType = response.headers.get('Content-Type') || '';
-    if (!(contentType && !contentType.includes('application/json'))) {
+    if (!contentType || contentType.includes('application/json')) {
+        const result = await response.json().catch((e) => console.warn(e.message));
         return wrapSuccess(result);
     }
     
     const fileFromResponse = await response.blob();
-    return await wrapFile(fileFromResponse);
+    return wrapSuccess(fileFromResponse as T);
 }
 
 export function mapFileDtoToBlob(fileDto: ApiFileDto): Blob {
