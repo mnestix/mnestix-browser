@@ -60,7 +60,7 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
     const isAccordion = props.isAccordion;
     const specificAssetIds = props.aas?.assetInformation?.specificAssetIds as SpecificAssetId[];
     const navigate = useRouter();
-    const [productImageUrl, setProductImageUrl] = useState<string | undefined>('');
+    const [productImageUrl, setProductImageUrl] = useState<string>('');
     const [, setAasState] = useAasState();
 
     async function createAndSetUrlForImageFile() {

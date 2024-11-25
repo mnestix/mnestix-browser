@@ -61,11 +61,11 @@ export function wrapErrorCode<T>(error: ApiResultStatus, message: string, result
     };
 }
 
-export async function wrapFile<T>(content: Blob): Promise<ApiResponseWrapperSuccess<T>> {
+export async function wrapFile(content: Blob): Promise<ApiResponseWrapperSuccess<ApiFileDto>> {
     return {
         isSuccess: true,
         result: await mapBlobToFileDto(content),
-    } as ApiResponseWrapperSuccess<T>;
+    };
 }
 
 export async function wrapResponse<T>(response: Response): Promise<ApiResponseWrapper<T>> {
