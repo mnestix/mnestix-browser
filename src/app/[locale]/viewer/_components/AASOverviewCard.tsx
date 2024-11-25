@@ -66,7 +66,12 @@ export function AASOverviewCard(props: AASOverviewCardProps) {
     async function createAndSetUrlForImageFile() {
         if (!props.aas) return;
 
-        const response = await getThumbnailFromShell(props.aas.id, props.repositoryURL ?? undefined);
+        if (!props.repositoryURL) {
+            setProductImageUrl('');
+            return;
+        }
+        
+        const response = await getThumbnailFromShell(props.aas.id, props.repositoryURL);
         if (!response.isSuccess) {
             console.error('Image not found');
             return;
