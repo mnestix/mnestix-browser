@@ -9,7 +9,7 @@ import {
 } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 import { AttachmentDetails } from 'lib/types/TransferServiceData';
 import { ServiceReachable } from 'lib/services/transfer-service/TransferService';
-import { encodeBase64 } from 'lib/util/Base64Util';
+import { safeBase64Decode, encodeBase64 } from 'lib/util/Base64Util';
 
 const options = {
     headers: { 'Content-type': 'application/json; charset=utf-8' },
@@ -69,7 +69,7 @@ export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdmi
         return Promise.resolve(
             wrapErrorCode(
                 ApiResultStatus.NOT_FOUND,
-                `no aas found in the repository: ${this.baseUrl} for aasId: ${aasId}`,
+                `no aas found in the repository '${this.getBaseUrl()}' for aasId: '${aasId}', which is :'${safeBase64Decode(aasId)}' encoded in base64`,
             ),
         );
     }
@@ -116,7 +116,10 @@ export class SubmodelRepositoryApiInMemory implements ISubmodelRepositoryApi {
         if (this.reachable !== ServiceReachable.Yes)
             return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Service not reachable');
         if (this.submodelsInRepository.has(submodel.id))
-            return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, `Submodel repository '${this.getBaseUrl()}' already has a submodel '${submodel.id}'`);
+            return wrapErrorCode(
+                ApiResultStatus.UNKNOWN_ERROR,
+                `Submodel repository '${this.getBaseUrl()}' already has a submodel '${submodel.id}'`,
+            );
         this.submodelsInRepository.set(submodel.id, submodel);
         return wrapSuccess(submodel);
     }
