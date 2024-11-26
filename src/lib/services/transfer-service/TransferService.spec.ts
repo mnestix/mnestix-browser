@@ -2,7 +2,10 @@ import { expect } from '@jest/globals';
 import { ServiceReachable, TransferService } from 'lib/services/transfer-service/TransferService';
 import testData from './TransferService.data.json';
 import { AssetAdministrationShell, Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
-import { createShellDescriptorFromAas, createSubmodelDescriptorFromSubmodel } from 'lib/util/TransferUtil';
+import {
+    createShellDescriptorFromAas,
+    createSubmodelDescriptorFromSubmodel,
+} from 'lib/services/transfer-service/TransferUtil';
 import { TransferAas, TransferResult, TransferSubmodel } from 'lib/types/TransferServiceData';
 
 const aas = testData.transferAas as unknown as AssetAdministrationShell;

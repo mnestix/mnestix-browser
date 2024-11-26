@@ -24,7 +24,7 @@ import {
     aasThumbnailImageIsFile,
     createShellDescriptorFromAas,
     createSubmodelDescriptorFromSubmodel,
-} from 'lib/util/TransferUtil';
+} from 'lib/services/transfer-service/TransferUtil';
 import { ApiResponseWrapperError } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 
 export enum ServiceReachable {
