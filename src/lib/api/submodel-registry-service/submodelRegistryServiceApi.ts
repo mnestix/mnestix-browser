@@ -1,6 +1,6 @@
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
 import { encodeBase64 } from 'lib/util/Base64Util';
-import { ISubmodelRegistryServiceApi } from 'lib/api/submodel-registry-service/ISubmodelRegistryServiceApi';
+import { ISubmodelRegistryServiceApi } from 'lib/api/submodel-registry-service/submodelRegistryServiceApiInterface';
 import { FetchAPI } from 'lib/api/basyx-v3/api';
 import {
     ApiResponseWrapper,

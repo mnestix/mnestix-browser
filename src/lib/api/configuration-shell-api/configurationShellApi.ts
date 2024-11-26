@@ -1,7 +1,7 @@
 import { Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
-import { ConfigurationShellApiInterface } from 'lib/api/configuration-shell-api/configurationShellApiInterface';
+import { IConfigurationShellApi } from 'lib/api/configuration-shell-api/configurationShellApiInterface';
 
-export class ConfigurationShellApi implements ConfigurationShellApiInterface {
+export class ConfigurationShellApi implements IConfigurationShellApi {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     basePath: string;
     use_authentication: boolean;
