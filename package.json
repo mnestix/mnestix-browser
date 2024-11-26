@@ -87,6 +87,7 @@
     },
     "scripts": {
         "dev": "yarn prisma migrate deploy && yarn prisma generate && next dev --turbo",
+        "debug": "yarn prisma migrate deploy && yarn prisma generate && next dev",
         "build": "next build",
         "start": "yarn prisma migrate deploy && yarn prisma generate && next start",
         "prettier": "prettier --check ./",
