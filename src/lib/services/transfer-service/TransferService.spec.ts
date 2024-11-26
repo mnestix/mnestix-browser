@@ -48,6 +48,7 @@ describe('TransferService: Export AAS', function () {
 
         // Should include AAS repo, registry, thumbnail, discovery; submodel repo, registry, file
         expect(transferResult).toHaveLength(7);
+        expectTransferResult(transferResult, 0b1111111);
 
         // Should return results in a fixed order
         expect(transferResult[0].operationKind).toBe('AasRepository');
