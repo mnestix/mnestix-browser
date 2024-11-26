@@ -32,6 +32,18 @@ export enum ServiceReachable {
     No = 'No',
 }
 
+export type TransferServiceNullParams = {
+    targetAasRepository: ServiceReachable;
+    sourceAasRepository: ServiceReachable;
+    sourceAasEntries: AssetAdministrationShell[];
+    targetSubmodelRepository: ServiceReachable;
+    sourceSubmodelRepository: ServiceReachable;
+    sourceSubmodelEntries: Submodel[];
+    targetAasDiscovery?: ServiceReachable;
+    targetAasRegistry?: ServiceReachable;
+    targetSubmodelRegistry?: ServiceReachable;
+};
+
 export class TransferService {
     private constructor(
         readonly targetAasRepositoryClient: IAssetAdministrationShellRepositoryApi,
@@ -98,17 +110,17 @@ export class TransferService {
         );
     }
 
-    static createNull(
-        targetAasRepository: ServiceReachable = ServiceReachable.Yes,
-        sourceAasRepository: ServiceReachable = ServiceReachable.Yes,
-        sourceAasEntries: AssetAdministrationShell[] = [],
-        targetSubmodelRepository: ServiceReachable = ServiceReachable.Yes,
-        sourceSubmodelRepository: ServiceReachable = ServiceReachable.Yes,
-        sourceSubmodelEntries: Submodel[] = [],
-        targetAasDiscovery?: ServiceReachable,
-        targetAasRegistry?: ServiceReachable,
-        targetSubmodelRegistry?: ServiceReachable,
-    ): TransferService {
+    static createNull({
+        targetAasRepository = ServiceReachable.Yes,
+        sourceAasRepository = ServiceReachable.Yes,
+        sourceAasEntries = [],
+        targetSubmodelRepository = ServiceReachable.Yes,
+        sourceSubmodelRepository = ServiceReachable.Yes,
+        sourceSubmodelEntries = [],
+        targetAasDiscovery,
+        targetAasRegistry,
+        targetSubmodelRegistry,
+    }: TransferServiceNullParams): TransferService {
         const targetAasRepositoryClient = AssetAdministrationShellRepositoryApi.createNull(
             'https://targetAasRepositoryClient.com',
             [],

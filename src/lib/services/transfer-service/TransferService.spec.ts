@@ -15,6 +15,8 @@ const transferNameplate = { submodel: nameplate, originalSubmodelId: nameplate.i
 const technical = testData.transferSubmodelTechnicalData as unknown as Submodel;
 const transferTechnical = { submodel: technical, originalSubmodelId: technical.id } as TransferSubmodel;
 
+// TODO Replace bitmagic with simpler string comparison
+// TODO add more expressive error information: which result failed: https://github.com/mattphillips/jest-expect-message
 const checkNthBinaryDigit = (number: number, digit: number) => ((number >>> digit) & 1) == 1;
 
 function expectTransferResult(result: TransferResult[], successMask: number = 0xffff) {
@@ -26,17 +28,17 @@ function expectTransferResult(result: TransferResult[], successMask: number = 0x
 
 describe('TransferService: Export AAS', function () {
     it('All services given', async () => {
-        const service = TransferService.createNull(
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-            [aas],
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-            [nameplate, technical],
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-        );
+        const service = TransferService.createNull({
+            targetAasRepository: ServiceReachable.Yes,
+            sourceAasRepository: ServiceReachable.Yes,
+            targetSubmodelRepository: ServiceReachable.Yes,
+            sourceSubmodelRepository: ServiceReachable.Yes,
+            targetAasDiscovery: ServiceReachable.Yes,
+            targetAasRegistry: ServiceReachable.Yes,
+            targetSubmodelRegistry: ServiceReachable.Yes,
+            sourceAasEntries: [aas],
+            sourceSubmodelEntries: [nameplate, technical],
+        });
 
         const transferResult = await service.transferAasWithSubmodels(
             transferAas,
@@ -58,14 +60,14 @@ describe('TransferService: Export AAS', function () {
     });
 
     it('Only repositories given', async () => {
-        const service = TransferService.createNull(
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-            [aas],
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-            [nameplate, technical],
-        );
+        const service = TransferService.createNull({
+            targetAasRepository: ServiceReachable.Yes,
+            sourceAasRepository: ServiceReachable.Yes,
+            targetSubmodelRepository: ServiceReachable.Yes,
+            sourceSubmodelRepository: ServiceReachable.Yes,
+            sourceAasEntries: [aas],
+            sourceSubmodelEntries: [nameplate, technical],
+        });
 
         const transferResult = await service.transferAasWithSubmodels(
             transferAas,
@@ -79,17 +81,17 @@ describe('TransferService: Export AAS', function () {
     });
 
     it('Cannot reach aas repository service', async function () {
-        const service = TransferService.createNull(
-            ServiceReachable.No,
-            ServiceReachable.Yes,
-            [aas],
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-            [nameplate, technical],
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-        );
+        const service = TransferService.createNull({
+            targetAasRepository: ServiceReachable.No,
+            sourceAasRepository: ServiceReachable.Yes,
+            targetSubmodelRepository: ServiceReachable.Yes,
+            sourceSubmodelRepository: ServiceReachable.Yes,
+            targetAasDiscovery: ServiceReachable.Yes,
+            targetAasRegistry: ServiceReachable.Yes,
+            targetSubmodelRegistry: ServiceReachable.Yes,
+            sourceAasEntries: [aas],
+            sourceSubmodelEntries: [nameplate, technical],
+        });
 
         const transferResult = await service.transferAasWithSubmodels(
             transferAas,
@@ -102,17 +104,17 @@ describe('TransferService: Export AAS', function () {
     });
 
     it('Cannot reach Discovery service', async function () {
-        const service = TransferService.createNull(
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-            [aas],
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-            [nameplate, technical],
-            ServiceReachable.No,
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-        );
+        const service = TransferService.createNull({
+            targetAasRepository: ServiceReachable.Yes,
+            sourceAasRepository: ServiceReachable.Yes,
+            targetSubmodelRepository: ServiceReachable.Yes,
+            sourceSubmodelRepository: ServiceReachable.Yes,
+            targetAasDiscovery: ServiceReachable.No,
+            targetAasRegistry: ServiceReachable.Yes,
+            targetSubmodelRegistry: ServiceReachable.Yes,
+            sourceAasEntries: [aas],
+            sourceSubmodelEntries: [nameplate, technical],
+        });
 
         const transferResult = await service.transferAasWithSubmodels(
             transferAas,
@@ -128,17 +130,17 @@ describe('TransferService: Export AAS', function () {
     });
 
     it('Cannot reach AAS Registry service', async function () {
-        const service = TransferService.createNull(
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-            [aas],
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-            [nameplate, technical],
-            ServiceReachable.Yes,
-            ServiceReachable.No,
-            ServiceReachable.Yes,
-        );
+        const service = TransferService.createNull({
+            targetAasRepository: ServiceReachable.Yes,
+            sourceAasRepository: ServiceReachable.Yes,
+            targetSubmodelRepository: ServiceReachable.Yes,
+            sourceSubmodelRepository: ServiceReachable.Yes,
+            targetAasDiscovery: ServiceReachable.Yes,
+            targetAasRegistry: ServiceReachable.No,
+            targetSubmodelRegistry: ServiceReachable.Yes,
+            sourceAasEntries: [aas],
+            sourceSubmodelEntries: [nameplate, technical],
+        });
 
         const transferResult = await service.transferAasWithSubmodels(
             transferAas,
@@ -154,17 +156,17 @@ describe('TransferService: Export AAS', function () {
     });
 
     it('Cannot reach submodel repository service', async function () {
-        const service = TransferService.createNull(
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-            [aas],
-            ServiceReachable.No,
-            ServiceReachable.Yes,
-            [nameplate, technical],
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-        );
+        const service = TransferService.createNull({
+            targetAasRepository: ServiceReachable.Yes,
+            sourceAasRepository: ServiceReachable.Yes,
+            targetSubmodelRepository: ServiceReachable.No,
+            sourceSubmodelRepository: ServiceReachable.Yes,
+            targetAasDiscovery: ServiceReachable.Yes,
+            targetAasRegistry: ServiceReachable.Yes,
+            targetSubmodelRegistry: ServiceReachable.Yes,
+            sourceAasEntries: [aas],
+            sourceSubmodelEntries: [nameplate, technical],
+        });
 
         const transferResult = await service.transferAasWithSubmodels(
             transferAas,
@@ -177,17 +179,17 @@ describe('TransferService: Export AAS', function () {
     });
 
     it('Not all submodels are selected for copying', async function () {
-        const service = TransferService.createNull(
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-            [aas],
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-            [nameplate, technical],
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-        );
+        const service = TransferService.createNull({
+            targetAasRepository: ServiceReachable.Yes,
+            sourceAasRepository: ServiceReachable.Yes,
+            targetSubmodelRepository: ServiceReachable.Yes,
+            sourceSubmodelRepository: ServiceReachable.Yes,
+            targetAasDiscovery: ServiceReachable.Yes,
+            targetAasRegistry: ServiceReachable.Yes,
+            targetSubmodelRegistry: ServiceReachable.Yes,
+            sourceAasEntries: [aas],
+            sourceSubmodelEntries: [nameplate, technical],
+        });
 
         await service.transferAasWithSubmodels(transferAas, [transferNameplate], 0);
 
@@ -200,17 +202,17 @@ describe('TransferService: Export AAS', function () {
     });
 
     it('No submodels are selected for copying', async function () {
-        const service = TransferService.createNull(
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-            [aas],
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-            [nameplate, technical],
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-        );
+        const service = TransferService.createNull({
+            targetAasRepository: ServiceReachable.Yes,
+            sourceAasRepository: ServiceReachable.Yes,
+            targetSubmodelRepository: ServiceReachable.Yes,
+            sourceSubmodelRepository: ServiceReachable.Yes,
+            targetAasDiscovery: ServiceReachable.Yes,
+            targetAasRegistry: ServiceReachable.Yes,
+            targetSubmodelRegistry: ServiceReachable.Yes,
+            sourceAasEntries: [aas],
+            sourceSubmodelEntries: [nameplate, technical],
+        });
 
         await service.transferAasWithSubmodels(transferAas, [], 0);
 
@@ -223,17 +225,17 @@ describe('TransferService: Export AAS', function () {
     });
 
     it('The target aas already exists in repo', async function () {
-        const service = TransferService.createNull(
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-            [aas],
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-            [nameplate, technical],
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-        );
+        const service = TransferService.createNull({
+            targetAasRepository: ServiceReachable.Yes,
+            sourceAasRepository: ServiceReachable.Yes,
+            targetSubmodelRepository: ServiceReachable.Yes,
+            sourceSubmodelRepository: ServiceReachable.Yes,
+            targetAasDiscovery: ServiceReachable.Yes,
+            targetAasRegistry: ServiceReachable.Yes,
+            targetSubmodelRegistry: ServiceReachable.Yes,
+            sourceAasEntries: [aas],
+            sourceSubmodelEntries: [nameplate, technical],
+        });
 
         await service.targetAasRepositoryClient.postAssetAdministrationShell(aas);
         const transferResult = await service.transferAasWithSubmodels(
@@ -247,17 +249,17 @@ describe('TransferService: Export AAS', function () {
     });
 
     it('The target aas already exists in registry', async function () {
-        const service = TransferService.createNull(
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-            [aas],
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-            [nameplate, technical],
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-        );
+        const service = TransferService.createNull({
+            targetAasRepository: ServiceReachable.Yes,
+            sourceAasRepository: ServiceReachable.Yes,
+            targetSubmodelRepository: ServiceReachable.Yes,
+            sourceSubmodelRepository: ServiceReachable.Yes,
+            targetAasDiscovery: ServiceReachable.Yes,
+            targetAasRegistry: ServiceReachable.Yes,
+            targetSubmodelRegistry: ServiceReachable.Yes,
+            sourceAasEntries: [aas],
+            sourceSubmodelEntries: [nameplate, technical],
+        });
 
         const shellDescriptor = createShellDescriptorFromAas(aas, service.targetSubmodelRepositoryClient?.getBaseUrl());
         await service.targetAasRegistryClient!.postAssetAdministrationShellDescriptor(shellDescriptor);
@@ -272,17 +274,17 @@ describe('TransferService: Export AAS', function () {
     });
 
     it('The target aas already exists in discovery', async function () {
-        const service = TransferService.createNull(
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-            [aas],
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-            [nameplate, technical],
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-        );
+        const service = TransferService.createNull({
+            targetAasRepository: ServiceReachable.Yes,
+            sourceAasRepository: ServiceReachable.Yes,
+            targetSubmodelRepository: ServiceReachable.Yes,
+            sourceSubmodelRepository: ServiceReachable.Yes,
+            targetAasDiscovery: ServiceReachable.Yes,
+            targetAasRegistry: ServiceReachable.Yes,
+            targetSubmodelRegistry: ServiceReachable.Yes,
+            sourceAasEntries: [aas],
+            sourceSubmodelEntries: [nameplate, technical],
+        });
 
         await service.targetAasDiscoveryClient!.linkAasIdAndAssetId(aas.id, aas.assetInformation.globalAssetId!);
         const transferResult = await service.transferAasWithSubmodels(
@@ -296,17 +298,17 @@ describe('TransferService: Export AAS', function () {
     });
 
     it('The target submodel already exists in repo', async function () {
-        const service = TransferService.createNull(
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-            [aas],
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-            [nameplate, technical],
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-        );
+        const service = TransferService.createNull({
+            targetAasRepository: ServiceReachable.Yes,
+            sourceAasRepository: ServiceReachable.Yes,
+            targetSubmodelRepository: ServiceReachable.Yes,
+            sourceSubmodelRepository: ServiceReachable.Yes,
+            targetAasDiscovery: ServiceReachable.Yes,
+            targetAasRegistry: ServiceReachable.Yes,
+            targetSubmodelRegistry: ServiceReachable.Yes,
+            sourceAasEntries: [aas],
+            sourceSubmodelEntries: [nameplate, technical],
+        });
 
         await service.targetSubmodelRepositoryClient.postSubmodel(nameplate);
         const transferResult = await service.transferAasWithSubmodels(
@@ -320,18 +322,17 @@ describe('TransferService: Export AAS', function () {
     });
 
     it('The target submodel already exists in registry', async function () {
-        // error for registry of submodel
-        const service = TransferService.createNull(
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-            [aas],
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-            [nameplate, technical],
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-            ServiceReachable.Yes,
-        );
+        const service = TransferService.createNull({
+            targetAasRepository: ServiceReachable.Yes,
+            sourceAasRepository: ServiceReachable.Yes,
+            targetSubmodelRepository: ServiceReachable.Yes,
+            sourceSubmodelRepository: ServiceReachable.Yes,
+            targetAasDiscovery: ServiceReachable.Yes,
+            targetAasRegistry: ServiceReachable.Yes,
+            targetSubmodelRegistry: ServiceReachable.Yes,
+            sourceAasEntries: [aas],
+            sourceSubmodelEntries: [nameplate, technical],
+        });
 
         const submodelDescriptor = createSubmodelDescriptorFromSubmodel(
             nameplate,
