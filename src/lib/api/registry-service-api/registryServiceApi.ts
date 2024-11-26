@@ -2,38 +2,42 @@ import { encodeBase64 } from 'lib/util/Base64Util';
 import { AssetAdministrationShellDescriptor } from 'lib/types/registryServiceTypes';
 import { IRegistryServiceApi } from 'lib/api/registry-service-api/registryServiceApiInterface';
 import {
-    INullableAasRegistryEndpointEntries,
+    AasRegistryEndpointEntryInMemory,
     RegistryServiceApiInMemory,
 } from 'lib/api/registry-service-api/registryServiceApiInMemory';
 import { AssetAdministrationShell } from '@aas-core-works/aas-core3.0-typescript/types';
 import { ApiResponseWrapper } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
+import { ServiceReachable } from 'lib/services/transfer-service/TransferService';
+import path from 'node:path';
 
 export class RegistryServiceApi implements IRegistryServiceApi {
-    baseUrl: string;
-
     constructor(
+        protected baseUrl: string = '',
         protected http: {
             fetch<T>(url: RequestInfo | URL, init?: RequestInit): Promise<ApiResponseWrapper<T>>;
         },
-        protected _baseUrl: string = '',
-    ) {
-        this.baseUrl = _baseUrl;
-    }
+    ) {}
 
     static create(
-        _baseUrl: string | undefined,
+        baseUrl: string,
         mnestixFetch: {
-            fetch<T>(url: RequestInfo, init?: RequestInit | undefined): Promise<ApiResponseWrapper<T>>;
+            fetch<T>(url: RequestInfo, init?: RequestInit): Promise<ApiResponseWrapper<T>>;
         },
     ) {
-        return new RegistryServiceApi(mnestixFetch, _baseUrl);
+        return new RegistryServiceApi(baseUrl, mnestixFetch);
     }
 
-    static createNull(options: {
-        registryShellDescriptorEntries: AssetAdministrationShellDescriptor[] | null;
-        shellsAvailableOnEndpoints: INullableAasRegistryEndpointEntries[] | null;
-    }) {
-        return new RegistryServiceApiInMemory(options);
+    static createNull(
+        baseUrl: string,
+        registryShellDescriptors: AssetAdministrationShellDescriptor[],
+        registryShellEndpoints: AasRegistryEndpointEntryInMemory[],
+        reachable: ServiceReachable = ServiceReachable.Yes,
+    ) {
+        return new RegistryServiceApiInMemory(baseUrl, registryShellDescriptors, registryShellEndpoints, reachable);
+    }
+
+    getBaseUrl(): string {
+        return this.baseUrl;
     }
 
     async getAssetAdministrationShellDescriptorById(
@@ -46,7 +50,7 @@ export class RegistryServiceApi implements IRegistryServiceApi {
             'Content-Type': 'application/json',
         };
 
-        const url = new URL(`/shell-descriptors/${b64_aasId}`, this.baseUrl);
+        const url = new URL(path.posix.join(this.baseUrl, 'shell-descriptors', b64_aasId));
 
         return this.http.fetch(url, {
             method: 'GET',
@@ -62,20 +66,12 @@ export class RegistryServiceApi implements IRegistryServiceApi {
             'Content-Type': 'application/json',
         };
 
-        const url = new URL('/shell-descriptors', this.baseUrl);
+        const url = new URL(path.posix.join(this.baseUrl, 'shell-descriptors'));
 
         return await this.http.fetch(url.toString(), {
             method: 'POST',
             headers,
             body: JSON.stringify(shellDescriptor),
-        });
-    }
-
-    async getAssetAdministrationShellFromEndpoint(
-        endpoint: URL,
-    ): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
-        return this.http.fetch(endpoint.toString(), {
-            method: 'GET',
         });
     }
 
@@ -90,12 +86,20 @@ export class RegistryServiceApi implements IRegistryServiceApi {
             'Content-Type': 'application/json',
         };
 
-        const url = new URL(`/shell-descriptors/${b64_aasId}`, this.baseUrl);
+        const url = new URL(path.posix.join(this.baseUrl, 'shell-descriptors', b64_aasId));
 
         return this.http.fetch(url, {
             method: 'PUT',
             headers,
             body: JSON.stringify(shellDescriptor),
+        });
+    }
+
+    async getAssetAdministrationShellFromEndpoint(
+        endpoint: URL,
+    ): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
+        return this.http.fetch<AssetAdministrationShell>(endpoint.toString(), {
+            method: 'GET',
         });
     }
 }

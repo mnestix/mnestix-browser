@@ -7,10 +7,12 @@ export async function transferAasWithSubmodels(transferDto: TransferDto): Promis
     const transfer = TransferService.create(
         transferDto.targetAasRepositoryBaseUrl,
         transferDto.targetSubmodelRepositoryBaseUrl,
+        transferDto.sourceAasRepositoryBaseUrl,
+        transferDto.sourceSubmodelRepositoryBaseUrl,
         transferDto.targetDiscoveryBaseUrl,
         transferDto.targetAasRegistryBaseUrl,
         transferDto.targetSubmodelRegistryBaseUrl,
-        transferDto.sourceAasRepositoryBaseUrl,
+        transferDto.apikey,
     );
-    return transfer.transferAasWithSubmodels(transferDto);
+    return transfer.transferAasWithSubmodels(transferDto.aas, transferDto.submodels);
 }

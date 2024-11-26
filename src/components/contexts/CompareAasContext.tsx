@@ -2,10 +2,12 @@
 import { createContext, PropsWithChildren, useContext, useEffect, useState } from 'react';
 import { SubmodelCompareData } from 'lib/types/SubmodelCompareData';
 import { generateSubmodelCompareData, isCompareData, isCompareDataRecord } from 'lib/util/CompareAasUtil';
-import { getSubmodelFromSubmodelDescriptor, performFullAasSearch } from 'lib/services/search-actions/searchActions';
+import {
+    getSubmodelFromSubmodelDescriptor,
+    performFullAasSearch,
+    performSubmodelFullSearch,
+} from 'lib/services/search-actions/searchActions';
 import { SubmodelDescriptor } from 'lib/types/registryServiceTypes';
-import { getSubmodelDescriptorsById } from 'lib/services/submodelRegistryApiActions';
-import { getSubmodelById } from 'lib/services/repository-access/repositorySearchActions';
 import { AasData } from 'lib/services/search-actions/AasSearcher';
 
 type CompareAasContextType = {
@@ -19,7 +21,7 @@ type CompareAasContextType = {
 type CompareAAS = {
     aas: AssetAdministrationShell;
     aasOrigin: string | null;
-}
+};
 
 const aasCompareStorage = 'aas';
 const compareDataStorage = 'compareData';
@@ -55,10 +57,10 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
      */
     const addAas = async (inputAas: AssetAdministrationShell, data: AasData) => {
         if (compareAas.length < 3) {
-            const newAas ={
+            const newAas = {
                 aas: inputAas,
-                aasOrigin: data.aasRepositoryOrigin
-            }
+                aasOrigin: data.aasRepositoryOrigin,
+            };
             setCompareAas((prevList) => [...prevList, newAas]);
             if (inputAas.submodels) {
                 const compareDataTemp = await loadSubmodelDataIntoState(
@@ -84,9 +86,9 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
             const { isSuccess, result } = await performFullAasSearch(aasId);
             if (isSuccess && result.aas) {
                 const aas = {
-                    aas: result.aas, 
-                    aasOrigin: result.aasData?.aasRepositoryOrigin ?? null
-                }
+                    aas: result.aas,
+                    aasOrigin: result.aasData?.aasRepositoryOrigin ?? null,
+                };
                 aasList.push(aas);
                 if (result.aas.submodels) {
                     compareDataTemp = await loadSubmodelDataIntoState(
@@ -145,6 +147,7 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
         submodelDescriptors?: SubmodelDescriptor[],
     ) => {
         const newCompareData: SubmodelCompareData[] = [];
+
         if (submodelDescriptors && submodelDescriptors.length > 0) {
             for (const submodelDescriptor of submodelDescriptors) {
                 const submodelResponse = await getSubmodelFromSubmodelDescriptor(
@@ -156,32 +159,15 @@ export const CompareAasContextProvider = (props: PropsWithChildren) => {
                 }
             }
         } else {
-            for (const reference of input as Reference[]) {
-                let submodelAdded = false;
-                const descriptorResponse = await getSubmodelDescriptorsById(reference.keys[0].value);
-                if (descriptorResponse.isSuccess) {
-                    const endpoint = descriptorResponse.result.endpoints[0].protocolInformation.href;
-                    const submodelResponse = await getSubmodelFromSubmodelDescriptor(endpoint);
-                    if (submodelResponse.isSuccess) {
-                        const dataRecord = generateSubmodelCompareData(submodelResponse.result);
-                        newCompareData.push(dataRecord);
-                        submodelAdded = true;
-                    }
-                } else {
-                    console.warn(
-                        `Could not be found in Submodel Registry, will continue to look in the repository. ${descriptorResponse.message}`,
-                    );
-                }
-
-                // Submodel registry is not available or submodel not found there -> search in repo
-                if (!submodelAdded) {
-                    const submodelData = await getSubmodelById(reference.keys[0].value);
-                    if (submodelData.isSuccess) {
-                        const dataRecord = generateSubmodelCompareData(submodelData.result);
+            await Promise.all(
+                input.map(async (reference) => {
+                    const { result: submodel, isSuccess: success } = await performSubmodelFullSearch(reference);
+                    if (success) {
+                        const dataRecord = generateSubmodelCompareData(submodel);
                         newCompareData.push(dataRecord);
                     }
-                }
-            }
+                }),
+            );
         }
         return addCompareData(previousCompareData, newCompareData, aasCount);
     };

@@ -15,11 +15,11 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { getTranslationText, hasSemanticId } from 'lib/util/SubmodelResolverUtil';
 import { DocumentDetailsDialog } from './DocumentDetailsDialog';
 import { isValidUrl } from 'lib/util/UrlUtil';
-import { base64ToBlob, encodeBase64 } from 'lib/util/Base64Util';
+import { encodeBase64 } from 'lib/util/Base64Util';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { getAttachmentFromSubmodelElement } from 'lib/services/repository-access/repositorySearchActions';
-import { isSuccessWithFile } from 'lib/util/apiResponseWrapper/apiResponseWrapperUtil';
 import { useAasOriginSourceState } from 'components/contexts/CurrentAasContext';
+import { mapFileDtoToBlob } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 
 enum DocumentSpecificSemanticId {
     DocumentVersion = 'https://admin-shell.io/vdi/2770/1/0/DocumentVersion',
@@ -177,15 +177,13 @@ export function DocumentComponent(props: MarkingsComponentProps) {
             const imageResponse = await getAttachmentFromSubmodelElement(
                 props.submodelId,
                 submodelElementPath,
-                aasOriginUrl,
+                aasOriginUrl ?? undefined,
             );
             if (!imageResponse.isSuccess) {
                 console.error('Image not found' + imageResponse.message);
-            } else if (isSuccessWithFile(imageResponse)) {
-                digitalFile.digitalFileUrl = URL.createObjectURL(
-                    base64ToBlob(imageResponse.result, imageResponse.fileType),
-                );
-                digitalFile.mimeType = (versionSubmodelEl as File).contentType;
+            } else {
+                const image = mapFileDtoToBlob(imageResponse.result);
+                digitalFile.digitalFileUrl = URL.createObjectURL(image);
             }
         }
 
@@ -215,12 +213,13 @@ export function DocumentComponent(props: MarkingsComponentProps) {
             const imageResponse = await getAttachmentFromSubmodelElement(
                 props.submodelId,
                 submodelElementPath,
-                aasOriginUrl,
+                aasOriginUrl ?? undefined,
             );
             if (!imageResponse.isSuccess) {
                 console.error('Image not found' + imageResponse.message);
-            } else if (isSuccessWithFile(imageResponse)) {
-                previewImgUrl = URL.createObjectURL(base64ToBlob(imageResponse.result, imageResponse.fileType));
+            } else {
+                const image = mapFileDtoToBlob(imageResponse.result);
+                previewImgUrl = URL.createObjectURL(image);
             }
         }
 

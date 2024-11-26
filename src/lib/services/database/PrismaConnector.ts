@@ -52,7 +52,7 @@ export class PrismaConnector implements IPrismaConnector {
         return new PrismaConnector();
     }
 
-    static createNull(options: { aasUrls: string[] }) {
-        return new PrismaConnectorInMemory(options.aasUrls);
+    static createNull(aasUrls: string[], submodelUrls: string[]) {
+        return new PrismaConnectorInMemory(aasUrls, submodelUrls);
     }
 }

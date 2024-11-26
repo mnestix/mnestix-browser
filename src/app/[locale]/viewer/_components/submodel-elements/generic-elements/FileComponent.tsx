@@ -7,9 +7,8 @@ import { getSanitizedHref } from 'lib/util/HrefUtil';
 import { isValidUrl } from 'lib/util/UrlUtil';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { getAttachmentFromSubmodelElement } from 'lib/services/repository-access/repositorySearchActions';
-import { base64ToBlob } from 'lib/util/Base64Util';
-import { isSuccessWithFile } from 'lib/util/apiResponseWrapper/apiResponseWrapperUtil';
 import { useAasOriginSourceState } from 'components/contexts/CurrentAasContext';
+import { mapFileDtoToBlob } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 
 const StyledFileImg = styled('img')(() => ({
     objectFit: 'contain',
@@ -37,15 +36,13 @@ export function FileComponent(props: FileComponentProps) {
                 const imageResponse = await getAttachmentFromSubmodelElement(
                     props.submodelId,
                     props.submodelElementPath,
-                    aasOriginUrl,
+                    aasOriginUrl ?? undefined,
                 );
                 if (!imageResponse.isSuccess) {
                     console.error('Image not found' + imageResponse.message);
-                } else if (isSuccessWithFile(imageResponse)) {
-                    const imageObjectURL = URL.createObjectURL(
-                        base64ToBlob(imageResponse.result, imageResponse.fileType),
-                    );
-                    setImage(imageObjectURL);
+                } else {
+                    const image = mapFileDtoToBlob(imageResponse.result);
+                    setImage(URL.createObjectURL(image));
                 }
             }
         }

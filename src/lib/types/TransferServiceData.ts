@@ -1,21 +1,26 @@
 import { AssetAdministrationShell, Submodel } from '@aas-core-works/aas-core3.0-typescript/types';
 
 export type TransferDto = {
+    aas: TransferAas;
+    submodels: TransferSubmodel[];
     targetAasRepositoryBaseUrl: string;
+    sourceAasRepositoryBaseUrl: string;
+    targetSubmodelRepositoryBaseUrl: string;
+    sourceSubmodelRepositoryBaseUrl: string;
     targetDiscoveryBaseUrl?: string;
     targetAasRegistryBaseUrl?: string;
-    targetSubmodelRepositoryBaseUrl: string;
     targetSubmodelRegistryBaseUrl?: string;
-    sourceAasRepositoryBaseUrl?: string | null;
     apikey?: string;
-    aas: AssetAdministrationShell;
-    originalAasId: string;
-    submodels: TransferSubmodel[];
 };
 
 export type TransferSubmodel = {
     originalSubmodelId: string;
     submodel: Submodel;
+};
+
+export type TransferAas = {
+    originalAasId: string;
+    aas: AssetAdministrationShell;
 };
 
 export type TransferResult = {
@@ -25,7 +30,7 @@ export type TransferResult = {
         | 'AasRegistry'
         | 'SubmodelRepository'
         | 'SubmodelRegistry'
-        | 'File transfer';
+        | 'FileTransfer';
     success: boolean;
     resourceId: string;
     error: string;

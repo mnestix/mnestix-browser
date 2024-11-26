@@ -1,75 +1,75 @@
 import { IAssetAdministrationShellRepositoryApi, ISubmodelRepositoryApi } from 'lib/api/basyx-v3/apiInterface';
 import { AssetAdministrationShell, Reference, Submodel } from '@aas-core-works/aas-core3.0-typescript/dist/types/types';
-import { safeBase64Decode, encodeBase64 } from 'lib/util/Base64Util';
 import {
     ApiResponseWrapper,
     ApiResultStatus,
     wrapErrorCode,
     wrapResponse,
+    wrapSuccess,
 } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 import { AttachmentDetails } from 'lib/types/TransferServiceData';
+import { ServiceReachable } from 'lib/services/transfer-service/TransferService';
+import { safeBase64Decode, encodeBase64 } from 'lib/util/Base64Util';
 
-export interface INullableAasRepositoryEntries {
-    repositoryUrl: string;
-    aas: AssetAdministrationShell;
-}
+const options = {
+    headers: { 'Content-type': 'application/json; charset=utf-8' },
+};
 
 export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdministrationShellRepositoryApi {
-    private shellsSavedInTheRepositories: INullableAasRepositoryEntries[] | null | undefined;
+    readonly shellsInRepository: Map<string, AssetAdministrationShell>;
 
-    constructor(options: { shellsSavedInTheRepositories: INullableAasRepositoryEntries[] | null }) {
-        this.shellsSavedInTheRepositories = options.shellsSavedInTheRepositories;
+    constructor(
+        readonly baseUrl: string,
+        shellsInRepository: AssetAdministrationShell[] = [],
+        readonly reachable: ServiceReachable = ServiceReachable.Yes,
+    ) {
+        this.shellsInRepository = new Map<string, AssetAdministrationShell>();
+        shellsInRepository.forEach((value) => this.shellsInRepository.set(encodeBase64(value.id), value));
     }
 
-    postAssetAdministrationShell(
-        _aas: AssetAdministrationShell,
+    getBaseUrl(): string {
+        return this.baseUrl;
+    }
+
+    async postAssetAdministrationShell(
+        aas: AssetAdministrationShell,
         _options?: object | undefined,
     ): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
-        throw new Error('Method not implemented.');
+        if (this.reachable !== ServiceReachable.Yes)
+            return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Service not reachable');
+        if (this.shellsInRepository.get(aas.id))
+            return wrapErrorCode(
+                ApiResultStatus.INTERNAL_SERVER_ERROR,
+                `AAS repository already has an AAS with id '${aas.id}`,
+            );
+        this.shellsInRepository.set(aas.id, aas);
+        return wrapSuccess(aas);
     }
 
     putThumbnailToShell(
         _aasId: string,
         _image: Blob,
         _fileName: string,
-        _options?: object | undefined,
-        _basePath?: string | undefined,
+        _options?: object,
     ): Promise<ApiResponseWrapper<Response>> {
         throw new Error('Method not implemented.');
     }
 
-    static getDefaultRepositoryUrl(): string {
-        return 'www.aas.default.com/repository';
-    }
-
     async getAssetAdministrationShellById(
         aasId: string,
-        _options?: object | undefined,
-        _basePath?: string | undefined,
+        _options?: object,
     ): Promise<ApiResponseWrapper<AssetAdministrationShell>> {
-        if (!this.shellsSavedInTheRepositories) return Promise.reject('no repository configuration');
-        const defaultRepositoryUrl = AssetAdministrationShellRepositoryApiInMemory.getDefaultRepositoryUrl();
-        const isSearchingInDefaultRepository = _basePath === defaultRepositoryUrl || _basePath === undefined;
-        for (const entry of this.shellsSavedInTheRepositories) {
-            if (encodeBase64(entry.aas.id) === aasId) {
-                const isInDefaultRepository = entry.repositoryUrl === defaultRepositoryUrl;
-                if (isInDefaultRepository || !isSearchingInDefaultRepository) {
-                    const response = new Response(JSON.stringify(entry.aas));
-                    return await wrapResponse<AssetAdministrationShell>(response);
-                }
-            }
+        if (this.reachable !== ServiceReachable.Yes)
+            return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Service not reachable');
+        const foundAas = this.shellsInRepository.get(aasId);
+        if (foundAas) {
+            const response = new Response(JSON.stringify(foundAas), options);
+            return await wrapResponse(response);
         }
-        const targetRepositoryKind = isSearchingInDefaultRepository ? 'default' : 'foreign';
         return Promise.resolve(
             wrapErrorCode(
                 ApiResultStatus.NOT_FOUND,
-                'no aas found in the ' +
-                    targetRepositoryKind +
-                    ' repository for aasId: ' +
-                    aasId +
-                    ', which is :' +
-                    safeBase64Decode(aasId) +
-                    ' encoded in base64',
+                `no aas found in the repository '${this.getBaseUrl()}' for aasId: '${aasId}', which is :'${safeBase64Decode(aasId)}' encoded in base64`,
             ),
         );
     }
@@ -81,58 +81,67 @@ export class AssetAdministrationShellRepositoryApiInMemory implements IAssetAdmi
         throw new Error('Method not implemented.');
     }
 
-    async getThumbnailFromShell(
-        _aasId: string,
-        _options?: object | undefined,
-        _basePath?: string | undefined,
-    ): Promise<ApiResponseWrapper<Blob>> {
+    async getThumbnailFromShell(_aasId: string, _options?: object): Promise<ApiResponseWrapper<Blob>> {
         throw new Error('Method not implemented.');
     }
 }
 
 export class SubmodelRepositoryApiInMemory implements ISubmodelRepositoryApi {
-    private submodelsSavedInTheRepository: Submodel[] | null | undefined;
+    readonly submodelsInRepository: Map<string, Submodel>;
 
-    constructor(options: { submodelsSavedInTheRepository: Submodel[] | null }) {
-        this.submodelsSavedInTheRepository = options.submodelsSavedInTheRepository;
+    constructor(
+        readonly baseUrl: string,
+        submodelsInRepository: Submodel[],
+        readonly reachable: ServiceReachable = ServiceReachable.Yes,
+    ) {
+        this.submodelsInRepository = new Map<string, Submodel>();
+        submodelsInRepository.forEach((submodel) => {
+            this.submodelsInRepository.set(submodel.id, submodel);
+        });
+    }
+
+    getBaseUrl(): string {
+        return this.baseUrl;
     }
 
     putAttachmentToSubmodelElement(
         _submodelId: string,
         _attachmentData: AttachmentDetails,
-        _options?: object | undefined,
+        _options?: object,
     ): Promise<ApiResponseWrapper<Response>> {
         throw new Error('Method not implemented.');
     }
 
-    postSubmodel(_submodel: Submodel, _options?: object | undefined): Promise<ApiResponseWrapper<Submodel>> {
-        throw new Error('Method not implemented.');
+    async postSubmodel(submodel: Submodel, _options?: object): Promise<ApiResponseWrapper<Submodel>> {
+        if (this.reachable !== ServiceReachable.Yes)
+            return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Service not reachable');
+        if (this.submodelsInRepository.has(submodel.id))
+            return wrapErrorCode(
+                ApiResultStatus.UNKNOWN_ERROR,
+                `Submodel repository '${this.getBaseUrl()}' already has a submodel '${submodel.id}'`,
+            );
+        this.submodelsInRepository.set(submodel.id, submodel);
+        return wrapSuccess(submodel);
     }
 
-    async getSubmodelById(
-        submodelId: string,
-        _options?: object | undefined,
-        _basePath?: string | undefined,
-    ): Promise<ApiResponseWrapper<Submodel>> {
-        if (!this.submodelsSavedInTheRepository) return Promise.reject('no repository configuration');
-        for (const submodel of this.submodelsSavedInTheRepository) {
-            if (encodeBase64(submodel.id) === submodelId) {
-                const response = new Response(JSON.stringify(submodel));
-                return await wrapResponse<Submodel>(response);
-            }
+    async getSubmodelById(submodelId: string, _options?: object): Promise<ApiResponseWrapper<Submodel>> {
+        if (this.reachable !== ServiceReachable.Yes)
+            return wrapErrorCode(ApiResultStatus.UNKNOWN_ERROR, 'Service not reachable');
+        const foundAas = this.submodelsInRepository.get(submodelId);
+        if (foundAas) {
+            const response = new Response(JSON.stringify(foundAas), options);
+            return wrapResponse(response);
         }
-        return Promise.resolve(
-            wrapErrorCode(
-                ApiResultStatus.NOT_FOUND,
-                'no submodel found in the default repository for submodelId: ' + submodelId,
-            ),
+        return wrapErrorCode(
+            ApiResultStatus.NOT_FOUND,
+            `no submodel found in the repository: '${this.baseUrl}' for submodel: '${submodelId}'`,
         );
     }
 
     async getAttachmentFromSubmodelElement(
         _submodelId: string,
         _submodelElementPath: string,
-        _options?: object | undefined,
+        _options?: object,
     ): Promise<ApiResponseWrapper<Blob>> {
         throw new Error('Method not implemented.');
     }

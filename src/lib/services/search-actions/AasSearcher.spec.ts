@@ -5,11 +5,6 @@ import { instance, mock } from 'ts-mockito';
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { Log } from 'lib/util/Log';
 import { AasSearcher } from 'lib/services/search-actions/AasSearcher';
-import { AssetAdministrationShellRepositoryApiInMemory } from 'lib/api/basyx-v3/apiInMemory';
-
-interface DummyAasParameters {
-    id?: string;
-}
 
 const AAS_ENDPOINT = new URL('https://www.origin.com/route/for/aas/');
 
@@ -19,7 +14,10 @@ describe('Full Aas Search happy paths', () => {
         const log = Log.createNull();
         const tracker = log.getTracker();
         const searcher = AasSearcher.createNull({
-            discoveryEntries: [{ assetId: searchString, aasIds: ['first found aasId 0', 'second found aasId 1'] }],
+            discoveryEntries: [
+                { assetId: searchString, aasId: 'first found aasId 0' },
+                { assetId: searchString, aasId: 'second found aasId 1' },
+            ],
             log: log,
         });
 
@@ -33,11 +31,11 @@ describe('Full Aas Search happy paths', () => {
     it('returns details of aas when exactly one aasId for a given assetId and it is registered in the registry', async () => {
         const aasId = 'dummy aasId';
         const searchString = 'irrelevant assetId';
-        const aas = createDummyAas({ id: aasId });
+        const aas = createDummyAas(aasId);
         const searcher = AasSearcher.createNull({
-            discoveryEntries: [{ assetId: searchString, aasIds: [aasId] }],
-            registryShellDescriptorEntries: [createDummyShellDescriptor(AAS_ENDPOINT, aasId)],
-            shellsAvailableOnRegistryEndpoints: [{ endpoint: AAS_ENDPOINT, aas: aas }],
+            discoveryEntries: [{ assetId: searchString, aasId: aasId }],
+            aasRegistryDescriptors: [createDummyShellDescriptor(AAS_ENDPOINT, aasId)],
+            aasRegistryEndpoints: [{ endpoint: AAS_ENDPOINT, aas: aas }],
         });
 
         const search = await searcher.performFullSearch(searchString);
@@ -50,15 +48,11 @@ describe('Full Aas Search happy paths', () => {
     it('returns details of aas when exactly one aasId for a given assetId and it is not registered in the registry but saved in default repository', async () => {
         const aasId = 'dummy aasId';
         const searchString = 'irrelevant assetId';
-        const aas = createDummyAas({ id: aasId });
+        const testUrl = 'https://testrepo.com';
+        const aas = createDummyAas(aasId);
         const searcher = AasSearcher.createNull({
-            discoveryEntries: [{ assetId: searchString, aasIds: [aasId] }],
-            shellsSavedInTheRepositories: [
-                {
-                    aas: aas,
-                    repositoryUrl: AssetAdministrationShellRepositoryApiInMemory.getDefaultRepositoryUrl(),
-                },
-            ],
+            discoveryEntries: [{ assetId: searchString, aasId: aasId }],
+            aasInRepositories: [{ searchResult: aas, location: testUrl }],
         });
 
         const search = await searcher.performFullSearch(searchString);
@@ -71,10 +65,10 @@ describe('Full Aas Search happy paths', () => {
     it('returns details of aas when discovery returns nothing and the aas is registered in the registry', async () => {
         const aasId = 'dummy aasId';
         const searchString = aasId;
-        const aas = createDummyAas({ id: aasId });
+        const aas = createDummyAas(aasId);
         const searcher = AasSearcher.createNull({
-            registryShellDescriptorEntries: [createDummyShellDescriptor(AAS_ENDPOINT, aasId)],
-            shellsAvailableOnRegistryEndpoints: [{ endpoint: AAS_ENDPOINT, aas: aas }],
+            aasRegistryDescriptors: [createDummyShellDescriptor(AAS_ENDPOINT, aasId)],
+            aasRegistryEndpoints: [{ endpoint: AAS_ENDPOINT, aas: aas }],
         });
 
         const search = await searcher.performFullSearch(searchString);
@@ -87,14 +81,10 @@ describe('Full Aas Search happy paths', () => {
     it('returns aas for given aasId from default repository', async () => {
         const aasId = 'dummy aasId';
         const searchString = aasId;
-        const aas = createDummyAas({ id: aasId });
+        const testUrl = 'https://testrepo.com';
+        const aas = createDummyAas(aasId);
         const searcher = AasSearcher.createNull({
-            shellsSavedInTheRepositories: [
-                {
-                    aas: aas,
-                    repositoryUrl: AssetAdministrationShellRepositoryApiInMemory.getDefaultRepositoryUrl(),
-                },
-            ],
+            aasInRepositories: [{ searchResult: aas, location: testUrl }],
         });
 
         const search = await searcher.performFullSearch(searchString);
@@ -107,14 +97,10 @@ describe('Full Aas Search happy paths', () => {
     it('returns aas for given aasId from foreign repository if only one found', async () => {
         const aasId = 'dummy aasId';
         const searchString = aasId;
-        const aas = createDummyAas({ id: aasId });
+        const testUrl = 'https://testrepo.com';
+        const aas = createDummyAas(aasId);
         const searcher = AasSearcher.createNull({
-            shellsSavedInTheRepositories: [
-                {
-                    aas: aas,
-                    repositoryUrl: 'www.aas.foreign.cz/repository',
-                },
-            ],
+            aasInRepositories: [{ searchResult: aas, location: testUrl }],
         });
 
         const search = await searcher.performFullSearch(searchString);
@@ -127,18 +113,10 @@ describe('Full Aas Search happy paths', () => {
     it('returns aas for given aasId from foreign repository if two are found', async () => {
         const aasId = 'dummy aasId';
         const searchString = aasId;
-        const firstEntryWithSameIdButComingFromRepositoryOne = {
-            aas: createDummyAas({ id: aasId }),
-            repositoryUrl: 'www.aas.foreign.cz/repository',
-        };
-        const secondEntryWithSameIdButComingFromRepositoryTwo = {
-            aas: createDummyAas({ id: aasId }),
-            repositoryUrl: 'www.aas.another-foreign.uk/repository',
-        };
         const searcher = AasSearcher.createNull({
-            shellsSavedInTheRepositories: [
-                firstEntryWithSameIdButComingFromRepositoryOne,
-                secondEntryWithSameIdButComingFromRepositoryTwo,
+            aasInRepositories: [
+                { searchResult: createDummyAas(aasId), location: 'https://testrepo1.com' },
+                { searchResult: createDummyAas(aasId), location: 'https://testrepo2.com' },
             ],
         });
 
@@ -165,12 +143,12 @@ describe('Full Aas Search edge cases', () => {
         const aasId = 'irrelevantAasId';
         const log = Log.createNull();
         const searcher = AasSearcher.createNull({
-            discoveryEntries: [{ assetId: searchString, aasIds: [aasId] }],
-            registryShellDescriptorEntries: [createDummyShellDescriptor(AAS_ENDPOINT, aasId)],
-            shellsAvailableOnRegistryEndpoints: [
+            discoveryEntries: [{ assetId: searchString, aasId: aasId }],
+            aasRegistryDescriptors: [createDummyShellDescriptor(AAS_ENDPOINT, aasId)],
+            aasInRepositories: [
                 {
-                    endpoint: new URL(AAS_ENDPOINT + 'wrong path'),
-                    aas: createDummyAas({ id: aasId }),
+                    searchResult: createDummyAas(aasId),
+                    location: AAS_ENDPOINT + 'wrong path',
                 },
             ],
             log: log,
@@ -184,12 +162,12 @@ describe('Full Aas Search edge cases', () => {
         const aasId = 'irrelevantAasId';
         const log = Log.createNull();
         const searcher = AasSearcher.createNull({
-            discoveryEntries: [{ assetId: 'wrong asset Id', aasIds: [aasId] }],
-            registryShellDescriptorEntries: [createDummyShellDescriptor(AAS_ENDPOINT, aasId)],
-            shellsAvailableOnRegistryEndpoints: [
+            discoveryEntries: [{ assetId: 'wrong asset Id', aasId: aasId }],
+            aasRegistryDescriptors: [createDummyShellDescriptor(AAS_ENDPOINT, aasId)],
+            aasInRepositories: [
                 {
-                    endpoint: new URL(AAS_ENDPOINT + 'wrong path'),
-                    aas: createDummyAas({ id: aasId }),
+                    searchResult: createDummyAas(aasId),
+                    location: AAS_ENDPOINT + 'wrong path',
                 },
             ],
             log: log,
@@ -200,7 +178,7 @@ describe('Full Aas Search edge cases', () => {
 });
 
 // would prefer to do without mocks but the objects are too complicated to instantiate
-function createDummyAas({ id = 'irrelevant AasId' }: DummyAasParameters = {}) {
+function createDummyAas(id: string = 'irrelevant AasId') {
     const aas = mock(AssetAdministrationShell);
     const s = instance(aas);
     s.id = id;

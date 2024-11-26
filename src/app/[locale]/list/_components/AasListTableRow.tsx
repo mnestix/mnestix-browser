@@ -4,7 +4,7 @@ import { messages } from 'lib/i18n/localization';
 import { getProductClassId } from 'lib/util/ProductClassResolverUtil';
 import LabelOffIcon from '@mui/icons-material/LabelOff';
 import { AasListEntry } from 'lib/api/generated-api/clients.g';
-import { base64ToBlob, encodeBase64 } from 'lib/util/Base64Util';
+import { encodeBase64 } from 'lib/util/Base64Util';
 import { useRouter } from 'next/navigation';
 import { useAasOriginSourceState, useAasState } from 'components/contexts/CurrentAasContext';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
@@ -18,7 +18,8 @@ import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
 import { getThumbnailFromShell } from 'lib/services/repository-access/repositorySearchActions';
 import { isValidUrl } from 'lib/util/UrlUtil';
 import { useState } from 'react';
-import { isSuccessWithFile } from 'lib/util/apiResponseWrapper/apiResponseWrapperUtil';
+import { mapFileDtoToBlob } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
+import { useEnv } from 'app/env/provider';
 
 type AasTableRowProps = {
     aasListEntry: AasListEntry;
@@ -46,6 +47,7 @@ export const AasListTableRow = (props: AasTableRowProps) => {
         setAasOriginUrl(null);
         if (listEntry.aasId) navigate.push(`/viewer/${encodeBase64(listEntry.aasId)}`);
     };
+    const env = useEnv();
 
     const translateListText = (property: { [key: string]: string } | undefined) => {
         if (!property) return '';
@@ -55,10 +57,11 @@ export const AasListTableRow = (props: AasTableRowProps) => {
     useAsyncEffect(async () => {
         if (isValidUrl(aasListEntry.thumbnailUrl ?? '')) {
             setThumbnailUrl(aasListEntry.thumbnailUrl ?? '');
-        } else if (aasListEntry.aasId) {
-            const response = await getThumbnailFromShell(aasListEntry.aasId);
-            if (isSuccessWithFile(response)) {
-                const blobUrl = URL.createObjectURL(base64ToBlob(response.result, response.fileType));
+        } else if (aasListEntry.aasId && env.AAS_REPO_API_URL) {
+            const response = await getThumbnailFromShell(aasListEntry.aasId, env.AAS_REPO_API_URL);
+            if (response.isSuccess) {
+                const blob = mapFileDtoToBlob(response.result);
+                const blobUrl = URL.createObjectURL(blob);
                 setThumbnailUrl(blobUrl);
             }
         }

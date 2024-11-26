@@ -14,7 +14,7 @@ const StyledImage = styled('img')<StyledImageProps>(({ size }) => ({
 }));
 
 type StyledImageWithFallBackProps = {
-    src: string | undefined;
+    src: string;
     alt: string;
     size: number;
     onClickHandler?: () => void;

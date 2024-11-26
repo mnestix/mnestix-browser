@@ -1,22 +1,11 @@
-import {
-    Box,
-    DialogActions,
-    Divider,
-    FormControl,
-    MenuItem,
-    Skeleton,
-    TextField,
-    Typography
-} from '@mui/material';
+import { Box, DialogActions, Divider, FormControl, MenuItem, Skeleton, TextField, Typography } from '@mui/material';
 import { messages } from 'lib/i18n/localization';
 import { FormattedMessage, useIntl } from 'react-intl';
-import {
-    getConnectionDataByTypeAction
-} from 'lib/services/database/connectionServerActions';
+import { getConnectionDataByTypeAction } from 'lib/services/database/connectionServerActions';
 import { useNotificationSpawner } from 'lib/hooks/UseNotificationSpawner';
 import { Fragment, useState } from 'react';
 import { useAsyncEffect } from 'lib/hooks/UseAsyncEffect';
-import { ConnectionTypeEnum } from 'lib/services/database/ConnectionTypeEnum';
+import { ConnectionTypeEnum, getTypeAction } from 'lib/services/database/ConnectionTypeEnum';
 import { Controller, useForm } from 'react-hook-form';
 import { LoadingButton } from '@mui/lab';
 import { useEnv } from 'app/env/provider';
@@ -43,10 +32,10 @@ export function TargetRepositories(props: TargetRepositoryProps) {
     useAsyncEffect(async () => {
         try {
             setIsLoading(true);
-            const aasRepositories = await getConnectionDataByTypeAction({ id: '0', typeName: ConnectionTypeEnum.AAS_REPOSITORY });
+            const aasRepositories = await getConnectionDataByTypeAction(getTypeAction(ConnectionTypeEnum.AAS_REPOSITORY));
             if(env.AAS_REPO_API_URL) aasRepositories.push(env.AAS_REPO_API_URL)
             setAasRepositories(aasRepositories);
-            const submodelRepositories = await getConnectionDataByTypeAction({ id: '2', typeName: ConnectionTypeEnum.SUBMODEL_REPOSITORY });
+            const submodelRepositories = await getConnectionDataByTypeAction(getTypeAction(ConnectionTypeEnum.SUBMODEL_REPOSITORY));
             if(env.SUBMODEL_REPO_API_URL) submodelRepositories.push(env.SUBMODEL_REPO_API_URL)
             setSubmodelRepositories(submodelRepositories);
         } catch(error) {

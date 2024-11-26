@@ -1,42 +1,61 @@
 import { encodeBase64 } from 'lib/util/Base64Util';
 import { DiscoveryEntry, IDiscoveryServiceApi } from 'lib/api/discovery-service-api/discoveryServiceApiInterface';
 import { DiscoveryServiceApiInMemory } from 'lib/api/discovery-service-api/discoveryServiceApiInMemory';
-import { ApiResponseWrapper } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
+import { ApiResponseWrapper, wrapErrorCode, wrapSuccess } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
+import { ServiceReachable } from 'lib/services/transfer-service/TransferService';
+import { SpecificAssetId } from '@aas-core-works/aas-core3.0-typescript/types';
+import * as path from 'node:path';
+
+type DiscoveryEntryResponse = {
+    paging_metadata: object;
+    result: string[];
+};
 
 export class DiscoveryServiceApi implements IDiscoveryServiceApi {
-    baseUrl: string;
-
     private constructor(
-        protected _baseUrl: string = '',
+        protected baseUrl: string,
         protected http: {
             fetch<T>(url: RequestInfo, init?: RequestInit): Promise<ApiResponseWrapper<T>>;
         },
-    ) {
-        this.baseUrl = _baseUrl;
-    }
+    ) {}
 
     static create(
-        _baseUrl: string = '',
+        baseUrl: string,
         http: {
             fetch<T>(url: RequestInfo, init?: RequestInit): Promise<ApiResponseWrapper<T>>;
         },
     ): DiscoveryServiceApi {
-        return new DiscoveryServiceApi(_baseUrl, http);
+        return new DiscoveryServiceApi(baseUrl, http);
     }
 
-    static createNull(options: {
-        discoveryEntries: { assetId: string; aasIds: string[] }[];
-    }): DiscoveryServiceApiInMemory {
-        return new DiscoveryServiceApiInMemory(options);
+    static createNull(
+        baseUrl: string,
+        discoveryEntries: { assetId: string; aasId: string }[],
+        reachable: ServiceReachable = ServiceReachable.Yes,
+    ): DiscoveryServiceApiInMemory {
+        return new DiscoveryServiceApiInMemory(baseUrl, discoveryEntries, reachable);
     }
 
-    async linkAasIdAndAssetId(aasId: string, assetId: string) {
-        return this.postAllAssetLinksById(aasId, [
-            {
-                name: 'globalAssetId',
-                value: assetId,
-            },
-        ]);
+    getBaseUrl(): string {
+        return this.baseUrl;
+    }
+
+    async linkAasIdAndAssetId(
+        aasId: string,
+        assetId: string,
+        apikey?: string,
+    ): Promise<ApiResponseWrapper<DiscoveryEntry>> {
+        const assetLink = {
+            name: 'globalAssetId',
+            value: assetId,
+        } as SpecificAssetId;
+        const options = apikey ? { ApiKey: apikey } : undefined;
+        const response = await this.postAllAssetLinksById(aasId, assetLink, options);
+        if (!response.isSuccess) return wrapErrorCode(response.errorCode, response.message);
+        return wrapSuccess({
+            aasId: aasId,
+            asset: response.result,
+        });
     }
 
     async getAasIdsByAssetId(assetId: string) {
@@ -44,53 +63,48 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
             {
                 name: 'globalAssetId',
                 value: assetId,
-            },
+            } as SpecificAssetId,
         ]);
     }
 
-    async deleteAllAssetLinksById(aasId: string): Promise<ApiResponseWrapper<void>> {
-        const b64_aasId = encodeBase64(aasId);
-
-        const headers = {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-        };
-
-        return this.http.fetch(`${this.baseUrl}/lookup/shells/${b64_aasId}`, {
-            method: 'DELETE',
-            headers,
-        });
-    }
-
     async getAllAssetAdministrationShellIdsByAssetLink(
-        assetIds: { name: string; value: string }[],
-    ): Promise<ApiResponseWrapper<{ paging_metadata: string; result: string[] }>> {
+        assetIds: SpecificAssetId[],
+        options?: object,
+    ): Promise<ApiResponseWrapper<string[]>> {
         const headers = {
             Accept: 'application/json',
             'Content-Type': 'application/json',
+            ...options,
         };
 
-        const url = new URL(`${this.baseUrl}/lookup/shells`);
+        const url = new URL(path.posix.join(this.baseUrl, 'lookup/shells'));
 
         assetIds.forEach((obj) => {
             url.searchParams.append('assetIds', encodeBase64(JSON.stringify(obj)));
         });
 
-        return this.http.fetch(url.toString(), {
+        const response = await this.http.fetch<DiscoveryEntryResponse>(url.toString(), {
             method: 'GET',
             headers,
         });
+        
+        if (!response.isSuccess)
+            return wrapErrorCode(response.errorCode, response.message);
+        
+        return wrapSuccess(response.result.result);
     }
 
-    async getAllAssetLinksById(aasId: string): Promise<ApiResponseWrapper<DiscoveryEntry[]>> {
+    async getAllAssetLinksById(aasId: string, options?: object): Promise<ApiResponseWrapper<SpecificAssetId[]>> {
         const b64_aasId = encodeBase64(aasId);
 
         const headers = {
             Accept: 'application/json',
             'Content-Type': 'application/json',
+            ...options,
         };
 
-        return this.http.fetch(`${this.baseUrl}/lookup/shells/${b64_aasId}`, {
+        const url = path.posix.join(this.baseUrl, 'lookup/shells', b64_aasId);
+        return this.http.fetch<SpecificAssetId[]>(url, {
             method: 'GET',
             headers,
         });
@@ -98,21 +112,38 @@ export class DiscoveryServiceApi implements IDiscoveryServiceApi {
 
     async postAllAssetLinksById(
         aasId: string,
-        assetLinks: DiscoveryEntry[],
-        apiKey?: string,
-    ): Promise<ApiResponseWrapper<DiscoveryEntry[]>> {
+        assetLinks: SpecificAssetId, // this is NOT a list in the specification
+        options?: object,
+    ): Promise<ApiResponseWrapper<SpecificAssetId>> {
         const b64_aasId = encodeBase64(aasId);
 
         const headers = {
             Accept: 'application/json',
             'Content-Type': 'application/json',
-            ...(apiKey && { ApiKey: apiKey }),
+            ...options,
         };
 
-        return this.http.fetch(`${this.baseUrl}/lookup/shells/${b64_aasId}`, {
+        const url = path.posix.join(this.baseUrl, 'lookup/shells', b64_aasId);
+        return this.http.fetch<SpecificAssetId>(url, {
             method: 'POST',
             headers,
             body: JSON.stringify(assetLinks),
+        });
+    }
+
+    async deleteAllAssetLinksById(aasId: string, options?: object): Promise<ApiResponseWrapper<void>> {
+        const b64_aasId = encodeBase64(aasId);
+
+        const headers = {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            ...options,
+        };
+
+        const url = path.posix.join(this.baseUrl, 'lookup/shells', b64_aasId);
+        return this.http.fetch(url, {
+            method: 'DELETE',
+            headers,
         });
     }
 }

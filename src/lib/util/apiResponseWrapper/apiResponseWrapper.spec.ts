@@ -7,9 +7,13 @@ import {
 } from 'lib/util/apiResponseWrapper/apiResponseWrapper';
 import { expect } from '@jest/globals';
 
+const options = {
+    headers: { 'Content-type': 'application/json; charset=utf-8' },
+};
+
 describe('', () => {
     it('transforms the http code to a success code', async () => {
-        const response = new Response(JSON.stringify('dummy value'));
+        const response = new Response(JSON.stringify('dummy value'), options);
         const successfulResponseWrapper = await wrapResponse(response);
         expect(successfulResponseWrapper.isSuccess).toBe(true);
         if (!successfulResponseWrapper.isSuccess) {
@@ -29,7 +33,7 @@ describe('', () => {
 
     it('return data on success even when not defined in code', async () => {
         const data = { name: 'John', age: 42 };
-        const response = new Response(JSON.stringify(data), { status: 201 });
+        const response = new Response(JSON.stringify(data), { status: 201, ...options });
         const responseWrapper = await wrapResponse(response);
 
         expect(responseWrapper.isSuccess).toBe(true);
@@ -39,8 +43,8 @@ describe('', () => {
     });
 
     it('return failure even when undefined code', async () => {
-        const userErrorResponse = await wrapResponse(new Response('{}', { status: 402 }));
-        const serverErrorResponse = await wrapResponse(new Response('{}', { status: 502 }));
+        const userErrorResponse = await wrapResponse(new Response('{}', { status: 402, ...options }));
+        const serverErrorResponse = await wrapResponse(new Response('{}', { status: 502, ...options }));
 
         expect(userErrorResponse.isSuccess).toBe(false);
         expect((userErrorResponse as ApiResponseWrapperError<unknown>).errorCode).toBe(ApiResultStatus.UNKNOWN_ERROR);
