@@ -1,5 +1,5 @@
 > [!CAUTION]
-> # **We moved... Please visit: [Eclipse Mnestix Browser](https://github.com/eclipse-mnestix/mnestix-browser)**
+> # **We moved to a new Eclipse Repository... Please visit: [Eclipse Mnestix Browser](https://github.com/eclipse-mnestix/mnestix-browser)**
 
 <p align="right">
   <picture>
